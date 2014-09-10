@@ -2,7 +2,8 @@
   "name": "react-rails",
   "version": "0.0.0",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
-  "main": "index.js",
+  "main": "main.js",
+  "browser": "browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
