@@ -1,8 +1,9 @@
 {
   "name": "react-rails",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
-  "main": "index.js",
+  "main": "dist/server.js",
+  "browser": "dist/client.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,10 +22,32 @@
   "author": "Elie Rotenberg <elie@rotenberg.io>",
   "license": "MIT",
   "dependencies": {
+    "autoprefixer-core": "^3.1.0",
+    "bluebird": "^2.3.2",
+    "body-parser": "^1.8.3",
+    "change-case": "^2.1.5",
+    "cheerio": "^0.17.0",
+    "clean-css": "^2.2.16",
+    "co": "^3.1.0",
+    "css-parse": "^2.0.0",
+    "css-selector-parser": "^1.0.3",
+    "d3": "^3.4.11",
+    "envify": "^3.0.0",
+    "grunt-contrib-jst": "^0.6.0",
+    "grunt-regenerator": "^1.1.0",
+    "grunt-smash": "^0.1.0",
+    "locale": "0.0.17",
+    "lodash": "^2.4.1",
     "raf": "^2.0.3",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
-    "sha256": "^0.1.1"
+    "react-query": "0.0.10",
+    "request": "^2.42.0",
+    "setimmediate": "^1.0.2",
+    "sha256": "^0.1.1",
+    "socket.io": "^1.1.0",
+    "socket.io-client": "^1.1.0",
+    "verror": "^1.4.0"
   },
   "devDependencies": {
     "browserify": "^5.11.1",

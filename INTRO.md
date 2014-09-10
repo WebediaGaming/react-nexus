@@ -1,0 +1,102 @@
+React on Rails - Introduction
+=============================
+
+### Real world WebApps, the React Way
+
+
+
+Facebook's mindblowing library, React, brings us a neat, clean, and fast implementation of the View layer
+of a WebApp. However, its mindblowing core principle, using a Virtual DOM in immediate mode instead of manipulating the Real DOM,
+makes nearly every single UI-oriented JS lib obsolete. You can wrap them in special, container components, but
+you can do way better than that: you can port their features and hacks directly into React.
+React on Rails ports many of the core features you need to build a real-world UI, providing you with a clean, idiomatic implementation
+the React Way.
+
+| Feature                 | Example Vanilla implementation           | React on Rails implementation          |
+|-------------------------|------------------------------------------|----------------------------------------|
+| Animation               | Velocity JS                              | R.Animate                              |
+| CSS Vendor-prefixing    | autoprefixer                             | R.Style                                |
+| Other CSS processors    | cssmin, LESS, SASS...                    | R.Style + CommonJS                     |
+| Trees manipulation      | jQuery                                   | R.Query                                |
+| Local data binding      | Backbone.Model + events                  | R.Flux.Store.MemoryStore               |
+| Local events handlers   | Backbone.Events                          | R.Flux.EventEmitter.MemoryEventEmitter |
+| Local controller        | Backbone.Events + boilerplate            | R.Flux.Dispatcher                      |
+| Remote data binding     | XHR + socket.io + boilerplate            | R.Flux.Store.UplinkStore               |
+| Remote events handlers  | socket.io + boilerplate                  | R.Flux.EventEmitter.UplinkEventEmitter |
+| Remote controller       | socket.io + boilerplate                  | R.Flux.Dispatcher                      |
+| Internationalization    | boilerplate                              | R.Localize                             |
+| Routing                 | Backbone.Router/express/routes           | R.Router                               |
+| History/pushState       | Backbone.History/express/routes          | R.History                              |
+| SEO/mobile prerendering | React.renderComponentToString, SYNC ONLY | R.App.renderToStringInServer           |
+| Complex data fetching   | Spaghetti/PHP                            | R.App.renderToStringInServer           |
+| Your own feature        | Your own implementation                  | R.App.Plugin                           |
+
+React on Rails comes with many more, but in addition, it provides a rock-solid framework to idiomaticly implement application-wide features
+using its very simple plugin system, because more often that not, mixin-level or component-level integration just isn't enough.
+Examples of plugins include:
+- Integration with third-party asynchonous SDKs (Facebook, YouTube, ...)
+- Integration with polyfills (screenfull, localforage, ...)
+
+
+### Flux, the side-effect free global state
+
+React on Rails implements the now-famous Flux pattern, but unlike naive implementations, its ambition is grand: encapsulate all transient
+app state, such that relative to its flux, the whole app is free from side effects. This means that, if the flux can be serialized, then
+the whole app and its state can be serialized and passed over the wire.
+This is how we achieve easy pre-rendering.
+
+In React on Rails, the flux includes:
+- Zero, one or more Stores, that expose a read-only get and subscribe interface to components. Whenever a value in the store is updated,
+changes are reflected in all the components that depend on it.
+- Zero, one or more EventEmitters. Very much like Stores, except sometimes its just easier to respond to events.
+- Zero, one or more Dispatchers, that expose a write-only dispatch interface to components.
+
+Flux is merely an API contract, and can in practice abstract a wide variety of backends.
+
+This includes:
+
+- Memory backend. Stores are just plain Objects in memory. Thats how Flux is usually implemented.
+- LocalStorage/SessionStorage backend. Stores reflect the state of localStorage/sessionStorage.
+- Remote server backend. Stores are populated with HTTP GET requests, Dispatchers perform HTTP POST requests, and update notifications are propagated via WebSockets (socket.io).
+
+In React on Rails, the remote backend comes bundled as Uplink, a very simple implementation of the HTTP GET/POST + socket.io updates pattern.
+See the detailled Docs for more info.
+You can of course easily implement your own backend, since Stores, Dispatchers and EventEmitters are just an API contract.
+
+### First-class server-side pre-rendering
+
+A very hard problem has plagued the real-world deployment of JS-heavy single-page-apps for years: since markup is generated by the client, how do you
+ship a fully-generated HTML version of a page?
+This problem is ofren related to two usages: SEO (delivering a complete HTML page to a JS-unfriendly spider), and Mobile performance (minimize time to first frame on mobiles).
+
+Fake client bootstrapping (jsdom/phantomJS/selenium web driver) work nice in prototypes, but are unrealistic in real-world apps. Its just _too_ _damn_ _slow_.
+React comes with renderComponentToString, however, it has a _huge_ caveat: it is fully synchronous, and you have to make sure all data dependencies are met before your render.
+In practice, if a component initializes itself with say, an XHR, then renderComponentToString simply won't work. To make it work, you have to write your entire data logic twice: once in your components,
+and once in your data-prefetcher scripts.
+
+React on Rails solves this issue by streamling the injection of asynchronous dependencies and cleverly unwinding them at pre-rendering time. Write your asynchronous logic once, get pre-rendering and auto-updates for free. Yup.
+
+React on Rails also enforces fully-isomorphic paradigm: unless explicitly guarded by non-isomorphic directives, every single line of code should make sense whether it is executed in a browser or in Node.
+
+
+### Batteries included
+
+React on Rails aims to provide both a framework and a set of included tools to make creating production-level WebApps easier than ever.
+In addition to the aforementioned features, React on Rails comes with the following plugins:
+- R.Fullscreen: Fullscreen state, events, and manipulation.
+- R.Window: Window state, events, and manipulation (scrolling, etc).
+- R.XWindow: Cross-window messages (send and receive) over window.postMessage.
+- R.Cordova: Support for the Cordova API.
+
+You have a great plugin you think everyone could enjoy? PR!
+
+
+### Full-JS extremism and JS-of-the-future supported
+
+While adopting this way of coding is entirely up to you, React on Rails fully supports writing your entire application in JS, including:
+- Logic (duh), both on the client and the server
+- Markup, using JSX and templates
+- But also styling, including static stylesheets (not restricted to inline style in components)
+
+In addition, most asynchronous APIs return thunks, making it really straightfoward to integrate with `co` and `regenerator`.
+Generators are cool. Use them.
