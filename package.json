@@ -1,0 +1,37 @@
+{
+  "name": "react-rails",
+  "version": "0.0.0",
+  "description": "Opinionated React extensions for Real-World Production-Level Applications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://git@bitbucket.org:elierotenberg/react-rails.git"
+  },
+  "keywords": [
+    "react",
+    "rails",
+    "prerender",
+    "animation",
+    "application",
+    "router"
+  ],
+  "author": "Elie Rotenberg <elie@rotenberg.io>",
+  "license": "MIT",
+  "dependencies": {
+    "raf": "^2.0.3",
+    "react-animate": "^0.1.5",
+    "react-css": "0.0.2",
+    "sha256": "^0.1.1"
+  },
+  "devDependencies": {
+    "browserify": "^5.11.1",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.0.1",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-less": "^0.11.4",
+    "grunt-react": "^0.9.0"
+  }
+}
