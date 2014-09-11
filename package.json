@@ -22,9 +22,13 @@
   "author": "Elie Rotenberg <elie@rotenberg.io>",
   "license": "MIT",
   "dependencies": {
+    "co": "^3.1.0",
+    "css-selector-parser": "^1.0.3",
+    "envify": "^3.0.0",
     "raf": "^2.0.3",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
+    "react-query": "0.0.10",
     "sha256": "^0.1.1"
   },
   "devDependencies": {
