@@ -10,6 +10,7 @@ var Dispatcher = function Dispatcher(displayName) {
 };
 
 _.extend(Dispatcher.prototype, /** @lends R.Dispatcher.prototype */{
+    _isDispatcher_: true,
     displayName: null,
     _actionsListeners: null,
     addActionListener: function addActionListener(action, fn) {

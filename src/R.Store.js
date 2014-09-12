@@ -27,6 +27,7 @@ var Store = {
             assert(_.has(specs, "get") && _.isFunction("get"), "R.Store.createStore(...): requires get(Function(String): *).");
             assert(_.has(specs, "sub") && _.isFunction("sub"), "R.Store.createStore(...): requires sub(Function(String, Function): R.Store.Subscription).");
             assert(_.has(specs, "unsub") && _.isFunction("unsub"), "R.Store.createStore(...): requires unsub(Function(R.Store.Subscription).");
+            assert(_.has(specs, "destroy") && _.isFunction("destroy"), "R.Store.createStore(...): requires destroy().");
         });
         /**
          * @class
@@ -61,13 +62,19 @@ var Store = {
      * @implements {R.Store}
      */
     MemoryStore: function MemoryStore() {
+        var _destroyed = false;
         var data = {};
         var subscribers = {};
         var get = function get(key) {
             return function(fn) {
-                _.defer(function() {
-                    fn(data[key]);
-                });
+                if(!_destroyed) {
+                    _.defer(function() {
+                        if(!_destroyed) {
+                            fn(data[key]);
+                        }
+                    });
+
+                }
             };
         };
         var signalUpdate = function signalUpdate(key) {
@@ -86,6 +93,9 @@ var Store = {
             signalUpdate(key);
         };
         var sub = function sub(key, signalUpdate) {
+            R.Debug.dev(function() {
+                assert(!_destroyed, "R.Store.MemoryStore.sub(...): instance destroyed.");
+            });
             var subscription = new R.Store.Subscription(key);
             if(!_.has(subscribers, key)) {
                 subscription[key] = {};
@@ -96,20 +106,39 @@ var Store = {
         };
         var unsub = function unsub(subscription) {
             R.Debug.dev(function() {
-                assert(subscription instanceof R.Store.Subscription, "R.Store.MemoryStore.unsubscribe(...): type R.Store.Subscription expected.");
-                assert(_.has(subscribers, subscription.key), "R.Store.MemoryStore.unsubscribe(...): no subscribers for this key.");
-                assert(_.has(subscribers[key], subscription.uniqueId), "R.Store.MemoryStore.unsubscribe(...): no such subscription.");
+                assert(!_destroyed, "R.Store.MemoryStore.unsub(...): instance destroyed.");
+                assert(subscription instanceof R.Store.Subscription, "R.Store.MemoryStore.unsub(...): type R.Store.Subscription expected.");
+                assert(_.has(subscribers, subscription.key), "R.Store.MemoryStore.unsub(...): no subscribers for this key.");
+                assert(_.has(subscribers[key], subscription.uniqueId), "R.Store.MemoryStore.unsub(...): no such subscription.");
             });
             delete subscribers[subscription.key][subscription.uniqueId];
             if(_.size(subscribers[subscribers]) === 0) {
                 delete subscribers[subscription.key];
             }
         };
+        var destroy = function destroy() {
+            R.Debug.dev(function() {
+                assert(!_destroyed, "R.Store.MemoryStore.destroy(...): instance destroyed.");
+            });
+            _.each(subscribers, function(keySubscribers, key) {
+                _.each(subscribers[key], function(fn, uniqueId) {
+                    delete subscribers[key][uniqueId];
+                });
+                delete subscribers[key];
+            });
+            subscribers = null;
+            _.each(data, function(val, key) {
+                delete data[key];
+            });
+            data = null;
+            _destroyed = true;
+        };
         return new R.Store.createStore({
             displayName: "MemoryStore",
             get: get,
             sub: sub,
             unsub: unsub,
+            destroy: destroy,
             set: set,
         });
     },
@@ -120,16 +149,22 @@ var Store = {
      * @implements {R.Store}
      */
     UplinkStore: function UplinkStore(keyToUrl, upSub, upUnsub) {
+        _destroyed = false;
         var data = {};
         var subscribers = {};
         var get = function(key) {
             return function(fn) {
-                R.request(keyToUrl(key))(function(err, res, body) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.UplinkStore.get(`" + key + "`)~request")(err);
-                    }
-                    fn(JSON.parse(body));
-                });
+                if(!_destroyed) {
+                    R.request(keyToUrl(key))(function(err, res, body) {
+                        if(err) {
+                            R.Debug.rethrow("R.Store.UplinkStore.get(`" + key + "`)~request")(err);
+                        }
+                        if(!_destroyed) {
+                            fn(JSON.parse(body));
+                        }
+                    });
+
+                }
             });
         };
         var signalUpdate = function signalUpdate(key) {
@@ -144,6 +179,9 @@ var Store = {
             });
         };
         var sub = function sub(key, signalUpdate) {
+            R.Debug.dev(function() {
+                assert(!_destroyed, "R.Store.UplinkStore.sub(...): instance destroyed.");
+            });
             var subscription = new R.Store.Subscription();
             if(!_.has(subscribers, key)) {
                 subscribers[key] = {};
@@ -154,6 +192,7 @@ var Store = {
         };
         var unsub = function unsub(subscription) {
             R.Debug.dev(function() {
+                assert(!_destroyed, "R.Store.UplinkStore.unsub(...): instance destroyed.");
                 assert(subscription instanceof R.Store.Subscription, "R.Store.UplinkStore.unsubscribe(...): type R.Store.Subscription expected.");
                 assert(_.has(subscribers, subscription.key), "R.Store.UplinkStore.unsubscribe(...): no subscribers for this key.");
                 assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.UplinkStore.unsubscribe(...): no such subscription.");
@@ -163,6 +202,24 @@ var Store = {
                 delete subscribers[subscription.key];
                 upUnsub(key);
             }
+        };
+        var destroy = function destroy() {
+            R.Debug.dev(function() {
+                assert(!_destroyed, "R.Store.UplinkStore.destroy(...): instance destroyed.");
+            });
+            _.each(subscribers, function(keySubscribers, key) {
+                _.each(subscribers[key], function(fn, uniqueId) {
+                    delete subscribers[key][uniqueId];
+                });
+                delete subscribers[key];
+                upUnsub(key);
+            });
+            _.each(data, function(val, key) {
+                delete data[key];
+            });
+            data = null;
+            subscribers = null;
+            _destroyed = true;
         };
         return new R.Store.createStore({
             displayName: "UplinkStore",
