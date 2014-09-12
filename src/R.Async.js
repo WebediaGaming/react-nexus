@@ -46,7 +46,7 @@ var Async = {
      */
     IfMounted: function IfMounted(fn) {
         return R.scope(function() {
-            R.Debug.dev(function() { R.Async._dirtyCheckAsyncMixin(this) });
+            R.Debug.dev(function() { R.Async._dirtyCheckAsyncMixin(this); });
             if(!this._AsyncMixinHasUnmounted) {
                 return fn.apply(this, arguments);
             }

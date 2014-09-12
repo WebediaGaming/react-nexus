@@ -61,7 +61,7 @@ var App = {
             return this.props.flux;
         },
     },
-    _getMixins: _getMixins() {
+    _getMixins: function _getMixins() {
         return [
             R.Pure.Mixin,
             R.Query.Mixin,

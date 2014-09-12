@@ -1,13 +1,13 @@
 WORK IN PROGRESS - DONT USE!
 
 
-React-Rails
+React on Rails
 ===========
 
-React Rails (`R` in the code) is a real-world webapp thin framework upon React. It fully embraces the React paradigm and implements
-many useful tools and mixins to do things the React way all along.
+React on Rails (`R` in the code) is a real-world webapp thin framework upon React. It fully embraces the React paradigm and implements
+many useful programmatic tools and mixins to do things the React way all along.
 
-React Rails means to provide all you need to never need again to hack into React yourself, and instead fully enjoy its power and neatness
+React on Rails means to provide all you need to never need again to hack into React yourself, and instead fully enjoy its power and neatness
 to build things that work outside of `todolist.js`.
 
 Core principles:
@@ -18,6 +18,16 @@ Core principles:
 - Stores and Dispatchers are asynchronous by default. This way the flux can be backed by a remote backend, not only a local, in-memory backend.
 - Components initialization can be asynchronous, but once they have rendered once, they must be kept consistent synchronously.
 - Data-backend-agnostic; you should be able to roll whichever complex, real-world resilient data backend you wish.
+
+What React on Rails provides:
+- Structure and guidelines for architecturing your app
+- Efficient implementation of commonly needed primitives and patterns
+- Full-blown frontend, with cacheable and load-balancable server-side SEO/performance-friendly prerendering
+
+What React on Rails doesn't provide:
+- Strict checking that you will follow the guidelines
+- Support for non-recommended patterns (non-pure components, integration with jQuery, etc)
+- Data backend implementation (although it integrates very well with commonly used backends patterns)
 
 Contents
 ========

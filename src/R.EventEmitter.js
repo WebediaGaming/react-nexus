@@ -7,7 +7,7 @@ var EventEmitter = {
             assert(_.isObject(specs), "R.EventEmitter.createEventEmitter(...): expecting an Object as specs.");
             assert(_.has(specs, "displayName") && _.isString(specs.displayName), "R.EventEmitter.createEventEmitter(...): requires displayName(String).");
             assert(_.has(specs, "addListener") && _.isFunction(specs.addListener), "R.EventEmitter.createEventEmitter(...): requires addListener(String, Function): R.EventEmitter.Listener.");
-            assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)")
+            assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)");
         });
         /**
          * @class

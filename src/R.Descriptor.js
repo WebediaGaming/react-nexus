@@ -6,7 +6,7 @@ var _ = require("lodash");
  * @class Lightweight description of a component, POJO-style. Convertible from and into a JSX-like descriptor.
  * @param {React.Component} component The React Component to describe.
  */
-function Descriptor(component) {
+var Descriptor = function Descriptor(component) {
     if(component._isReactRailsDescriptor_) {
         _.extend(this, {
             isNull: component.isNull,
@@ -124,7 +124,7 @@ _.extend(Descriptor.prototype, {
      * @chainable
      * @public
      */
-    props: function props(newProps) {
+    setProps: function setProps(newProps) {
         _.extend(this.props, newProps);
         return this;
     },
@@ -228,7 +228,7 @@ _.extend(Descriptor.prototype, {
      * @return {Array.<R.Descriptor>}
      * @private
      */
-    _findAll: _findAll(acc, predicate) {
+    _findAll: function _findAll(acc, predicate) {
         if(predicate(this)) {
             acc.push(this);
         }

@@ -9,12 +9,36 @@ var _ = require("lodash");
  */
 var Debug = /** @lends R.Debug */{
     /**
+     * @type {String}
+     * @private
+     */
+    _mode: function() {
+        /* If in node or envified browser environment, read from env */
+        if(process && process.env && process.env.NODE_ENV) {
+            return process.env.NODE_ENV;
+        }
+        /* Defaults to 'development'. */
+        else {
+            return 'development';
+        }
+    }(),
+    /**
+     * Manually override mode to either 'production' or 'development'.
+     * Use this if you don't want to use envify.
+     * @param {String} mode
+     * @public
+     */
+    setMode: function setMode(mode) {
+        assert('development' === mode || 'production' === mode, "R.Debug.setMode(...): mode should be either 'development' or 'production'.");
+        R.Debug._mode = mode;
+    },
+    /**
      * Returns a boolean describing whether the current mode is dev.
      * @return {Boolean} Truthy iff the current mode is dev.
      * @public
      */
     isDev: function isDev() {
-        return process.env.NODE_ENV === 'development';
+        return 'development' === R.Debug._mode;
     },
     /**
      * Returns a boolean describing whether the current mode is prod.
@@ -22,7 +46,7 @@ var Debug = /** @lends R.Debug */{
      * @public
      */
     isProd: function isProd() {
-        return process.env.NODE_ENV === 'production';
+        return 'production' === R.Debug._mode;
     },
     /**
      * Runs a function iff the current mode is dev.
@@ -31,7 +55,7 @@ var Debug = /** @lends R.Debug */{
      * @public
      */
     dev: function dev(fn) {
-        Deubg.isDev() ? fn() : void 0;
+        return R.Debug.isDev() ? fn() : void 0;
     },
     /**
      * Runs a function iff the current mode is prod.
@@ -40,7 +64,7 @@ var Debug = /** @lends R.Debug */{
      * @public
      */
     prod: function prod(fn) {
-        Debug.isProd() ? fn(): void 0;
+        return R.Debug.isProd() ? fn(): void 0;
     },
     /**
      * Returns a function iff the current mode is dev, otherwise returns a noop function.
@@ -50,7 +74,7 @@ var Debug = /** @lends R.Debug */{
      * @public
      */
     maybeDev: function maybeDev(fn) {
-        Debug.isDev() ? fn : _.noop;
+        return R.Debug.isDev() ? fn : _.noop;
     },
     /**
      * Returns a function iff the current mode is prod, otherwise returns a noop function.
@@ -60,7 +84,7 @@ var Debug = /** @lends R.Debug */{
      * @public
      */
     maybeProd: function maybeProd(fn) {
-        Debug.isProd() ? fn : _.noop;
+        return Debug.isProd() ? fn : _.noop;
     },
     assert: {
         /**

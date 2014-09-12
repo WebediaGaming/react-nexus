@@ -1,5 +1,5 @@
 var R = require("./R");
 
-R.mixin(require("./src/R.createClient"));
+R.mixin(require("./R.Client"));
 
 module.exports = R;

@@ -196,9 +196,8 @@ var Store = {
                             fn(null, JSON.parse(body));
                         }
                     });
-
                 }
-            });
+            };
         };
         var get = function get(key) {
             R.Debug.dev(function() {
