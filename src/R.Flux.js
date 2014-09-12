@@ -1,16 +1,24 @@
 var R = require("../R");
 var _ = require("lodash");
 var assert = require("assert");
+var co = require("co");
 
-
+/**
+ * @memberOf R
+ * Flux represents the data flowing from the backends (either local or remote).
+ * To enable isomoprhic rendering, it should be computable either or in the server or in the client.
+ * It represents the global state, including but not limited to:
+ * - Routing information
+ * - Session information
+ * - Navigation information
+ * - etc
+ */
 var Flux = {
     createFlux: function createFlux(specs) {
         R.Debug.dev(function() {
             assert(_.isObject(specs), "R.createFlux(...): expecting an Object.");
             assert(_.has(specs, "bootstrapInClient") && _.isFunction(specs.bootstrapInClient), "R.createFlux(...): requires bootstrapInClient(Window): Function");
             assert(_.has(specs, "bootstrapInServer") && _.isFunction(specs.bootstrapInServer), "R.createFlux(...): requires bootstrapInServer(http.IncomingMessage): Function");
-            assert(_.has(specs, "serializeFromServerToClient") && _.isFunction(specs.serializeFromServerToClient), "R.createFlux(...): requires serializeFromServerToClient(): String");
-            assert(_.has(specs, "unserializeFromServerToClient") && _.isFunction(specs.unserializeFromServerToClient), "R.createFlux(...): requires unserializeFromServerToClient(String)");
         });
         var FluxInstance = function() { R.Flux.FluxInstance.call(this); };
         _.extend(FluxInstance.prototype, R.FluxInstance.prototype, specs);
@@ -27,6 +35,20 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
     _stores: null,
     _eventEmitters: null,
     _dispatchers: null,
+    serialize: co(function* serialize() {
+        var map = _.mapValues(this._stores, function(store) {
+            return store.serialize();
+        });
+        return yield map;
+    }),
+    unserialize: function unserialize(str) {
+        var _this = this;
+        return co(function*() {
+            yield _.mapValues(JSON.parse(str), function(serializedStore, name) {
+                return _this._stores[name].unserialize(serializedStore);
+            });
+        })();
+    },
     registerStore: function registerStore(name, store) {
         R.Debug.dev(R.scope(function() {
             assert(store._isStoreInstance_, "R.Flux.FluxInstance.registerStore(...): expecting a R.Store.StoreInstance.");

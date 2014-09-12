@@ -24,9 +24,12 @@ var Store = {
         R.Debug.dev(function() {
             assert(_.isObject(specs), "createStore(...): expecting an Object as specs.");
             assert(_.has(specs, "displayName") && _.isString(displayName), "R.Store.createStore(...): requires displayName(String).");
-            assert(_.has(specs, "get") && _.isFunction("get"), "R.Store.createStore(...): requires get(Function(String): *).");
+            assert(_.has(specs, "fetch") && _.isFunction("fetch"), "R.Store.createStore(...): requires fetch(Function(String): Function.");
+            assert(_.has(specs, "get") && _.isFunction("get"), "R.Store.createStore(...): requires get(Function(String): *.");
             assert(_.has(specs, "sub") && _.isFunction("sub"), "R.Store.createStore(...): requires sub(Function(String, Function): R.Store.Subscription).");
             assert(_.has(specs, "unsub") && _.isFunction("unsub"), "R.Store.createStore(...): requires unsub(Function(R.Store.Subscription).");
+            assert(_.has(specs, "serialize") && _.isFunction("serialize"), "R.Store.createStore(...): requires serialize(): String.");
+            assert(_.has(specs, "unserialize") && _.isFunction("unserialize"), "R.Store.createStore(...): requires unserialize(String).");
             assert(_.has(specs, "destroy") && _.isFunction("destroy"), "R.Store.createStore(...): requires destroy().");
         });
         /**
@@ -65,27 +68,36 @@ var Store = {
         var _destroyed = false;
         var data = {};
         var subscribers = {};
-        var get = function get(key) {
+        var fetch = function fetch(key) {
             return function(fn) {
                 if(!_destroyed) {
                     _.defer(function() {
                         if(!_destroyed) {
-                            fn(data[key]);
+                            fn(null, data[key]);
                         }
                     });
 
                 }
             };
         };
+        var get = function get(key) {
+            R.Debug.dev(function() {
+                assert(_.has(data, key), "R.Store.MemoryStore.get(...): data not available.");
+            });
+            return data[key];
+        };
         var signalUpdate = function signalUpdate(key) {
             if(!_.has(subscribers, key)) {
                 return;
             }
-            get(key)(function(val) {
+            fetch(key)(function(err, val) {
+                if(err) {
+                    R.Debug.rethrow("R.Store.MemoryStore.fetch")(err);
+                }
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                _.each(subscribers[key], R.callWith(val));
+                _.each(subscribers[key], R.callWith(null, val));
             });
         };
         var set = function set(key, val) {
@@ -101,7 +113,14 @@ var Store = {
                 subscription[key] = {};
             }
             subscribers[subscription.uniqueId] = signalUpdate;
-            get(key)(signalUpdate);
+            fetch(key)(function(err, val) {
+                if(err) {
+                    R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...)")(err);
+                }
+                else {
+                    signalUpdate(val);
+                }
+            });
             return subscription;
         };
         var unsub = function unsub(subscription) {
@@ -133,13 +152,27 @@ var Store = {
             data = null;
             _destroyed = true;
         };
+        var serialize = function serialize() {
+            return function(fn) {
+                fn(null, JSON.stringify(data));
+            };
+        };
+        var unserialize = function unserialize(str) {
+            return function(fn) {
+                data = JSON.parse(str);
+                fn(null);
+            };
+        };
         return new R.Store.createStore({
             displayName: "MemoryStore",
+            fetch: fetch,
             get: get,
             sub: sub,
             unsub: unsub,
             destroy: destroy,
             set: set,
+            serialize: serialize,
+            unserialize: unserialize,
         });
     },
     /**
@@ -152,30 +185,39 @@ var Store = {
         _destroyed = false;
         var data = {};
         var subscribers = {};
-        var get = function(key) {
+        var fetch = function fetch(key) {
             return function(fn) {
                 if(!_destroyed) {
                     R.request(keyToUrl(key))(function(err, res, body) {
                         if(err) {
-                            R.Debug.rethrow("R.Store.UplinkStore.get(`" + key + "`)~request")(err);
+                            R.Debug.rethrow("R.Store.UplinkStore.fetch(...)~request")(err);
                         }
                         if(!_destroyed) {
-                            fn(JSON.parse(body));
+                            fn(null, JSON.parse(body));
                         }
                     });
 
                 }
             });
         };
+        var get = function get(key) {
+            R.Debug.dev(function() {
+                assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
+            });
+            return data[key];
+        };
         var signalUpdate = function signalUpdate(key) {
             if(!_.has(subscribers, key)) {
                 return;
             }
-            get(key)(function(val) {
+            fetch(key)(function(err, val) {
+                if(err) {
+                    R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)")(err);
+                }
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                _.each(subscribers[key], R.callWith(val));
+                _.each(subscribers[key], R.callWith(null, val));
             });
         };
         var sub = function sub(key, signalUpdate) {
@@ -188,7 +230,14 @@ var Store = {
                 upSub(key);
             }
             subscribers[key][subscription.uniqueId] = signalUpdate;
-            get(key)(signalUpdate);
+            fetch(key)(function(err, val) {
+                if(err) {
+                    R.Debug.rethrow("R.Store.sub.fetch(...): data not available.");
+                }
+                else {
+                    signalUpdate(val);
+                }
+            });
         };
         var unsub = function unsub(subscription) {
             R.Debug.dev(function() {
@@ -221,12 +270,26 @@ var Store = {
             subscribers = null;
             _destroyed = true;
         };
+        var serialize = function serialize() {
+            return function(fn) {
+                fn(null, JSON.stringify(data));
+            };
+        };
+        var unserialize = function unserialize(str) {
+            return function(fn) {
+                data = JSON.parse(str);
+                fn(null);
+            };
+        };
         return new R.Store.createStore({
             displayName: "UplinkStore",
+            fetch: fetch,
             get: get,
             sub: sub,
             unsub: unsub,
             signalUpdate: signalUpdate,
+            serialize: serialize,
+            unserialize: unserialize,
         });
     },
 };

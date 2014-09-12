@@ -31,9 +31,10 @@ module.exports = /** @lends R */{
             fn();
         };
     },
-    callWith: function callWith(x) {
+    callWith: function callWith() {
+        var args = arguments;
         return function(fn) {
-            fn(x);
+            fn.apply(null, args);
         };
     },
     isServer: function isServer() {

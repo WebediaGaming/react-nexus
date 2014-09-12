@@ -267,3 +267,7 @@ _.extend(Descriptor.prototype, {
         return found;
     },
 });
+
+module.exports = {
+    Descriptor: Descriptor,
+};
