@@ -29,6 +29,7 @@
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
     "react-query": "0.0.10",
+    "setimmediate": "^1.0.2",
     "sha256": "^0.1.1"
   },
   "devDependencies": {

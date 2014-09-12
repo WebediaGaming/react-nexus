@@ -1,5 +1,5 @@
 /**
- * @memberof R
+ * @memberOf R
  * Decorate a function with a wrapper.
  * @param {Function} wrapper Single-argument decorator Function.
  * @param {Function} fn Function to be decorated
@@ -15,7 +15,7 @@ var Decorate = function(wrapper, fn, ctx) {
 };
 
 /**
- * @memberof R.Decorate
+ * @memberOf R.Decorate
  * @param  {Function} wrapper Single-argument decorator Function.
  * @param  {String} name Name of the method to decorate.
  * @return {*} The decorated method.

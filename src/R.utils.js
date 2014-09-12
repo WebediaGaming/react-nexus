@@ -1,3 +1,5 @@
+var _request = require("request");
+
 module.exports = /** @lends R */{
     /**
      * Returns the original function modified so that its context is always the given context.
@@ -23,5 +25,35 @@ module.exports = /** @lends R */{
         var r = {};
         r[key] = val;
         return r;
+    },
+    noopThunk: function noopThunk(fn) {
+        return function() {
+            fn();
+        };
+    },
+    callWith: function callWith(x) {
+        return function(fn) {
+            fn(x);
+        };
+    },
+    isServer: function isServer() {
+        return typeof window === 'undefined';
+    },
+    ifServer: function ifServer(fn) {
+        if(R.isServer()) {
+            fn();
+        }
+    },
+    ifBrowser: function ifBrowser(fn) {
+        if(!R.isServer()) {
+            fn();
+        }
+    },
+    request: function request() {
+        var args = arguments;
+        return function(fn) {
+            args.push(fn);
+            return _request.apply(null, args);
+        };
     },
 };

@@ -22,7 +22,8 @@ var Pure = /** @lends Pure */{
      * @type {Object}
      * @public
      */
-    mixin: {
+    Mixin: {
+        _PureMixinIsPure: true,
         shouldComponentUpdate: shouldComponentUpdate,
     },
 };
