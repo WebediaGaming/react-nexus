@@ -1,11 +1,12 @@
 var _ = require("lodash");
 var R = {
-	mixin: function _mixin(properties) {
-		_.extend(this, properties);
-		return this;
-	},
+    mixin: function _mixin(properties) {
+        _.extend(this, properties);
+        return this;
+    },
 };
 
+R.mixin(require("./src/R.utils"));
 R.mixin(require("./src/R.Debug"));
 R.mixin(require("./src/R.Decorate"));
 R.mixin(require("./src/R.Descriptors"));
