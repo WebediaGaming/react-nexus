@@ -1,3 +1,6 @@
+WORK IN PROGRESS - DONT USE!
+
+
 React-Rails
 ===========
 
