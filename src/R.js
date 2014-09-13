@@ -6,6 +6,10 @@ var R = {
     },
 };
 
+R.mixin({
+    d3: require("../lib/d3"),
+});
+
 R.mixin(require("./R.utils"));
 R.mixin(require("./R.Debug"));
 R.mixin(require("./R.Decorate"));

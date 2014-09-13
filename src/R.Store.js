@@ -1,6 +1,6 @@
 var assert = require("assert");
 var _ = require("_");
-var R = require("../");
+var R = require("./R");
 
 /**
  * @memberOf R

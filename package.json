@@ -24,8 +24,10 @@
   "dependencies": {
     "co": "^3.1.0",
     "css-selector-parser": "^1.0.3",
+    "d3": "^3.4.11",
     "envify": "^3.0.0",
     "grunt-regenerator": "^1.1.0",
+    "grunt-smash": "^0.1.0",
     "raf": "^2.0.3",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",

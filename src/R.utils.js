@@ -1,3 +1,4 @@
+var R = require("./R");
 var _request = require("request");
 
 module.exports = /** @lends R */{

@@ -1,4 +1,4 @@
-var R = require("../");
+var R = require("./R");
 var _ = require("lodash");
 var assert = require("assert");
 var React = require("react");

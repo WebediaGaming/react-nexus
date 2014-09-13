@@ -1,3 +1,4 @@
+var R = require("./R");
 var assert = require("assert");
 var VError = require("verror");
 var _ = require("lodash");

@@ -1,3 +1,4 @@
+var R = require("./R");
 var _ = require("lodash");
 
 /**

@@ -1,3 +1,4 @@
+var R = require("./R");
 /**
  * @memberOf R
  * Decorate a function with a wrapper.

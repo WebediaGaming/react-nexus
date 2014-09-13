@@ -32,8 +32,16 @@ module.exports = function(grunt) {
                 },
             },
         },
+        smash: {
+            "d3": {
+                files: {
+                    "lib/d3.js": ["node_modules/d3/src/start.js", "node_modules/d3/src/interpolate/*.js", "node_modules/d3/src/transition/ease.js", "node_modules/d3/src/end.js"],
+                }
+            },
+        },
     });
     grunt.loadNpmTasks("grunt-regenerator");
     grunt.loadNpmTasks("grunt-contrib-jshint");
-    grunt.registerTask("default", ["jshint", "regenerator:default", "regenerator:client", "regenerator:server"]);
+    grunt.loadNpmTasks("grunt-smash");
+    grunt.registerTask("default", ["jshint", "smash", "regenerator"]);
 };

@@ -1,4 +1,4 @@
-var R = require("../R");
+var R = require("./R");
 var requestAnimationFrame = require("raf");
 require("setimmediate");
 
