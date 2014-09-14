@@ -267,6 +267,16 @@ _.extend(Descriptor.prototype, {
         });
         return found;
     },
+    _mapTree: function _mapTree(acc, fn) {
+        acc.push(fn(this));
+        _.each(this.children(), function(child) {
+            child._mapTree(acc, fn);
+        });
+        return acc;
+    },
+    mapTree: function mapTree(fn) {
+        return this._mapTree([], fn);
+    },
 });
 
 module.exports = {

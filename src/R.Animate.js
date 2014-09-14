@@ -116,6 +116,20 @@ var Animate = {
                 this._from[attr] = val;
             }
         }, this));
+        _.each(R.Animate.transformAttributes, R.scope(function(attr) {
+            if(!_.has(this._from, attr)) {
+                this._from[attr] = "translateZ(0)";
+            }
+            else {
+                this._from[attr] = "translateZ(0) " + this._from[attr];
+            }
+            if(!_.has(this._to, attr)) {
+                this._to[attr] = "translateZ(0)";
+            }
+            else {
+                this._to[attr] = "translateZ(0) " + this._to[attr];
+            }
+        }, this));
         if(_.isPlainObject(params.easing)) {
             R.Debug.dev(function() {
                 assert(_.has(params.easing, "type") && _.isString(params.easing.type), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object }.");
@@ -136,6 +150,18 @@ var Animate = {
         }, this));
         this._tick = R.scope(this._tick, this);
     },
+    shouldEnableHA: function shouldEnableHA() {
+        if(R.isClient()) {
+            var userAgent = navigator.userAgent;
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            var isGingerbread = /Android 2\.3\.[3-7]/i.test(userAgent);
+            return userAgent && isMobile && !isGingerbread;
+        }
+        else {
+            return true;
+        }
+    },
+    transformAttributes: ["WebkitTransform", "MozTransform", "MSTransform", "OTransform", "Transform"],
 };
 
 _.extend(Animate.InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */ {

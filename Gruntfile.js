@@ -6,6 +6,17 @@ module.exports = function(grunt) {
             },
             default: ["src/**/*.js"],
         },
+        jst: {
+            options: {
+                namespace: "tpl",
+                commonjs: true,
+            },
+            default: {
+                files: {
+                    "tmp/jst.js": ["src/**/*.tpl"],
+                },
+            },
+        },
         regenerator: {
             default: {
                 files: [{
@@ -42,6 +53,7 @@ module.exports = function(grunt) {
     });
     grunt.loadNpmTasks("grunt-regenerator");
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-contrib-jst");
     grunt.loadNpmTasks("grunt-smash");
     grunt.registerTask("default", ["jshint", "smash", "regenerator"]);
 };

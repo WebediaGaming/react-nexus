@@ -28,6 +28,7 @@ var Flux = {
         this._stores = {};
         this._eventEmitters = {};
         this._dispatchers = {};
+        this._stylesheets = {};
         this._shouldInjectFromStores = true;
     },
     Mixin: {
@@ -70,14 +71,48 @@ var Flux = {
         getFluxStore: function getFluxStore(name) {
             return this.getFlux().getStore(name);
         },
+        prefetchFluxStores: function prefetchFluxStore() {
+            R.Debug.dev(function() {
+                assert(R.isServer(), "R.Flux.Mixin.prefetchFluxStore(...): should only be called in the server.");
+            });
+            return co(function*() {
+                var subscriptions = this.getFluxStoreSubscriptions(this.props);
+                var yieldState = {};
+                _.each(subscriptions, R.scope(function(entry) {
+                    yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
+                }, this));
+                var state = yield yieldState;
+                var constructor = this.constructor;
+                var PseudoComponent = function PseudoComponent() {
+                    constructor.call(this);
+                    this.state = state;
+                };
+                PseudoComponent.prototype = constructor.prototype;
+                var pseudoComponent = new PseudoComponent();
+                var rendered = pseudoComponent.render();
+                var descriptor = new R.Descriptor(rendered);
+                return yield descriptor.mapTree(function(descriptor) {
+                    var descendant = descriptor.toComponent();
+                    if(descendant.prefetchFluxStore) {
+                        return descendant.prefetchFluxStore();
+                    }
+                });
+            }).call(this);
+        },
         getFluxEventEmitter: function getFluxEventEmitter(name) {
             return this.getFlux().getEventEmitter(name);
         },
         getFluxDispatcher: function getFluxDispatcher(name) {
             return this.getFlux().getDispatcher(name);
         },
+        getFluxStylesheet: function getFluxStylesheet(name) {
+            return this.getFlux().getStylesheet(name);
+        },
         triggerFluxAction: function triggerFluxAction(dispatcherName, action, params) {
             this.getFluxDispatcher(dispatcherName).trigger(action, params);
+        },
+        _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
+            return {};
         },
         _FluxMixinDefaultGetFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) {
             return {};
@@ -180,6 +215,7 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
     _stores: null,
     _eventEmitters: null,
     _dispatchers: null,
+    _stylesheets: null,
     _shouldInjectFromStores: null,
     shouldInjectFromStores: function shouldInjectFromStores() {
         return this._shouldInjectFromStores;
@@ -235,6 +271,7 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
         R.Debug.dev(R.scope(function() {
             assert(_.has(this._dispatchers, name), "R.Flux.FluxInstance.getDispatcher(...): no such Dispatcher.");
         }, this));
+        return this._dispatchers[name];
     },
     registerDispatcher: function registerDispatcher(name, dispatcher) {
         assert(R.isClient(), "R.Flux.FluxInstance.registerDispatcher(...): should not be called in the server.");
@@ -243,6 +280,38 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
             assert(!_.has(this._dispatchers, name), "R.Flux.FluxInstance.registerDispatcher(...): name already assigned.");
         }, this));
         this._dispatchers[name] = dispatcher;
+    },
+    getStylesheet: function getStylesheet(name) {
+        R.Debug.dev(R.scope(function() {
+            assert(_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): no such Stylesheet.");
+        }, this));
+        return this._stylesheets[name];
+    },
+    getAllStylesheets: function getAllStylesheets() {
+        return this._stylesheets[name];
+    },
+    registerStylesheet: function registerStylesheet(name, stylesheet) {
+        R.Debug.dev(R.scope(function() {
+            assert(stylesheet._isStylesheetInstance_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet.StylesheetInstance.");
+            assert(!_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): name already assigned.");
+        }, this));
+        this._stylesheets[name] = stylesheet;
+    },
+    registerAllComponentsStylesheetRules: function registerComponentsStylesheetRules(componentClasses) {
+        _.each(componentClasses, R.scope(function(componentClass) {
+            if(_.has(componentClass, "getStylesheetRules")) {
+                var rules = componentClass.getStylesheetRules();
+                _.each(rules, R.scope(function(rule, stylesheetName) {
+                    var stylesheet = this.getStylesheet(stylesheetName);
+                    R.Debug.dev(function() {
+                        assert(_.isPlainObject(rule), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule: expecting Object.");
+                        assert(_.has(rule, "selector") && _.isString(rule.selector), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.selector: expecting String.");
+                        assert(_.has(rule, "style") && _.isObject(rule.style), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.style: expecting Object.");
+                    });
+                    stylesheet.registerRule(rule.selector, rule.style);
+                }, this));
+            }
+        }, this));
     },
     destroy: function destroy() {
         _.each(this._stores, function(store) {
