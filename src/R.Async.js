@@ -34,6 +34,9 @@ var Async = {
             _.each(this._AsyncMixinQueuedAnimationFrames, clearAnimationFrame);
             this._AsyncMixinHasUnmounted = true;
         },
+        setStateIfMounted: Async.IfMounted(function setStateIfMounted(state) {
+            this.setState(state);
+        }),
     },
     _dirtyCheckAsyncMixin: function _dirtyCheckAsyncMixin(component) {
         assert(_.has(component, "_AsyncMixinHasAsyncMixin") && component._AsyncMixinHasAsyncMixin, "R.Async.Mixin required");

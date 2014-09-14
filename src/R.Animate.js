@@ -3,6 +3,75 @@ var lodash = require("lodash");
 var d3 = R.d3;
 var raf = require("raf");
 var Animate = {
+    Mixin: {
+        _AnimateMixinHasAnimateMixin: true,
+        _AnimateMixinInterpolationTickers: null,
+        componentWillMount: function componentWillMount() {
+            this._AnimateMixinInterpolationTickers = {};
+        },
+        componentWillUnmount: function componentWillUnmount() {
+            _.each(this._AnimateMixinInterpolationTickers, function(interpolationTicker) {
+                interpolationTicker.abort();
+            });
+            this._AnimateMixinInterpolationTickers = null;
+        },
+        isAnimating: function isAnimating(name) {
+            return _.has(this._AnimateMixinInterpolationTickers, name);
+        },
+        _AnimateMixinGetStateKey: function _AnimateMixinGetStateKey(name) {
+            return "_AnimateMixinStyle-" + name;
+        },
+        getAnimatedStyle: function getAnimatedStyle(name) {
+            if(this.isAnimating(name)) {
+                return this.state[this._AnimateMixinGetStateKey(name)];
+            }
+            else {
+                R.Debug.dev(function() {
+                    console.warn("R.Animate.Mixin.getAnimatedStyle(...): no such animation.");
+                });
+                return {};
+            }
+        },
+        abortAnimation: function abortAnimation(name) {
+            R.Debug.dev(R.scope(function() {
+                assert(this.isAnimating(name), "R.Animate.Mixin.abortAnimation(...): no such animation.");
+            }, this));
+            if(this.isAnimating(name)) {
+                this._AnimateMixinInterpolationTickers[name].abort();
+            }
+        },
+        animate: function animate(name, params) {
+            if(this.isAnimating(name)) {
+                this.abortAnimation(name);
+            }
+            params = _.extend({}, params, {
+                onTick: _.noop,
+                onComplete: _.noop,
+                onAbort: _.noop,
+            });
+            var original = {
+                onTick: params.onTick,
+                onComplete: params.onComplete,
+                onAbort: params.onAbort,
+            };
+            params.onTick = R.scope(function(animatedStyle, t) {
+                original.onTick(animatedStyle, t);
+                this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), animatedStyle));
+            }, this);
+            params.onComplete = R.scope(function(animatedStyle, t) {
+                original.onComplete(animatedStyle, t);
+                this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), animatedStyle));
+            }, this);
+            params.onAbort = R.scope(function() {
+                original.onAbort();
+                this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
+                delete this._AnimateMixinInterpolationTickers[name];
+            }, this);
+            var interpolationTicker = new R.Animate.InterpolationTicker(params);
+            this._AnimateMixinInterpolationTickers[name] = interpolationTicker;
+            interpolationTicker.start();
+        },
+    },
     createInterpolator: function createInterpolator(from, to) {
         return d3.interpolate(from, to);
     },
@@ -90,14 +159,14 @@ _.extend(Animate.InterpolationTicker.prototype, /** @lends R.Animate.Interpolati
     _tick: function _tick() {
         var now = Date.now();
         if(now > this._end) {
-            this._onTick(1, this._to);
+            this._onTick(this._to, t);
             this._onComplete();
         }
         else {
             var t = (now - this._begin)/(this._end - this._begin);
-            this._onTick(1, _.mapValues(this._interpolators, R.scope(function(interpolator, attr) {
+            this._onTick(_.mapValues(this._interpolators, R.scope(function(interpolator) {
                 return interpolator(this._easing(t));
-            }, this)));
+            }, this)), t);
             this._requestAnimationFrameHandle = raf(this._tick);
         }
     },
@@ -106,9 +175,6 @@ _.extend(Animate.InterpolationTicker.prototype, /** @lends R.Animate.Interpolati
             this._requestAnimationFrameHandle.cancel();
             this._requestAnimationFrameHandle = null;
         }
-    },
-    tick: function tick() {
-
     },
 });
 

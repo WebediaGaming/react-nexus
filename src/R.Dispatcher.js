@@ -1,6 +1,7 @@
 var R = require("./R");
 var assert = require("assert");
 var _ = require("lodash");
+var co = require("co");
 
 /**
  * @memberOf R
@@ -40,6 +41,10 @@ _.extend(Dispatcher.prototype, /** @lends R.Dispatcher.prototype */{
         }, this));
         if(_.has(this._actionsListeners, action)) {
             _.each(this._actionsListeners[action], R.callWith(params));
+            return _.size(this._actionsListeners[action]);
+        }
+        else {
+            return 0;
         }
     },
 });

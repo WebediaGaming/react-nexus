@@ -64,3 +64,4 @@ Conventions
 - All code is assumed isomorphic, unless otherwise mentionned. If you need to execute environment-specific code, use R.IfServer or R.IfClient.
 - Code in componentDidMount doesn't need to be ismorphic.
 - We use generators. Use regenerator or node --harmony.
+- Typechecking and other assertions should be wrapped in R.Debug.dev to avoid lengthy try/catch blocks in production.

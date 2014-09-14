@@ -87,6 +87,15 @@ var Debug = /** @lends R.Debug */{
     maybeProd: function maybeProd(fn) {
         return Debug.isProd() ? fn : _.noop;
     },
+    /**
+     * Trigger a debugger breakpoint without raising jshint errors.
+     * @public
+     */
+    breakpoint: function breakpoint() {
+        /* jshint debug:true */
+        debugger;
+        /* jshint debug:false */
+    },
     assert: {
         /**
          * Runs assert from node core iff the current mode is dev.
