@@ -64,7 +64,7 @@ var Root = {
     _getMixins: function _getMixins() {
         return [
             R.Pure.Mixin,
-            R.Query.Mixin,
+            R.$.Mixin,
             R.Async.Mixin,
             R.Animate.Mixin,
             R.Flux.Mixin,

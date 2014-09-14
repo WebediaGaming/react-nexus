@@ -1,5 +1,7 @@
 var R = require("./R");
 var _ = require("lodash");
+var $ = require("cheerio");
+var React = require("react");
 
 /**
  * @memberOf R
@@ -40,7 +42,31 @@ var Descriptor = function Descriptor(component) {
             return new Descriptor(component);
         });
     }
+    else {
+        this.props.children = [];
+    }
 };
+
+_.extend(Descriptor, /** @lends R.Descriptor */{
+    fromDom: function fromDom(tagName, attributes) {
+        tagName = tagName.toLowerCase();
+        return new Descriptor(React.DOM[tagName](attributes));
+    },
+    _parseHtmlNode: function _parseHtmlNode($node) {
+        var tagName = $node.get(0).tagName;
+        var attributes = $node.get(0).attributes;
+        var descriptor = Descriptor.fromDom(tagName, attributes);
+        _.each($node.children(), function($child) {
+            descriptor.append(Descriptor._parseHtmlNode($child));
+        });
+        return descriptor;
+    },
+    parseHtml: function parseHtml(html) {
+        var $html = $.load(html);
+        assert($html.length === 1);
+        return Descriptor._parseHtmlNode($html);
+    },
+});
 
 _.extend(Descriptor.prototype, {
     /**
@@ -128,6 +154,9 @@ _.extend(Descriptor.prototype, {
     setProps: function setProps(newProps) {
         _.extend(this.props, newProps);
         return this;
+    },
+    append: function append(other) {
+        this.props.children.push(other);
     },
     /**
      * Returns the (maybe empty) list of children.

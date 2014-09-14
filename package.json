@@ -24,6 +24,7 @@
   "dependencies": {
     "autoprefixer": "^3.0.0",
     "change-case": "^2.1.5",
+    "cheerio": "^0.17.0",
     "co": "^3.1.0",
     "css-parse": "^2.0.0",
     "css-selector-parser": "^1.0.3",
