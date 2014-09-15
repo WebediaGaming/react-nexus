@@ -39,17 +39,19 @@ Contents
 - `R.Query`: utility functions on top of R.Descriptor. `$` for React.
 - `R.App`: React.createClass wrapper to bootstrap your application with R goodness.
 - `R.Component`: React.createClass wrapper to bootstrap your components with R goodness.
-- `R.Dependencies`: Declare and manipulate asynchronous dependencies to enable real-world server-side rendering.
 - `R.Pure`: Pure components mixin and utilities.
 - `R.Async`: Efficiently dealing with asynchronous operations in React Components.
 - `R.Animate`: Efficient programmatic animation in React Components. `Velocity` for React.
-- `R.Styles`: Sane style management in React components. Includes vendor-prefixing and bundling.
+- `R.Style`: Sane style management in React components. Includes vendor-prefixing and bundling.
 - `R.Store`: Asynchronous Store management in React. Supports local and remote backends.
 - `R.EventEmitter`: Asynchronous EventEmitter management in React. Supports local and remote backends.
 - `R.Flux`: Asynchronous flux management in React. Supports bootstrapping the flux on either the server (based on the `req`) or the client (based on `window`).
+- `R.SimpleUplinkServer`: Single-process implementation of the Uplink pattern. Suitable for medium scale usage out of the box.
 - `R.Router`: Router for an R app.
-- `R.Session`: Sessions for an R app.
-- `R.Users`: Users/permissions for an R app.
+- `R.Client`: Client entry point into an R app.
+- `R.Server`: Server entry point into an R app.
+- `R.Uplink.Session`: Sessions for an R + Uplink app.
+- `R.Uplink.Users`: Users/permissions for an R + Uplink app.
 
 Conventions
 ===========
