@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 var R = require("../");
 var _ = require("lodash");
 var assert = require("assert");
@@ -49,7 +48,7 @@ _.extend(Localize, /** @lends R.Localize */{
     extractLocale: function extractLocale(headers, accepted) {
         R.Debug.dev(function() {
             assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
-        })
+        });
         return new loc.locales(accepted).best(headers["accept-language"]);
     },
     localize: function localize(flux, storeName, map) {

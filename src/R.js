@@ -10,23 +10,30 @@ R.mixin({
     d3: require("../lib/d3"),
 });
 
-R.mixin(require("./R.utils"));
-R.mixin(require("./R.Debug"));
-R.mixin(require("./R.Decorate"));
-R.mixin(require("./R.Descriptor"));
-R.mixin(require("./R.App"));
-R.mixin(require("./R.Component"));
-R.mixin(require("./R.Dependencies"));
-R.mixin(require("./R.Router"));
-R.mixin(require("./R.Dispatcher"));
-R.mixin(require("./R.EventEmitter"));
-R.mixin(require("./R.Flux"));
-R.mixin(require("./R.Store"));
-R.mixin(require("./R.Animate"));
-R.mixin(require("./R.Async"));
-R.mixin(require("./R.Query"));
-R.mixin(require("./R.Pure"));
-R.mixin(require("./R.Router"));
-R.mixin(require("./R.Localize"));
+_.each([
+    require("./R.utils"),
+    require("./R.Animate"),
+    require("./R.App"),
+    require("./R.Async"),
+    require("./R.Component"),
+    require("./R.Debug"),
+    require("./R.Decorate"),
+    require("./R.Descriptor"),
+    require("./R.Dispatcher"),
+    require("./R.EventEmitter"),
+    require("./R.Flux"),
+    require("./R.Localize"),
+    require("./R.Pure"),
+    require("./R.Query"),
+    require("./R.Root"),
+    require("./R.Router"),
+    require("./R.SimpleUplinkServer"),
+    require("./R.Store"),
+    require("./R.Style"),
+    require("./R.Stylesheet"),
+    require("./R.Uplink"),
+], function(module) {
+    R.mixin(module);
+});
 
 module.exports = R;

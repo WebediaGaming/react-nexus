@@ -3,6 +3,7 @@ var co = require("co");
 var React = require("react");
 var _ = require("lodash");
 var assert = require("assert");
+var defaultTemplate = require("../templates/R.App.defaultTemplate");
 
 var App = function App(params) {
     R.Debug.dev(function() {
@@ -21,7 +22,7 @@ var App = function App(params) {
     });
 };
 
-App.defaultTemplate = require("./R.App.defaultTemplate");
+App.defaultTemplate = defaultTemplate;
 
 _.extend(App.prototype, /** @lends R.App.prototype */ {
     _fluxClass: null,
