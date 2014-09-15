@@ -104,7 +104,7 @@ var Store = {
             data[key] = val;
             signalUpdate(key);
         };
-        var sub = function sub(key, signalUpdate) {
+        var sub = function sub(key, _signalUpdate) {
             R.Debug.dev(function() {
                 assert(!_destroyed, "R.Store.MemoryStore.sub(...): instance destroyed.");
             });
@@ -112,13 +112,13 @@ var Store = {
             if(!_.has(subscribers, key)) {
                 subscription[key] = {};
             }
-            subscribers[subscription.uniqueId] = signalUpdate;
+            subscribers[subscription.uniqueId] = _signalUpdate;
             fetch(key)(function(err, val) {
                 if(err) {
-                    R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...)")(err);
+                    R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value")(err);
                 }
                 else {
-                    signalUpdate(val);
+                    _signalUpdate(val);
                 }
             });
             return subscription;

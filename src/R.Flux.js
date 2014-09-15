@@ -109,7 +109,9 @@ var Flux = {
             return this.getFlux().getStylesheet(name);
         },
         triggerFluxAction: function triggerFluxAction(dispatcherName, action, params) {
-            this.getFluxDispatcher(dispatcherName).trigger(action, params);
+            return R.scope(function(fn) {
+                this.getFluxDispatcher(dispatcherName).trigger(action, params)(fn);
+            }, this));
         },
         _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
             return {};

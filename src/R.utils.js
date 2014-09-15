@@ -28,9 +28,9 @@ module.exports = /** @lends R */{
         r[key] = val;
         return r;
     },
-    noopThunk: function noopThunk(fn) {
-        return function() {
-            fn();
+    noopThunk: function noopThunk() {
+        return function(fn) {
+            _.defer(fn);
         };
     },
     callWith: function callWith() {

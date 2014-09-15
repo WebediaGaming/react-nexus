@@ -4,6 +4,41 @@ var _ = require("lodash");
 var assert = require("assert");
 var Promise = require("bluebird");
 var request = require("request");
+var co = require("co");
+
+/**
+ * The Uplink micro-protocol is a simple set of conventions to implement real-time reactive Flux over the wire.
+ * The frontend and the backend server share 2 means of communications :
+ * - a WebSocket-like (socket.io wrapper) duplex connection to handshake and subscribe to keys/listen to events
+ * - regulars HTTP requests (front -> back) to actually get data from the stores
+ *
+ * PROTOCOL:
+ *
+ * Connection/reconnection:
+ *
+ * Client: bind socket
+ * Server: Acknowledge connection
+ * Client: send "handshake" { guid: guid }
+ * Server: send "handshake-ack" { recovered: bool } (recover previous session if existing based upon guid; recovered is true iff previous session existed)
+ *
+ * Stores:
+ * Client: send "subscribeTo" { key: key }
+ * Server: send "update" { key: key }
+ * Client: XHR GET /uplink/key
+ *
+ * Events:
+ * Client: send "listenTo" { eventName: eventName }
+ * Server: send "event" { eventName: eventName, params: params }
+ *
+ * Actions:
+ * Client: XHR POST /uplink/action { params: params }
+ *
+ * Other notifications:
+ * Server: send "debug": { debug: debug } Debug-level message
+ * Server: send "log" { log: log } Log-level message
+ * Server: send "warn": { warn: warn } Warn-level message
+ * Server: send "err": { err: err } Error-level message
+ */
 
 var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid) {
     this._httpEndpoint = httpEndpoint;
@@ -37,20 +72,29 @@ _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
             socket.on("disconnect", this._handleDisconnect);
             socket.on("connect", this._handleConnect);
             socket.on("handshake-ack", this._handleHandshakeAck);
+            socket.on("debug", this._handleDebug);
             socket.on("log", this._handleLog);
             socket.on("warn", this._handleWarn);
             socket.on("err", this._handleError);
-            socket.on("debug", this._handleDebug);
         }
     },
-    _initInServer: function _initInServer(req) {
-
-    },
+    _initInServer: _.noop,
     _handleUpdate: function _handleUpdate(params) {
-
+        var key = params.key;
+        if(_.has(this._subscriptions, key)) {
+            _.each(this._subscriptions[key], function(fn) {
+                fn();
+            });
+        }
     },
     _handleEvent: function _handleEvent(params) {
-
+        var eventName = params.eventName;
+        var eventParams = params.params;
+        if(_.has(this._listeners, eventName)) {
+            _.each(this._listeners[eventName], function(fn) {
+                fn(eventParams);
+            });
+        }
     },
     _handleDisconnect: function _handleDisconnect(params) {
         this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
@@ -66,6 +110,11 @@ _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
     _handleHandshakeAck: function _handleHandshakeAck(params) {
         this._acknowledgeHandshake.resolve(params);
     },
+    _handleDebug: function _handleDebug(params) {
+        R.Debug.dev(function() {
+            console.warn("R.Uplink.debug(...):", params.debug);
+        });
+    },
     _handleLog: function _handleLog(params) {
         console.log("R.Uplink.log(...):", params.log);
     },
@@ -75,29 +124,24 @@ _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
     _handleError: function _handleError(params) {
         console.error("R.Uplink.err(...):", params.err);
     },
-    _handleDebug: function _handleDebug(params) {
-        R.Debug.dev(function() {
-            console.warn("R.Uplink.debug(...):", params.debug);
-        });
-    },
     _destroyInClient: function _destroyInClient() {
         if(this._socket) {
             this._socket.close();
         }
     },
     _destroyInServer: function _destroyInServer() {
-
+        return void 0;
     },
     _subscribeTo: function _subscribeTo(key) {
         co(function*() {
             yield this._promiseForHandshake();
-            this.emit("subscribe", { key: key });
+            this.emit("subscribeTo", { key: key });
         }).call(this);
     },
     _unsubscribeFrom: function _unsubscribeFrom(key) {
         co(function*() {
             yield this._promiseForHandshake();
-            this.emit("unsubscribe", { key: key });
+            this.emit("unsubscribeFrom", { key: key });
         }).call(this);
     },
     subscribeTo: function subscribeTo(key, fn) {
@@ -153,10 +197,18 @@ _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
         }
     },
     fetch: function fetch(key) {
-
+        return R.scope(function(fn) {
+            request({ url: url.resolve(this._httpEndpoint, key), method: "GET", json: true }, function(err, res, body) {
+                return err ? fn(err) : fn(null, body);
+            });
+        }, this);
     },
     dispatch: function dispatch(action, params) {
-
+        return R.scope(function(fn) {
+            request({ url: url.resolve(this._httpEndpoint, action), body: { guid: this._guid, params: params }, json: true }, function(err, res, body) {
+                return err ? fn(err) : fn(null, body);
+            });
+        }, this);
     },
     destroy: function destroy() {
         if(R.isClient()) {

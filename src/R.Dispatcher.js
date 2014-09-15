@@ -40,11 +40,12 @@ _.extend(Dispatcher.prototype, /** @lends R.Dispatcher.prototype */{
             }
         }, this));
         if(_.has(this._actionsListeners, action)) {
-            _.each(this._actionsListeners[action], R.callWith(params));
-            return _.size(this._actionsListeners[action]);
+            return co(function*() {
+                return yield _.map(this._actionsListeners[action], R.callWith(params));
+            }).call(this);
         }
         else {
-            return 0;
+            return R.noopThunk;
         }
     },
 });
