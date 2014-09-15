@@ -1,6 +1,7 @@
 var R = require("../");
 var io = require("socket.io");
 var _ = require("lodash");
+var assert = require("assert");
 var co = require("co");
 var EventEmitter = require("events").EventEmitter;
 
@@ -11,7 +12,7 @@ var SimpleUplinkServer = {
             events: [],
             actions: {},
         }, specs);
-        return function SimpleUplinkServerInstance(app, prefix) {
+        var SimpleUplinkServerInstance = function SimpleUplinkServerInstance(app, prefix) {
             SimpleUplinkServer.SimpleUplinkServerInstance.call(this, app, prefix);
             this._bindHandlers(specs);
         };
@@ -164,7 +165,7 @@ _.extend(SimpleUplinkServer.Session.prototype, /** @lends R.SimpleUplinkServer.S
             unsubscribeFrom: this.unsubscribeFrom,
             listenTo: this.listenTo,
             unlistenFrom: this.unlistenFrom,
-        }
+        };
     },
     detachConnection: function detachConnection() {
         if(this._connection === null) {
@@ -204,12 +205,12 @@ _.extend(SimpleUplinkServer.Session.prototype, /** @lends R.SimpleUplinkServer.S
     _signalUpdate: function _signalUpdate(key) {
         return R.scope(function() {
             this._emit("update", { key: key });
-        }, this));
+        }, this);
     },
     _signalEvent: function _signalEvent(eventName) {
         return R.scope(function(params) {
             this._emit("event", { eventName: eventName, params: params });
-        }, this));
+        }, this);
     },
     _expire: function _expire() {
         _.each(_.keys(this._subscriptions), this.unsubscribeFrom);
@@ -262,7 +263,7 @@ _.extend(SimpleUplinkServerInstance.prototype, /** @lends R.SimpleUplinkServer.S
                 this._sessions[guid].emit("debug", params);
             }
         }, this));
-    }
+    },
     emitLog: function emitLog(guid, params) {
         if(this._sessions[guid]) {
             this._sessions[guid].emit("log", params);

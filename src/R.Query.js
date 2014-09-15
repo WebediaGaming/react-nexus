@@ -1,4 +1,7 @@
 var R = require("../");
+var _ = require("lodash");
+var assert = require("assert");
+
 var $ = function $(x) {
     if(_.isString(x)) {
         this._descriptors = [R.Descriptor.parseHtml(x)];

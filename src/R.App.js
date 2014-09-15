@@ -1,8 +1,8 @@
 var R = require("../");
 var co = require("co");
 var React = require("react");
-var assert = require("assert");
 var _ = require("lodash");
+var assert = require("assert");
 
 var App = function App(params) {
     R.Debug.dev(function() {

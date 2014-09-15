@@ -1,4 +1,6 @@
 var R = require("../");
+var _ = require("lodash");
+var assert = require("assert");
 
 var optionalParam = /\((.*?)\)/g;
 var namedParam = /(\(\?)?:\w+/g;
@@ -12,24 +14,24 @@ var Router = function Router() {
 _.extend(Router.prototype, /** @lends R.Router.prototype */ {
     _routes: null,
     _default: null,
-    route: function route(route, fn) {
+    route: function route(pattern, fn) {
         R.Debug.dev(R.scope(function() {
-            if(_.has(this._routes, route)) {
+            if(_.has(this._routes, pattern)) {
                 console.warn("R.Router.route(...): route already registered.");
             }
         }, this));
-        regexp = this._routeToRegExp(route);
-        this._routes[route] = {
+        regexp = this._routeToRegExp(pattern);
+        this._routes[pattern] = {
             regexp: regexp,
-            fn, fn
+            fn: fn,
         };
     },
-    routes: function routes(routes) {
-        if(_.isUndefined(routes)) {
+    routes: function routes(patterns) {
+        if(_.isUndefined(patterns)) {
             return this._routes;
         }
-        _.each(routes, R.scope(function(fn, route) {
-            this.route(route, fn);
+        _.each(patterns, R.scope(function(fn, pattern) {
+            this.route(pattern, fn);
         }, this));
     },
     def: function def(fn) {

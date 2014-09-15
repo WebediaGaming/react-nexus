@@ -1,5 +1,6 @@
 var R = require("./R");
-var lodash = require("lodash");
+var _ = require("lodash");
+var assert = require("assert");
 var d3 = R.d3;
 var raf = require("raf");
 var Animate = {

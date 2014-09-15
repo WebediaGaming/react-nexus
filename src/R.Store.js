@@ -1,6 +1,6 @@
-var assert = require("assert");
-var _ = require("_");
 var R = require("./R");
+var _ = require("lodash");
+var assert = require("assert");
 
 /**
  * @memberOf R
@@ -181,23 +181,21 @@ var Store = {
      * implement the over-the-wire Flux.
      * @implements {R.Store}
      */
-    UplinkStore: function UplinkStore(fetch, subscribe, unsubscribe) {
+    UplinkStore: function UplinkStore(_fetch, subscribe, unsubscribe) {
         _destroyed = false;
         var data = {};
         var subscribers = {};
         var updaters = {};
         var fetch = function fetch(key) {
             return function(fn) {
-                if(!_destroyed) {
-                    R.request(keyToUrl(key))(function(err, res, body) {
-                        if(err) {
-                            R.Debug.rethrow("R.Store.UplinkStore.fetch(...)~request")(err);
-                        }
-                        if(!_destroyed) {
-                            fn(null, JSON.parse(body));
-                        }
-                    });
-                }
+                _fetch(key)(function(err, res) {
+                    if(!_destroyed) {
+                        fn(err, res);
+                    }
+                    else {
+                        fn(new Error("R.Store.UplinkStore.fetch(...): instance destroyed."));
+                    }
+                });
             };
         };
         var get = function get(key) {
@@ -266,7 +264,7 @@ var Store = {
             _.each(updaters, function(updater, key) {
                 unsubscribe(key, updater);
                 delete updaters[key];
-            })
+            });
             _.each(data, function(val, key) {
                 delete data[key];
             });

@@ -1,5 +1,6 @@
 var R = require("./R");
 var _ = require("lodash");
+var assert = require("assert");
 var $ = require("cheerio");
 var React = require("react");
 

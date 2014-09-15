@@ -1,4 +1,6 @@
 var R = require("./R");
+var _ = require("lodash");
+var assert = require("assert");
 var _request = require("request");
 var sha256 = require("sha256");
 

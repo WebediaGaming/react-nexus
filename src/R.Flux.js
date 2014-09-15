@@ -111,7 +111,7 @@ var Flux = {
         triggerFluxAction: function triggerFluxAction(dispatcherName, action, params) {
             return R.scope(function(fn) {
                 this.getFluxDispatcher(dispatcherName).trigger(action, params)(fn);
-            }, this));
+            }, this);
         },
         _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
             return {};

@@ -1,7 +1,8 @@
 var R = require("../");
+var _ = require("lodash");
+var assert = require("assert");
 var recase = require("change-case");
 var parse = require("css-parse");
-var assert = require("assert");
 
 var Style = {
     slowlyAutoPrefixStyle: function slowlyAutoPrefixStyle(style) {

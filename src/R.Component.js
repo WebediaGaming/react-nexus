@@ -1,4 +1,6 @@
 var R = require("./R");
+var _ = require("lodash");
+var assert = require("assert");
 
 var Component = {
     createClass: function createClass(specs) {

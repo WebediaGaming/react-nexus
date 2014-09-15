@@ -1,5 +1,7 @@
 var R = require("./R");
 var co = require("co");
+var _ = require("lodash");
+var assert = require("assert");
 
 var Server = function Server(appParams) {
     R.Debug.dev(function() {

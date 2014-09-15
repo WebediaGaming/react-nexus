@@ -3,6 +3,9 @@ module.exports = function(grunt) {
         jshint: {
             options: {
                 esnext: true,
+                globals: {
+                    Promise: true,
+                },
             },
             default: ["src/**/*.js"],
         },

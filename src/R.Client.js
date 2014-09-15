@@ -1,4 +1,6 @@
 var R = require("./R");
+var _ = require("lodash");
+var assert = require("assert");
 
 var Client = function Client(appParams) {
     R.Debug.dev(function() {

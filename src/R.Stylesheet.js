@@ -1,5 +1,6 @@
 var R = require("../");
 var _ = require("lodash");
+var assert = require("assert");
 
 var Stylesheet = function Stylesheet() {
     this._rules = [];

@@ -1,7 +1,7 @@
 var R = require("./R");
-var assert = require("assert");
 var VError = require("verror");
 var _ = require("lodash");
+var assert = require("assert");
 /**
  * Debugging utilities embedded with R.
  * Provides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.

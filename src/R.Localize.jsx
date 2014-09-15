@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 var R = require("../");
+var _ = require("lodash");
 var assert = require("assert");
 var loc = require("locale");
 

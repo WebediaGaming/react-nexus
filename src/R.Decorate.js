@@ -1,4 +1,6 @@
 var R = require("./R");
+var _ = require("lodash");
+var assert = require("assert");
 /**
  * @memberOf R
  * Decorate a function with a wrapper.
