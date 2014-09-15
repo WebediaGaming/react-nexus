@@ -1,16 +1,5 @@
-var _ = require("lodash");
-var R = {
-    mixin: function _mixin(properties) {
-        _.extend(this, properties);
-        return this;
-    },
-};
-
-R.mixin({
-    d3: require("../lib/d3"),
-});
-
-_.each([
+var R = {};
+[
     require("./R.utils"),
     require("./R.Animate"),
     require("./R.App"),
@@ -32,8 +21,8 @@ _.each([
     require("./R.Style"),
     require("./R.Stylesheet"),
     require("./R.Uplink"),
-], function(module) {
-    R.mixin(module);
+].forEach(function(inject) {
+    inject(R);
 });
 
 module.exports = R;

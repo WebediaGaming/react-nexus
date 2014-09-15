@@ -58,5 +58,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-contrib-jst");
     grunt.loadNpmTasks("grunt-smash");
-    grunt.registerTask("default", ["jshint", "smash", "regenerator"]);
+    grunt.registerTask("default", ["jshint", "regenerator"]);
 };

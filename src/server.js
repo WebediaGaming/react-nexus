@@ -1,6 +1,6 @@
 var R = require("./R");
 
-R.mixin(require("./R.Server"));
-R.mixin(require("./R.SimpleUplinkServer"));
+require("./R.Server")(R);
+require("./R.SimpleUplinkServer")(R);
 
 module.exports = R;
