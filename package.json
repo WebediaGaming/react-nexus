@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "autoprefixer": "^3.0.0",
+    "bluebird": "^2.3.2",
     "change-case": "^2.1.5",
     "cheerio": "^0.17.0",
     "co": "^3.1.0",
@@ -33,12 +34,14 @@
     "grunt-contrib-jst": "^0.6.0",
     "grunt-regenerator": "^1.1.0",
     "grunt-smash": "^0.1.0",
+    "locale": "0.0.17",
     "raf": "^2.0.3",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
     "react-query": "0.0.10",
     "setimmediate": "^1.0.2",
-    "sha256": "^0.1.1"
+    "sha256": "^0.1.1",
+    "socket.io": "^1.1.0"
   },
   "devDependencies": {
     "browserify": "^5.11.1",

@@ -18,8 +18,6 @@ R.mixin(require("./R.App"));
 R.mixin(require("./R.Component"));
 R.mixin(require("./R.Dependencies"));
 R.mixin(require("./R.Router"));
-R.mixin(require("./R.Session"));
-R.mixin(require("./R.Users"));
 R.mixin(require("./R.Dispatcher"));
 R.mixin(require("./R.EventEmitter"));
 R.mixin(require("./R.Flux"));
@@ -28,5 +26,7 @@ R.mixin(require("./R.Animate"));
 R.mixin(require("./R.Async"));
 R.mixin(require("./R.Query"));
 R.mixin(require("./R.Pure"));
+R.mixin(require("./R.Router"));
+R.mixin(require("./R.Localize"));
 
 module.exports = R;

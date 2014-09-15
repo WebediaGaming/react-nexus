@@ -1,6 +1,8 @@
 var R = require("../");
 var co = require("co");
 var React = require("react");
+var assert = require("assert");
+var _ = require("lodash");
 
 var App = function App(params) {
     R.Debug.dev(function() {
@@ -33,8 +35,9 @@ _.extend(App.prototype, /** @lends R.App.prototype */ {
             assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
         });
         return co(function*() {
+            var guid = R.guid();
             var flux = new this._fluxClass();
-            yield flux.bootstrapInServer(req);
+            yield flux.bootstrapInServer(req, headers, guid);
             flux.registerAllComponentsStylesheetRules(this._componentsClasses);
             var rootComponent = this._rootClass({
                 flux: flux,
@@ -51,24 +54,33 @@ _.extend(App.prototype, /** @lends R.App.prototype */ {
             flux.destroy();
             return this._template(_.extend({}, this._bootstrapTemplateVarsInServer(req), {
                 displayName: displayName,
+                styleChunks: this._cachedStyleChunks,
                 rootHtml: rootHtml,
                 serializedFlux: serializedFlux,
-                styleChunks: this._cachedStyleChunks,
+                headers: req.headers,
+                guid: guid,
             }));
         }).call(this);
     },
     renderIntoDocumentInClient: function renderAppInExistingDocumentInClient(window) {
         R.Debug.dev(function() {
             assert(R.isClient(), "R.App.renderAppIntoDocumentInClient(...): should be in client.");
+            assert(_.has(window, "__ReactOnRails") && _.isPlainObject(window.__ReactOnRails), "R.App.renderIntoDocumentInClient(...).__ReactOnRails: expecting Object.");
+            assert(_.has(window.__ReactOnRails, "guid") && _.isString(window.__ReactOnRails.guid), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.guid: expecting String.");
+            assert(_.has(window.__ReactOnRails, "serializedFlux") && _.isString(window.__ReactOnRails.serializedFlux), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.serializedFlux: expecting String.");
+            assert(_.has(window.__ReactOnRails, "headers") && _.isString(window.__ReactOnRails.headers), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.headers: expecting String.");
         });
-        var flux = new this._fluxClass();
-        flux.unserialize(JSON.parse(window.__ReactOnRails.serializedFlux));
-        flux.bootstrapInClient(window);
-        var rootComponent = this._rootClass({
-            flux: flux,
-        });
-        React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
-        flux.stopInjectingFromStores();
+        return co(function*() {
+            var flux = new this._fluxClass();
+            flux.unserialize(JSON.parse(window.__ReactOnRails.serializedFlux));
+            var guid = window.__ReactOnRails.guid;
+            yield flux.bootstrapInClient(window, headers, guid);
+            var rootComponent = this._rootClass({
+                flux: flux,
+            });
+            React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
+            flux.stopInjectingFromStores();
+        }).call(this);
     },
 });
 

@@ -56,7 +56,7 @@ var Store = {
      * @public
      */
     Subscription: function Subscription(key) {
-        this.uniqueId = _.uniqueId("Subscription");
+        this.uniqueId = _.uniqueId("R.Store.Subscription");
         this.key = key;
     },
     /**
@@ -181,10 +181,11 @@ var Store = {
      * implement the over-the-wire Flux.
      * @implements {R.Store}
      */
-    UplinkStore: function UplinkStore(keyToUrl, upSub, upUnsub) {
+    UplinkStore: function UplinkStore(fetch, subscribe, unsubscribe) {
         _destroyed = false;
         var data = {};
         var subscribers = {};
+        var updaters = {};
         var fetch = function fetch(key) {
             return function(fn) {
                 if(!_destroyed) {
@@ -219,22 +220,22 @@ var Store = {
                 _.each(subscribers[key], R.callWith(null, val));
             });
         };
-        var sub = function sub(key, signalUpdate) {
+        var sub = function sub(key, _signalUpdate) {
             R.Debug.dev(function() {
                 assert(!_destroyed, "R.Store.UplinkStore.sub(...): instance destroyed.");
             });
             var subscription = new R.Store.Subscription();
             if(!_.has(subscribers, key)) {
                 subscribers[key] = {};
-                upSub(key);
+                updaters[key] = subscribe(key, _.partial(signalUpdate, key));
             }
-            subscribers[key][subscription.uniqueId] = signalUpdate;
+            subscribers[key][subscription.uniqueId] = _signalUpdate;
             fetch(key)(function(err, val) {
                 if(err) {
                     R.Debug.rethrow("R.Store.sub.fetch(...): data not available.");
                 }
                 else {
-                    signalUpdate(val);
+                    _signalUpdate(val);
                 }
             });
         };
@@ -247,8 +248,9 @@ var Store = {
             });
             delete subscribers[subscription.key][subscription.uniqueId];
             if(_.size(subscribers[subscription.key]) === 0) {
+                unsubscribe(key, updaters[subscription.key]);
                 delete subscribers[subscription.key];
-                upUnsub(key);
+                delete updaters[subscription.key];
             }
         };
         var destroy = function destroy() {
@@ -260,13 +262,17 @@ var Store = {
                     delete subscribers[key][uniqueId];
                 });
                 delete subscribers[key];
-                upUnsub(key);
             });
+            _.each(updaters, function(updater, key) {
+                unsubscribe(key, updater);
+                delete updaters[key];
+            })
             _.each(data, function(val, key) {
                 delete data[key];
             });
             data = null;
             subscribers = null;
+            updaters = null;
             _destroyed = true;
         };
         var serialize = function serialize() {

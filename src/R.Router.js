@@ -6,19 +6,36 @@ var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
 var Router = function Router() {
-    this._routes = [];
+    this._routes = {};
 };
 
 _.extend(Router.prototype, /** @lends R.Router.prototype */ {
     _routes: null,
-    registerRoute: function registerRoute(route, fn) {
+    _default: null,
+    route: function route(route, fn) {
+        R.Debug.dev(R.scope(function() {
+            if(_.has(this._routes, route)) {
+                console.warn("R.Router.route(...): route already registered.");
+            }
+        }, this));
         regexp = this._routeToRegExp(route);
-        this._routes.push({
+        this._routes[route] = {
             regexp: regexp,
-            fn: fn,
-        });
+            fn, fn
+        };
     },
-    route: function route(fragment) {
+    routes: function routes(routes) {
+        if(_.isUndefined(routes)) {
+            return this._routes;
+        }
+        _.each(routes, R.scope(function(fn, route) {
+            this.route(route, fn);
+        }, this));
+    },
+    def: function def(fn) {
+        this._default = fn;
+    },
+    match: function match(fragment) {
         var res = null;
         _.each(this._routes, R.scope(function(r) {
             var regexp = r.regexp;
@@ -28,9 +45,13 @@ _.extend(Router.prototype, /** @lends R.Router.prototype */ {
             }
             if(regexp.match(fragment) !== null) {
                 var params = this._extractParameters(regexp, fragment);
-                res = fn(params, fragment);
+                params.push(fragment);
+                res = fn.apply(null, params);
             }
         }, this));
+        if(!res && this._default) {
+            res = this._default.fn.call(null, fragment);
+        }
         return res;
     },
     _routeToRegExp: function _routeToRegExp(route) {

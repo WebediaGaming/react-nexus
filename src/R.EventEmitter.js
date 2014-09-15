@@ -26,7 +26,7 @@ var EventEmitter = {
         return EventEmitterInstance;
     },
     Listener: function Listener(event) {
-        this.uniqueId = _.uniqueId("Listener");
+        this.uniqueId = _.uniqueId("R.EventEmitter.Listener");
         this.event = event;
     },
     MemoryEventEmitter: function MemoryEventEmitter() {
@@ -45,7 +45,7 @@ var EventEmitter = {
                 assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
             });
             delete listeners[listener.event][listener.uniqueId];
-            if(_.size(listeners[listener.event])) {
+            if(_.size(listeners[listener.event]) === 0) {
                 delete listeners[listener.event];
             }
         };
@@ -61,12 +61,13 @@ var EventEmitter = {
             emit: emit,
         });
     },
-    UplinkEventEmitter: function UplinkEventEmitter(upAddListener, upRemoveListener) {
+    UplinkEventEmitter: function UplinkEventEmitter(listenTo, unlistenFrom) {
         var listeners = {};
+        var emitters = {};
         var addListener = function addListener(event, fn) {
             var listener = new R.EventEmitter.Listener(event);
             if(!_.has(listeners, event)) {
-                upAddListener(event);
+                emitters[event] = listenTo(event, _.partial(emit, event));
                 listeners[event] = {};
             }
             listeners[event][listener.uniqueId] = fn;
@@ -78,9 +79,10 @@ var EventEmitter = {
                 assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
             });
             delete listeners[listener.event][listener.uniqueId];
-            if(_.size(listeners[listener.event])) {
-                upRemoveListener(event);
+            if(_.size(listeners[listener.event]) === 0) {
+                unlistenFrom(listener.event, emitters[event]);
                 delete listeners[listener.event];
+                delete emitters[listener.event];
             }
         };
         var emit = function emit(event, params) {
@@ -92,7 +94,6 @@ var EventEmitter = {
         return new R.EventEmitter.createEventEmitter({
             addListener: addListener,
             removeListener: removeListener,
-            emit: emit,
         });
     },
 };

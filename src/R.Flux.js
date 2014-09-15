@@ -217,6 +217,10 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
     _dispatchers: null,
     _stylesheets: null,
     _shouldInjectFromStores: null,
+    bootstrapInClient: _.noop,
+    bootstrapInServer: _.noop,
+    destroyInClient: _.noop,
+    destroyInServer: _.noop,
     shouldInjectFromStores: function shouldInjectFromStores() {
         return this._shouldInjectFromStores;
     },
@@ -314,6 +318,12 @@ _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype *
         }, this));
     },
     destroy: function destroy() {
+        if(R.isClient()) {
+            this.destroyInClient();
+        }
+        if(R.isServer()) {
+            this.destroyInServer();
+        }
         _.each(this._stores, function(store) {
             store.destroy();
         });

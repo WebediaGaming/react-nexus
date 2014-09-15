@@ -1,5 +1,6 @@
 var R = require("./R");
 var _request = require("request");
+var sha256 = require("sha256");
 
 module.exports = /** @lends R */{
     /**
@@ -57,5 +58,25 @@ module.exports = /** @lends R */{
             args.push(fn);
             return _request.apply(null, args);
         };
+    },
+    hash: sha256,
+    /**
+     * @type {Function}
+     * @private
+     */
+    _guidHelper: function _guidHelper() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    },
+    /**
+     * Returns a random, unique string GUID, with an optional prefix.
+     * @param {String?} prefix
+     * @return {String}
+     */
+    guid: function guid(prefix) {
+        s4 = R._guidHelper;
+        prefix = prefix || '';
+        return '' + prefix + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     },
 };
