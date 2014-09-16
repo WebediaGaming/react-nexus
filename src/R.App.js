@@ -12,6 +12,7 @@ module.exports = function(R) {
             assert(_.has(params, "rootClass") && _.isFunction(params.rootClass), "R.App(...).params.rootClass: expecting Function.");
             assert(_.has(params, "componentsClasses") && _.isPlainObject(params.componentsClasses), "R.App(...).params.componentsClasses: expecting Object.");
             assert(_.has(params, "bootstrapTemplateVarsInServer") && _.isFunction(params.bootstrapTemplateVarsInServer), "R.App(...).params.bootstrapTemplateVarsInServer: expecting Function.");
+            assert(_.has(params, "client") && _.isString(params.client), "R.App(...).params.client: expecting String.");
         });
         _.extend(this, {
             _fluxClass: params.fluxClass,
@@ -19,6 +20,7 @@ module.exports = function(R) {
             _template: params.template || App.defaultTemplate,
             _componentsClasses: params.componentsClasses,
             _bootstrapTemplateVarsInServer: params.bootstrapTemplateVarsInServer,
+            _client: params.client,
         });
     };
 
@@ -35,7 +37,7 @@ module.exports = function(R) {
             R.Debug.dev(function() {
                 assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
             });
-            return co(function*() {
+            return R.scope(co(function*() {
                 var guid = R.guid();
                 var flux = new this._fluxClass();
                 yield flux.bootstrapInServer(req, req.headers, guid);
@@ -44,9 +46,11 @@ module.exports = function(R) {
                     flux: flux,
                 });
                 surrogateRootComponent.componentWillMount();
+                console.warn("before yield");
                 yield surrogateRootComponent.prefetchFluxStores();
+                console.warn("after yield");
                 surrogateRootComponent.componentWillUnmount();
-                var rootComponent = new this._rootClass({
+                var rootComponent = this._rootClass({
                     flux: flux,
                 });
                 var rootHtml = React.renderComponentToString(rootComponent);
@@ -58,15 +62,15 @@ module.exports = function(R) {
                     });
                 }
                 flux.destroy();
-                return this._template(_.extend({}, this._bootstrapTemplateVarsInServer(req), {
-                    displayName: displayName,
+                return this._template(_.extend({}, yield this._bootstrapTemplateVarsInServer(req), {
+                    client: this._client,
                     styleChunks: this._cachedStyleChunks,
                     rootHtml: rootHtml,
                     serializedFlux: serializedFlux,
                     headers: req.headers,
                     guid: guid,
                 }));
-            }).call(this);
+            }), this);
         },
         renderIntoDocumentInClient: function renderAppInExistingDocumentInClient(window) {
             R.Debug.dev(function() {

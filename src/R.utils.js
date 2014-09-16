@@ -23,17 +23,6 @@ module.exports = function(R) {
                 return fn.apply(ctx, arguments);
             };
         },
-        scopeAll: function scopeAll(ctx) {
-            for(var k in ctx) {
-                if(_.isFunction(ctx[k])) {
-                    ctx[k] = R.scope(ctx[k], ctx);
-                }
-                else {
-                    ctx[k] = ctx[k];
-                }
-            }
-            return ctx;
-        },
         /**
          * Returns a POJO with a single key-val pair.
          * @param {String} key The unique key of the returned Object.

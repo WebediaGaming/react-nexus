@@ -97,10 +97,12 @@ module.exports = function(R) {
             debugger;
             /* jshint debug:false */
         },
-        display: function display(obj) {
+        display: function display(name, obj) {
+            console.warn("++++[ " + name + " ]++++");
             for(var k in obj) {
                 console.warn(k, ":", obj[k]);
             }
+            console.warn("----[ " + name + " ]----");
         },
         /**
          * Runs assert from node core with the same arguments.

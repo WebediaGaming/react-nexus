@@ -13,6 +13,7 @@ module.exports = function(R) {
     var Descriptor = function Descriptor(component) {
         if(component._isReactRailsDescriptor_) {
             _.extend(this, {
+                originalComponent: component.originalComponent,
                 isNull: component.isNull,
                 isText: component.isText,
                 text: component.text,
@@ -21,30 +22,37 @@ module.exports = function(R) {
                 props: _.clone(component.props),
             });
         }
-        else if(component === null) {
-            this.isNull = true;
-        }
-        else if(_.isString(component)) {
-            this.isText = true;
-            this.text = component;
-        }
         else {
-            this.displayName = component.type.displayName;
-            this.componentClass = component.constructor;
-            if(!component.props) {
-                this.props = {};
+            this.originalComponent = component;
+            if(component === null) {
+                this.isNull = true;
+                this.displayName = "__Null";
+                this.props = { children: [] };
+            }
+            else if(_.isString(component)) {
+                this.isText = true;
+                this.text = component;
+                this.displayName = "__Text";
+                this.props = { children: [] };
             }
             else {
-                this.props = _.clone(component.props);
+                this.displayName = component.type.displayName;
+                this.componentClass = component.constructor;
+                if(!component.props) {
+                    this.props = {};
+                }
+                else {
+                    this.props = _.clone(component.props);
+                }
+                if(this.props.children) {
+                    this.props.children = _.map(this.props.children, function(component) {
+                        return new Descriptor(component);
+                    });
+                }
+                else {
+                    this.props.children = [];
+                }
             }
-        }
-        if(this.props.children) {
-            this.props.children = _.map(this.props.children, function(component) {
-                return new Descriptor(component);
-            });
-        }
-        else {
-            this.props.children = [];
         }
     };
 
@@ -76,6 +84,7 @@ module.exports = function(R) {
          * @private
          */
         _isReactRailsDescriptor_: true,
+        originalComponent: null,
         /**
          * Is this component a null component ?
          * @type {Boolean}

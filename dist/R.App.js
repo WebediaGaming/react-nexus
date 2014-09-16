@@ -12,6 +12,7 @@ module.exports = function(R) {
             assert(_.has(params, "rootClass") && _.isFunction(params.rootClass), "R.App(...).params.rootClass: expecting Function.");
             assert(_.has(params, "componentsClasses") && _.isPlainObject(params.componentsClasses), "R.App(...).params.componentsClasses: expecting Object.");
             assert(_.has(params, "bootstrapTemplateVarsInServer") && _.isFunction(params.bootstrapTemplateVarsInServer), "R.App(...).params.bootstrapTemplateVarsInServer: expecting Function.");
+            assert(_.has(params, "client") && _.isString(params.client), "R.App(...).params.client: expecting String.");
         });
         _.extend(this, {
             _fluxClass: params.fluxClass,
@@ -19,6 +20,7 @@ module.exports = function(R) {
             _template: params.template || App.defaultTemplate,
             _componentsClasses: params.componentsClasses,
             _bootstrapTemplateVarsInServer: params.bootstrapTemplateVarsInServer,
+            _client: params.client,
         });
     };
 
@@ -35,7 +37,7 @@ module.exports = function(R) {
             R.Debug.dev(function() {
                 assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
             });
-            return co(regeneratorRuntime.mark(function callee$2$0() {
+            return R.scope(co(regeneratorRuntime.mark(function callee$2$0() {
                 var guid, flux, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
@@ -53,12 +55,14 @@ module.exports = function(R) {
                         });
 
                         surrogateRootComponent.componentWillMount();
-                        context$3$0.next = 9;
+                        console.warn("before yield");
+                        context$3$0.next = 10;
                         return surrogateRootComponent.prefetchFluxStores();
-                    case 9:
+                    case 10:
+                        console.warn("after yield");
                         surrogateRootComponent.componentWillUnmount();
 
-                        rootComponent = new this._rootClass({
+                        rootComponent = this._rootClass({
                             flux: flux,
                         });
 
@@ -71,24 +75,27 @@ module.exports = function(R) {
                             });
                         }
                         flux.destroy();
+                        context$3$0.next = 20;
+                        return this._bootstrapTemplateVarsInServer(req);
+                    case 20:
+                        context$3$0.t0 = context$3$0.sent;
 
-                        return context$3$0.abrupt(
-                            "return",
-                            this._template(_.extend({}, this._bootstrapTemplateVarsInServer(req), {
-                                displayName: displayName,
-                                styleChunks: this._cachedStyleChunks,
-                                rootHtml: rootHtml,
-                                serializedFlux: serializedFlux,
-                                headers: req.headers,
-                                guid: guid,
-                            }))
-                        );
-                    case 17:
+                        context$3$0.t1 = _.extend({}, context$3$0.t0, {
+                            client: this._client,
+                            styleChunks: this._cachedStyleChunks,
+                            rootHtml: rootHtml,
+                            serializedFlux: serializedFlux,
+                            headers: req.headers,
+                            guid: guid,
+                        });
+
+                        return context$3$0.abrupt("return", this._template(context$3$0.t1));
+                    case 23:
                     case "end":
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })).call(this);
+            })), this);
         },
         renderIntoDocumentInClient: function renderAppInExistingDocumentInClient(window) {
             R.Debug.dev(function() {

@@ -8,14 +8,20 @@ module.exports = function(R) {
             assert(R.isServer(), "R.Server(...): should only be called in the server.");
         });
         this._app = new R.App(appParams);
-        _.bindAll(this);
+        this.middleware = R.scope(this.middleware, this);
     };
 
     _.extend(Server.prototype, /** @lends R.Server.Prototype */ {
         _app: null,
-        middleware: function middleware(req, res, next) {
-            var html = this._app.renderToStringInServer(req);
-            res.status(200).send(html);
+        middleware: function middleware(req, res) {
+            this._app.renderToStringInServer(req)(function(err, html) {
+                if(err) {
+                    res.status(500).json({ err: err });
+                }
+                else {
+                    res.status(200).send(html);
+                }
+            });
         },
     });
 

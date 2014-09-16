@@ -13,6 +13,7 @@ module.exports = function(grunt) {
             options: {
                 namespace: "tpl",
                 commonjs: true,
+                prettify: true,
             },
             default: {
                 files: {

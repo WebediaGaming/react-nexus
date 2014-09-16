@@ -94,20 +94,37 @@ module.exports = function(R) {
 
     var _patchedCreateClass = function createClass(specs) {
         var fullSpecs = getFullSpecs(specs);
-        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props) {
-            R.scopeAll(this);
+        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
+            this.__ReactOnRailsScopeAll();
+            this.__ReactOnRailsSurrogate = __ReactOnRailsSurrogate;
             R.Debug.dev(R.scope(function() {
                 assert(_.has(this, "getFlux") && _.isFunction(this.getFlux), this.displayName + ".__ReactOnRailsSurrogate(...): expecting getFlux(): R.Flux.FluxInstance (usually from RootMixin or ComponentMixin).");
             }, this));
             this.context = context;
             this.props = _.extend({}, props, this.getDefaultProps());
-            this.state = this.getInitialState();
+            if(_.isUndefined(initialState)) {
+                this.state = this.getInitialState();
+            }
+            else {
+                this.state = _.clone(initialState);
+            }
         };
         var pseudoPrototype = _.extend(__ReactOnRailsSurrogate.prototype, {
             _isReactOnRailsSurrogate_: true,
             context: null,
             props: null,
             state: null,
+            __ReactOnRailsSurrogate: null,
+            __ReactOnRailsSurrogateSpecs: fullSpecs,
+            __ReactOnRailsScope: function __ReactOnRailsScope(key) {
+                this[key] = this[key];
+                if(_.isFunction(this[key])) {
+                    this[key] = R.scope(this[key], this);
+                }
+            },
+            __ReactOnRailsScopeAll: function __ReactOnRailsScopeAll() {
+                _.each(_.keys(fullSpecs), R.scope(this.__ReactOnRailsScope, this));
+            },
         }, fullSpecs);
 
         var createdClass = _vanillaCreateClass.call(React, specs);
@@ -117,6 +134,31 @@ module.exports = function(R) {
         return createdClass;
     };
 
+    var _vanillaChildren = React.Children;
+    var _patchedChildren = _.extend({}, React.Children, {
+        getChildrenList: function getChildrenList(component) {
+            if(null === component || !component.props.children) {
+                return [];
+            }
+            return React.Children.map(component.props.children, _.identity);
+        },
+        getDescendantsList: function getDescendantsList(component) {
+            var childrenList = _patchedChildren.getChildrenList(component);
+            var descendantsList = [];
+            _.each(childrenList, function(child) {
+                descendantsList.push(child);
+                var subDescendantsList = _patchedChildren.getDescendantsList(child);
+                _.each(subDescendantsList, function(node) {
+                    descendantsList.push(node);
+                });
+            });
+            return descendantsList;
+        },
+        mapDescendants: function mapDescendants(component, fn) {
+            return _.map(_patchedChildren.getDescendantsList(component), fn);
+        },
+    });
+
     var patchReact = {
         patchCreateClass: function patchCreateClass() {
             React.createClass = _patchedCreateClass;
@@ -124,9 +166,23 @@ module.exports = function(R) {
         restoreVanillaCreateClass: function restoreVanillaCreateClass() {
             React.createClass = _vanillaCreateClass;
         },
+        patchChildren: function patchChildren() {
+            React.Children = _patchedChildren;
+        },
+        restoreVanillaChildren: function restoreVanillaChildren() {
+            React.Children = _vanillaChildren;
+        },
+        patchAll: function patchAll() {
+            patchReact.patchCreateClass();
+            patchReact.patchChildren();
+        },
+        restoreVanillaAll: function restoreVanillaAll() {
+            patchReact.restoreVanillaCreateClass();
+            patchReact.restoreVanillaChildren();
+        },
     };
 
-    patchReact.patchCreateClass();
+    patchReact.patchAll();
 
     R.patchReact = patchReact;
     return R;

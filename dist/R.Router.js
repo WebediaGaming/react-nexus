@@ -45,7 +45,7 @@ module.exports = function(R) {
                 if(res !== null) {
                     return;
                 }
-                if(regexp.match(fragment) !== null) {
+                if(fragment.match(regexp) !== null) {
                     var params = this._extractParameters(regexp, fragment);
                     params.push(fragment);
                     res = fn.apply(null, params);

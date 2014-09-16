@@ -17,8 +17,8 @@
         </div>
         <script type="text/javascript">
             window.__ReactOnRails = {};
-            window.__ReactOnRails.serializedFlux = JSON.parse(<%= JSON.stringify(serializedFlux) %>);
-            window.__ReactOnRails.headers = JSON.parse(<%= JSON.stringify(headers) %>);
+            window.__ReactOnRails.serializedFlux = <%= JSON.stringify(serializedFlux) %>;
+            window.__ReactOnRails.headers = <%= JSON.stringify(headers) %>;
             window.__ReactOnRails.guid = "<%= guid %>";
         </script>
         <script type="text/javascript" src="<%- client %>"></script>

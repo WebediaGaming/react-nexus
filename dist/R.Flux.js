@@ -3,6 +3,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var co = require("co");
     var Promise = require("bluebird");
+    var React = require("react");
 
     /**
      * @memberOf R
@@ -56,10 +57,6 @@ module.exports = function(R) {
                     this.fluxEventEmitterWillEmit = this._FluxMixinDefaultFluxEventEmitterWillEmit;
                 }
                 var flux = this.getFlux();
-                console.warn("this.getFlux.__unscoped:", this.getFlux.__unscoped);
-                console.warn("flux:", this.flux);
-                console.warn("props:", this.props);
-                console.warn("context:", this.context);
                 if(this.getFlux().shouldInjectFromStores()) {
                     var subscriptions = this.getFluxStoreSubscriptions(this.props);
                     _.each(subscriptions, this._FluxMixinInject);
@@ -78,60 +75,66 @@ module.exports = function(R) {
                 return this.getFlux().getStore(name);
             },
             prefetchFluxStores: function prefetchFluxStores() {
-                R.Debug.dev(function() {
-                    assert(R.isServer(), "R.Flux.Mixin.prefetchFluxStores(...): should only be called in the server.");
-                });
-                return co(regeneratorRuntime.mark(function callee$2$0() {
-                    var subscriptions, yieldState, state, surrogateComponent, rendered, childContext, descriptor;
+                return new Promise(R.scope(function(resolve, reject) {
+                    co(regeneratorRuntime.mark(function callee$3$0() {
+                        var subscriptions, yieldState, state, surrogateComponent, renderedComponent, childContext;
 
-                    return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                        while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            subscriptions = this.getFluxStoreSubscriptions(this.props);
-                            yieldState = {};
-                            _.each(subscriptions, R.scope(function(entry) {
-                                yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
-                            }, this));
-                            context$3$0.next = 5;
-                            return yieldState;
-                        case 5:
-                            state = context$3$0.sent;
-                            surrogateComponent = new this.__ReactRailsSurrogate(this.context, this.props);
-                            surrogateComponent.componentWillMount();
-                            surrogateComponent.setState(state);
-                            rendered = surrogateComponent.render();
-                            childContext = surrogateComponent.getChildContext();
-                            surrogateComponent.componentWillUnmount();
-                            descriptor = new R.Descriptor(rendered);
-                            context$3$0.next = 15;
+                        return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                            while (1) switch (context$4$0.prev = context$4$0.next) {
+                            case 0:
+                                context$4$0.prev = 0;
+                                subscriptions = this.getFluxStoreSubscriptions(this.props);
+                                yieldState = {};
+                                _.each(subscriptions, R.scope(function(entry) {
+                                    yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
+                                }, this));
+                                context$4$0.next = 6;
+                                return yieldState;
+                            case 6:
+                                state = context$4$0.sent;
+                                surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
+                                surrogateComponent.componentWillMount();
+                                renderedComponent = surrogateComponent.render();
+                                childContext = surrogateComponent.getChildContext();
+                                surrogateComponent.componentWillUnmount();
+                                context$4$0.next = 14;
 
-                            return descriptor.mapTree(function(childDescriptor) {
-                                return new Promise(function(resolve, reject) {
-                                    if(!descendant.prefetchFluxStores) {
-                                        resolve();
-                                    }
-                                    else {
-                                        var surrogateChildComponent = new childDescriptor.__ReactRailsSurrogate(childContext, childDescriptor.props);
-                                        surrogateChildComponent.prefetchFluxStores()(function(err) {
-                                            if(err) {
-                                                reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
-                                            }
-                                            else {
-                                                surrogateChildComponent.componentWillUnmount();
-                                                resolve();
-                                            }
-                                        });
-                                    }
+                                return React.Children.mapDescendants(renderedComponent, function(childComponent) {
+                                    return new Promise(function(resolve, reject) {
+                                        if(!childComponent.__ReactOnRailsSurrogate) {
+                                            resolve();
+                                        }
+                                        else {
+                                            var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
+                                            surrogateChildComponent.componentWillMount();
+                                            surrogateChildComponent.prefetchFluxStores()(function(err) {
+                                                if(err) {
+                                                    reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
+                                                }
+                                                else {
+                                                    surrogateChildComponent.componentWillUnmount();
+                                                    resolve();
+                                                }
+                                            });
+                                        }
+                                    });
                                 });
-                            });
-                        case 15:
-                            return context$3$0.abrupt("return", context$3$0.sent);
-                        case 16:
-                        case "end":
-                            return context$3$0.stop();
-                        }
-                    }, callee$2$0, this);
-                })).call(this);
+                            case 14:
+                                context$4$0.next = 19;
+                                break;
+                            case 16:
+                                context$4$0.prev = 16;
+                                context$4$0.t2 = context$4$0.catch(0);
+                                return context$4$0.abrupt("return", reject(context$4$0.t2));
+                            case 19:
+                                resolve();
+                            case 20:
+                            case "end":
+                                return context$4$0.stop();
+                            }
+                        }, callee$3$0, this, [[0, 16]]);
+                    })).call(this);
+                }, this));
             },
             getFluxEventEmitter: function getFluxEventEmitter(name) {
                 return this.getFlux().getEventEmitter(name);
@@ -248,6 +251,7 @@ module.exports = function(R) {
     };
 
     _.extend(Flux.FluxInstance.prototype, /** @lends R.Flux.FluxInstance.prototype */{
+        _isFluxInstance_: true,
         _stores: null,
         _eventEmitters: null,
         _dispatchers: null,
@@ -266,43 +270,18 @@ module.exports = function(R) {
             }, this));
             this._shouldInjectFromStores = false;
         },
-        serialize: co(regeneratorRuntime.mark(function serialize() {
-            var map;
-
-            return regeneratorRuntime.wrap(function serialize$(context$2$0) {
-                while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    map = _.mapValues(this._stores, function(store) {
-                        return store.serialize();
-                    });
-
-                    context$2$0.next = 3;
-                    return map;
-                case 3:
-                    return context$2$0.abrupt("return", context$2$0.sent);
-                case 4:
-                case "end":
-                    return context$2$0.stop();
-                }
-            }, serialize, this);
-        })),
+        serialize: function serialize() {
+            return _.mapValues(this._stores, function(store) {
+                return store.serialize();
+            });
+        },
         unserialize: function unserialize(str) {
-            var _this = this;
-            return co(regeneratorRuntime.mark(function callee$2$0() {
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                    case 0:
-                        context$3$0.next = 2;
-
-                        return _.mapValues(JSON.parse(str), function(serializedStore, name) {
-                            return _this._stores[name].unserialize(serializedStore);
-                        });
-                    case 2:
-                    case "end":
-                        return context$3$0.stop();
-                    }
-                }, callee$2$0, this);
-            }))();
+            _.each(JSON.parse(str), R.scope(function(serializedStore, name) {
+                R.Debug.dev(R.scope(function() {
+                    assert(_.has(this._stores, name), "R.Flux.FluxInstance.unserialize(...): no such store.");
+                }, this));
+                this._stores[name].unserialize(serializedStore);
+            }));
         },
         getStore: function getStore(name) {
             R.Debug.dev(R.scope(function() {
@@ -352,7 +331,7 @@ module.exports = function(R) {
             return this._stylesheets[name];
         },
         getAllStylesheets: function getAllStylesheets() {
-            return this._stylesheets[name];
+            return this._stylesheets;
         },
         registerStylesheet: function registerStylesheet(name, stylesheet) {
             R.Debug.dev(R.scope(function() {

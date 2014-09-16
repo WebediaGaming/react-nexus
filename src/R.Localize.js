@@ -1,7 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
-    var loc = require("locale");
+    var Locales = require("locale").Locales;
 
     var _cache = {};
 
@@ -45,11 +45,13 @@ module.exports = function(R) {
     };
 
     _.extend(Localize, /** @lends R.Localize */{
-        extractLocale: function extractLocale(headers, accepted) {
+        extractLocale: function extractLocale(headers, supported) {
             R.Debug.dev(function() {
                 assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
             });
-            return new loc.locales(accepted).best(headers["accept-language"]);
+            var supportedLocales = new Locales(supported);
+            var acceptedLocales = new Locales(headers["accept-language"]);
+            return acceptedLocales.best(supportedLocales);
         },
         localize: function localize(flux, storeName, map) {
             var locale = flux.getStore(storeName).get("locale");

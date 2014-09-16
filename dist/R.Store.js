@@ -153,15 +153,13 @@ module.exports = function(R) {
                 _destroyed = true;
             };
             var serialize = function serialize() {
-                return function(fn) {
-                    fn(null, JSON.stringify(data));
-                };
+                return JSON.stringify(data);
             };
             var unserialize = function unserialize(str) {
-                return function(fn) {
-                    data = JSON.parse(str);
-                    fn(null);
-                };
+                R.Debug.dev(function() {
+                    assert(!_destroyed && _.isEqual(data, {}), "R.Store.MemoryStore.unserialize(...): instance should be left untouched before unserializing.");
+                });
+                this.data = JSON.parse(data);
             };
             return R.Store.createStore({
                 displayName: "MemoryStore",
@@ -251,16 +249,15 @@ module.exports = function(R) {
                     delete updaters[subscription.key];
                 }
             };
+
             var serialize = function serialize() {
-                return function(fn) {
-                    fn(null, JSON.stringify(data));
-                };
+                return JSON.stringify(data);
             };
             var unserialize = function unserialize(str) {
-                return function(fn) {
-                    data = JSON.parse(str);
-                    fn(null);
-                };
+                R.Debug.dev(function() {
+                    assert(!_destroyed && _.isEqual(data, {}), "R.Store.UplinkStore.unserialize(...): instance should be left untouched before unserializing.");
+                });
+                this.data = JSON.parse(data);
             };
             var destroy = function destroy() {
                 R.Debug.dev(function() {
