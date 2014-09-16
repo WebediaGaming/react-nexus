@@ -19,13 +19,13 @@ module.exports = function(R) {
             $: null,
             _$MixinHas$Mixin: true,
             componentWillMount: function componentWillMount() {
-                this.$ = new $(this);
+                // this.$ = new $(this); todo
             },
             componentWillReceiveProps: function componentWillReceiveProps() {
-                this.$ = new $(this);
+                // this.$ = new $(this); todo
             },
             componentWillUnmount: function componentWillUnmount() {
-                this.$ = null;
+                // this.$ = null; todo
             },
         },
     });

@@ -36,7 +36,7 @@ module.exports = function(R) {
                 assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
             });
             return co(regeneratorRuntime.mark(function callee$2$0() {
-                var guid, flux, rootComponent, rootHtml, serializedFlux;
+                var guid, flux, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -48,18 +48,20 @@ module.exports = function(R) {
                     case 4:
                         flux.registerAllComponentsStylesheetRules(this._componentsClasses);
 
-                        rootComponent = this._rootClass({
+                        surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, {
                             flux: flux,
                         });
 
-                        console.warn("rootComponent:");
-                        /* jshint ignore:start */
-                        _.forIn(rootComponent.__proto__, function(val, key) {
-                            console.warn(key, val);
+                        surrogateRootComponent.componentWillMount();
+                        context$3$0.next = 9;
+                        return surrogateRootComponent.prefetchFluxStores();
+                    case 9:
+                        surrogateRootComponent.componentWillUnmount();
+
+                        rootComponent = new this._rootClass({
+                            flux: flux,
                         });
-                        context$3$0.next = 10;
-                        return rootComponent.prefetchFluxStores();
-                    case 10:
+
                         rootHtml = React.renderComponentToString(rootComponent);
                         flux.stopInjectingFromStores();
                         serializedFlux = flux.serialize();
@@ -81,7 +83,7 @@ module.exports = function(R) {
                                 guid: guid,
                             }))
                         );
-                    case 16:
+                    case 17:
                     case "end":
                         return context$3$0.stop();
                     }

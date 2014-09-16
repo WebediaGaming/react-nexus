@@ -2,6 +2,7 @@ module.exports = function(R) {
     var VError = require("verror");
     var _ = require("lodash");
     var assert = require("assert");
+    var util = require("util");
     /**
      * Debugging utilities embedded with R.
      * Provides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.
@@ -96,41 +97,10 @@ module.exports = function(R) {
             debugger;
             /* jshint debug:false */
         },
-        assert: {
-            /**
-             * Runs assert from node core iff the current mode is dev.
-             * Throws iff the assert fails and the current mode is dev.
-             * @type {Function}
-             * @public
-             */
-            dev: function dev() {
-                if(Debug.isDev()) {
-                    return assert.apply(null, arguments);
-                }
-                else {
-                    return void 0;
-                }
-            },
-            /**
-             * Runs assert from node core iff the current mode is prod.
-             * Throw iff the assert fails and the current mode is prod.
-             * @type {Function}
-             * @public
-             */
-            prod: function prod() {
-                if(Debug.isProd()) {
-                    return assert.apply(null, arguments);
-                }
-                else {
-                    return void 0;
-                }
-            },
-            /**
-             * @see {assert}
-             * @type {Function}
-             * @public
-             */
-            always: assert,
+        display: function display(obj) {
+            for(var k in obj) {
+                console.warn(k, ":", obj[k]);
+            }
         },
         /**
          * Runs assert from node core with the same arguments.

@@ -48,6 +48,7 @@ module.exports = function(R) {
                 R.$.Mixin,
                 R.Async.Mixin,
                 R.Animate.Mixin,
+                R.Component.Mixin,
                 R.Flux.Mixin,
             ];
         },

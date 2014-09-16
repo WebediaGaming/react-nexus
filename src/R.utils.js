@@ -14,9 +14,25 @@ module.exports = function(R) {
          * @public
          */
         scope: function scope(fn, ctx) {
+            if(process.NODE_ENV !== 'production' || (R.Debug && R.Debug.isDev && R.Debug.isDev())) {
+                return _.extend(function() {
+                    return fn.apply(ctx, arguments);
+                }, { __unscoped: fn });
+            }
             return function() {
                 return fn.apply(ctx, arguments);
             };
+        },
+        scopeAll: function scopeAll(ctx) {
+            for(var k in ctx) {
+                if(_.isFunction(ctx[k])) {
+                    ctx[k] = R.scope(ctx[k], ctx);
+                }
+                else {
+                    ctx[k] = ctx[k];
+                }
+            }
+            return ctx;
         },
         /**
          * Returns a POJO with a single key-val pair.

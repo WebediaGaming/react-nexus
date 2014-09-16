@@ -2,6 +2,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var co = require("co");
+    var Promise = require("bluebird");
 
     /**
      * @memberOf R
@@ -37,7 +38,7 @@ module.exports = function(R) {
             componentWillMount: function componentWillMount() {
                 R.Debug.dev(R.scope(function() {
                     assert(_.has(this, "getFlux") && _.isFunction(this.getFlux), "R.Flux.Mixin.componentWillMount(...): requires getFlux(): R.Flux.FluxInstance.");
-                    assert(_.has(this, "_AsyncMixinHasAsyncMixin") && this._AsyncMixinHasAsyncMixin, "R.Flux.Mixin.componentWillMount(...): requires R.Async.Mixin.");
+                    assert(this._AsyncMixinHasAsyncMixin, "R.Flux.Mixin.componentWillMount(...): requires R.Async.Mixin.");
                 }, this));
                 this._FluxMixinListeners = {};
                 this._FluxMixinSubscriptions = {};
@@ -54,6 +55,11 @@ module.exports = function(R) {
                 if(!_.has(this, "fluxEventEmitterWillEmit")) {
                     this.fluxEventEmitterWillEmit = this._FluxMixinDefaultFluxEventEmitterWillEmit;
                 }
+                var flux = this.getFlux();
+                console.warn("this.getFlux.__unscoped:", this.getFlux.__unscoped);
+                console.warn("flux:", this.flux);
+                console.warn("props:", this.props);
+                console.warn("context:", this.context);
                 if(this.getFlux().shouldInjectFromStores()) {
                     var subscriptions = this.getFluxStoreSubscriptions(this.props);
                     _.each(subscriptions, this._FluxMixinInject);
@@ -71,12 +77,12 @@ module.exports = function(R) {
             getFluxStore: function getFluxStore(name) {
                 return this.getFlux().getStore(name);
             },
-            prefetchFluxStores: function prefetchFluxStore() {
+            prefetchFluxStores: function prefetchFluxStores() {
                 R.Debug.dev(function() {
-                    assert(R.isServer(), "R.Flux.Mixin.prefetchFluxStore(...): should only be called in the server.");
+                    assert(R.isServer(), "R.Flux.Mixin.prefetchFluxStores(...): should only be called in the server.");
                 });
                 return co(regeneratorRuntime.mark(function callee$2$0() {
-                    var subscriptions, yieldState, state, constructor, PseudoComponent, pseudoComponent, rendered, descriptor;
+                    var subscriptions, yieldState, state, surrogateComponent, rendered, childContext, descriptor;
 
                     return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                         while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -90,28 +96,37 @@ module.exports = function(R) {
                             return yieldState;
                         case 5:
                             state = context$3$0.sent;
-                            constructor = this.constructor;
-
-                            PseudoComponent = function PseudoComponent() {
-                                constructor.call(this);
-                                this.state = state;
-                            };
-
-                            PseudoComponent.prototype = constructor.prototype;
-                            pseudoComponent = new PseudoComponent();
-                            rendered = pseudoComponent.render();
+                            surrogateComponent = new this.__ReactRailsSurrogate(this.context, this.props);
+                            surrogateComponent.componentWillMount();
+                            surrogateComponent.setState(state);
+                            rendered = surrogateComponent.render();
+                            childContext = surrogateComponent.getChildContext();
+                            surrogateComponent.componentWillUnmount();
                             descriptor = new R.Descriptor(rendered);
-                            context$3$0.next = 14;
+                            context$3$0.next = 15;
 
-                            return descriptor.mapTree(function(descriptor) {
-                                var descendant = descriptor.toComponent();
-                                if(descendant.prefetchFluxStore) {
-                                    return descendant.prefetchFluxStore();
-                                }
+                            return descriptor.mapTree(function(childDescriptor) {
+                                return new Promise(function(resolve, reject) {
+                                    if(!descendant.prefetchFluxStores) {
+                                        resolve();
+                                    }
+                                    else {
+                                        var surrogateChildComponent = new childDescriptor.__ReactRailsSurrogate(childContext, childDescriptor.props);
+                                        surrogateChildComponent.prefetchFluxStores()(function(err) {
+                                            if(err) {
+                                                reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
+                                            }
+                                            else {
+                                                surrogateChildComponent.componentWillUnmount();
+                                                resolve();
+                                            }
+                                        });
+                                    }
+                                });
                             });
-                        case 14:
-                            return context$3$0.abrupt("return", context$3$0.sent);
                         case 15:
+                            return context$3$0.abrupt("return", context$3$0.sent);
+                        case 16:
                         case "end":
                             return context$3$0.stop();
                         }

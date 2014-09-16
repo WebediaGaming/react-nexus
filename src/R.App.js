@@ -40,16 +40,15 @@ module.exports = function(R) {
                 var flux = new this._fluxClass();
                 yield flux.bootstrapInServer(req, req.headers, guid);
                 flux.registerAllComponentsStylesheetRules(this._componentsClasses);
-                var rootComponent = this._rootClass({
+                var surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, {
                     flux: flux,
                 });
-                console.warn("rootComponent:");
-                /* jshint ignore:start */
-                _.forIn(rootComponent.__proto__, function(val, key) {
-                    console.warn(key, val);
+                surrogateRootComponent.componentWillMount();
+                yield surrogateRootComponent.prefetchFluxStores();
+                surrogateRootComponent.componentWillUnmount();
+                var rootComponent = new this._rootClass({
+                    flux: flux,
                 });
-                /*jshint ignore:end */
-                yield rootComponent.prefetchFluxStores();
                 var rootHtml = React.renderComponentToString(rootComponent);
                 flux.stopInjectingFromStores();
                 var serializedFlux = flux.serialize();

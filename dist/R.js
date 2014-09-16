@@ -1,6 +1,7 @@
 var R = {};
 [
     require("./R.utils"),
+    require("./R.patchReact"),
     require("./R.Animate"),
     require("./R.App"),
     require("./R.Async"),
