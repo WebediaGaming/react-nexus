@@ -45,6 +45,7 @@
     "setimmediate": "^1.0.2",
     "sha256": "^0.1.1",
     "socket.io": "^1.1.0",
+    "socket.io-client": "^1.1.0",
     "verror": "^1.4.0"
   },
   "devDependencies": {

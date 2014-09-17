@@ -17,7 +17,6 @@ var R = {};
     require("./R.Query"),
     require("./R.Root"),
     require("./R.Router"),
-    require("./R.SimpleUplinkServer"),
     require("./R.Store"),
     require("./R.Style"),
     require("./R.Stylesheet"),

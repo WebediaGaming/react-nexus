@@ -251,62 +251,63 @@ module.exports = function(R) {
             this._shouldInjectFromStores = false;
         },
         serialize: function serialize() {
-            return _.mapValues(this._stores, function(store) {
+            return R.Base64.encode(JSON.stringify(_.mapValues(this._stores, function(store) {
                 return store.serialize();
-            });
+            })));
         },
         unserialize: function unserialize(str) {
-            _.each(JSON.parse(str), R.scope(function(serializedStore, name) {
+            _.each(JSON.parse(R.Base64.decode(str)), R.scope(function(serializedStore, name) {
                 R.Debug.dev(R.scope(function() {
-                    assert(_.has(this._stores, name), "R.Flux.FluxInstance.unserialize(...): no such store.");
+                    assert(_.has(this._stores, name), "R.Flux.FluxInstance.unserialize(...): no such Store. (" + name + ")");
                 }, this));
                 this._stores[name].unserialize(serializedStore);
             }));
         },
         getStore: function getStore(name) {
             R.Debug.dev(R.scope(function() {
-                assert(_.has(this._stores, name), "R.Flux.FluxInstance.getStore(...): no such Store.");
+                assert(_.has(this._stores, name), "R.Flux.FluxInstance.getStore(...): no such Store. (" + name + ")");
             }, this));
             return this._stores[name];
         },
         registerStore: function registerStore(name, store) {
             R.Debug.dev(R.scope(function() {
-                assert(store._isStoreInstance_, "R.Flux.FluxInstance.registerStore(...): expecting a R.Store.StoreInstance.");
-                assert(!_.has(this._stores, name), "R.Flux.FluxInstance.registerStore(...): name already assigned.");
+                assert(store._isStoreInstance_, "R.Flux.FluxInstance.registerStore(...): expecting a R.Store.StoreInstance. (" + name + ")");
+                assert(!_.has(this._stores, name), "R.Flux.FluxInstance.registerStore(...): name already assigned. (" + name + ")");
             }, this));
             this._stores[name] = store;
         },
         getEventEmitter: function getEventEmitter(name) {
             R.Debug.dev(R.scope(function() {
-                assert(_.has(this._eventEmitters, name), "R.Flux.FluxInstance.getEventEmitter(...): no such EventEmitter.");
+                assert(_.has(this._eventEmitters, name), "R.Flux.FluxInstance.getEventEmitter(...): no such EventEmitter. (" + name + ")");
             }, this));
             return this._eventEmitters[name];
         },
         registerEventEmitter: function registerEventEmitter(name, eventEmitter) {
             assert(R.isClient(), "R.Flux.FluxInstance.registerEventEmitter(...): should not be called in the server.");
             R.Debug.dev(R.scope(function() {
-                assert(eventEmitter._isEventEmitterInstance_, "R.Flux.FluxInstance.registerEventEmitter(...): expecting a R.EventEmitter.EventEmitterInstance.");
-                assert(!_.has(this._eventEmitters, name), "R.Flux.FluxInstance.registerEventEmitter(...): name already assigned.");
+                assert(eventEmitter._isEventEmitterInstance_, "R.Flux.FluxInstance.registerEventEmitter(...): expecting a R.EventEmitter.EventEmitterInstance. (" + name + ")");
+                assert(!_.has(this._eventEmitters, name), "R.Flux.FluxInstance.registerEventEmitter(...): name already assigned. (" + name + ")");
             }, this));
             this._eventEmitters[name] = eventEmitter;
         },
         getDispatcher: function getDispatcher(name) {
             R.Debug.dev(R.scope(function() {
-                assert(_.has(this._dispatchers, name), "R.Flux.FluxInstance.getDispatcher(...): no such Dispatcher.");
+                assert(_.has(this._dispatchers, name), "R.Flux.FluxInstance.getDispatcher(...): no such Dispatcher. (" + name + ")");
             }, this));
             return this._dispatchers[name];
         },
         registerDispatcher: function registerDispatcher(name, dispatcher) {
-            assert(R.isClient(), "R.Flux.FluxInstance.registerDispatcher(...): should not be called in the server.");
+            assert(R.isClient(), "R.Flux.FluxInstance.registerDispatcher(...): should not be called in the server. (" + name + ")");
             R.Debug.dev(R.scope(function() {
-                assert(dispatcher instanceof R.Dispatcher, "R.Flux.FluxInstance.registerDispatcher(...): expecting a R.Dispatcher.");
-                assert(!_.has(this._dispatchers, name), "R.Flux.FluxInstance.registerDispatcher(...): name already assigned.");
+                assert(dispatcher._isDispatcher_, "R.Flux.FluxInstance.registerDispatcher(...): expecting a R.Dispatcher. (" + name + ")");
+                assert(!_.has(this._dispatchers, name), "R.Flux.FluxInstance.registerDispatcher(...): name already assigned. (" + name + ")");
             }, this));
             this._dispatchers[name] = dispatcher;
         },
         getStylesheet: function getStylesheet(name) {
             R.Debug.dev(R.scope(function() {
-                assert(_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): no such Stylesheet.");
+                assert(stylesheet._isStylesheet_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet. (" + name + ")");
+                assert(_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): no such Stylesheet. (" + name + ")");
             }, this));
             return this._stylesheets[name];
         },
@@ -315,8 +316,8 @@ module.exports = function(R) {
         },
         registerStylesheet: function registerStylesheet(name, stylesheet) {
             R.Debug.dev(R.scope(function() {
-                assert(stylesheet._isStylesheetInstance_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet.StylesheetInstance.");
-                assert(!_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): name already assigned.");
+                assert(stylesheet._isStylesheetInstance_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet.StylesheetInstance. (" + name + ")");
+                assert(!_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): name already assigned. (" + name + ")");
             }, this));
             this._stylesheets[name] = stylesheet;
         },
@@ -327,9 +328,9 @@ module.exports = function(R) {
                     _.each(rules, R.scope(function(rule, stylesheetName) {
                         var stylesheet = this.getStylesheet(stylesheetName);
                         R.Debug.dev(function() {
-                            assert(_.isPlainObject(rule), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule: expecting Object.");
-                            assert(_.has(rule, "selector") && _.isString(rule.selector), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.selector: expecting String.");
-                            assert(_.has(rule, "style") && _.isObject(rule.style), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.style: expecting Object.");
+                            assert(_.isPlainObject(rule), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule: expecting Object. (" + name + ")");
+                            assert(_.has(rule, "selector") && _.isString(rule.selector), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.selector: expecting String. (" + name + ")");
+                            assert(_.has(rule, "style") && _.isObject(rule.style), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.style: expecting Object. (" + name + ")");
                         });
                         stylesheet.registerRule(rule.selector, rule.style);
                     }, this));

@@ -89,6 +89,14 @@ module.exports = function(R) {
             prefix = prefix || '';
             return '' + prefix + s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         },
+        Base64: {
+            encode: function encode(s) {
+                return new Buffer(s).toString("base64");
+            },
+            decode: function decode(s) {
+                return new Buffer(s, "base64").toString('utf-8');
+            },
+        },
     });
 
     return R;

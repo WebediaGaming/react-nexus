@@ -16,7 +16,7 @@ module.exports = function(R) {
         middleware: function middleware(req, res) {
             this._app.renderToStringInServer(req)(function(err, html) {
                 if(err) {
-                    res.status(500).json({ err: err });
+                    res.status(500).json({ err: err.toString() });
                 }
                 else {
                     res.status(200).send(html);

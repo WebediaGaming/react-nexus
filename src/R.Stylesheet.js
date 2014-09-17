@@ -7,6 +7,7 @@ module.exports = function(R) {
     };
 
     _.extend(Stylesheet.prototype, /** @lends R.Stylesheet.prototype */ {
+        _isStylesheet_: true,
         registerRule: function registerRule(selector, style) {
             R.Debug.dev(function() {
                 assert(_.isPlainObject(style), "R.Stylesheet.registerClassName(...).style: expecting Object.");

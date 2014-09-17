@@ -63,9 +63,18 @@ module.exports = function(R) {
         _promiseForHandshake: null,
         _acknowledgeHandshake: null,
         _initInClient: function _initInClient() {
-            var io = require("socket.io");
+            R.Debug.dev(function() {
+                assert(R.isClient(), "R.Uplink._initInClient(...): should only be called in the client.");
+            });
             if(this._socketEndPoint) {
-                this._socket = io(this._socketEndPoint);
+                var io;
+                if(window.io && _.isFunction(window.io)) {
+                    io = window.io;
+                }
+                else {
+                    io = require("socket.io-client");
+                }
+                var socket = this._socket = io(this._socketEndPoint);
                 socket.on("update", this._handleUpdate);
                 socket.on("event", this._handleEvent);
                 socket.on("disconnect", this._handleDisconnect);
@@ -80,7 +89,11 @@ module.exports = function(R) {
                 }, this));
             }
         },
-        _initInServer: _.noop,
+        _initInServer: function _initInClient() {
+            R.Debug.dev(function() {
+                assert(R.isServer(), "R.Uplink._initInServer(...): should only be called in the server.");
+            });
+        },
         _handleUpdate: function _handleUpdate(params) {
             var key = params.key;
             if(_.has(this._subscriptions, key)) {

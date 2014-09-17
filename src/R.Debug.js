@@ -104,6 +104,9 @@ module.exports = function(R) {
             }
             console.warn("----[ " + name + " ]----");
         },
+        fail: function fail(err) {
+            throw err;
+        },
         /**
          * Runs assert from node core with the same arguments.
          * Throws if the assert fails and the current mode is dev.
@@ -119,7 +122,7 @@ module.exports = function(R) {
             }
             catch(err) {
                 if(Debug.isDev()) {
-                    throw err;
+                    Debug.fail(err);
                 }
                 else {
                     console.error(err);
@@ -136,26 +139,28 @@ module.exports = function(R) {
          * @return {Error} The new, extended Error.
          * @public
          */
-        extendError: function extendError(originalErr, wrappingErr) {
-            if(_.isString(wrappingErr)) {
-                wrappingErr = new Error(wrappingErr);
-            }
-            return new VError(originalErr, wrappingErr);
+        extendError: function extendError(err, message) {
+            return new VError(err, message);
         },
         /**
          * Returns a function that will rethrow when passed an error.
          * @param  {Error|String} [wrappingErr] Optionnal error to use as wrapper.
          * @public
          */
-        rethrow: function rethrow(wrappingErr) {
-            if(!wrappingErr) {
+        rethrow: function rethrow(message) {
+            if(!message) {
                 return function(err) {
-                    throw err;
+                    if(err) {
+                        Debug.fail(err);
+                    }
                 };
             }
             else {
                 return function(err) {
-                    throw Debug.extendError(err, wrappingErr);
+                    if(err) {
+                        console.error(message);
+                        Debug.fail(err);
+                    }
                 };
             }
         },

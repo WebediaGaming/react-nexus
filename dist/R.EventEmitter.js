@@ -16,7 +16,7 @@ module.exports = function(R) {
              * @public
              */
             var EventEmitterInstance = function EventEmitterInstance() {};
-            _.extend(EventEmitter.prototype, specs, {
+            _.extend(EventEmitterInstance.prototype, specs, {
                 /**
                  *  Type dirty-checking.
                  *  @private

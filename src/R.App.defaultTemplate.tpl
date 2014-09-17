@@ -1,26 +1,38 @@
-<!doctype html lang="<%- lang %>">
+<% if(vars.lang) { %><!doctype html lang="<%- vars.lang %>"><% } else { %><!doctype html><% } %>
 <html>
     <head>
-        <meta charset='utf-8'>
+        <% if(vars.charset) { %><meta charset="<%- vars.charset %>"><% } else { %><meta charset="utf-8"><% } %>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="description" content="<%- description %>">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <% styleChunks.forEach(function(chunk, name) { %>
-            <style type="text/css" data-stylesheet="<%- name %>">
-                <%= chunk %>
-            </style>
-        <% }); %>
+        <% if(vars.description) { %><meta name="description" content="<%- vars.description %>"><% } %>
+        <% if(vars.viewport) { %><meta name="viewport" content="<%- vars.viewport %>"><% } else { %><meta name="viewport" content="width=device-width, initial-scale=1"><% } %>
+        <% if(vars.title) { %><title><%- vars.title %></title><% } %>
+        <% if(vars.stylesheets) { %>
+            <% libs._.each(vars.stylesheets, function(href) { %>
+                <link rel="stylesheet" type="text/css" href="<%- href %>">
+            <% }); %>
+        <% } %>
+        <% if(vars.styleChunks) { %>
+            <% libs._.each(vars.styleChunks, function(chunk, name) { %>
+                <style type="text/css" data-stylesheet="<%- name %>">
+                    <%= chunk %>
+                </style>
+            <% }); %>
+        <% } %>
     </head>
     <body>
         <div id="ReactOnRails-App-Root">
-            <%= rootHtml %>
+            <%= vars.rootHtml %>
         </div>
         <script type="text/javascript">
             window.__ReactOnRails = {};
-            window.__ReactOnRails.serializedFlux = <%= JSON.stringify(serializedFlux) %>;
-            window.__ReactOnRails.headers = <%= JSON.stringify(headers) %>;
-            window.__ReactOnRails.guid = "<%= guid %>";
+            window.__ReactOnRails.serializedFlux = "<%= vars.serializedFlux %>";
+            window.__ReactOnRails.serializedHeaders = "<%= vars.serializedHeaders %>";
+            window.__ReactOnRails.guid = "<%= vars.guid %>";
         </script>
-        <script type="text/javascript" src="<%- client %>"></script>
+        <% if(vars.scripts) { %>
+            <% libs._.each(vars.scripts, function(script) { %>
+                <script type="text/javascript" src="<%- script %>"></script>
+            <% }); %>
+        <% } %>
     </body>
 </html>
