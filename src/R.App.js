@@ -94,12 +94,18 @@ module.exports = function(R) {
             });
             return R.scope(co(function*() {
                 var flux = new this._fluxClass();
+                R.Debug.dev(function() {
+                    window.__ReactOnRails.flux = flux;
+                });
                 var headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
                 var guid = window.__ReactOnRails.guid;
                 yield flux.bootstrapInClient(window, headers, guid);
                 flux.unserialize(window.__ReactOnRails.serializedFlux);
                 var rootComponent = this._rootClass({
                     flux: flux,
+                });
+                R.Debug.dev(function() {
+                    window.__ReactOnRails.rootComponent = rootComponent;
                 });
                 React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                 flux.stopInjectingFromStores();

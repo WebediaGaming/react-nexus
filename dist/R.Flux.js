@@ -281,7 +281,7 @@ module.exports = function(R) {
                     assert(_.has(this._stores, name), "R.Flux.FluxInstance.unserialize(...): no such Store. (" + name + ")");
                 }, this));
                 this._stores[name].unserialize(serializedStore);
-            }));
+            }, this));
         },
         getStore: function getStore(name) {
             R.Debug.dev(R.scope(function() {

@@ -52,7 +52,7 @@ module.exports = function(R) {
                 }
             }, this));
             if(!res && this._default) {
-                res = this._default.fn.call(null, fragment);
+                res = this._default.call(null, fragment);
             }
             return res;
         },

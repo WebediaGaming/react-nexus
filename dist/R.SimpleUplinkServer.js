@@ -23,33 +23,37 @@ module.exports = function(R) {
             return SimpleUplinkServerInstance;
         },
         SimpleUplinkServerInstance: function SimpleUplinkServerInstance() {
-            _.bindAll(this);
             this._store = {};
             this._storeRouter = new R.Router();
-            this._storeRouter.def(_.constant(null));
+            this._storeRouter.def(_.constant({
+                err: "Unknown store key",
+            }));
             this._storeEvents = new EventEmitter();
             this._eventsRouter = new R.Router();
-            this._eventsRouter.def(_.constant(null));
+            this._eventsRouter.def(_.constant({
+                err: "Unknown event name",
+            }));
             this._eventsEvents = new EventEmitter();
             this._actionsRouter = new R.Router();
-            this._actionsRouter.def(_.constant(null));
+            this._actionsRouter.def(_.constant({
+                err: "Unknown action",
+            }));
             this._sessions = {};
             this._sessionsEvents = new EventEmitter();
+            this._connections = {};
         },
         Connection: function Connection(socket, handleSocketDisconnection, linkSession) {
             this._socket = socket;
-            _.bindAll(this);
             this._handleSocketDisconnection = handleSocketDisconnection;
             this._linkSession = linkSession;
             this._bindHandlers();
         },
         Session: function Session(guid, storeEvents, eventsEvents, sessionsEvents) {
-            _.bindAll(this);
             this._guid = guid;
             this._storeEvents = storeEvents;
             this._eventsEvents = eventsEvents;
             this._messageQueue = [];
-            this._expireTimeout = setTimeout(this._expire, this._timeoutDuration);
+            this._expireTimeout = setTimeout(R.scope(this._expire, this), this._timeoutDuration);
         },
     };
 
@@ -63,12 +67,12 @@ module.exports = function(R) {
         _listenTo: null,
         _unlistenFrom: null,
         _bindHandlers: function _bindHandlers() {
-            this._socket.on("handshake", this._handleHandshake);
-            this._socket.on("subscribeTo", this._handleSubscribe);
-            this._socket.on("unsubscribeFrom", this._handleUnsubscribeFrom);
-            this._socket.on("listenTo", this._handleListenTo);
-            this._socket.on("unlistenFrom", this._handleUnlistenFrom);
-            this._socket.on("disconnect", this._handleDisconnect);
+            this._socket.on("handshake", R.scope(this._handleHandshake, this));
+            this._socket.on("subscribeTo", R.scope(this._handleSubscribe, this));
+            this._socket.on("unsubscribeFrom", R.scope(this._handleUnsubscribeFrom, this));
+            this._socket.on("listenTo", R.scope(this._handleListenTo, this));
+            this._socket.on("unlistenFrom", R.scope(this._handleUnlistenFrom, this));
+            this._socket.on("disconnect", R.scope(this._handleDisconnect, this));
         },
         emit: function emit(name, params) {
             this._socket.emit(name, params);
@@ -157,10 +161,10 @@ module.exports = function(R) {
             clearTimeout(this._expireTimeout);
             return {
                 recovered: recovered,
-                subscribeTo: this.subscribeTo,
-                unsubscribeFrom: this.unsubscribeFrom,
-                listenTo: this.listenTo,
-                unlistenFrom: this.unlistenFrom,
+                subscribeTo: R.scope(this.subscribeTo, this),
+                unsubscribeFrom: R.scope(this.unsubscribeFrom, this),
+                listenTo: R.scope(this.listenTon, this),
+                unlistenFrom: R.scope(this.unlistenFrom, this),
             };
         },
         detachConnection: function detachConnection() {
@@ -217,7 +221,7 @@ module.exports = function(R) {
             R.Debug.dev(R.scope(function() {
                 assert(!_.has(this._listeners, key), "R.SimpleUplinkServer.Session.listenTo(...): already listening.");
             }, this));
-            this._listeners[eventName] = this._signalEvent(eventName);
+            this._listeners[eventName] = R.scope(this._signalEvent(eventName), this);
             this._eventsEvents.addListener("emit:" + eventName, this._listeners[eventName]);
         },
         unlistenFrom: function unlistenFrom(eventName) {
@@ -250,6 +254,9 @@ module.exports = function(R) {
         sessionCreated: null,
         sessionDestroyed: null,
         setStore: function setStore(key, val) {
+            R.Debug.dev(R.scope(function() {
+                console.warn("setStore:", key, "->", val);
+            }, this));
             this._store[key] = val;
             this._storeEvents.emit("set:" + key, val);
         },
@@ -288,10 +295,10 @@ module.exports = function(R) {
             return this._store[this._extractOriginalPath.apply(null, arguments)];
         },
         _bindStoreRoute: function _bindStoreRoute(route) {
-            this._storeRouter.route(route, this._storeGetter);
+            this._storeRouter.route(route, R.scope(this._storeGetter, this));
         },
         _bindEventsRoute: function _bindEventsRoute(route) {
-            this._eventsRouter.route(route, this._extractOriginalPath);
+            this._eventsRouter.route(route, R.scope(this._extractOriginalPath, this));
         },
         _bindActionsRoute: function _bindActionsRoute(handler, route) {
             this._actionsRouter.route(route, handler);
@@ -300,17 +307,24 @@ module.exports = function(R) {
             assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
             this._app = app;
             this._prefix = prefix || "/uplink/";
-            this._io = io(require("http").Server(app));
-            this._app.get(this._prefix + "*", this._handleHttpGet);
-            this._app.post(this._prefix + "*", this._handleHttpPost);
-            this._io.on("connection", this._handleSocketConnection);
-            this._sessionsEvents.addListener("expire", this._handleSessionExpire);
-            _.each(this._specs.store, this._bindStoreRoute);
-            _.each(this._specs.events, this._bindEventsRoute);
-            _.each(this._specs.actions, this._bindActionsRoute);
+            var server = require("http").Server(app);
+            this._io = io(server).of(prefix);
+            this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
+            this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+            this._io.on("connection", R.scope(this._handleSocketConnection, this));
+            this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
+            this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
+            _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
+            _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
+            _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
+            this.bootstrap = R.scope(this._specs.bootstrap, this);
+            this.bootstrap();
+            return server;
         },
         _handleHttpGet: function _handleHttpGet(req, res) {
-            var path = req.path.slice(this._prefix.length);
+            console.warn("GET", req.path);
+            var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
+            console.warn("GET", path);
             var val = this._storeRouter.match(path);
             res.status(200).json(val);
         },
@@ -320,28 +334,19 @@ module.exports = function(R) {
             assert(req.body.guid);
             if(!_.has(this._sessions, req.body.guid)) {
                 this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                this.sessionCreated.call(this, guid);
+                this.sessionCreated(guid);
             }
-            co(regeneratorRuntime.mark(function callee$2$0() {
-                var val;
-
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                    case 0:
-                        context$3$0.next = 2;
-                        return handler.call(this, req.body);
-                    case 2:
-                        val = context$3$0.sent;
-                        res.status(200).json(val);
-                    case 4:
-                    case "end":
-                        return context$3$0.stop();
-                    }
-                }, callee$2$0, this);
-            })).call(this);
+            handler.call(this, req.body)(function(err, res) {
+                if(err) {
+                    res.status(500).json({ err: err.toString() });
+                }
+                else {
+                    res.status(200).json(res);
+                }
+            });
         },
         _handleSocketConnection: function _handleSocketConnection(socket) {
-            var connection = new R.SimpleUplinkServer.Connection(socket, this._handleSocketDisconnection, this._linkSession);
+            var connection = new R.SimpleUplinkServer.Connection(socket, this._handleSocketDisconnection, R.scope(this._linkSession, this));
             this._connections[connection.uniqueId] = connection;
         },
         _handleSocketDisconnection: function _handleSocketDisconnection(uniqueId) {

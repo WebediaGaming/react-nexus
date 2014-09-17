@@ -15,6 +15,9 @@ module.exports = function(R) {
          */
         scope: function scope(fn, ctx) {
             if(process.NODE_ENV !== 'production' || (R.Debug && R.Debug.isDev && R.Debug.isDev())) {
+                if(!ctx || (R.isClient() && window === ctx)) {
+                    R.Debug.throw("R.scope(...): unbound scoping context.");
+                }
                 return _.extend(function() {
                     return fn.apply(ctx, arguments);
                 }, { __unscoped: fn });

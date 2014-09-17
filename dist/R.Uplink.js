@@ -44,7 +44,6 @@ module.exports = function(R) {
         this._httpEndpoint = httpEndpoint;
         this._socketEndPoint = socketEndpoint;
         this._guid = guid;
-        _.bindAll(this);
         if(R.isClient()) {
             this._initInClient();
         }
@@ -75,15 +74,15 @@ module.exports = function(R) {
                     io = require("socket.io-client");
                 }
                 var socket = this._socket = io(this._socketEndPoint);
-                socket.on("update", this._handleUpdate);
-                socket.on("event", this._handleEvent);
-                socket.on("disconnect", this._handleDisconnect);
-                socket.on("connect", this._handleConnect);
-                socket.on("handshake-ack", this._handleHandshakeAck);
-                socket.on("debug", this._handleDebug);
-                socket.on("log", this._handleLog);
-                socket.on("warn", this._handleWarn);
-                socket.on("err", this._handleError);
+                socket.on("update", R.scope(this._handleUpdate, this));
+                socket.on("event", R.scope(this._handleEvent, this));
+                socket.on("disconnect", R.scope(this._handleDisconnect, this));
+                socket.on("connect", R.scope(this._handleConnect, this));
+                socket.on("handshake-ack", R.scope(this._handleHandshakeAck, this));
+                socket.on("debug", R.scope(this._handleDebug, this));
+                socket.on("log", R.scope(this._handleLog, this));
+                socket.on("warn", R.scope(this._handleWarn, this));
+                socket.on("err", R.scope(this._handleError, this));
                 this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
                     this._acknowledgeHandshake = resolve;
                 }, this));
@@ -113,17 +112,14 @@ module.exports = function(R) {
         },
         _handleDisconnect: function _handleDisconnect(params) {
             this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
-                this._acknowledgeHandshake = {
-                    resolve: resolve,
-                    reject: reject,
-                };
+                this._acknowledgeHandshake = resolve;
             }, this));
         },
         _handleConnect: function _handleConnect() {
             this._socket.emit("handshake", { guid: this._guid });
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
-            this._acknowledgeHandshake.resolve(params);
+            this._acknowledgeHandshake(params);
         },
         _handleDebug: function _handleDebug(params) {
             R.Debug.dev(function() {
@@ -161,7 +157,7 @@ module.exports = function(R) {
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })).call(this);
+            })).call(this, R.Debug.rethrow("R.Uplink._subscribeTo(...): couldn't subscribe (" + key + ")"));
         },
         _unsubscribeFrom: function _unsubscribeFrom(key) {
             co(regeneratorRuntime.mark(function callee$2$0() {
@@ -177,7 +173,7 @@ module.exports = function(R) {
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })).call(this);
+            })).call(this, R.Debug.rethrow("R.Uplink._subscribeTo(...): couldn't unsubscribe (" + key + ")"));
         },
         subscribeTo: function subscribeTo(key, fn) {
             var subscription = new R.Uplink.Subscription(key);
@@ -213,7 +209,7 @@ module.exports = function(R) {
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })).call(this);
+            })).call(this, R.Debug.rethrow("R.Uplink._listenTo: couldn't listen (" + eventName + ")"));
         },
         _unlistenFrom: function _unlistenFrom(eventName) {
             co(regeneratorRuntime.mark(function callee$2$0() {
@@ -229,7 +225,7 @@ module.exports = function(R) {
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })).call(this);
+            })).call(this, R.Debug.rethrow("R.Uplink._unlistenFrom: couldn't unlisten (" + eventName + ")"));
         },
         listenTo: function listenTo(eventName, fn) {
             var listener = R.Uplink.Listener(eventName);

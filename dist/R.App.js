@@ -125,20 +125,26 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         flux = new this._fluxClass();
+                        R.Debug.dev(function() {
+                            window.__ReactOnRails.flux = flux;
+                        });
                         headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
                         guid = window.__ReactOnRails.guid;
-                        context$3$0.next = 5;
+                        context$3$0.next = 6;
                         return flux.bootstrapInClient(window, headers, guid);
-                    case 5:
+                    case 6:
                         flux.unserialize(window.__ReactOnRails.serializedFlux);
 
                         rootComponent = this._rootClass({
                             flux: flux,
                         });
 
+                        R.Debug.dev(function() {
+                            window.__ReactOnRails.rootComponent = rootComponent;
+                        });
                         React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                         flux.stopInjectingFromStores();
-                    case 9:
+                    case 11:
                     case "end":
                         return context$3$0.stop();
                     }

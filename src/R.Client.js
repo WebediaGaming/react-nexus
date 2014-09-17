@@ -11,6 +11,15 @@ module.exports = function(R) {
             }
         });
         window.React = React;
+        R.Debug.dev(R.scope(function() {
+            if(!window.__ReactOnRails) {
+                window.__ReactOnRails = {};
+            }
+            if(!window.__ReactOnRails.apps) {
+                window.__ReactOnRails.apps = [];
+            }
+            window.__ReactOnRails.apps.push(this);
+        }, this));
         this._app = new R.App(appParams);
     };
 

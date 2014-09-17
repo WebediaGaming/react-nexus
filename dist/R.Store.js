@@ -159,7 +159,7 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.MemoryStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(data);
+                this.data = JSON.parse(str);
             };
             return R.Store.createStore({
                 displayName: "MemoryStore",
@@ -257,7 +257,7 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.UplinkStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(data);
+                this.data = JSON.parse(str);
             };
             var destroy = function destroy() {
                 R.Debug.dev(function() {
