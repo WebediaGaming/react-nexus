@@ -5,6 +5,9 @@ module.exports = function(R) {
     var Promise = require("bluebird");
     var React = R.React;
 
+    var abstractLocationRegExp = /^(.*):\/\/(.*)$/;
+
+
     /**
      * @memberOf R
      * Flux represents the data flowing from the backends (either local or remote).
@@ -44,11 +47,27 @@ module.exports = function(R) {
             this._eventEmitters = {};
             this._dispatchers = {};
             this._stylesheets = {};
-            this._shouldInjectFromStores = true;
         },
         Mixin: {
             _FluxMixinSubscriptions: null,
             _FluxMixinListeners: null,
+            getInitialState: function getInitialState() {
+                var subscriptions = this.getFluxStoreSubscriptions(this.props);
+                if(this.getFlux().shouldInjectFromStores()) {
+                    return _.object(_.map(subscriptions, R.scope(function(stateKey, location) {
+                        var r = abstractLocationRegExp.exec(location);
+                        assert(r !== null, "R.Flux.getInitialState(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
+                        var storeName = r[1];
+                        var storeKey = r[2];
+                        return [stateKey, this.getFluxStore(storeName).get(storeKey)];
+                    }, this)));
+                }
+                else {
+                    return _.object(_.map(subscriptions, function(stateKey) {
+                        return [stateKey, null];
+                    }));
+                }
+            },
             componentWillMount: function componentWillMount() {
                 R.Debug.dev(R.scope(function() {
                     assert(this.getFlux && _.isFunction(this.getFlux), "R.Flux.Mixin.componentWillMount(...): requires getFlux(): R.Flux.FluxInstance.");
@@ -57,22 +76,17 @@ module.exports = function(R) {
                 this._FluxMixinListeners = {};
                 this._FluxMixinSubscriptions = {};
                 this._FluxMixinResponses = {};
-                if(!_.has(this, "getFluxStoreSubscriptions")) {
+                if(!this.getFluxStoreSubscriptions) {
                     this.getFluxStoreSubscriptions = this._FluxMixinDefaultGetFluxStoreSubscriptions;
                 }
-                if(!_.has(this, "getFluxEventEmittersListeners")) {
+                if(!this.getFluxEventEmittersListeners) {
                     this.getFluxEventEmittersListeners = this._FluxMixinDefaultGetFluxEventEmittersListeners;
                 }
-                if(!_.has(this, "fluxStoreWillUpdate")) {
+                if(!this.fluxStoreWillUpdate) {
                     this.fluxStoreWillUpdate = this._FluxMixinDefaultFluxStoreWillUpdate;
                 }
-                if(!_.has(this, "fluxEventEmitterWillEmit")) {
+                if(!this.fluxEventEmitterWillEmit) {
                     this.fluxEventEmitterWillEmit = this._FluxMixinDefaultFluxEventEmitterWillEmit;
-                }
-                var flux = this.getFlux();
-                if(this.getFlux().shouldInjectFromStores()) {
-                    var subscriptions = this.getFluxStoreSubscriptions(this.props);
-                    _.each(subscriptions, this._FluxMixinInject);
                 }
             },
             componentDidMount: function componentDidMount() {
@@ -88,30 +102,39 @@ module.exports = function(R) {
                 return this.getFlux().getStore(name);
             },
             prefetchFluxStores: regeneratorRuntime.mark(function prefetchFluxStores() {
-                var subscriptions, yieldState, state, surrogateComponent, renderedComponent, childContext;
+                var subscriptions, state, surrogateComponent, renderedComponent, childContext;
 
                 return regeneratorRuntime.wrap(function prefetchFluxStores$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
                     case 0:
                         subscriptions = this.getFluxStoreSubscriptions(this.props);
-                        yieldState = {};
-                        _.each(subscriptions, R.scope(function(entry) {
-                            yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
-                        }, this));
-                        context$2$0.next = 5;
-                        return yieldState;
-                    case 5:
+                        R.Debug.display("subscriptions", subscriptions);
+                        context$2$0.next = 4;
+
+                        return _.object(_.map(subscriptions, R.scope(function(stateKey, location) {
+                            console.warn("REQUIRED:", stateKey, location);
+                            var r = abstractLocationRegExp.exec(location);
+                            assert(r !== null, "R.Flux.prefetchFluxStores(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
+                            var storeName = r[1];
+                            var storeKey = r[2];
+                            console.warn(storeKey, storeName, stateKey);
+                            return [stateKey, this.getFluxStore(storeName).fetch(storeKey)];
+                        }, this)));
+                    case 4:
                         state = context$2$0.sent;
+                        console.warn("state after yielding", state);
+                        this.getFlux().startInjectingFromStores();
                         surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
                         surrogateComponent.componentWillMount();
+                        this.getFlux().stopInjectingFromStores();
                         renderedComponent = surrogateComponent.render();
                         childContext = surrogateComponent.getChildContext();
                         surrogateComponent.componentWillUnmount();
-                        context$2$0.next = 13;
+                        context$2$0.next = 15;
 
                         return React.Children.mapDescendants(renderedComponent, function(childComponent) {
                             return new Promise(function(resolve, reject) {
-                                if(!childComponent.__ReactOnRailsSurrogate) {
+                                if(!_.isObject(childComponent) || !childComponent.__ReactOnRailsSurrogate) {
                                     resolve();
                                 }
                                 else {
@@ -129,7 +152,7 @@ module.exports = function(R) {
                                 }
                             });
                         });
-                    case 13:
+                    case 15:
                     case "end":
                         return context$2$0.stop();
                     }
@@ -144,15 +167,25 @@ module.exports = function(R) {
             getFluxStylesheet: function getFluxStylesheet(name) {
                 return this.getFlux().getStylesheet(name);
             },
-            triggerFluxAction: regeneratorRuntime.mark(function triggerFluxAction(dispatcherName, action, params) {
+            triggerFluxAction: regeneratorRuntime.mark(function triggerFluxAction(dispatcherLocation, params) {
+                var r, entry;
+
                 return regeneratorRuntime.wrap(function triggerFluxAction$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
                     case 0:
-                        context$2$0.next = 2;
-                        return this.getFluxDispatcher(dispatcherName).trigger(action, params);
-                    case 2:
+                        r = abstractLocationRegExp.exec(location);
+                        assert(r !== null, "R.Flux.triggerFluxAction(...): incorrect location ('" + this.displayName + "')");
+
+                        entry = {
+                            dispatcherName: r[1],
+                            action: r[2],
+                        };
+
+                        context$2$0.next = 5;
+                        return this.getFluxDispatcher(entry.dispatcherName).trigger(entry.action, params);
+                    case 5:
                         return context$2$0.abrupt("return", context$2$0.sent);
-                    case 3:
+                    case 6:
                     case "end":
                         return context$2$0.stop();
                     }
@@ -184,45 +217,61 @@ module.exports = function(R) {
                 var listeners = this.getFluxEventEmittersListeners(props);
                 _.each(listeners, this._FluxMixinAddListener);
             },
-            _FluxMixinInject: function _FluxMixinInject(entry, key) {
+            _FluxMixinInject: function _FluxMixinInject(stateKey, location) {
+                var r = abstractLocationRegExp.exec(location);
+                assert(r !== null, "R.Flux._FluxMixinInject(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
+                var entry = {
+                    storeName: r[1],
+                    storeKey: r[2],
+                };
                 R.Debug.dev(R.scope(function() {
                     assert(this.getFlux().shouldInjectFromStores(), "R.Flux.Mixin._FluxMixinInject(...): should not inject from Stores.");
                     assert(_.isPlainObject(entry), "R.Flux.Mixin._FluxMixinInject(...).entry: expecting Object.");
                     assert(_.has(entry, "storeName") && _.isString(entry.storeName), "R.Flux.Mixin._FluxMixinInject(...).entry.storeName: expecting String.");
                     assert(_.has(entry, "storeKey") && _.isString(entry.storeKey), "R.Flux.Mixin._FluxMixinInject(...).entry.storeKey: expecting String.");
-                    assert(_.has(entry, "stateKey") && _.isString(entry.stateKey), "R.Flux.Mixin._FluxMixinInject(...).entry.stateKey: expecting String.");
                 }, this));
-                var store = this.getFluxStore(entry.storeName);
-                var val = store.get(entry.storeKey);
-                this.setState(R.record(entry.stateKey, val));
+                this.setState(R.record(stateKey, this.getFluxStore(entry.storeName).get(entry.storeKey)));
             },
-            _FluxMixinSubscribe: function _FluxMixinSubscribe(entry, key) {
+            _FluxMixinSubscribe: function _FluxMixinSubscribe(stateKey, location) {
+                var r = abstractLocationRegExp.exec(location);
+                assert(r !== null, "R.Flux._FluxMixinSubscribe(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
+                var entry = {
+                    storeName: r[1],
+                    storeKey: r[2],
+                };
                 R.Debug.dev(R.scope(function() {
                     assert(_.isPlainObject(entry), "R.Flux.Mixin._FluxMixinSubscribe(...).entry: expecting Object.");
                     assert(_.has(entry, "storeName") && _.isString(entry.storeName), "R.Flux.Mixin._FluxMixinSubscribe(...).entry.storeName: expecting String.");
                     assert(_.has(entry, "storeKey") && _.isString(entry.storeKey), "R.Flux.Mixin._FluxMixinSubscribe(...).entry.storeKey: expecting String.");
-                    assert(_.has(entry, "stateKey") && _.isString(entry.stateKey), "R.Flux.Mixin._FluxMixinSubscribe(...).entry.stateKey: expecting String.");
                 }, this));
                 var store = this.getFluxStore(entry.storeName);
-                var subscription = store.sub(entry.storeKey, this._FluxMixinStoreSignalUpdate(entry.storeName, entry.stateKey));
+                var subscription = store.sub(entry.storeKey, this._FluxMixinStoreSignalUpdate(stateKey, location));
                 this._FluxMixinSubscriptions[subscription.uniqueId] = {
                     storeName: entry.storeName,
                     subscription: subscription,
                 };
             },
-            _FluxMixinStoreSignalUpdate: function _FluxMixinStoreSignalUpdate(storeName, stateKey) {
+            _FluxMixinStoreSignalUpdate: function _FluxMixinStoreSignalUpdate(stateKey, location) {
                 return R.Async.IfMounted(R.scope(function(err, val) {
                     R.Debug.check(err === null, err);
-                    this.fluxStoreWillUpdate(storeName, storeKey, val);
+                    if(this.fluxStoreWillUpdate) {
+                        this.fluxStoreWillUpdate(stateKey, location, val);
+                    }
                     this.setState(R.record(stateKey, val));
                 }, this));
             },
-            _FluxMixinAddListener: function _FluxMixinAddListener(entry, key) {
+            _FluxMixinAddListener: function _FluxMixinAddListener(fn, location) {
+                var r = abstractLocationRegExp.exec(location);
+                assert(r !== null, "R.Flux._FluxMixinAddListener(...): incorrect location ('" + this.displayName + "', '" + location + "')");
+                var entry = {
+                    eventEmitterName: r[1],
+                    eventName: r[2],
+                };
                 R.Debug.dev(R.scope(function() {
                     assert(_.isPlainObject(entry), "R.Flux.Mixin._FluxMixinAddListener(...).entry: expecting Object.");
                     assert(_.has(entry, "eventEmitterName") && _.isString(entry.eventEmitterName), "R.Flux.Mixin._FluxMixinAddListener(...).entry.eventEmitterName: expecting String.");
                     assert(_.has(entry, "eventName") && _.isString(entry.eventName), "R.Flux.Mixin._FluxMixinAddListener(...).entry.eventName: expecting String.");
-                    assert(_.has(entry, "fn") && _.isFunction(entry.fn), "R.Flux.Mixin._FluxMixinAddListener(...).entry.fn: expecting Function.");
+                    assert(_.has(entry, "fn") && _.isFunction(fn), "R.Flux.Mixin._FluxMixinAddListener(...).entry.fn: expecting Function.");
                 }, this));
                 var eventEmitter = this.getFluxEventEmitter(entry.eventEmitterName);
                 var listener = eventEmitter.addListener(entry.eventName, this._FluxMixinEventEmitterEmit(entry.eventEmitterName, entry.eventName, entry.fn));
@@ -237,23 +286,23 @@ module.exports = function(R) {
                     fn(params);
                 }, this));
             },
-            _FluxMixinUnsubscribe: function _FluxMixinUnsubscribe(entry, key) {
+            _FluxMixinUnsubscribe: function _FluxMixinUnsubscribe(entry, uniqueId) {
                 R.Debug.dev(R.scope(function() {
-                    assert(_.has(this._FluxMixinSubscriptions, key), "R.Flux.Mixin._FluxMixinUnsubscribe(...): no such subscription.");
+                    assert(_.has(this._FluxMixinSubscriptions, uniqueId), "R.Flux.Mixin._FluxMixinUnsubscribe(...): no such subscription.");
                 }, this));
                 var subscription = entry.subscription;
                 var storeName = entry.storeName;
                 this.getStore(storeName).unsub(subscription);
-                delete this._FluxMixinSubscriptions[key];
+                delete this._FluxMixinSubscriptions[uniqueId];
             },
-            _FluxMixinRemoveListener: function _FluxMixinRemoveListener(entry, key) {
+            _FluxMixinRemoveListener: function _FluxMixinRemoveListener(entry, uniqueId) {
                 R.Debug.dev(R.scope(function() {
-                    assert(_.has(this._FluxMixinListeners, key), "R.Flux.Mixin._FluxMixinRemoveListener(...): no such listener.");
+                    assert(_.has(this._FluxMixinListeners, uniqueId), "R.Flux.Mixin._FluxMixinRemoveListener(...): no such listener.");
                 }, this));
                 var listener = entry.listener;
                 var eventEmitterName = entry.eventEmitterName;
                 this.getFluxEventEmitter(eventEmitterName).removeListener(listener);
-                delete this._FluxMixinListeners[key];
+                delete this._FluxMixinListeners[uniqueId];
             },
         },
     };
@@ -264,17 +313,26 @@ module.exports = function(R) {
         _eventEmitters: null,
         _dispatchers: null,
         _stylesheets: null,
-        _shouldInjectFromStores: null,
+        _shouldInjectFromStores: false,
         bootstrapInClient: _.noop,
         bootstrapInServer: _.noop,
         destroyInClient: _.noop,
         destroyInServer: _.noop,
         shouldInjectFromStores: function shouldInjectFromStores() {
+            console.warn("_shouldInjectFromStores", this._shouldInjectFromStores);
             return this._shouldInjectFromStores;
         },
-        stopInjectingFromStores: function stopInjectingFromStores() {
+        startInjectingFromStores: function startInjectingFromStores() {
+            console.warn("startInjectingFromStores");
             R.Debug.dev(R.scope(function() {
-                assert(this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should not inject from Stores.");
+                assert(!this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should not be injecting from Stores.");
+            }, this));
+            this._shouldInjectFromStores = true;
+        },
+        stopInjectingFromStores: function stopInjectingFromStores() {
+            console.warn("stopInjectingFromStores");
+            R.Debug.dev(R.scope(function() {
+                assert(this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should be injecting from Stores.");
             }, this));
             this._shouldInjectFromStores = false;
         },

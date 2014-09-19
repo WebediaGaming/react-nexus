@@ -74,6 +74,7 @@ module.exports = function(R) {
                 case 12:
                     surrogateRootComponent.componentWillUnmount();
                     rootComponent = this._rootClass(rootProps);
+                    flux.startInjectingFromStores();
                     rootHtml = React.renderComponentToString(rootComponent);
                     flux.stopInjectingFromStores();
                     serializedFlux = flux.serialize();
@@ -83,9 +84,9 @@ module.exports = function(R) {
                         });
                     }
                     flux.destroy();
-                    context$2$0.next = 21;
+                    context$2$0.next = 22;
                     return this._bootstrapTemplateVarsInServer(req);
-                case 21:
+                case 22:
                     context$2$0.t0 = context$2$0.sent;
 
                     context$2$0.t1 = {
@@ -98,7 +99,7 @@ module.exports = function(R) {
 
                     context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
                     return context$2$0.abrupt("return", this._template(context$2$0.t2, this._libs));
-                case 25:
+                case 26:
                 case "end":
                     return context$2$0.stop();
                 }
@@ -135,9 +136,10 @@ module.exports = function(R) {
                     R.Debug.dev(function() {
                         window.__ReactOnRails.rootComponent = rootComponent;
                     });
+                    flux.startInjectingFromStores();
                     React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                     flux.stopInjectingFromStores();
-                case 14:
+                case 15:
                 case "end":
                     return context$2$0.stop();
                 }

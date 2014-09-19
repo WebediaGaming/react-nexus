@@ -1,6 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
+    var co = require("co");
 
     /**
      * @memberOf R
@@ -76,7 +77,6 @@ module.exports = function(R) {
                                 fn(null, data[key]);
                             }
                         });
-
                     }
                 };
             };
@@ -90,12 +90,23 @@ module.exports = function(R) {
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                fetch(key)(function(err, val) {
-                    if(!_.has(subscribers, key)) {
-                        return;
-                    }
-                    _.each(subscribers[key], R.callWith(null, val));
-                });
+                co(regeneratorRuntime.mark(function callee$3$0() {
+                    var val;
+
+                    return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            context$4$0.next = 2;
+                            return fetch(key);
+                        case 2:
+                            val = context$4$0.sent;
+                            _.each(subscribers[key], R.callWith(null, val));
+                        case 4:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })).call(this, "R.Store.MemoryStore.signalUpdate(...)");
             };
             var set = function set(key, val) {
                 data[key] = val;
@@ -110,14 +121,23 @@ module.exports = function(R) {
                     subscription[key] = {};
                 }
                 subscribers[subscription.uniqueId] = _signalUpdate;
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value")(err);
-                    }
-                    else {
-                        _signalUpdate(val);
-                    }
-                });
+                co(regeneratorRuntime.mark(function callee$3$0() {
+                    var val;
+
+                    return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            context$4$0.next = 2;
+                            return fetch(key);
+                        case 2:
+                            val = context$4$0.sent;
+                            _signalUpdate(val);
+                        case 4:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })).call(this, R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value"));
                 return subscription;
             };
             var unsub = function unsub(subscription) {
@@ -156,10 +176,11 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.MemoryStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(str);
+                data = JSON.parse(str);
             };
             return R.Store.createStore({
                 displayName: "MemoryStore",
+                _data: data,
                 fetch: fetch,
                 get: get,
                 sub: sub,
@@ -181,19 +202,37 @@ module.exports = function(R) {
             var data = {};
             var subscribers = {};
             var updaters = {};
-            var fetch = function fetch(key) {
-                return function(fn) {
-                    _fetch(key)(function(err, res) {
-                        if(!_destroyed) {
-                            fn(err, res);
+            var fetch = regeneratorRuntime.mark(function fetch(key) {
+                var val;
+
+                return regeneratorRuntime.wrap(function fetch$(context$3$0) {
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                    case 0:
+                        console.warn("fetch", key);
+                        context$3$0.next = 3;
+                        return _fetch(key);
+                    case 3:
+                        val = context$3$0.sent;
+                        console.warn("val", val);
+
+                        if (_destroyed) {
+                            context$3$0.next = 10;
+                            break;
                         }
-                        else {
-                            fn(new Error("R.Store.UplinkStore.fetch(...): instance destroyed."));
-                        }
-                    });
-                };
-            };
+
+                        data[key] = val;
+                        return context$3$0.abrupt("return", val);
+                    case 10:
+                        throw new Error("R.Store.UplinkStore.fetch(...): instance destroyed.");
+                    case 11:
+                    case "end":
+                        return context$3$0.stop();
+                    }
+                }, fetch, this);
+            });
             var get = function get(key) {
+                console.warn("get", key);
+                console.warn("data", data);
                 R.Debug.dev(function() {
                     assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
                 });
@@ -203,15 +242,25 @@ module.exports = function(R) {
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)")(err);
-                    }
-                    if(!_.has(subscribers, key)) {
-                        return;
-                    }
-                    _.each(subscribers[key], R.callWith(null, val));
-                });
+                co(regeneratorRuntime.mark(function callee$3$0() {
+                    var val;
+
+                    return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            context$4$0.next = 2;
+                            return fetch(key);
+                        case 2:
+                            val = context$4$0.sent;
+                            if(_.has(subscribers, key)) {
+                                _.each(subscribers[key], R.callWith(null, val));
+                            }
+                        case 4:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)"));
             };
             var sub = function sub(key, _signalUpdate) {
                 R.Debug.dev(function() {
@@ -223,14 +272,24 @@ module.exports = function(R) {
                     updaters[key] = subscribe(key, _.partial(signalUpdate, key));
                 }
                 subscribers[key][subscription.uniqueId] = _signalUpdate;
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.sub.fetch(...): data not available.");
-                    }
-                    else {
-                        _signalUpdate(val);
-                    }
-                });
+                co(regeneratorRuntime.mark(function callee$3$0() {
+                    var val;
+
+                    return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            context$4$0.next = 2;
+                            return fetch(key);
+                        case 2:
+                            val = context$4$0.sent;
+                            _signalUpdate(val);
+                        case 4:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available."));
+                return subscription;
             };
             var unsub = function unsub(subscription) {
                 R.Debug.dev(function() {
@@ -254,7 +313,7 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.UplinkStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(str);
+                data = JSON.parse(str);
             };
             var destroy = function destroy() {
                 R.Debug.dev(function() {
@@ -280,6 +339,7 @@ module.exports = function(R) {
             };
             return R.Store.createStore({
                 displayName: "UplinkStore",
+                _data: data,
                 fetch: fetch,
                 get: get,
                 sub: sub,

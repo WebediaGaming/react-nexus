@@ -38,6 +38,7 @@ module.exports = function(R) {
                     listeners[event] = {};
                 }
                 listeners[event][listener.uniqueId] = fn;
+                return listener;
             };
             var removeListener = function removeListener(listener) {
                 R.Debug.dev(function() {
@@ -73,6 +74,7 @@ module.exports = function(R) {
                     listeners[event] = {};
                 }
                 listeners[event][listener.uniqueId] = fn;
+                return listener;
             };
             var removeListener = function removeListener(listener) {
                 R.Debug.dev(function() {

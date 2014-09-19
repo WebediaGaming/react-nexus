@@ -252,7 +252,7 @@ module.exports = function(R) {
             _disconnected: null,
             _bindHandlers: function _bindHandlers() {
                 this._socket.on("handshake", R.scope(this._handleHandshake, this));
-                this._socket.on("subscribeTo", R.scope(this._handleSubscribe, this));
+                this._socket.on("subscribeTo", R.scope(this._handleSubscribeTo, this));
                 this._socket.on("unsubscribeFrom", R.scope(this._handleUnsubscribeFrom, this));
                 this._socket.on("listenTo", R.scope(this._handleListenTo, this));
                 this._socket.on("unlistenFrom", R.scope(this._handleUnlistenFrom, this));
@@ -260,6 +260,7 @@ module.exports = function(R) {
                 this._socket.on("unhandshake", R.scope(this._handleUnHandshake, this));
             },
             emit: function emit(name, params) {
+                console.warn("emit", name, params);
                 this._socket.emit(name, params);
             },
             _handleHandshake: function _handleHandshake(params) {
@@ -298,6 +299,7 @@ module.exports = function(R) {
                 }
             },
             _handleSubscribeTo: function _handleSubscribeTo(params) {
+                console.warn("_handleSubscribeTo", params);
                 if(!_.has(params, "key") || !_.isString(params.key)) {
                     this.emit("err", { err: "subscribeTo.params.key: expected String." });
                 }
@@ -354,6 +356,8 @@ module.exports = function(R) {
             this._timeoutDuration = timeout;
             this._expire = R.scope(this._expire, this);
             this._expireTimeout = setTimeout(this._expire, this._timeoutDuration);
+            this._subscriptions = {};
+            this._listeners = {};
         },
         _SessionProtoProps: /** @lends R.SimpleUplinkServer.Session.prototype */{
             _guid: null,
@@ -397,6 +401,7 @@ module.exports = function(R) {
                 this._expire();
             },
             subscribeTo: function subscribeTo(key) {
+                console.warn("subscribeTo", key);
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._subscriptions, key), "R.SimpleUplinkServer.Session.subscribeTo(...): already subscribed.");
                 }, this));

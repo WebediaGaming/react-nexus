@@ -50,6 +50,12 @@ module.exports = function(R) {
         if(R.isServer()) {
             this._initInServer();
         }
+        this.fetch = R.scope(this.fetch, this);
+        this.subscribeTo = R.scope(this.subscribeTo, this);
+        this.unsubscribeFrom = R.scope(this.unsubscribeFrom, this);
+        this.listenTo = R.scope(this.listenTo, this);
+        this.unlistenFrom = R.scope(this.unlistenFrom, this);
+        this.dispatch = R.scope(this.dispatch, this);
     };
 
     _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
@@ -85,6 +91,8 @@ module.exports = function(R) {
                 else {
                     io = require("socket.io-client");
                 }
+                this._subscriptions = {};
+                this._listeners = {};
                 var socket = this._socket = io(this._socketEndPoint);
                 socket.on("update", R.scope(this._handleUpdate, this));
                 socket.on("event", R.scope(this._handleEvent, this));
@@ -185,7 +193,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake();
+                        return this._promiseForHandshake;
                     case 2:
                         this._emit("subscribeTo", { key: key });
                     case 3:
@@ -201,7 +209,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake();
+                        return this._promiseForHandshake;
                     case 2:
                         this._emit("unsubscribeFrom", { key: key });
                     case 3:
@@ -237,7 +245,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake();
+                        return this._promiseForHandshake;
                     case 2:
                         this._emit("listenTo", { eventName: eventName });
                     case 3:
@@ -253,7 +261,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake();
+                        return this._promiseForHandshake;
                     case 2:
                         this._emit("unlistenFrom", { eventName: eventName });
                     case 3:
@@ -285,14 +293,24 @@ module.exports = function(R) {
         },
         fetch: function fetch(key) {
             return R.scope(function(fn) {
-                request({ url: url.resolve(this._httpEndpoint, key), method: "GET", json: true }, function(err, res, body) {
+                request({
+                    url: url.resolve(this._httpEndpoint, key),
+                    method: "GET",
+                    json: true,
+                    withCredentials: false,
+                }, function(err, res, body) {
                     return err ? fn(err) : fn(null, body);
                 });
             }, this);
         },
         dispatch: function dispatch(action, params) {
             return R.scope(function(fn) {
-                request({ url: url.resolve(this._httpEndpoint, action), body: { guid: this._guid, params: params }, json: true }, function(err, res, body) {
+                request({
+                    url: url.resolve(this._httpEndpoint, key),
+                    body: { guid: this._guid, params: params },
+                    json: true,
+                    withCredentials: false,
+                }, function(err, res, body) {
                     return err ? fn(err) : fn(null, body);
                 });
             }, this);

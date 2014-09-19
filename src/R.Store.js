@@ -1,6 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
+    var co = require("co");
 
     /**
      * @memberOf R
@@ -76,7 +77,6 @@ module.exports = function(R) {
                                 fn(null, data[key]);
                             }
                         });
-
                     }
                 };
             };
@@ -90,12 +90,10 @@ module.exports = function(R) {
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                fetch(key)(function(err, val) {
-                    if(!_.has(subscribers, key)) {
-                        return;
-                    }
+                co(function*() {
+                    var val = yield fetch(key);
                     _.each(subscribers[key], R.callWith(null, val));
-                });
+                }).call(this, "R.Store.MemoryStore.signalUpdate(...)");
             };
             var set = function set(key, val) {
                 data[key] = val;
@@ -110,14 +108,10 @@ module.exports = function(R) {
                     subscription[key] = {};
                 }
                 subscribers[subscription.uniqueId] = _signalUpdate;
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value")(err);
-                    }
-                    else {
-                        _signalUpdate(val);
-                    }
-                });
+                co(function*() {
+                    var val = yield fetch(key);
+                    _signalUpdate(val);
+                }).call(this, R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value"));
                 return subscription;
             };
             var unsub = function unsub(subscription) {
@@ -156,10 +150,11 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.MemoryStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(str);
+                data = JSON.parse(str);
             };
             return R.Store.createStore({
                 displayName: "MemoryStore",
+                _data: data,
                 fetch: fetch,
                 get: get,
                 sub: sub,
@@ -181,19 +176,21 @@ module.exports = function(R) {
             var data = {};
             var subscribers = {};
             var updaters = {};
-            var fetch = function fetch(key) {
-                return function(fn) {
-                    _fetch(key)(function(err, res) {
-                        if(!_destroyed) {
-                            fn(err, res);
-                        }
-                        else {
-                            fn(new Error("R.Store.UplinkStore.fetch(...): instance destroyed."));
-                        }
-                    });
-                };
+            var fetch = function* fetch(key) {
+                console.warn("fetch", key);
+                var val = yield _fetch(key);
+                console.warn("val", val);
+                if(!_destroyed) {
+                    data[key] = val;
+                    return val;
+                }
+                else {
+                    throw new Error("R.Store.UplinkStore.fetch(...): instance destroyed.");
+                }
             };
             var get = function get(key) {
+                console.warn("get", key);
+                console.warn("data", data);
                 R.Debug.dev(function() {
                     assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
                 });
@@ -203,15 +200,12 @@ module.exports = function(R) {
                 if(!_.has(subscribers, key)) {
                     return;
                 }
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)")(err);
+                co(function*() {
+                    var val = yield fetch(key);
+                    if(_.has(subscribers, key)) {
+                        _.each(subscribers[key], R.callWith(null, val));
                     }
-                    if(!_.has(subscribers, key)) {
-                        return;
-                    }
-                    _.each(subscribers[key], R.callWith(null, val));
-                });
+                }).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)"));
             };
             var sub = function sub(key, _signalUpdate) {
                 R.Debug.dev(function() {
@@ -223,14 +217,11 @@ module.exports = function(R) {
                     updaters[key] = subscribe(key, _.partial(signalUpdate, key));
                 }
                 subscribers[key][subscription.uniqueId] = _signalUpdate;
-                fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.sub.fetch(...): data not available.");
-                    }
-                    else {
-                        _signalUpdate(val);
-                    }
-                });
+                co(function*() {
+                    var val = yield fetch(key);
+                    _signalUpdate(val);
+                }).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available."));
+                return subscription;
             };
             var unsub = function unsub(subscription) {
                 R.Debug.dev(function() {
@@ -254,7 +245,7 @@ module.exports = function(R) {
                 R.Debug.dev(function() {
                     assert(!_destroyed && _.isEqual(data, {}), "R.Store.UplinkStore.unserialize(...): instance should be left untouched before unserializing.");
                 });
-                this.data = JSON.parse(str);
+                data = JSON.parse(str);
             };
             var destroy = function destroy() {
                 R.Debug.dev(function() {
@@ -280,6 +271,7 @@ module.exports = function(R) {
             };
             return R.Store.createStore({
                 displayName: "UplinkStore",
+                _data: data,
                 fetch: fetch,
                 get: get,
                 sub: sub,
