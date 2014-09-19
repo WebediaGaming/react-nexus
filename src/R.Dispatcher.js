@@ -32,7 +32,7 @@ module.exports = function(R) {
                 delete this._actionsListeners[actionListener.action];
             }
         },
-        trigger: function trigger(action, params) {
+        trigger: function* trigger(action, params) {
             params = params || {};
             R.Debug.dev(R.scope(function() {
                 if(!_.has(this._actionsListeners, action)) {
@@ -40,12 +40,7 @@ module.exports = function(R) {
                 }
             }, this));
             if(_.has(this._actionsListeners, action)) {
-                return co(function*() {
-                    return yield _.map(this._actionsListeners[action], R.callWith(params));
-                }).call(this);
-            }
-            else {
-                return R.noopThunk;
+                return yield _.map(this._actionsListeners[action], R.callWith(params));
             }
         },
     });

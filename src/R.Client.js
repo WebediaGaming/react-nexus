@@ -26,9 +26,9 @@ module.exports = function(R) {
     _.extend(Client.prototype, /** @lends R.Client.prototype */ {
         _app: null,
         _rendered: false,
-        mount: function mount() {
+        mount: function* mount() {
             assert(!this._rendered, "R.Client.render(...): should only call mount() once.");
-            this._app.renderIntoDocumentInClient(window)(R.Debug.rethrow("R.Client.mount(...): couldn't mount app"));
+            yield this._app.renderIntoDocumentInClient(window);
         },
     });
 

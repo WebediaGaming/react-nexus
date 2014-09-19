@@ -32,33 +32,32 @@ module.exports = function(R) {
                 delete this._actionsListeners[actionListener.action];
             }
         },
-        trigger: function trigger(action, params) {
-            params = params || {};
-            R.Debug.dev(R.scope(function() {
-                if(!_.has(this._actionsListeners, action)) {
-                    console.warn("R.Dispatcher.trigger: triggering an action with no listeners attached.");
-                }
-            }, this));
-            if(_.has(this._actionsListeners, action)) {
-                return co(regeneratorRuntime.mark(function callee$2$0() {
-                    return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                        while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            context$3$0.next = 2;
-                            return _.map(this._actionsListeners[action], R.callWith(params));
-                        case 2:
-                            return context$3$0.abrupt("return", context$3$0.sent);
-                        case 3:
-                        case "end":
-                            return context$3$0.stop();
+        trigger: regeneratorRuntime.mark(function trigger(action, params) {
+            return regeneratorRuntime.wrap(function trigger$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    params = params || {};
+                    R.Debug.dev(R.scope(function() {
+                        if(!_.has(this._actionsListeners, action)) {
+                            console.warn("R.Dispatcher.trigger: triggering an action with no listeners attached.");
                         }
-                    }, callee$2$0, this);
-                })).call(this);
-            }
-            else {
-                return R.noopThunk;
-            }
-        },
+                    }, this));
+
+                    if (!_.has(this._actionsListeners, action)) {
+                        context$2$0.next = 6;
+                        break;
+                    }
+
+                    context$2$0.next = 5;
+                    return _.map(this._actionsListeners[action], R.callWith(params));
+                case 5:
+                    return context$2$0.abrupt("return", context$2$0.sent);
+                case 6:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, trigger, this);
+        }),
     });
 
     Dispatcher.ActionListener = function ActionListener(action) {

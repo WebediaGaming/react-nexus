@@ -39,17 +39,21 @@ module.exports = function(R) {
             return r;
         },
         noopThunk: function noopThunk() {
-            return function noop(fn) {
-                _.defer(fn);
+            return function(fn) {
+                _.defer(function() {
+                    fn(null);
+                });
             };
         },
         timeoutThunk: function timeoutThunk(delay) {
-            return function timeout(fn) {
-                setTimeout(fn, delay);
+            return function(fn) {
+                setTimeout(function() {
+                    fn(null);
+                }, delay);
             };
         },
         constantThunk: function constantThunk(val) {
-            return function constant(fn) {
+            return function(fn) {
                 _.defer(function() {
                     fn(null, val);
                 });
@@ -58,7 +62,7 @@ module.exports = function(R) {
         callWith: function callWith() {
             var args = arguments;
             return function(fn) {
-                fn.apply(null, args);
+                return fn.apply(null, args);
             };
         },
         isServer: function isServer() {

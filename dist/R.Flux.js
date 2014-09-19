@@ -74,68 +74,54 @@ module.exports = function(R) {
             getFluxStore: function getFluxStore(name) {
                 return this.getFlux().getStore(name);
             },
-            prefetchFluxStores: function prefetchFluxStores() {
-                return new Promise(R.scope(function(resolve, reject) {
-                    co(regeneratorRuntime.mark(function callee$3$0() {
-                        var subscriptions, yieldState, state, surrogateComponent, renderedComponent, childContext;
+            prefetchFluxStores: regeneratorRuntime.mark(function prefetchFluxStores() {
+                var subscriptions, yieldState, state, surrogateComponent, renderedComponent, childContext;
 
-                        return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
-                            while (1) switch (context$4$0.prev = context$4$0.next) {
-                            case 0:
-                                context$4$0.prev = 0;
-                                subscriptions = this.getFluxStoreSubscriptions(this.props);
-                                yieldState = {};
-                                _.each(subscriptions, R.scope(function(entry) {
-                                    yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
-                                }, this));
-                                context$4$0.next = 6;
-                                return yieldState;
-                            case 6:
-                                state = context$4$0.sent;
-                                surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
-                                surrogateComponent.componentWillMount();
-                                renderedComponent = surrogateComponent.render();
-                                childContext = surrogateComponent.getChildContext();
-                                surrogateComponent.componentWillUnmount();
-                                context$4$0.next = 14;
+                return regeneratorRuntime.wrap(function prefetchFluxStores$(context$2$0) {
+                    while (1) switch (context$2$0.prev = context$2$0.next) {
+                    case 0:
+                        subscriptions = this.getFluxStoreSubscriptions(this.props);
+                        yieldState = {};
+                        _.each(subscriptions, R.scope(function(entry) {
+                            yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
+                        }, this));
+                        context$2$0.next = 5;
+                        return yieldState;
+                    case 5:
+                        state = context$2$0.sent;
+                        surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
+                        surrogateComponent.componentWillMount();
+                        renderedComponent = surrogateComponent.render();
+                        childContext = surrogateComponent.getChildContext();
+                        surrogateComponent.componentWillUnmount();
+                        context$2$0.next = 13;
 
-                                return React.Children.mapDescendants(renderedComponent, function(childComponent) {
-                                    return new Promise(function(resolve, reject) {
-                                        if(!childComponent.__ReactOnRailsSurrogate) {
-                                            resolve();
+                        return React.Children.mapDescendants(renderedComponent, function(childComponent) {
+                            return new Promise(function(resolve, reject) {
+                                if(!childComponent.__ReactOnRailsSurrogate) {
+                                    resolve();
+                                }
+                                else {
+                                    var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
+                                    surrogateChildComponent.componentWillMount();
+                                    surrogateChildComponent.prefetchFluxStores()(function(err) {
+                                        if(err) {
+                                            reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
                                         }
                                         else {
-                                            var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
-                                            surrogateChildComponent.componentWillMount();
-                                            surrogateChildComponent.prefetchFluxStores()(function(err) {
-                                                if(err) {
-                                                    reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
-                                                }
-                                                else {
-                                                    surrogateChildComponent.componentWillUnmount();
-                                                    resolve();
-                                                }
-                                            });
+                                            surrogateChildComponent.componentWillUnmount();
+                                            resolve();
                                         }
                                     });
-                                });
-                            case 14:
-                                context$4$0.next = 19;
-                                break;
-                            case 16:
-                                context$4$0.prev = 16;
-                                context$4$0.t3 = context$4$0.catch(0);
-                                return context$4$0.abrupt("return", reject(context$4$0.t3));
-                            case 19:
-                                resolve();
-                            case 20:
-                            case "end":
-                                return context$4$0.stop();
-                            }
-                        }, callee$3$0, this, [[0, 16]]);
-                    })).call(this);
-                }, this));
-            },
+                                }
+                            });
+                        });
+                    case 13:
+                    case "end":
+                        return context$2$0.stop();
+                    }
+                }, prefetchFluxStores, this);
+            }),
             getFluxEventEmitter: function getFluxEventEmitter(name) {
                 return this.getFlux().getEventEmitter(name);
             },
@@ -145,11 +131,20 @@ module.exports = function(R) {
             getFluxStylesheet: function getFluxStylesheet(name) {
                 return this.getFlux().getStylesheet(name);
             },
-            triggerFluxAction: function triggerFluxAction(dispatcherName, action, params) {
-                return R.scope(function(fn) {
-                    this.getFluxDispatcher(dispatcherName).trigger(action, params)(fn);
-                }, this);
-            },
+            triggerFluxAction: regeneratorRuntime.mark(function triggerFluxAction(dispatcherName, action, params) {
+                return regeneratorRuntime.wrap(function triggerFluxAction$(context$2$0) {
+                    while (1) switch (context$2$0.prev = context$2$0.next) {
+                    case 0:
+                        context$2$0.next = 2;
+                        return this.getFluxDispatcher(dispatcherName).trigger(action, params);
+                    case 2:
+                        return context$2$0.abrupt("return", context$2$0.sent);
+                    case 3:
+                    case "end":
+                        return context$2$0.stop();
+                    }
+                }, triggerFluxAction, this);
+            }),
             _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
                 return {};
             },

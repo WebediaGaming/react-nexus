@@ -91,9 +91,6 @@ module.exports = function(R) {
                     return;
                 }
                 fetch(key)(function(err, val) {
-                    if(err) {
-                        R.Debug.rethrow("R.Store.MemoryStore.fetch")(err);
-                    }
                     if(!_.has(subscribers, key)) {
                         return;
                     }

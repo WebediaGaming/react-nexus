@@ -388,21 +388,21 @@ module.exports = function(R) {
             }
             delete this._connections[uniqueId];
         },
-        _linkSession: function _linkSession(connection, guid) {
-            return co(function*() {
-                if(!this._sessions[guid]) {
-                    this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                    yield this.sessionCreated(guid);
-                }
-                return this._sessions[guid].attachConnection(connection);
-            });
+        _linkSession: function* _linkSession(connection, guid) {
+            if(!this._sessions[guid]) {
+                this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
+                yield this.sessionCreated(guid);
+            }
+            return this._sessions[guid].attachConnection(connection);
         },
         _handleSessionExpire: function _handleSessionExpire(guid) {
             R.Debug.dev(R.scope(function() {
                 assert(_.has(this._sessions, guid), "R.SimpleUplinkServer._handleSessionExpire(...): no such session.");
             }, this));
             delete this._sessions[guid];
-            this.sessionDestroyed(guid)(R.Debug.rethrow("R.SimpleUplinkServer._handleSessionExpire(...)"));
+            co(function*() {
+                yield this.sessionDestroyed(guid);
+            }).call(this, R.Debug.rethrow("R.SimpleUplinkServer._handleSessionExpire(...)"));
         },
     });
 

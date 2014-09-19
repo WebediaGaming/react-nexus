@@ -432,28 +432,26 @@ module.exports = function(R) {
             }
             delete this._connections[uniqueId];
         },
-        _linkSession: function _linkSession(connection, guid) {
-            return co(regeneratorRuntime.mark(function callee$2$0() {
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                    case 0:
-                        if (this._sessions[guid]) {
-                            context$3$0.next = 4;
-                            break;
-                        }
-
-                        this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                        context$3$0.next = 4;
-                        return this.sessionCreated(guid);
-                    case 4:
-                        return context$3$0.abrupt("return", this._sessions[guid].attachConnection(connection));
-                    case 5:
-                    case "end":
-                        return context$3$0.stop();
+        _linkSession: regeneratorRuntime.mark(function _linkSession(connection, guid) {
+            return regeneratorRuntime.wrap(function _linkSession$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    if (this._sessions[guid]) {
+                        context$2$0.next = 4;
+                        break;
                     }
-                }, callee$2$0, this);
-            }));
-        },
+
+                    this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
+                    context$2$0.next = 4;
+                    return this.sessionCreated(guid);
+                case 4:
+                    return context$2$0.abrupt("return", this._sessions[guid].attachConnection(connection));
+                case 5:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, _linkSession, this);
+        }),
         _handleSessionExpire: function _handleSessionExpire(guid) {
             R.Debug.dev(R.scope(function() {
                 assert(_.has(this._sessions, guid), "R.SimpleUplinkServer._handleSessionExpire(...): no such session.");

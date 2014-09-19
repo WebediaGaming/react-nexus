@@ -48,109 +48,101 @@ module.exports = function(R) {
         _cachedStyleChunks: null,
         _vars: null,
         _libs: null,
-        renderToStringInServer: function renderToStringInServer(req) {
-            R.Debug.dev(function() {
-                assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
-            });
-            return R.scope(co(regeneratorRuntime.mark(function callee$2$0() {
-                var guid, flux, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
+        renderToStringInServer: regeneratorRuntime.mark(function renderToStringInServer(req) {
+            var guid, flux, rootProps, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
 
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                    case 0:
-                        guid = R.guid();
-                        flux = new this._fluxClass();
-                        context$3$0.next = 4;
-                        return flux.bootstrapInServer(req, req.headers, guid);
-                    case 4:
-                        flux.registerAllComponentsStylesheetRules(this._componentsClasses);
-
-                        surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, {
-                            flux: flux,
+            return regeneratorRuntime.wrap(function renderToStringInServer$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    R.Debug.dev(function() {
+                        assert(R.isServer(), "R.App.renderAppToStringInServer(...): should be in server.");
+                    });
+                    guid = R.guid();
+                    flux = new this._fluxClass();
+                    context$2$0.next = 5;
+                    return flux.bootstrapInServer(req, req.headers, guid);
+                case 5:
+                    flux.registerAllComponentsStylesheetRules(this._componentsClasses);
+                    rootProps = { flux: flux };
+                    R.Debug.dev(R.scope(function() {
+                        _.extend(rootProps, { __ReactOnRailsApp: this });
+                    }, this));
+                    surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, rootProps);
+                    surrogateRootComponent.componentWillMount();
+                    context$2$0.next = 12;
+                    return surrogateRootComponent.prefetchFluxStores();
+                case 12:
+                    surrogateRootComponent.componentWillUnmount();
+                    rootComponent = this._rootClass(rootProps);
+                    rootHtml = React.renderComponentToString(rootComponent);
+                    flux.stopInjectingFromStores();
+                    serializedFlux = flux.serialize();
+                    if(!this._cachedStyleChunks) {
+                        this._cachedStyleChunks = _.map(flux.getAllStylesheets(), function(stylesheet) {
+                            return stylesheet.slowlyExportToCSS();
                         });
-
-                        surrogateRootComponent.componentWillMount();
-                        context$3$0.next = 9;
-                        return surrogateRootComponent.prefetchFluxStores();
-                    case 9:
-                        surrogateRootComponent.componentWillUnmount();
-
-                        rootComponent = this._rootClass({
-                            flux: flux,
-                        });
-
-                        rootHtml = React.renderComponentToString(rootComponent);
-                        flux.stopInjectingFromStores();
-                        serializedFlux = flux.serialize();
-                        if(!this._cachedStyleChunks) {
-                            this._cachedStyleChunks = _.map(flux.getAllStylesheets(), function(stylesheet) {
-                                return stylesheet.slowlyExportToCSS();
-                            });
-                        }
-                        flux.destroy();
-                        context$3$0.next = 18;
-                        return this._bootstrapTemplateVarsInServer(req);
-                    case 18:
-                        context$3$0.t0 = context$3$0.sent;
-
-                        context$3$0.t1 = {
-                            styleChunks: this._cachedStyleChunks,
-                            rootHtml: rootHtml,
-                            serializedFlux: serializedFlux,
-                            serializedHeaders: R.Base64.encode(JSON.stringify(req.headers)),
-                            guid: guid,
-                        };
-
-                        context$3$0.t2 = _.extend({}, context$3$0.t0, this._vars, context$3$0.t1);
-                        return context$3$0.abrupt("return", this._template(context$3$0.t2, this._libs));
-                    case 22:
-                    case "end":
-                        return context$3$0.stop();
                     }
-                }, callee$2$0, this);
-            })), this);
-        },
-        renderIntoDocumentInClient: function renderAppInExistingDocumentInClient(window) {
-            R.Debug.dev(function() {
-                assert(R.isClient(), "R.App.renderAppIntoDocumentInClient(...): should be in client.");
-                assert(_.has(window, "__ReactOnRails") && _.isPlainObject(window.__ReactOnRails), "R.App.renderIntoDocumentInClient(...).__ReactOnRails: expecting Object.");
-                assert(_.has(window.__ReactOnRails, "guid") && _.isString(window.__ReactOnRails.guid), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.guid: expecting String.");
-                assert(_.has(window.__ReactOnRails, "serializedFlux") && _.isString(window.__ReactOnRails.serializedFlux), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.serializedFlux: expecting String.");
-                assert(_.has(window.__ReactOnRails, "serializedHeaders") && _.isString(window.__ReactOnRails.serializedHeaders), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.headers: expecting String.");
-            });
-            return R.scope(co(regeneratorRuntime.mark(function callee$2$0() {
-                var flux, headers, guid, rootComponent;
+                    flux.destroy();
+                    context$2$0.next = 21;
+                    return this._bootstrapTemplateVarsInServer(req);
+                case 21:
+                    context$2$0.t0 = context$2$0.sent;
 
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                    case 0:
-                        flux = new this._fluxClass();
-                        R.Debug.dev(function() {
-                            window.__ReactOnRails.flux = flux;
-                        });
-                        headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
-                        guid = window.__ReactOnRails.guid;
-                        context$3$0.next = 6;
-                        return flux.bootstrapInClient(window, headers, guid);
-                    case 6:
-                        flux.unserialize(window.__ReactOnRails.serializedFlux);
+                    context$2$0.t1 = {
+                        styleChunks: this._cachedStyleChunks,
+                        rootHtml: rootHtml,
+                        serializedFlux: serializedFlux,
+                        serializedHeaders: R.Base64.encode(JSON.stringify(req.headers)),
+                        guid: guid,
+                    };
 
-                        rootComponent = this._rootClass({
-                            flux: flux,
-                        });
+                    context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
+                    return context$2$0.abrupt("return", this._template(context$2$0.t2, this._libs));
+                case 25:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, renderToStringInServer, this);
+        }),
+        renderIntoDocumentInClient: regeneratorRuntime.mark(function renderAppInExistingDocumentInClient(window) {
+            var flux, headers, guid, rootProps, rootComponent;
 
-                        R.Debug.dev(function() {
-                            window.__ReactOnRails.rootComponent = rootComponent;
-                        });
-                        React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
-                        flux.stopInjectingFromStores();
-                    case 11:
-                    case "end":
-                        return context$3$0.stop();
-                    }
-                }, callee$2$0, this);
-            })), this);
-        },
+            return regeneratorRuntime.wrap(function renderAppInExistingDocumentInClient$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    R.Debug.dev(function() {
+                        assert(R.isClient(), "R.App.renderAppIntoDocumentInClient(...): should be in client.");
+                        assert(_.has(window, "__ReactOnRails") && _.isPlainObject(window.__ReactOnRails), "R.App.renderIntoDocumentInClient(...).__ReactOnRails: expecting Object.");
+                        assert(_.has(window.__ReactOnRails, "guid") && _.isString(window.__ReactOnRails.guid), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.guid: expecting String.");
+                        assert(_.has(window.__ReactOnRails, "serializedFlux") && _.isString(window.__ReactOnRails.serializedFlux), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.serializedFlux: expecting String.");
+                        assert(_.has(window.__ReactOnRails, "serializedHeaders") && _.isString(window.__ReactOnRails.serializedHeaders), "R.App.renderIntoDocumentInClient(...).__ReactOnRails.headers: expecting String.");
+                    });
+                    flux = new this._fluxClass();
+                    R.Debug.dev(function() {
+                        window.__ReactOnRails.flux = flux;
+                    });
+                    headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
+                    guid = window.__ReactOnRails.guid;
+                    context$2$0.next = 7;
+                    return flux.bootstrapInClient(window, headers, guid);
+                case 7:
+                    flux.unserialize(window.__ReactOnRails.serializedFlux);
+                    rootProps = { flux: flux };
+                    R.Debug.dev(R.scope(function() {
+                        _.extend(rootProps, { __ReactOnRailsApp: this });
+                    }, this));
+                    rootComponent = this._rootClass(rootProps);
+                    R.Debug.dev(function() {
+                        window.__ReactOnRails.rootComponent = rootComponent;
+                    });
+                    React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
+                    flux.stopInjectingFromStores();
+                case 14:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, renderAppInExistingDocumentInClient, this);
+        }),
     });
 
     R.App = App;

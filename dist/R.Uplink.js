@@ -61,6 +61,18 @@ module.exports = function(R) {
         _guid: null,
         _promiseForHandshake: null,
         _acknowledgeHandshake: null,
+        _debugLog: function _debugLog() {
+            var args = arguments;
+            R.Debug.dev(function() {
+                console.log.apply(console, args);
+            });
+        },
+        _emit: function _emit(name, params) {
+            R.Debug.dev(R.scope(function() {
+                assert(this._socket && null !== this._socket, "R.Uplink.emit(...): no active socket ('" + name + "', '" + params + "')");
+            }, this));
+            this._socket.emit(name, params);
+        },
         _initInClient: function _initInClient() {
             R.Debug.dev(function() {
                 assert(R.isClient(), "R.Uplink._initInClient(...): should only be called in the client.");
@@ -94,6 +106,7 @@ module.exports = function(R) {
             });
         },
         _handleUpdate: function _handleUpdate(params) {
+            this._debugLog("update", params);
             var key = params.key;
             if(_.has(this._subscriptions, key)) {
                 _.each(this._subscriptions[key], function(fn) {
@@ -102,6 +115,7 @@ module.exports = function(R) {
             }
         },
         _handleEvent: function _handleEvent(params) {
+            this._debugLog("event", params);
             var eventName = params.eventName;
             var eventParams = params.params;
             if(_.has(this._listeners, eventName)) {
@@ -111,28 +125,35 @@ module.exports = function(R) {
             }
         },
         _handleDisconnect: function _handleDisconnect(params) {
+            this._debugLog("disconnect", params);
             this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
                 this._acknowledgeHandshake = resolve;
             }, this));
         },
         _handleConnect: function _handleConnect() {
-            this._socket.emit("handshake", { guid: this._guid });
+            this._debugLog("connect");
+            this._emit("handshake", { guid: this._guid });
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
+            this._debugLog("handshake-ack", params);
             this._acknowledgeHandshake(params);
         },
         _handleDebug: function _handleDebug(params) {
+            this._debugLog("debug", params);
             R.Debug.dev(function() {
                 console.warn("R.Uplink.debug(...):", params.debug);
             });
         },
         _handleLog: function _handleLog(params) {
+            this._debugLog("log", params);
             console.log("R.Uplink.log(...):", params.log);
         },
         _handleWarn: function _handleWarn(params) {
+            this._debugLog("warn", params);
             console.warn("R.Uplink.warn(...):", params.warn);
         },
         _handleError: function _handleError(params) {
+            this._debugLog("error", params);
             console.error("R.Uplink.err(...):", params.err);
         },
         _destroyInClient: function _destroyInClient() {
@@ -151,7 +172,7 @@ module.exports = function(R) {
                         context$3$0.next = 2;
                         return this._promiseForHandshake();
                     case 2:
-                        this.emit("subscribeTo", { key: key });
+                        this._emit("subscribeTo", { key: key });
                     case 3:
                     case "end":
                         return context$3$0.stop();
@@ -167,7 +188,7 @@ module.exports = function(R) {
                         context$3$0.next = 2;
                         return this._promiseForHandshake();
                     case 2:
-                        this.emit("unsubscribeFrom", { key: key });
+                        this._emit("unsubscribeFrom", { key: key });
                     case 3:
                     case "end":
                         return context$3$0.stop();
@@ -203,7 +224,7 @@ module.exports = function(R) {
                         context$3$0.next = 2;
                         return this._promiseForHandshake();
                     case 2:
-                        this.emit("listenTo", { eventName: eventName });
+                        this._emit("listenTo", { eventName: eventName });
                     case 3:
                     case "end":
                         return context$3$0.stop();
@@ -219,7 +240,7 @@ module.exports = function(R) {
                         context$3$0.next = 2;
                         return this._promiseForHandshake();
                     case 2:
-                        this.emit("unlistenFrom", { eventName: eventName });
+                        this._emit("unlistenFrom", { eventName: eventName });
                     case 3:
                     case "end":
                         return context$3$0.stop();

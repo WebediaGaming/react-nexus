@@ -74,47 +74,38 @@ module.exports = function(R) {
             getFluxStore: function getFluxStore(name) {
                 return this.getFlux().getStore(name);
             },
-            prefetchFluxStores: function prefetchFluxStores() {
-                return new Promise(R.scope(function(resolve, reject) {
-                    co(function*() {
-                        try {
-                            var subscriptions = this.getFluxStoreSubscriptions(this.props);
-                            var yieldState = {};
-                            _.each(subscriptions, R.scope(function(entry) {
-                                yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
-                            }, this));
-                            var state = yield yieldState;
-                            var surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
-                            surrogateComponent.componentWillMount();
-                            var renderedComponent = surrogateComponent.render();
-                            var childContext = surrogateComponent.getChildContext();
-                            surrogateComponent.componentWillUnmount();
-                            yield React.Children.mapDescendants(renderedComponent, function(childComponent) {
-                                return new Promise(function(resolve, reject) {
-                                    if(!childComponent.__ReactOnRailsSurrogate) {
-                                        resolve();
-                                    }
-                                    else {
-                                        var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
-                                        surrogateChildComponent.componentWillMount();
-                                        surrogateChildComponent.prefetchFluxStores()(function(err) {
-                                            if(err) {
-                                                reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
-                                            }
-                                            else {
-                                                surrogateChildComponent.componentWillUnmount();
-                                                resolve();
-                                            }
-                                        });
-                                    }
-                                });
-                            });
-                        } catch(err) {
-                            return reject(err);
-                        }
-                        resolve();
-                    }).call(this);
+            prefetchFluxStores: function* prefetchFluxStores() {
+                var subscriptions = this.getFluxStoreSubscriptions(this.props);
+                var yieldState = {};
+                _.each(subscriptions, R.scope(function(entry) {
+                    yieldState[entry.stateKey] = this.getFluxStore(entry.storeName).fetch(entry.storeKey);
                 }, this));
+                var state = yield yieldState;
+                var surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
+                surrogateComponent.componentWillMount();
+                var renderedComponent = surrogateComponent.render();
+                var childContext = surrogateComponent.getChildContext();
+                surrogateComponent.componentWillUnmount();
+                yield React.Children.mapDescendants(renderedComponent, function(childComponent) {
+                    return new Promise(function(resolve, reject) {
+                        if(!childComponent.__ReactOnRailsSurrogate) {
+                            resolve();
+                        }
+                        else {
+                            var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
+                            surrogateChildComponent.componentWillMount();
+                            surrogateChildComponent.prefetchFluxStores()(function(err) {
+                                if(err) {
+                                    reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
+                                }
+                                else {
+                                    surrogateChildComponent.componentWillUnmount();
+                                    resolve();
+                                }
+                            });
+                        }
+                    });
+                });
             },
             getFluxEventEmitter: function getFluxEventEmitter(name) {
                 return this.getFlux().getEventEmitter(name);
@@ -125,10 +116,8 @@ module.exports = function(R) {
             getFluxStylesheet: function getFluxStylesheet(name) {
                 return this.getFlux().getStylesheet(name);
             },
-            triggerFluxAction: function triggerFluxAction(dispatcherName, action, params) {
-                return R.scope(function(fn) {
-                    this.getFluxDispatcher(dispatcherName).trigger(action, params)(fn);
-                }, this);
+            triggerFluxAction: function* triggerFluxAction(dispatcherName, action, params) {
+                return yield this.getFluxDispatcher(dispatcherName).trigger(action, params);
             },
             _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
                 return {};
