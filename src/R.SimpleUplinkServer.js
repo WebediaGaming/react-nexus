@@ -254,20 +254,38 @@ module.exports = function(R) {
         sessionCreated: null,
         sessionDestroyed: null,
         setStore: function setStore(key, val) {
-            R.Debug.dev(R.scope(function() {
-                console.warn("setStore:", key, "->", val);
-            }, this));
-            this._store[key] = val;
-            this._storeEvents.emit("set:" + key, val);
-        },
-        getStore: function getStore(key, val) {
             return R.scope(function(fn) {
-                if(!_.has(this._store, key)) {
-                    fn(new Error("No value for key '" + key + "'"));
+                try {
+                    R.Debug.dev(R.scope(function() {
+                        console.warn("setStore:", key, "->", val);
+                    }, this));
+                    this._store[key] = val;
+                    this._storeEvents.emit("set:" + key, val);
                 }
-                else {
-                    fn(null, this._store[key]);
+                catch(err) {
+                    return fn(R.Debug.extendError(err, "R.SimpleUplinkServer.setStore('" + key + "', '" + val + "')"));
                 }
+                _.defer(function() {
+                    fn(null, val);
+                });
+            }, this);
+        },
+        getStore: function getStore(key) {
+            return R.scope(function(fn) {
+                var val;
+                try {
+                    R.Debug.dev(R.scope(function() {
+                        console.warn("getStore:", key, "=", this._store[key]);
+                        assert(_.has(this._store, key), "R.SimpleUplinkServer(...).getStore: no such key (" + key + ")");
+                    }, this));
+                    val = this._store[key];
+                }
+                catch(err) {
+                    return fn(R.Debug.extendError(err, "R.SimpleUplinkServer.getStore('" + key + "')"));
+                }
+                _.defer(function() {
+                    fn(null, val);
+                });
             }, this);
         },
         emitEvent: function emitEvent(eventName, params) {
@@ -298,44 +316,39 @@ module.exports = function(R) {
         _extractOriginalPath: function _extractOriginalPath() {
             return arguments[arguments.length - 1];
         },
-        _storeGetter: function _storeGetter() {
-            return this.getStore(this._extractOriginalPath.apply(null, arguments));
-        },
         _bindStoreRoute: function _bindStoreRoute(route) {
             console.warn("store route", route);
-            this._storeRouter.route(route, R.scope(this._storeGetter, this));
+            this._storeRouter.route(route, this._extractOriginalPath);
         },
         _bindEventsRoute: function _bindEventsRoute(route) {
-            this._eventsRouter.route(route, R.scope(this._extractOriginalPath, this));
+            this._eventsRouter.route(route, this._extractOriginalPath);
         },
         _bindActionsRoute: function _bindActionsRoute(handler, route) {
             this._actionsRouter.route(route, handler);
         },
-        installHandlers: function installHandlers(app, prefix) {
-            return R.scope(co(function*() {
-                assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
-                this._app = app;
-                this._prefix = prefix || "/uplink/";
-                var server = require("http").Server(app);
-                this._io = io(server).of(prefix);
-                this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
-                this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
-                this._io.on("connection", R.scope(this._handleSocketConnection, this));
-                this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
-                this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
-                _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
-                _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
-                _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
-                this.bootstrap = R.scope(this._specs.bootstrap, this);
-                yield this.bootstrap();
-                return server;
-            }), this);
+        installHandlers: function* installHandlers(app, prefix) {
+            assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
+            this._app = app;
+            this._prefix = prefix || "/uplink/";
+            var server = require("http").Server(app);
+            this._io = io(server).of(prefix);
+            this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
+            this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+            this._io.on("connection", R.scope(this._handleSocketConnection, this));
+            this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
+            this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
+            _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
+            _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
+            _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
+            this.bootstrap = R.scope(this._specs.bootstrap, this);
+            yield this.bootstrap();
+            return server;
         },
         _handleHttpGet: function _handleHttpGet(req, res) {
             co(function*() {
                 var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-                var handler = this._storeRouter.match(path);
-                return yield handler.call(this);
+                var key = this._storeRouter.match(path);
+                return yield this.getStore(key);
             }).call(this, function(err, val) {
                 if(err) {
                     res.status(500).json({ err: err.toString() });

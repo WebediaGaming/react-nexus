@@ -39,8 +39,20 @@ module.exports = function(R) {
             return r;
         },
         noopThunk: function noopThunk() {
-            return function(fn) {
+            return function noop(fn) {
                 _.defer(fn);
+            };
+        },
+        timeoutThunk: function timeoutThunk(delay) {
+            return function timeout(fn) {
+                setTimeout(fn, delay);
+            };
+        },
+        constantThunk: function constantThunk(val) {
+            return function constant(fn) {
+                _.defer(function() {
+                    fn(null, val);
+                });
             };
         },
         callWith: function callWith() {

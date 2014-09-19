@@ -254,20 +254,38 @@ module.exports = function(R) {
         sessionCreated: null,
         sessionDestroyed: null,
         setStore: function setStore(key, val) {
-            R.Debug.dev(R.scope(function() {
-                console.warn("setStore:", key, "->", val);
-            }, this));
-            this._store[key] = val;
-            this._storeEvents.emit("set:" + key, val);
-        },
-        getStore: function getStore(key, val) {
             return R.scope(function(fn) {
-                if(!_.has(this._store, key)) {
-                    fn(new Error("No value for key '" + key + "'"));
+                try {
+                    R.Debug.dev(R.scope(function() {
+                        console.warn("setStore:", key, "->", val);
+                    }, this));
+                    this._store[key] = val;
+                    this._storeEvents.emit("set:" + key, val);
                 }
-                else {
-                    fn(null, this._store[key]);
+                catch(err) {
+                    return fn(R.Debug.extendError(err, "R.SimpleUplinkServer.setStore('" + key + "', '" + val + "')"));
                 }
+                _.defer(function() {
+                    fn(null, val);
+                });
+            }, this);
+        },
+        getStore: function getStore(key) {
+            return R.scope(function(fn) {
+                var val;
+                try {
+                    R.Debug.dev(R.scope(function() {
+                        console.warn("getStore:", key, "=", this._store[key]);
+                        assert(_.has(this._store, key), "R.SimpleUplinkServer(...).getStore: no such key (" + key + ")");
+                    }, this));
+                    val = this._store[key];
+                }
+                catch(err) {
+                    return fn(R.Debug.extendError(err, "R.SimpleUplinkServer.getStore('" + key + "')"));
+                }
+                _.defer(function() {
+                    fn(null, val);
+                });
             }, this);
         },
         emitEvent: function emitEvent(eventName, params) {
@@ -298,76 +316,108 @@ module.exports = function(R) {
         _extractOriginalPath: function _extractOriginalPath() {
             return arguments[arguments.length - 1];
         },
-        _storeGetter: function _storeGetter() {
-            return this.getStore(this._extractOriginalPath.apply(null, arguments));
-        },
         _bindStoreRoute: function _bindStoreRoute(route) {
             console.warn("store route", route);
-            this._storeRouter.route(route, R.scope(this._storeGetter, this));
+            this._storeRouter.route(route, this._extractOriginalPath);
         },
         _bindEventsRoute: function _bindEventsRoute(route) {
-            this._eventsRouter.route(route, R.scope(this._extractOriginalPath, this));
+            this._eventsRouter.route(route, this._extractOriginalPath);
         },
         _bindActionsRoute: function _bindActionsRoute(handler, route) {
             this._actionsRouter.route(route, handler);
         },
-        installHandlers: function installHandlers(app, prefix) {
-            return R.scope(co(regeneratorRuntime.mark(function callee$2$0() {
-                var server;
+        installHandlers: regeneratorRuntime.mark(function installHandlers(app, prefix) {
+            var server;
+
+            return regeneratorRuntime.wrap(function installHandlers$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
+                    this._app = app;
+                    this._prefix = prefix || "/uplink/";
+                    server = require("http").Server(app);
+                    this._io = io(server).of(prefix);
+                    this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
+                    this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+                    this._io.on("connection", R.scope(this._handleSocketConnection, this));
+                    this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
+                    this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
+                    _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
+                    _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
+                    _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
+                    this.bootstrap = R.scope(this._specs.bootstrap, this);
+                    context$2$0.next = 16;
+                    return this.bootstrap();
+                case 16:
+                    return context$2$0.abrupt("return", server);
+                case 17:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, installHandlers, this);
+        }),
+        _handleHttpGet: function _handleHttpGet(req, res) {
+            co(regeneratorRuntime.mark(function callee$2$0() {
+                var path, key;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
-                        assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
-                        this._app = app;
-                        this._prefix = prefix || "/uplink/";
-                        server = require("http").Server(app);
-                        this._io = io(server).of(prefix);
-                        this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
-                        this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
-                        this._io.on("connection", R.scope(this._handleSocketConnection, this));
-                        this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
-                        this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
-                        _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
-                        _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
-                        _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
-                        this.bootstrap = R.scope(this._specs.bootstrap, this);
-                        context$3$0.next = 16;
-                        return this.bootstrap();
-                    case 16:
-                        return context$3$0.abrupt("return", server);
-                    case 17:
+                        path = req.path.slice(this._prefix.length - 1);
+                        key = this._storeRouter.match(path);
+                        context$3$0.next = 4;
+                        return this.getStore(key);
+                    case 4:
+                        return context$3$0.abrupt("return", context$3$0.sent);
+                    case 5:
                     case "end":
                         return context$3$0.stop();
                     }
                 }, callee$2$0, this);
-            })), this);
-        },
-        _handleHttpGet: function _handleHttpGet(req, res) {
-            var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-            this._storeRouter.match(path)(function(err, res) {
+            })).call(this, function(err, val) {
                 if(err) {
                     res.status(500).json({ err: err.toString() });
                 }
                 else {
-                    res.status(200).json(res);
+                    res.status(500).json(val);
                 }
             });
         },
         _handleHttpPost: function _handleHttpPost(req, res) {
-            var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-            var handler = this._actionsRouter(path);
-            assert(req.body.guid);
-            if(!_.has(this._sessions, req.body.guid)) {
-                this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                this.sessionCreated(guid);
-            }
-            handler.call(this, req.body)(function(err, res) {
+            co(regeneratorRuntime.mark(function callee$2$0() {
+                var path, handler;
+
+                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                    case 0:
+                        path = req.path.slice(this._prefix.length - 1);
+                        handler = this._actionsRouter(path);
+                        assert(req.body.guid);
+
+                        if (_.has(this._sessions, req.body.guid)) {
+                            context$3$0.next = 7;
+                            break;
+                        }
+
+                        this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
+                        context$3$0.next = 7;
+                        return this.sessionCreated(guid);
+                    case 7:
+                        context$3$0.next = 9;
+                        return handler.call(this, req.body);
+                    case 9:
+                        return context$3$0.abrupt("return", context$3$0.sent);
+                    case 10:
+                    case "end":
+                        return context$3$0.stop();
+                    }
+                }, callee$2$0, this);
+            })).call(this, function(err, val) {
                 if(err) {
                     res.status(500).json({ err: err.toString() });
                 }
                 else {
-                    res.status(200).json(res);
+                    res.status(500).json(val);
                 }
             });
         },
