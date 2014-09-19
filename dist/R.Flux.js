@@ -252,13 +252,15 @@ module.exports = function(R) {
                 };
             },
             _FluxMixinStoreSignalUpdate: function _FluxMixinStoreSignalUpdate(stateKey, location) {
-                return R.Async.IfMounted(R.scope(function(err, val) {
-                    R.Debug.check(err === null, err);
+                return R.scope(function(val) {
+                    if(!this.isMounted()) {
+                        return;
+                    }
                     if(this.fluxStoreWillUpdate) {
                         this.fluxStoreWillUpdate(stateKey, location, val);
                     }
                     this.setState(R.record(stateKey, val));
-                }, this));
+                }, this);
             },
             _FluxMixinAddListener: function _FluxMixinAddListener(fn, location) {
                 var r = abstractLocationRegExp.exec(location);
@@ -281,10 +283,13 @@ module.exports = function(R) {
                 };
             },
             _FluxMixinEventEmitterEmit: function _FluxMixinEventEmitterEmit(eventEmitterName, eventName, fn) {
-                return R.Async.IfMounted(R.scope(function(params) {
+                return R.scope(function(params) {
+                    if(!this.isMounted()) {
+                        return;
+                    }
                     this.fluxEventEmitterWillEmit(eventEmitterName, eventName, params);
                     fn(params);
-                }, this));
+                }, this);
             },
             _FluxMixinUnsubscribe: function _FluxMixinUnsubscribe(entry, uniqueId) {
                 R.Debug.dev(R.scope(function() {

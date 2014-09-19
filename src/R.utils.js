@@ -1,7 +1,6 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
-    var _request = require("request");
     var sha256 = require("sha256");
 
     _.extend(R, /** @lends R */{
@@ -16,7 +15,7 @@ module.exports = function(R) {
         scope: function scope(fn, ctx) {
             if(process.NODE_ENV !== 'production' || (R.Debug && R.Debug.isDev && R.Debug.isDev())) {
                 if(!ctx || (R.isClient() && window === ctx)) {
-                    R.Debug.throw("R.scope(...): unbound scoping context.");
+                    throw new Error("R.scope(...): unbound scoping context.");
                 }
                 return _.extend(function() {
                     return fn.apply(ctx, arguments);
@@ -80,13 +79,6 @@ module.exports = function(R) {
             if(!R.isClient()) {
                 fn();
             }
-        },
-        request: function request() {
-            var args = arguments;
-            return function(fn) {
-                args.push(fn);
-                return _request.apply(null, args);
-            };
         },
         hash: sha256,
         /**

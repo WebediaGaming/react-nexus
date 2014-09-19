@@ -437,15 +437,15 @@ module.exports = function(R) {
                 }, this);
             },
             _expire: function _expire() {
-                _.each(_.keys(this._subscriptions), this.unsubscribeFrom);
-                _.each(_.keys(this._listeners), this.unlistenFrom);
+                _.each(_.keys(this._subscriptions), R.scope(this.unsubscribeFrom, this));
+                _.each(_.keys(this._listeners), R.scope(this.unlistenFrom, this));
                 this._sessionsEvents.emit("expire", this._guid);
             },
             listenTo: function listenTo(eventName) {
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._listeners, key), "R.SimpleUplinkServer.Session.listenTo(...): already listening.");
                 }, this));
-                this._listeners[eventName] = R.scope(this._signalEvent(eventName), this);
+                this._listeners[eventName] = this._signalEvent(eventName);
                 this._eventsEvents.addListener("emit:" + eventName, this._listeners[eventName]);
             },
             unlistenFrom: function unlistenFrom(eventName) {

@@ -20,9 +20,6 @@ module.exports = function(R) {
          * @public
          */
         Mixin: null,
-        _dirtyCheckAsyncMixin: function _dirtyCheckAsyncMixin(component) {
-            assert(_.has(component, "_AsyncMixinHasAsyncMixin") && component._AsyncMixinHasAsyncMixin, "R.Async.Mixin required");
-        },
         /**
          * Decorates a method so that upon invocation, it is only actually invoked if the component has not unmounted.
          * @param {Function}
@@ -30,15 +27,17 @@ module.exports = function(R) {
          * @public
          */
         IfMounted: function IfMounted(fn) {
-            return R.scope(function() {
-                R.Debug.dev(function() { R.Async._dirtyCheckAsyncMixin(this); });
+            return function() {
+                R.Debug.dev(R.scope(function() {
+                    assert(this._AsyncMixinHasAsyncMixin, "R.Async.IfMounted(...): requies R.Async.Mixin.");
+                }, this));
                 if(!this._AsyncMixinHasUnmounted) {
                     return fn.apply(this, arguments);
                 }
                 else {
                     return void 0;
                 }
-            }, this);
+            };
         },
         /**
          * @param {Function} fn
@@ -48,7 +47,7 @@ module.exports = function(R) {
          */
         _CallLater: function _CallLater(fn, wrapper) {
             return R.Async.IfMounted(function() {
-                wrapper(R.scope(fn, this));
+                return wrapper(R.scope(fn, this));
             });
         },
         /**
@@ -62,7 +61,7 @@ module.exports = function(R) {
                 var u = _.uniqueId("setImmediate");
                 var q = setImmediate(R.scope(function() {
                     delete this._AsyncMixinQueuedImmediates[u];
-                    fn.apply(this, args);
+                    return fn.apply(this, args);
                 }, this));
                 this._AsyncMixinQueuedImmediates[u] = q;
             };
@@ -78,7 +77,7 @@ module.exports = function(R) {
                 var u = _.uniqueId("requestAnimationFrame");
                 var q = requestAnimationFrame(R.scope(function() {
                     delete this._AsyncMixinQueuedAnimationFrames[u];
-                    fn.apply(this, args);
+                    return fn.apply(this, args);
                 }, this));
                 this._AsyncMixinQueuedAnimationFrames[u] = q;
             };
@@ -99,7 +98,7 @@ module.exports = function(R) {
                     var u = _.uniqueId("setTimeout");
                     var q = setTimeout(R.scope(function() {
                         delete this._AsyncMixinQueuedTimeouts[u];
-                        fn.apply(this, args);
+                        return fn.apply(this, args);
                     }, this));
                     this._AsyncMixinQueuedTimeouts[u] = q;
                 };
