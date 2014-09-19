@@ -98,6 +98,13 @@ module.exports = function(R) {
                 this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
                     this._acknowledgeHandshake = resolve;
                 }, this));
+                if(window.onbeforeunload) {
+                    var prevHandler = window.onbeforeunload;
+                    window.onbeforeunload = R.scope(this._handleUnload(prevHandler), this);
+                }
+                else {
+                    window.onbeforeunload = R.scope(this._handleUnload(null), this);
+                }
             }
         },
         _initInServer: function _initInClient() {
@@ -155,6 +162,14 @@ module.exports = function(R) {
         _handleError: function _handleError(params) {
             this._debugLog("error", params);
             console.error("R.Uplink.err(...):", params.err);
+        },
+        _handleUnload: function _handleUnload(prevHandler) {
+            return R.scope(function() {
+                if(prevHandler) {
+                    prevHandler();
+                }
+                this._emit("unhandshake");
+            }, this);
         },
         _destroyInClient: function _destroyInClient() {
             if(this._socket) {

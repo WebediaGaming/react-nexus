@@ -37,7 +37,6 @@
     "locale": "0.0.17",
     "lodash": "^2.4.1",
     "raf": "^2.0.3",
-    "react": "^0.11.1",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
     "react-query": "0.0.10",

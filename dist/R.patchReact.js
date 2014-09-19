@@ -1,5 +1,5 @@
 module.exports = function(R) {
-    var React = require("react");
+    var React = R.React;
     var _ = require("lodash");
     var assert = require("assert");
 
@@ -93,41 +93,29 @@ module.exports = function(R) {
     var noChildren = (function noChildren() {});
 
     var _patchedCreateClass = function createClass(specs) {
-        var fullSpecs = getFullSpecs(specs);
-        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            this.__ReactOnRailsScopeAll();
-            this.__ReactOnRailsSurrogate = __ReactOnRailsSurrogate;
-            R.Debug.dev(R.scope(function() {
-                assert(_.has(this, "getFlux") && _.isFunction(this.getFlux), this.displayName + ".__ReactOnRailsSurrogate(...): expecting getFlux(): R.Flux.FluxInstance (usually from RootMixin or ComponentMixin).");
-            }, this));
-            this.context = context;
-            this.props = _.extend({}, props, this.getDefaultProps());
-            if(_.isUndefined(initialState)) {
-                this.state = this.getInitialState();
-            }
-            else {
-                this.state = _.clone(initialState);
-            }
-        };
-        var pseudoPrototype = _.extend(__ReactOnRailsSurrogate.prototype, {
-            _isReactOnRailsSurrogate_: true,
-            context: null,
-            props: null,
-            state: null,
-            __ReactOnRailsSurrogate: null,
-            __ReactOnRailsSurrogateSpecs: fullSpecs,
-            __ReactOnRailsScope: function __ReactOnRailsScope(key) {
-                this[key] = this[key];
-                if(_.isFunction(this[key])) {
-                    this[key] = R.scope(this[key], this);
-                }
-            },
-            __ReactOnRailsScopeAll: function __ReactOnRailsScopeAll() {
-                _.each(_.keys(fullSpecs), R.scope(this.__ReactOnRailsScope, this));
-            },
-        }, fullSpecs);
 
         var createdClass = _vanillaCreateClass.call(React, specs);
+        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
+            var descriptor = React.createDescriptor(createdClass, _.omit(props, "children"), props.children);
+            var instance;
+            React.withContext(context, function() {
+                instance = R.instantiateReactComponent(descriptor);
+            });
+            if(_.isUndefined(initialState)) {
+                if(instance.getInitialState && _.isFunction(instance.getInitialState)) {
+                    initialState = instance.getInitialState();
+                }
+                else {
+                    initialState = null;
+                }
+            }
+            _.extend(instance, {
+                state: initialState,
+                _isReactOnRailsSurrogate_: true,
+                __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
+            });
+            return instance;
+        };
         _.extend(createdClass, {
             __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
         });
@@ -173,10 +161,18 @@ module.exports = function(R) {
             React.Children = _vanillaChildren;
         },
         patchAll: function patchAll() {
+            R.Debug.dev(function() {
+                console.warn("Patching React...");
+            });
+            React.__ReactOnRailsPatchApplied = true;
             patchReact.patchCreateClass();
             patchReact.patchChildren();
         },
         restoreVanillaAll: function restoreVanillaAll() {
+            R.Debug.dev(function() {
+                console.warn("Restoring Vanilla React...");
+            });
+            delete React.__ReactOnRailsPatchApplied;
             patchReact.restoreVanillaCreateClass();
             patchReact.restoreVanillaChildren();
         },

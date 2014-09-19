@@ -1,7 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
-    var React = require("react");
+    var React = R.React;
 
     var Client = function Client(appParams) {
         R.Debug.dev(function() {

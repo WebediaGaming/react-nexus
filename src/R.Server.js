@@ -18,7 +18,12 @@ module.exports = function(R) {
                 return yield this._app.renderToStringInServer(req);
             }).call(this, function(err, val) {
                 if(err) {
-                    return res.status(500).json({ err: err.toString() });
+                    if(R.Debug.isDev()) {
+                        return res.status(500).json({ err: err.toString(), stack: err.stack });
+                    }
+                    else {
+                        return res.status(500).json({err: err.toString() });
+                    }
                 }
                 else {
                     res.status(200).send(val);

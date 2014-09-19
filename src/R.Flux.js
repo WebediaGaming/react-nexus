@@ -3,7 +3,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var co = require("co");
     var Promise = require("bluebird");
-    var React = require("react");
+    var React = R.React;
 
     /**
      * @memberOf R
@@ -26,6 +26,19 @@ module.exports = function(R) {
             _.extend(FluxInstance.prototype, R.Flux.FluxInstance.prototype, specs);
             return FluxInstance;
         },
+        PropType: function validateFlux(props, propName, componentName) {
+            var flux = props.flux;
+            var valid = null;
+            R.Debug.dev(function() {
+                try {
+                    assert(_.isObject(flux) && flux._isFluxInstance_, "R.Root.createClass(...): expecting a R.Flux.FluxInstance.");
+                }
+                catch(err) {
+                    valid = err;
+                }
+            });
+            return valid;
+        },
         FluxInstance: function FluxInstance() {
             this._stores = {};
             this._eventEmitters = {};
@@ -38,7 +51,7 @@ module.exports = function(R) {
             _FluxMixinListeners: null,
             componentWillMount: function componentWillMount() {
                 R.Debug.dev(R.scope(function() {
-                    assert(_.has(this, "getFlux") && _.isFunction(this.getFlux), "R.Flux.Mixin.componentWillMount(...): requires getFlux(): R.Flux.FluxInstance.");
+                    assert(this.getFlux && _.isFunction(this.getFlux), "R.Flux.Mixin.componentWillMount(...): requires getFlux(): R.Flux.FluxInstance.");
                     assert(this._AsyncMixinHasAsyncMixin, "R.Flux.Mixin.componentWillMount(...): requires R.Async.Mixin.");
                 }, this));
                 this._FluxMixinListeners = {};

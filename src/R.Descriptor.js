@@ -2,7 +2,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var $ = require("cheerio");
-    var React = require("react");
+    var React = R.React;
 
     /**
      * @memberOf R

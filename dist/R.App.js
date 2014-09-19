@@ -1,6 +1,6 @@
 module.exports = function(R) {
     var co = require("co");
-    var React = require("react");
+    var React = R.React;
     var _ = require("lodash");
     var assert = require("assert");
     var path = require("path");
