@@ -11,9 +11,9 @@ module.exports = function(R) {
                 store: [],
                 events: [],
                 actions: {},
-                bootstrap: _.noop,
-                sessionCreated: _.noop,
-                sessionDestroyed: _.noop,
+                bootstrap: R.noopThunk,
+                sessionCreated: R.noopThunk,
+                sessionDestroyed: R.noopThunk,
             }, specs);
             var SimpleUplinkServerInstance = function SimpleUplinkServerInstance(app, prefix) {
                 SimpleUplinkServer.SimpleUplinkServerInstance.call(this, app, prefix);
@@ -261,7 +261,14 @@ module.exports = function(R) {
             this._storeEvents.emit("set:" + key, val);
         },
         getStore: function getStore(key, val) {
-            return this._store[key];
+            return R.scope(function(fn) {
+                if(!_.has(this._store, key)) {
+                    fn(new Error("No value for key '" + key + "'"));
+                }
+                else {
+                    fn(null, this._store[key]);
+                }
+            }, this);
         },
         emitEvent: function emitEvent(eventName, params) {
             this._eventsEvents.emit("emit:" + eventName, params);
@@ -292,9 +299,10 @@ module.exports = function(R) {
             return arguments[arguments.length - 1];
         },
         _storeGetter: function _storeGetter() {
-            return this._store[this._extractOriginalPath.apply(null, arguments)];
+            return this.getStore(this._extractOriginalPath.apply(null, arguments));
         },
         _bindStoreRoute: function _bindStoreRoute(route) {
+            console.warn("store route", route);
             this._storeRouter.route(route, R.scope(this._storeGetter, this));
         },
         _bindEventsRoute: function _bindEventsRoute(route) {
@@ -304,44 +312,55 @@ module.exports = function(R) {
             this._actionsRouter.route(route, handler);
         },
         installHandlers: function installHandlers(app, prefix) {
-            assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
-            this._app = app;
-            this._prefix = prefix || "/uplink/";
-            var server = require("http").Server(app);
-            this._io = io(server).of(prefix);
-            this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
-            this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
-            this._io.on("connection", R.scope(this._handleSocketConnection, this));
-            this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
-            this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
-            _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
-            _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
-            _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
-            this.bootstrap = R.scope(this._specs.bootstrap, this);
-            this.bootstrap();
-            return server;
+            return R.scope(co(function*() {
+                assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
+                this._app = app;
+                this._prefix = prefix || "/uplink/";
+                var server = require("http").Server(app);
+                this._io = io(server).of(prefix);
+                this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
+                this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+                this._io.on("connection", R.scope(this._handleSocketConnection, this));
+                this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
+                this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
+                _.each(this._specs.store, R.scope(this._bindStoreRoute, this));
+                _.each(this._specs.events, R.scope(this._bindEventsRoute, this));
+                _.each(this._specs.actions, R.scope(this._bindActionsRoute, this));
+                this.bootstrap = R.scope(this._specs.bootstrap, this);
+                yield this.bootstrap();
+                return server;
+            }), this);
         },
         _handleHttpGet: function _handleHttpGet(req, res) {
-            console.warn("GET", req.path);
-            var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-            console.warn("GET", path);
-            var val = this._storeRouter.match(path);
-            res.status(200).json(val);
-        },
-        _handleHttpPost: function _handleHttpPost(req, res) {
-            var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-            var handler = this._actionsRouter(path);
-            assert(req.body.guid);
-            if(!_.has(this._sessions, req.body.guid)) {
-                this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                this.sessionCreated(guid);
-            }
-            handler.call(this, req.body)(function(err, res) {
+            co(function*() {
+                var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
+                var handler = this._storeRouter.match(path);
+                return yield handler.call(this);
+            }).call(this, function(err, val) {
                 if(err) {
                     res.status(500).json({ err: err.toString() });
                 }
                 else {
-                    res.status(200).json(res);
+                    res.status(500).json(val);
+                }
+            });
+        },
+        _handleHttpPost: function _handleHttpPost(req, res) {
+            co(function*() {
+                var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
+                var handler = this._actionsRouter(path);
+                assert(req.body.guid);
+                if(!_.has(this._sessions, req.body.guid)) {
+                    this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
+                    yield this.sessionCreated(guid);
+                }
+                return yield handler.call(this, req.body);
+            }).call(this, function(err, val) {
+                if(err) {
+                    res.status(500).json({ err: err.toString() });
+                }
+                else {
+                    res.status(500).json(val);
                 }
             });
         },
@@ -357,18 +376,20 @@ module.exports = function(R) {
             delete this._connections[uniqueId];
         },
         _linkSession: function _linkSession(connection, guid) {
-            if(!this._sessions[guid]) {
-                this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
-                this.sessionCreated.call(this, guid);
-            }
-            return this._sessions[guid].attachConnection(connection);
+            return co(function*() {
+                if(!this._sessions[guid]) {
+                    this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents);
+                    yield this.sessionCreated(guid);
+                }
+                return this._sessions[guid].attachConnection(connection);
+            });
         },
         _handleSessionExpire: function _handleSessionExpire(guid) {
             R.Debug.dev(R.scope(function() {
                 assert(_.has(this._sessions, guid), "R.SimpleUplinkServer._handleSessionExpire(...): no such session.");
             }, this));
             delete this._sessions[guid];
-            this.sessionDestroyed.call(this, guid);
+            this.sessionDestroyed(guid)(R.Debug.rethrow("R.SimpleUplinkServer._handleSessionExpire(...)"));
         },
     });
 
