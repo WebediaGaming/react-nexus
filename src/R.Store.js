@@ -92,7 +92,7 @@ module.exports = function(R) {
                 }
                 co(function*() {
                     var val = yield fetch(key);
-                    _.each(subscribers[key], R.callWith(null, val));
+                    _.each(subscribers[key], R.callWith(val));
                 }).call(this, "R.Store.MemoryStore.signalUpdate(...)");
             };
             var set = function set(key, val) {
@@ -177,9 +177,7 @@ module.exports = function(R) {
             var subscribers = {};
             var updaters = {};
             var fetch = function* fetch(key) {
-                console.warn("fetch", key);
                 var val = yield _fetch(key);
-                console.warn("val", val);
                 if(!_destroyed) {
                     data[key] = val;
                     return val;
@@ -189,8 +187,6 @@ module.exports = function(R) {
                 }
             };
             var get = function get(key) {
-                console.warn("get", key);
-                console.warn("data", data);
                 R.Debug.dev(function() {
                     assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
                 });
@@ -203,7 +199,7 @@ module.exports = function(R) {
                 co(function*() {
                     var val = yield fetch(key);
                     if(_.has(subscribers, key)) {
-                        _.each(subscribers[key], R.callWith(null, val));
+                        _.each(subscribers[key], R.callWith(val));
                     }
                 }).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)"));
             };

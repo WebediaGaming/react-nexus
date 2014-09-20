@@ -5,7 +5,7 @@ module.exports = function(R) {
     var Promise = require("bluebird");
     var React = R.React;
 
-    var abstractLocationRegExp = /^(.*):\/\/(.*)$/;
+    var abstractLocationRegExp = /^(.*):\/(.*)$/;
 
 
     /**
@@ -112,17 +112,14 @@ module.exports = function(R) {
                         context$2$0.next = 4;
 
                         return _.object(_.map(subscriptions, R.scope(function(stateKey, location) {
-                            console.warn("REQUIRED:", stateKey, location);
                             var r = abstractLocationRegExp.exec(location);
                             assert(r !== null, "R.Flux.prefetchFluxStores(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
                             var storeName = r[1];
                             var storeKey = r[2];
-                            console.warn(storeKey, storeName, stateKey);
                             return [stateKey, this.getFluxStore(storeName).fetch(storeKey)];
                         }, this)));
                     case 4:
                         state = context$2$0.sent;
-                        console.warn("state after yielding", state);
                         this.getFlux().startInjectingFromStores();
                         surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
                         surrogateComponent.componentWillMount();
@@ -130,7 +127,7 @@ module.exports = function(R) {
                         renderedComponent = surrogateComponent.render();
                         childContext = surrogateComponent.getChildContext();
                         surrogateComponent.componentWillUnmount();
-                        context$2$0.next = 15;
+                        context$2$0.next = 14;
 
                         return React.Children.mapDescendants(renderedComponent, function(childComponent) {
                             return new Promise(function(resolve, reject) {
@@ -152,7 +149,7 @@ module.exports = function(R) {
                                 }
                             });
                         });
-                    case 15:
+                    case 14:
                     case "end":
                         return context$2$0.stop();
                     }
@@ -233,6 +230,7 @@ module.exports = function(R) {
                 this.setState(R.record(stateKey, this.getFluxStore(entry.storeName).get(entry.storeKey)));
             },
             _FluxMixinSubscribe: function _FluxMixinSubscribe(stateKey, location) {
+                console.warn("_FluxMixinSubscribe", location);
                 var r = abstractLocationRegExp.exec(location);
                 assert(r !== null, "R.Flux._FluxMixinSubscribe(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
                 var entry = {
@@ -253,6 +251,7 @@ module.exports = function(R) {
             },
             _FluxMixinStoreSignalUpdate: function _FluxMixinStoreSignalUpdate(stateKey, location) {
                 return R.scope(function(val) {
+                    console.warn("_FluxMixinStoreSignalUpdate", location, stateKey, val);
                     if(!this.isMounted()) {
                         return;
                     }
@@ -324,18 +323,15 @@ module.exports = function(R) {
         destroyInClient: _.noop,
         destroyInServer: _.noop,
         shouldInjectFromStores: function shouldInjectFromStores() {
-            console.warn("_shouldInjectFromStores", this._shouldInjectFromStores);
             return this._shouldInjectFromStores;
         },
         startInjectingFromStores: function startInjectingFromStores() {
-            console.warn("startInjectingFromStores");
             R.Debug.dev(R.scope(function() {
                 assert(!this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should not be injecting from Stores.");
             }, this));
             this._shouldInjectFromStores = true;
         },
         stopInjectingFromStores: function stopInjectingFromStores() {
-            console.warn("stopInjectingFromStores");
             R.Debug.dev(R.scope(function() {
                 assert(this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should be injecting from Stores.");
             }, this));
@@ -397,7 +393,6 @@ module.exports = function(R) {
         },
         getStylesheet: function getStylesheet(name) {
             R.Debug.dev(R.scope(function() {
-                assert(stylesheet._isStylesheet_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet. (" + name + ")");
                 assert(_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): no such Stylesheet. (" + name + ")");
             }, this));
             return this._stylesheets[name];
@@ -407,23 +402,24 @@ module.exports = function(R) {
         },
         registerStylesheet: function registerStylesheet(name, stylesheet) {
             R.Debug.dev(R.scope(function() {
-                assert(stylesheet._isStylesheetInstance_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet.StylesheetInstance. (" + name + ")");
+                assert(stylesheet._isStylesheet_, "R.Flux.FluxInstance.registerStylesheet(...): expecting a R.Stylesheet.StylesheetInstance. (" + name + ")");
                 assert(!_.has(this._stylesheets, name), "R.Flux.FluxInstance.registerStylesheet(...): name already assigned. (" + name + ")");
             }, this));
             this._stylesheets[name] = stylesheet;
         },
-        registerAllComponentsStylesheetRules: function registerComponentsStylesheetRules(componentClasses) {
+        registerAllComponentsStylesheetRules: function registerAllComponentsStylesheetRules(componentClasses) {
             _.each(componentClasses, R.scope(function(componentClass) {
-                if(_.has(componentClass, "getStylesheetRules")) {
-                    var rules = componentClass.getStylesheetRules();
-                    _.each(rules, R.scope(function(rule, stylesheetName) {
+                if(componentClass.getStylesheetRules) {
+                    var rulesMaps = componentClass.getStylesheetRules();
+                    _.each(rulesMaps, R.scope(function(rules, stylesheetName) {
                         var stylesheet = this.getStylesheet(stylesheetName);
-                        R.Debug.dev(function() {
-                            assert(_.isPlainObject(rule), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule: expecting Object. (" + name + ")");
-                            assert(_.has(rule, "selector") && _.isString(rule.selector), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.selector: expecting String. (" + name + ")");
-                            assert(_.has(rule, "style") && _.isObject(rule.style), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.style: expecting Object. (" + name + ")");
-                        });
-                        stylesheet.registerRule(rule.selector, rule.style);
+                        _.each(rules, R.scope(function(style, selector) {
+                            R.Debug.dev(function() {
+                                assert(_.isPlainObject(style), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule: expecting Object. (" + stylesheetName + ")");
+                                assert(_.isString(selector), "R.Flux.FluxInstance.registerComponentsStylesheetRules(...).rule.selector: expecting String. (" + stylesheetName + ")");
+                            });
+                            stylesheet.registerRule(selector, style);
+                        }, this));
                     }, this));
                 }
             }, this));

@@ -65,7 +65,7 @@ module.exports = function(R) {
         _listeners: null,
         _socket: null,
         _guid: null,
-        _promiseForHandshake: null,
+        ready: null,
         _acknowledgeHandshake: null,
         _debugLog: function _debugLog() {
             var args = arguments;
@@ -103,7 +103,7 @@ module.exports = function(R) {
                 socket.on("log", R.scope(this._handleLog, this));
                 socket.on("warn", R.scope(this._handleWarn, this));
                 socket.on("err", R.scope(this._handleError, this));
-                this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
+                this.ready = new Promise(R.scope(function(resolve, reject) {
                     this._acknowledgeHandshake = resolve;
                 }, this));
                 if(window.onbeforeunload) {
@@ -114,11 +114,15 @@ module.exports = function(R) {
                     window.onbeforeunload = R.scope(this._handleUnload(null), this);
                 }
             }
+            else {
+                this.ready = Promise.cast(true);
+            }
         },
         _initInServer: function _initInClient() {
             R.Debug.dev(function() {
                 assert(R.isServer(), "R.Uplink._initInServer(...): should only be called in the server.");
             });
+            this.ready = Promise.cast(true);
         },
         _handleUpdate: function _handleUpdate(params) {
             this._debugLog("update", params);
@@ -141,7 +145,7 @@ module.exports = function(R) {
         },
         _handleDisconnect: function _handleDisconnect(params) {
             this._debugLog("disconnect", params);
-            this._promiseForHandshake = new Promise(R.scope(function(resolve, reject) {
+            this.ready = new Promise(R.scope(function(resolve, reject) {
                 this._acknowledgeHandshake = resolve;
             }, this));
         },
@@ -193,7 +197,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake;
+                        return this.ready;
                     case 2:
                         this._emit("subscribeTo", { key: key });
                     case 3:
@@ -209,7 +213,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake;
+                        return this.ready;
                     case 2:
                         this._emit("unsubscribeFrom", { key: key });
                     case 3:
@@ -245,7 +249,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake;
+                        return this.ready;
                     case 2:
                         this._emit("listenTo", { eventName: eventName });
                     case 3:
@@ -261,7 +265,7 @@ module.exports = function(R) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
                         context$3$0.next = 2;
-                        return this._promiseForHandshake;
+                        return this.ready;
                     case 2:
                         this._emit("unlistenFrom", { eventName: eventName });
                     case 3:
@@ -291,10 +295,18 @@ module.exports = function(R) {
                 this._unlistenFrom(eventName);
             }
         },
+        _getFullUrl: function _getFullUrl(suffix) {
+            if(suffix.slice(0, 1) === "/" && this._httpEndpoint.slice(-1) === "/") {
+                return this._httpEndpoint.slice(0, -1) + suffix;
+            }
+            else {
+                return this._httpEndpoint + suffix;
+            }
+        },
         fetch: function fetch(key) {
             return R.scope(function(fn) {
                 request({
-                    url: url.resolve(this._httpEndpoint, key),
+                    url: this._getFullUrl(key),
                     method: "GET",
                     json: true,
                     withCredentials: false,
@@ -306,7 +318,7 @@ module.exports = function(R) {
         dispatch: function dispatch(action, params) {
             return R.scope(function(fn) {
                 request({
-                    url: url.resolve(this._httpEndpoint, key),
+                    url: this._getFullUrl(key),
                     body: { guid: this._guid, params: params },
                     json: true,
                     withCredentials: false,

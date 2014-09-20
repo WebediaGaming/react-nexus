@@ -69,9 +69,6 @@ module.exports = function(R) {
             setStore: function setStore(key, val) {
                 return R.scope(function(fn) {
                     try {
-                        R.Debug.dev(R.scope(function() {
-                            console.warn("setStore:", key, "->", val);
-                        }, this));
                         this._store[key] = val;
                         this._storeEvents.emit("set:" + key, val);
                     }
@@ -88,7 +85,6 @@ module.exports = function(R) {
                     var val;
                     try {
                         R.Debug.dev(R.scope(function() {
-                            console.warn("getStore:", key, "=", this._store[key]);
                             assert(_.has(this._store, key), "R.SimpleUplinkServer(...).getStore: no such key (" + key + ")");
                         }, this));
                         val = this._store[key];
@@ -168,7 +164,7 @@ module.exports = function(R) {
                     }
                 }, installHandlers, this);
             }),
-            _handleHttpGet: function _handleHttpGet(req, res) {
+            _handleHttpGet: function _handleHttpGet(req, res, next) {
                 co(regeneratorRuntime.mark(function callee$2$0() {
                     var path, key;
 
@@ -188,10 +184,15 @@ module.exports = function(R) {
                     }, callee$2$0, this);
                 })).call(this, function(err, val) {
                     if(err) {
-                        res.status(500).json({ err: err.toString() });
+                        if(R.Debug.isDev()) {
+                            return res.status(500).json({ err: err.toString(), stack: err.stack });
+                        }
+                        else {
+                            return res.status(500).json({ err: err.toString() });
+                        }
                     }
                     else {
-                        res.status(500).json(val);
+                        return res.status(200).json(val);
                     }
                 });
             },
@@ -226,10 +227,15 @@ module.exports = function(R) {
                     }, callee$2$0, this);
                 })).call(this, function(err, val) {
                     if(err) {
-                        res.status(500).json({ err: err.toString() });
+                        if(R.Debug.isDev()) {
+                            return res.status(500).json({ err: err.toString(), stack: err.stack });
+                        }
+                        else {
+                            return res.status(500).json({ err: err.toString() });
+                        }
                     }
                     else {
-                        res.status(500).json(val);
+                        res.status(200).json(val);
                     }
                 });
             },
@@ -326,7 +332,6 @@ module.exports = function(R) {
                 this._socket.on("unhandshake", R.scope(this._handleUnHandshake, this));
             },
             emit: function emit(name, params) {
-                console.warn("emit", name, params);
                 this._socket.emit(name, params);
             },
             _handleHandshake: function _handleHandshake(params) {
@@ -391,7 +396,6 @@ module.exports = function(R) {
                 }
             },
             _handleSubscribeTo: function _handleSubscribeTo(params) {
-                console.warn("_handleSubscribeTo", params);
                 if(!_.has(params, "key") || !_.isString(params.key)) {
                     this.emit("err", { err: "subscribeTo.params.key: expected String." });
                 }
@@ -493,7 +497,6 @@ module.exports = function(R) {
                 this._expire();
             },
             subscribeTo: function subscribeTo(key) {
-                console.warn("subscribeTo", key);
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._subscriptions, key), "R.SimpleUplinkServer.Session.subscribeTo(...): already subscribed.");
                 }, this));

@@ -1,6 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
+    var autoprefixer = require("autoprefixer-core");
 
     var Stylesheet = function Stylesheet() {
         this._rules = [];
@@ -9,6 +10,7 @@ module.exports = function(R) {
     _.extend(Stylesheet.prototype, /** @lends R.Stylesheet.prototype */ {
         _isStylesheet_: true,
         registerRule: function registerRule(selector, style) {
+            console.warn("registerRule", selector, style);
             R.Debug.dev(function() {
                 assert(_.isPlainObject(style), "R.Stylesheet.registerClassName(...).style: expecting Object.");
             });
@@ -17,7 +19,7 @@ module.exports = function(R) {
                 style: style,
             });
         },
-        slowlyExportToCSS: function toCSS(indent, shouldAutoPrefix) {
+        slowlyExportToCSS: function slowlyExportToCSS(indent, shouldAutoPrefix) {
             if(_.isUndefined(indent)) {
                 indent = "  ";
             }
@@ -27,11 +29,14 @@ module.exports = function(R) {
             var unprefixedCSS = _.map(this._rules, function(style, selector) {
                 return selector + " {\n" + R.Style.fromReactStyleToCSS(style) + "}\n\n";
             }).join("");
+            console.warn("unprefixedCSS", unprefixedCSS);
             if(!shouldAutoPrefix) {
                 return unprefixedCSS;
             }
             else {
-                return autoprefixer.process(unprefixedCSS).css;
+                var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
+                console.warn("prefixedCSS", prefixedCSS);
+                return prefixedCSS;
             }
         },
     });

@@ -100,7 +100,7 @@ module.exports = function(R) {
                             return fetch(key);
                         case 2:
                             val = context$4$0.sent;
-                            _.each(subscribers[key], R.callWith(null, val));
+                            _.each(subscribers[key], R.callWith(val));
                         case 4:
                         case "end":
                             return context$4$0.stop();
@@ -208,31 +208,27 @@ module.exports = function(R) {
                 return regeneratorRuntime.wrap(function fetch$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                     case 0:
-                        console.warn("fetch", key);
-                        context$3$0.next = 3;
+                        context$3$0.next = 2;
                         return _fetch(key);
-                    case 3:
+                    case 2:
                         val = context$3$0.sent;
-                        console.warn("val", val);
 
                         if (_destroyed) {
-                            context$3$0.next = 10;
+                            context$3$0.next = 8;
                             break;
                         }
 
                         data[key] = val;
                         return context$3$0.abrupt("return", val);
-                    case 10:
+                    case 8:
                         throw new Error("R.Store.UplinkStore.fetch(...): instance destroyed.");
-                    case 11:
+                    case 9:
                     case "end":
                         return context$3$0.stop();
                     }
                 }, fetch, this);
             });
             var get = function get(key) {
-                console.warn("get", key);
-                console.warn("data", data);
                 R.Debug.dev(function() {
                     assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
                 });
@@ -253,7 +249,7 @@ module.exports = function(R) {
                         case 2:
                             val = context$4$0.sent;
                             if(_.has(subscribers, key)) {
-                                _.each(subscribers[key], R.callWith(null, val));
+                                _.each(subscribers[key], R.callWith(val));
                             }
                         case 4:
                         case "end":

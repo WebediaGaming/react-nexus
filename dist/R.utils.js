@@ -80,6 +80,10 @@ module.exports = function(R) {
                 fn();
             }
         },
+        startsWith: function startsWith(str, prefix) {
+            var begin = str.slice(0, prefix.length - 1);
+            return begin === prefix;
+        },
         hash: sha256,
         /**
          * @type {Function}

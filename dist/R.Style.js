@@ -3,11 +3,12 @@ module.exports = function(R) {
     var assert = require("assert");
     var recase = require("change-case");
     var parse = require("css-parse");
+    var autoprefixer = require("autoprefixer-core");
 
     var Style = {
         slowlyAutoPrefixStyle: function slowlyAutoPrefixStyle(style) {
             var unprefixedCSS = R.Style.fromReactStyleToCSS(style);
-            var prefixedCSS = autoprefix.process(unprefixedCSS).css;
+            var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
             return R.Style.slowlyFromCSSToReactStyle(prefixedCSS);
         },
         fromReactStyleToCSS: function fromReactStyleToCSS(style) {

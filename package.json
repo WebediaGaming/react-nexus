@@ -22,7 +22,7 @@
   "author": "Elie Rotenberg <elie@rotenberg.io>",
   "license": "MIT",
   "dependencies": {
-    "autoprefixer": "^3.0.0",
+    "autoprefixer-core": "^3.1.0",
     "bluebird": "^2.3.2",
     "change-case": "^2.1.5",
     "cheerio": "^0.17.0",

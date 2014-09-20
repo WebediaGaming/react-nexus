@@ -96,7 +96,7 @@ module.exports = function(R) {
 
         var createdClass = _vanillaCreateClass.call(React, specs);
         var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            var descriptor = React.createDescriptor(createdClass, _.omit(props, "children"), props.children);
+            var descriptor = React.createElement(createdClass, _.omit(props, "children"), props.children);
             var instance;
             React.withContext(context, function() {
                 instance = R.instantiateReactComponent(descriptor);
@@ -119,6 +119,13 @@ module.exports = function(R) {
         _.extend(createdClass, {
             __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
         });
+        if(specs.getStylesheetRules) {
+            _.extend(createdClass, {
+                getStylesheetRules: function() {
+                    return specs.getStylesheetRules.apply(null); // Force null context to avoid side-effects
+                },
+            });
+        }
         return createdClass;
     };
 
