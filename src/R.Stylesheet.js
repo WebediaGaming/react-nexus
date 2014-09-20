@@ -26,8 +26,8 @@ module.exports = function(R) {
             if(_.isUndefined(shouldAutoPrefix)) {
                 shouldAutoPrefix = true;
             }
-            var unprefixedCSS = _.map(this._rules, function(style, selector) {
-                return selector + " {\n" + R.Style.fromReactStyleToCSS(style) + "}\n\n";
+            var unprefixedCSS = _.map(this._rules, function(rule) {
+                return rule.selector + " {\n" + R.Style.fromReactStyleToCSS(rule.style) + "}\n\n";
             }).join("");
             console.warn("unprefixedCSS", unprefixedCSS);
             if(!shouldAutoPrefix) {
