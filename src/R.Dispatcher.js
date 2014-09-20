@@ -20,6 +20,7 @@ module.exports = function(R) {
                 this._actionsListeners[action] = {};
             }
             this._actionsListeners[action][actionListener.uniqueId] = fn;
+            return actionListener;
         },
         removeActionListener: function removeActionListener(actionListener) {
             R.Debug.dev(R.scope(function() {
@@ -32,7 +33,7 @@ module.exports = function(R) {
                 delete this._actionsListeners[actionListener.action];
             }
         },
-        trigger: function* trigger(action, params) {
+        dispatch: function* dispatch(action, params) {
             params = params || {};
             R.Debug.dev(R.scope(function() {
                 if(!_.has(this._actionsListeners, action)) {
@@ -40,7 +41,9 @@ module.exports = function(R) {
                 }
             }, this));
             if(_.has(this._actionsListeners, action)) {
-                return yield _.map(this._actionsListeners[action], R.callWith(params));
+                return yield _.map(this._actionsListeners[action], function(listener) {
+                    return listener(params);
+                });
             }
         },
     });

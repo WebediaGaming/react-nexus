@@ -318,7 +318,8 @@ module.exports = function(R) {
         dispatch: function dispatch(action, params) {
             return R.scope(function(fn) {
                 request({
-                    url: this._getFullUrl(key),
+                    url: this._getFullUrl(action),
+                    method: "POST",
                     body: { guid: this._guid, params: params },
                     json: true,
                     withCredentials: false,

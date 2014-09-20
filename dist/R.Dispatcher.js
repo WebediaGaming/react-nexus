@@ -20,6 +20,7 @@ module.exports = function(R) {
                 this._actionsListeners[action] = {};
             }
             this._actionsListeners[action][actionListener.uniqueId] = fn;
+            return actionListener;
         },
         removeActionListener: function removeActionListener(actionListener) {
             R.Debug.dev(R.scope(function() {
@@ -32,8 +33,8 @@ module.exports = function(R) {
                 delete this._actionsListeners[actionListener.action];
             }
         },
-        trigger: regeneratorRuntime.mark(function trigger(action, params) {
-            return regeneratorRuntime.wrap(function trigger$(context$2$0) {
+        dispatch: regeneratorRuntime.mark(function dispatch(action, params) {
+            return regeneratorRuntime.wrap(function dispatch$(context$2$0) {
                 while (1) switch (context$2$0.prev = context$2$0.next) {
                 case 0:
                     params = params || {};
@@ -49,14 +50,17 @@ module.exports = function(R) {
                     }
 
                     context$2$0.next = 5;
-                    return _.map(this._actionsListeners[action], R.callWith(params));
+
+                    return _.map(this._actionsListeners[action], function(listener) {
+                        return listener(params);
+                    });
                 case 5:
                     return context$2$0.abrupt("return", context$2$0.sent);
                 case 6:
                 case "end":
                     return context$2$0.stop();
                 }
-            }, trigger, this);
+            }, dispatch, this);
         }),
     });
 

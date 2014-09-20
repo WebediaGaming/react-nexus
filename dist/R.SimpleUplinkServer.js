@@ -4,6 +4,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var co = require("co");
     var EventEmitter = require("events").EventEmitter;
+    var bodyParser = require("body-parser");
 
     var SimpleUplinkServer = {
         createServer: function createServer(specs) {
@@ -52,12 +53,9 @@ module.exports = function(R) {
             _io: null,
             _store: null,
             _storeEvents: null,
-            _storePatterns: null,
             _storeRouter: null,
-            _eventsPatterns: null,
             _eventsRouter: null,
             _eventsEvents: null,
-            _actionsPatterns: null,
             _actionsRouter: null,
             _sessions: null,
             _sessionsEvents: null,
@@ -132,7 +130,7 @@ module.exports = function(R) {
                 this._eventsRouter.route(route, this._extractOriginalPath);
             },
             _bindActionsRoute: function _bindActionsRoute(handler, route) {
-                this._actionsRouter.route(route, handler);
+                this._actionsRouter.route(route, _.constant(R.scope(handler, this)));
             },
             installHandlers: regeneratorRuntime.mark(function installHandlers(app, prefix) {
                 var server;
@@ -146,7 +144,7 @@ module.exports = function(R) {
                         server = require("http").Server(app);
                         this._io = io(server).of(prefix);
                         this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
-                        this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+                        this._app.post(this._prefix + "*", bodyParser.json(), R.scope(this._handleHttpPost, this));
                         this._io.on("connection", R.scope(this._handleSocketConnection, this));
                         this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
                         this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
@@ -198,29 +196,32 @@ module.exports = function(R) {
             },
             _handleHttpPost: function _handleHttpPost(req, res) {
                 co(regeneratorRuntime.mark(function callee$2$0() {
-                    var path, handler;
+                    var path, handler, params;
 
                     return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                         while (1) switch (context$3$0.prev = context$3$0.next) {
                         case 0:
                             path = req.path.slice(this._prefix.length - 1);
-                            handler = this._actionsRouter(path);
-                            assert(req.body.guid);
+                            handler = this._actionsRouter.match(path);
+                            assert(_.isObject(req.body), "body: expecting Object.");
+                            assert(req.body.guid && _.isString(req.body.guid), "guid: expecting String.");
+                            assert(req.body.params && _.isPlainObject(req.body.params), "params: expecting Object.");
 
                             if (_.has(this._sessions, req.body.guid)) {
-                                context$3$0.next = 7;
+                                context$3$0.next = 9;
                                 break;
                             }
 
                             this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents, this._sessionsEvents, this.sessionTimeout);
-                            context$3$0.next = 7;
-                            return this.sessionCreated(guid);
-                        case 7:
                             context$3$0.next = 9;
-                            return handler.call(this, req.body);
+                            return this.sessionCreated(guid);
                         case 9:
+                            params = _.extend({}, { guid: req.body.guid }, req.body.params);
+                            context$3$0.next = 12;
+                            return handler(params);
+                        case 12:
                             return context$3$0.abrupt("return", context$3$0.sent);
-                        case 10:
+                        case 13:
                         case "end":
                             return context$3$0.stop();
                         }

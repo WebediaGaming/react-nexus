@@ -33,6 +33,35 @@ module.exports = function(R) {
         setMode: function setMode(mode) {
             assert('development' === mode || 'production' === mode, "R.Debug.setMode(...): mode should be either 'development' or 'production'.");
             R.Debug._mode = mode;
+            if(mode === 'production') {
+                R.Debug.disableStackTracesForSetImmediate();
+            }
+        },
+        _vanillaSetImmediate: null,
+        _vanillaClearImmediate: null,
+        enableStackTracesForSetImmediate: function enableStackTracesForSetImmediate() {
+            assert(R.Debug.isDev(), "R.enableStackTracesForSetImmediate(...): should only be called in development mode.");
+            assert(R._vanillaSetImmediate !== null, "R.enableStackTracesForSetImmediate(...): already enabled.");
+            if(R.isClient()) {
+                _vanillaSetImmediate = window.setImmediate;
+                _vanillaClearImmediate = clearTimeout;
+                window.setImmediate = _.defer;
+                window.clearImmediate = clearTimeout;
+            }
+            else if(R.isServer()) {
+                _vanillaSetImmediate = global.setImmediate;
+                _vanillaClearImmediate = clearTimeout;
+                global.setImmediate = _.defer;
+                global.clearImmediate = clearTimeout;
+            }
+        },
+        disableStackTracesForSetImmediate: function disableStackTracesForSetImmediate() {
+            if(R.isClient()) {
+                window.setImmediate = _vanillaSetImmediate;
+            }
+            else {
+                global.setImmediate = _.defer;
+            }
         },
         /**
          * Returns a boolean describing whether the current mode is dev.
@@ -97,6 +126,10 @@ module.exports = function(R) {
             debugger;
             /* jshint debug:false */
         },
+        stackTrace: function stackTrace() {
+            var err = new Error();
+            return err.stack;
+        },
         display: function display(name, obj) {
             console.warn("++++[ " + name + " ]++++");
             for(var k in obj) {
@@ -140,7 +173,8 @@ module.exports = function(R) {
          * @public
          */
         extendError: function extendError(err, message) {
-            return new VError(err, message);
+            err.message = message + ": " + err.message;
+            return err;
         },
         /**
          * Returns a function that will rethrow when passed an error.
@@ -167,5 +201,10 @@ module.exports = function(R) {
     };
 
     R.Debug = Debug;
+
+    if(Debug.isDev()) {
+        Debug.enableStackTracesForSetImmediate();
+    }
+
     return R;
 };

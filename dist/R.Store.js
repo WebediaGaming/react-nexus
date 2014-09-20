@@ -3,6 +3,8 @@ module.exports = function(R) {
     var assert = require("assert");
     var co = require("co");
 
+    var count = 0;
+
     /**
      * @memberOf R
      * @class R.Store is a generic, abstract Store representation. A Store is defined by its capacity to provide components with data and updates.
@@ -82,7 +84,7 @@ module.exports = function(R) {
             };
             var get = function get(key) {
                 R.Debug.dev(function() {
-                    assert(_.has(data, key), "R.Store.MemoryStore.get(...): data not available.");
+                    assert(_.has(data, key), "R.Store.MemoryStore.get(...): data not available. ('" + key + "')");
                 });
                 return data[key];
             };
@@ -118,9 +120,10 @@ module.exports = function(R) {
                 });
                 var subscription = new R.Store.Subscription(key);
                 if(!_.has(subscribers, key)) {
-                    subscription[key] = {};
+                    subscribers[key] = {};
                 }
-                subscribers[subscription.uniqueId] = _signalUpdate;
+                subscribers[key][subscription.uniqueId] = _signalUpdate;
+                console.warn("sub", key, subscription.uniqueId);
                 co(regeneratorRuntime.mark(function callee$3$0() {
                     var val;
 
@@ -141,14 +144,16 @@ module.exports = function(R) {
                 return subscription;
             };
             var unsub = function unsub(subscription) {
+                console.warn("unsub", subscription.key, subscription.uniqueId);
                 R.Debug.dev(function() {
                     assert(!_destroyed, "R.Store.MemoryStore.unsub(...): instance destroyed.");
                     assert(subscription instanceof R.Store.Subscription, "R.Store.MemoryStore.unsub(...): type R.Store.Subscription expected.");
                     assert(_.has(subscribers, subscription.key), "R.Store.MemoryStore.unsub(...): no subscribers for this key.");
-                    assert(_.has(subscribers[key], subscription.uniqueId), "R.Store.MemoryStore.unsub(...): no such subscription.");
+                    assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.MemoryStore.unsub(...): no such subscription.");
                 });
+                console.warn("ok");
                 delete subscribers[subscription.key][subscription.uniqueId];
-                if(_.size(subscribers[subscribers]) === 0) {
+                if(_.size(subscribers[subscription.key]) === 0) {
                     delete subscribers[subscription.key];
                 }
             };
@@ -173,10 +178,7 @@ module.exports = function(R) {
                 return JSON.stringify(data);
             };
             var unserialize = function unserialize(str) {
-                R.Debug.dev(function() {
-                    assert(!_destroyed && _.isEqual(data, {}), "R.Store.MemoryStore.unserialize(...): instance should be left untouched before unserializing.");
-                });
-                data = JSON.parse(str);
+                _.extend(data, JSON.parse(str));
             };
             return R.Store.createStore({
                 displayName: "MemoryStore",
@@ -230,7 +232,7 @@ module.exports = function(R) {
             });
             var get = function get(key) {
                 R.Debug.dev(function() {
-                    assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available.");
+                    assert(_.has(data, key), "R.Store.UplinkStore.get(...): data not available. ('" + key + "')");
                 });
                 return data[key];
             };
@@ -249,6 +251,10 @@ module.exports = function(R) {
                         case 2:
                             val = context$4$0.sent;
                             if(_.has(subscribers, key)) {
+                                console.warn("subscribers of", key);
+                                _.each(subscribers[key], function(fn) {
+                                    console.warn({fn: fn});
+                                });
                                 _.each(subscribers[key], R.callWith(val));
                             }
                         case 4:
@@ -256,13 +262,13 @@ module.exports = function(R) {
                             return context$4$0.stop();
                         }
                     }, callee$3$0, this);
-                })).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...)"));
+                })).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...) ('" + key + "')"));
             };
             var sub = function sub(key, _signalUpdate) {
                 R.Debug.dev(function() {
-                    assert(!_destroyed, "R.Store.UplinkStore.sub(...): instance destroyed.");
+                    assert(!_destroyed, "R.Store.UplinkStore.sub(...): instance destroyed. ('" + key + "')");
                 });
-                var subscription = new R.Store.Subscription();
+                var subscription = new R.Store.Subscription(key);
                 if(!_.has(subscribers, key)) {
                     subscribers[key] = {};
                     updaters[key] = subscribe(key, _.partial(signalUpdate, key));
@@ -284,19 +290,19 @@ module.exports = function(R) {
                             return context$4$0.stop();
                         }
                     }, callee$3$0, this);
-                })).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available."));
+                })).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available. ('" + key + "')"));
                 return subscription;
             };
             var unsub = function unsub(subscription) {
                 R.Debug.dev(function() {
                     assert(!_destroyed, "R.Store.UplinkStore.unsub(...): instance destroyed.");
                     assert(subscription instanceof R.Store.Subscription, "R.Store.UplinkStore.unsubscribe(...): type R.Store.Subscription expected.");
-                    assert(_.has(subscribers, subscription.key), "R.Store.UplinkStore.unsubscribe(...): no subscribers for this key.");
-                    assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.UplinkStore.unsubscribe(...): no such subscription.");
+                    assert(_.has(subscribers, subscription.key), "R.Store.UplinkStore.unsubscribe(...): no subscribers for this key. ('" + subscription.key + "')");
+                    assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.UplinkStore.unsubscribe(...): no such subscription. ('" + subscription.key + "', '" + subscription.uniqueId + "')");
                 });
                 delete subscribers[subscription.key][subscription.uniqueId];
                 if(_.size(subscribers[subscription.key]) === 0) {
-                    unsubscribe(key, updaters[subscription.key]);
+                    unsubscribe(subscription.key, updaters[subscription.key]);
                     delete subscribers[subscription.key];
                     delete updaters[subscription.key];
                 }
@@ -306,10 +312,7 @@ module.exports = function(R) {
                 return JSON.stringify(data);
             };
             var unserialize = function unserialize(str) {
-                R.Debug.dev(function() {
-                    assert(!_destroyed && _.isEqual(data, {}), "R.Store.UplinkStore.unserialize(...): instance should be left untouched before unserializing.");
-                });
-                data = JSON.parse(str);
+                _.extend(data, JSON.parse(str));
             };
             var destroy = function destroy() {
                 R.Debug.dev(function() {

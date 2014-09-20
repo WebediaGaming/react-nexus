@@ -3,129 +3,49 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
 
-    var _vanillaCreateClass = React.createClass;
-    var toOne = ["render"];
-    var toMerge = ["getInitialState", "getDefaultProps", "getChildContext"];
-    var toBlacklist = ["setState", "replaceState", "componentDidMount", "componentWillReceiveProps", "shouldComponentUpdate", "componentWillUpdate"];
-    var defaults = {
-        getInitialState: function getInitialState() {
-            return null;
-        },
-        getDefaultProps: function getDefaultProps() {
-            return {};
-        },
-        componentWillMount: function componentWillMount() {},
-        componentWillUnmount: function componentWillUnmount() {},
-        render: function render() {
-            R.Debug.dev(R.scope(function() {
-                throw new Error(this.displayName + ".render(...): not implemented.");
-            }, this));
-            return null;
-        },
-    };
-
-    var getFullSpecs = function getFullSpecs(specs) {
-        if(!_.has(specs, "mixins")) {
-            return _.clone(specs);
-        }
-        else {
-            var specsToMix = [specs];
-            _.each(specs.mixins, function(mixin) {
-                specsToMix.push(getFullSpecs(mixin));
-            });
-            var combinedSpecs = {};
-            _.each(specsToMix, function(singleSpecs) {
-                _.each(_.keys(singleSpecs), function(key) {
-                    if(_.has(combinedSpecs, key)) { // This key was already handled
-                        return;
-                    }
-                    combinedSpecs[key] = [];
-                    _.each(specsToMix, function(anySpecs) {
-                        if(_.has(anySpecs, key)) {
-                            combinedSpecs[key].push(anySpecs[key]);
-                        }
-                    });
-                });
-            });
-            var finalSpecs = _.extend({}, defaults);
-            _.each(combinedSpecs, function(combinedSpec, key) {
-                if(_.contains(toMerge, key)) {
-                    finalSpecs[key] = function() {
-                        var r = {};
-                        var args = arguments;
-                        _.each(combinedSpec, R.scope(function(fn) {
-                            _.extend({}, fn.apply(this, args));
-                        }, this));
-                        return r;
-                    };
-                }
-                else if(_.contains(toOne, key)) {
-                    finalSpecs[key] = _.last(combinedSpec);
-                }
-                else {
-                    var lastVal = _.last(combinedSpec);
-                    if(_.isFunction(lastVal)) {
-                        finalSpecs[key] = function() {
-                            var args = arguments;
-                            var res;
-                            _.each(combinedSpec, R.scope(function(fn) {
-                                res = fn.apply(this, args);
-                            }, this));
-                            return res;
-                        };
-                    }
-                    else {
-                        finalSpecs[key] = lastVal;
-                    }
-                }
-            });
-            _.each(toBlacklist, function(key) {
-                finalSpecs[key] = function() {
-                    R.Debug.dev(R.scope(function() {
-                        throw new Error(this.displayName  + "." + key + "(...): should not be called on __ReactOnRailsSurrogate instance.");
-                    }, this));
-                };
-            });
-            return finalSpecs;
-        }
-    };
+    var _vanillaCreateClass = R.scope(React.createClass, React);
 
     var noChildren = (function noChildren() {});
 
     var _patchedCreateClass = function createClass(specs) {
+        var createdClass;
 
-        var createdClass = _vanillaCreateClass.call(React, specs);
+        _.defaults(specs, {
+            getFluxStoreSubscriptions: _.constant({}),
+            statics: {},
+        });
+
         var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            var descriptor = React.createElement(createdClass, _.omit(props, "children"), props.children);
             var instance;
             React.withContext(context, function() {
+                var args = [createdClass, _.omit(props, "children")];
+                if(props.children) {
+                    args.push(props.children);
+                }
+                var descriptor = React.createElement.apply(React, args);
                 instance = R.instantiateReactComponent(descriptor);
-            });
-            if(_.isUndefined(initialState)) {
-                if(instance.getInitialState && _.isFunction(instance.getInitialState)) {
-                    initialState = instance.getInitialState();
+                instance.context = context;
+                initialState = initialState || {};
+                if(instance.getInitialState) {
+                    initialState = _.extend(initialState, instance.getInitialState() || {});
                 }
-                else {
-                    initialState = null;
-                }
-            }
-            _.extend(instance, {
-                state: initialState,
-                _isReactOnRailsSurrogate_: true,
-                __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
+                _.extend(instance, {
+                    state: initialState,
+                    _isReactOnRailsSurrogate_: true,
+                    __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
+                });
             });
             return instance;
         };
-        _.extend(createdClass, {
+
+        _.extend(specs.statics, {
             __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
         });
-        if(specs.getStylesheetRules) {
-            _.extend(createdClass, {
-                getStylesheetRules: function() {
-                    return specs.getStylesheetRules.apply(null); // Force null context to avoid side-effects
-                },
-            });
-        }
+
+        createdClass = _.extend(_vanillaCreateClass(specs), {
+            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
+        });
+
         return createdClass;
     };
 
@@ -169,7 +89,7 @@ module.exports = function(R) {
         },
         patchAll: function patchAll() {
             R.Debug.dev(function() {
-                console.warn("Patching React...");
+                console.warn("Patching React.");
             });
             React.__ReactOnRailsPatchApplied = true;
             patchReact.patchCreateClass();
@@ -177,7 +97,7 @@ module.exports = function(R) {
         },
         restoreVanillaAll: function restoreVanillaAll() {
             R.Debug.dev(function() {
-                console.warn("Restoring Vanilla React...");
+                console.warn("Restoring Vanilla React.");
             });
             delete React.__ReactOnRailsPatchApplied;
             patchReact.restoreVanillaCreateClass();

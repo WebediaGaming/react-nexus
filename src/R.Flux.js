@@ -5,6 +5,8 @@ module.exports = function(R) {
     var Promise = require("bluebird");
     var React = R.React;
 
+    var count = 0;
+
     var abstractLocationRegExp = /^(.*):\/(.*)$/;
 
 
@@ -103,39 +105,59 @@ module.exports = function(R) {
             },
             prefetchFluxStores: function* prefetchFluxStores() {
                 var subscriptions = this.getFluxStoreSubscriptions(this.props);
-                R.Debug.display("subscriptions", subscriptions);
-                var state = yield _.object(_.map(subscriptions, R.scope(function(stateKey, location) {
-                    var r = abstractLocationRegExp.exec(location);
-                    assert(r !== null, "R.Flux.prefetchFluxStores(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
-                    var storeName = r[1];
-                    var storeKey = r[2];
-                    return [stateKey, this.getFluxStore(storeName).fetch(storeKey)];
-                }, this)));
+                var curCount = count;
+                var state = {};
+                yield _.map(subscriptions, R.scope(function(stateKey, location) {
+                    return new Promise(R.scope(function(resolve, reject) {
+                        var r = abstractLocationRegExp.exec(location);
+                        if(r === null) {
+                            return reject(new Error("R.Flux.prefetchFluxStores(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')"));
+                        }
+                        else {
+                            var storeName = r[1];
+                            var storeKey = r[2];
+                            co(function*() {
+                                state[stateKey] = yield this.getFluxStore(storeName).fetch(storeKey);
+                            }).call(this, function(err) {
+                                if(err) {
+                                    return reject(R.Debug.extendError(err, "Couldn't prefetch subscription ('" + stateKey + "', '" + location + "')"));
+                                }
+                                else {
+                                    return resolve();
+                                }
+                            });
+                        }
+                    }, this));
+                }, this));
                 this.getFlux().startInjectingFromStores();
                 var surrogateComponent = new this.__ReactOnRailsSurrogate(this.context, this.props, state);
                 surrogateComponent.componentWillMount();
                 this.getFlux().stopInjectingFromStores();
                 var renderedComponent = surrogateComponent.render();
-                var childContext = surrogateComponent.getChildContext();
+                var childContext = (surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : this.context);
                 surrogateComponent.componentWillUnmount();
                 yield React.Children.mapDescendants(renderedComponent, function(childComponent) {
                     return new Promise(function(resolve, reject) {
-                        if(!_.isObject(childComponent) || !childComponent.__ReactOnRailsSurrogate) {
-                            resolve();
+                        if(!_.isObject(childComponent)) {
+                            return resolve();
                         }
-                        else {
-                            var surrogateChildComponent = new childComponent.__ReactOnRailsSurrogate(childContext, childComponent.props);
-                            surrogateChildComponent.componentWillMount();
-                            surrogateChildComponent.prefetchFluxStores()(function(err) {
-                                if(err) {
-                                    reject(R.Debug.extendError(err, "R.Flux.Mixin.prefetchFluxStores(...): couldn't prefetch child component."));
-                                }
-                                else {
-                                    surrogateChildComponent.componentWillUnmount();
-                                    resolve();
-                                }
-                            });
+                        var childType = childComponent.type;
+                        if(!_.isObject(childType) || !childType.__ReactOnRailsSurrogate) {
+                            return resolve();
                         }
+                        var surrogateChildComponent = new childType.__ReactOnRailsSurrogate(childContext, childComponent.props);
+                        surrogateChildComponent.componentWillMount();
+                        co(function*() {
+                            yield surrogateChildComponent.prefetchFluxStores();
+                            surrogateChildComponent.componentWillUnmount();
+                        }).call(this, function(err) {
+                            if(err) {
+                                return reject(R.Debug.extendError(err, "Couldn't prefetch child component"));
+                            }
+                            else {
+                                return resolve();
+                            }
+                        });
                     });
                 });
             },
@@ -199,7 +221,6 @@ module.exports = function(R) {
                 this.setState(R.record(stateKey, this.getFluxStore(entry.storeName).get(entry.storeKey)));
             },
             _FluxMixinSubscribe: function _FluxMixinSubscribe(stateKey, location) {
-                console.warn("_FluxMixinSubscribe", location);
                 var r = abstractLocationRegExp.exec(location);
                 assert(r !== null, "R.Flux._FluxMixinSubscribe(...): incorrect location ('" + this.displayName + "', '" + location + "', '" + stateKey + "')");
                 var entry = {
@@ -220,7 +241,6 @@ module.exports = function(R) {
             },
             _FluxMixinStoreSignalUpdate: function _FluxMixinStoreSignalUpdate(stateKey, location) {
                 return R.scope(function(val) {
-                    console.warn("_FluxMixinStoreSignalUpdate", location, stateKey, val);
                     if(!this.isMounted()) {
                         return;
                     }
@@ -265,7 +285,7 @@ module.exports = function(R) {
                 }, this));
                 var subscription = entry.subscription;
                 var storeName = entry.storeName;
-                this.getStore(storeName).unsub(subscription);
+                this.getFluxStore(storeName).unsub(subscription);
                 delete this._FluxMixinSubscriptions[uniqueId];
             },
             _FluxMixinRemoveListener: function _FluxMixinRemoveListener(entry, uniqueId) {
@@ -296,7 +316,7 @@ module.exports = function(R) {
         },
         startInjectingFromStores: function startInjectingFromStores() {
             R.Debug.dev(R.scope(function() {
-                assert(!this._shouldInjectFromStores, "R.Flux.FluxInstance.stopInjectingFromStores(...): should not be injecting from Stores.");
+                assert(!this._shouldInjectFromStores, "R.Flux.FluxInstance.startInjectingFromStores(...): should not be injecting from Stores.");
             }, this));
             this._shouldInjectFromStores = true;
         },

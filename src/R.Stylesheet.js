@@ -10,7 +10,6 @@ module.exports = function(R) {
     _.extend(Stylesheet.prototype, /** @lends R.Stylesheet.prototype */ {
         _isStylesheet_: true,
         registerRule: function registerRule(selector, style) {
-            console.warn("registerRule", selector, style);
             R.Debug.dev(function() {
                 assert(_.isPlainObject(style), "R.Stylesheet.registerClassName(...).style: expecting Object.");
             });
@@ -29,13 +28,11 @@ module.exports = function(R) {
             var unprefixedCSS = _.map(this._rules, function(rule) {
                 return rule.selector + " {\n" + R.Style.fromReactStyleToCSS(rule.style) + "}\n\n";
             }).join("");
-            console.warn("unprefixedCSS", unprefixedCSS);
             if(!shouldAutoPrefix) {
                 return unprefixedCSS;
             }
             else {
                 var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
-                console.warn("prefixedCSS", prefixedCSS);
                 return prefixedCSS;
             }
         },

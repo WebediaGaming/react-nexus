@@ -4,6 +4,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var co = require("co");
     var EventEmitter = require("events").EventEmitter;
+    var bodyParser = require("body-parser");
 
     var SimpleUplinkServer = {
         createServer: function createServer(specs) {
@@ -52,12 +53,9 @@ module.exports = function(R) {
             _io: null,
             _store: null,
             _storeEvents: null,
-            _storePatterns: null,
             _storeRouter: null,
-            _eventsPatterns: null,
             _eventsRouter: null,
             _eventsEvents: null,
-            _actionsPatterns: null,
             _actionsRouter: null,
             _sessions: null,
             _sessionsEvents: null,
@@ -132,7 +130,7 @@ module.exports = function(R) {
                 this._eventsRouter.route(route, this._extractOriginalPath);
             },
             _bindActionsRoute: function _bindActionsRoute(handler, route) {
-                this._actionsRouter.route(route, handler);
+                this._actionsRouter.route(route, _.constant(R.scope(handler, this)));
             },
             installHandlers: function* installHandlers(app, prefix) {
                 assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
@@ -141,7 +139,7 @@ module.exports = function(R) {
                 var server = require("http").Server(app);
                 this._io = io(server).of(prefix);
                 this._app.get(this._prefix + "*", R.scope(this._handleHttpGet, this));
-                this._app.post(this._prefix + "*", R.scope(this._handleHttpPost, this));
+                this._app.post(this._prefix + "*", bodyParser.json(), R.scope(this._handleHttpPost, this));
                 this._io.on("connection", R.scope(this._handleSocketConnection, this));
                 this._handleSocketDisconnection = R.scope(this._handleSocketDisconnection, this);
                 this._sessionsEvents.addListener("expire", R.scope(this._handleSessionExpire, this));
@@ -174,13 +172,16 @@ module.exports = function(R) {
             _handleHttpPost: function _handleHttpPost(req, res) {
                 co(function*() {
                     var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
-                    var handler = this._actionsRouter(path);
-                    assert(req.body.guid);
+                    var handler = this._actionsRouter.match(path);
+                    assert(_.isObject(req.body), "body: expecting Object.");
+                    assert(req.body.guid && _.isString(req.body.guid), "guid: expecting String.");
+                    assert(req.body.params && _.isPlainObject(req.body.params), "params: expecting Object.");
                     if(!_.has(this._sessions, req.body.guid)) {
                         this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents, this._sessionsEvents, this.sessionTimeout);
                         yield this.sessionCreated(guid);
                     }
-                    return yield handler.call(this, req.body);
+                    var params = _.extend({}, { guid: req.body.guid }, req.body.params);
+                    return yield handler(params);
                 }).call(this, function(err, val) {
                     if(err) {
                         if(R.Debug.isDev()) {
