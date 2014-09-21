@@ -7,15 +7,8 @@ module.exports = function(R) {
 
     var Style = {
         slowlyAutoPrefixStyle: function slowlyAutoPrefixStyle(style) {
-            var unprefixedCSS, prefixedCSS;
-            try {
-                unprefixedCSS ="* {\n" + R.Style.fromReactStyleToCSS(style) + "}\n";
-                prefixedCSS = autoprefixer.process(unprefixedCSS).css;
-            }
-            catch(err) {
-                console.error("R.Style.slowlyAutoPrefixStyle(...)", style, err.toString());
-                prefixedCSS = unprefixedCSS;
-            }
+            var unprefixedCSS ="* {\n" + R.Style.fromReactStyleToCSS(style) + "}\n";
+            var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
             return R.Style.slowlyFromCSSToReactStyle(prefixedCSS);
         },
         fromReactStyleToCSS: function fromReactStyleToCSS(style) {

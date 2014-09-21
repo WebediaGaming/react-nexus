@@ -32,14 +32,7 @@ module.exports = function(R) {
                 return unprefixedCSS;
             }
             else {
-                var prefixedCSS;
-                try {
-                    prefixedCSS = autoprefixer.process(unprefixedCSS).css;
-                }
-                catch(err) {
-                    console.error("R.Stylesheet.slowlyExportToCSS(...)", unprefixedCSS, err.toString());
-                    prefixedCSS = unprefixedCSS;
-                }
+                var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
                 return prefixedCSS;
             }
         },
