@@ -171,11 +171,14 @@ module.exports = function(R) {
                         case 0:
                             path = req.path.slice(this._prefix.length - 1);
                             key = this._storeRouter.match(path);
-                            context$3$0.next = 4;
+                            R.Debug.dev(function() {
+                                console.warn("<<< fetch", path);
+                            });
+                            context$3$0.next = 5;
                             return this.getStore(key);
-                        case 4:
-                            return context$3$0.abrupt("return", context$3$0.sent);
                         case 5:
+                            return context$3$0.abrupt("return", context$3$0.sent);
+                        case 6:
                         case "end":
                             return context$3$0.stop();
                         }
@@ -217,11 +220,14 @@ module.exports = function(R) {
                             return this.sessionCreated(guid);
                         case 9:
                             params = _.extend({}, { guid: req.body.guid }, req.body.params);
-                            context$3$0.next = 12;
+                            R.Debug.dev(function() {
+                                console.warn("<<< action", path, params);
+                            });
+                            context$3$0.next = 13;
                             return handler(params);
-                        case 12:
-                            return context$3$0.abrupt("return", context$3$0.sent);
                         case 13:
+                            return context$3$0.abrupt("return", context$3$0.sent);
+                        case 14:
                         case "end":
                             return context$3$0.stop();
                         }
@@ -333,6 +339,9 @@ module.exports = function(R) {
                 this._socket.on("unhandshake", R.scope(this._handleUnHandshake, this));
             },
             emit: function emit(name, params) {
+                R.Debug.dev(function() {
+                    console.warn("[C] >>> " + name, params);
+                });
                 this._socket.emit(name, params);
             },
             _handleHandshake: function _handleHandshake(params) {
@@ -512,6 +521,9 @@ module.exports = function(R) {
                 delete this._subscriptions[key];
             },
             _emit: function _emit(name, params) {
+                R.Debug.dev(function() {
+                    console.warn("[S] >>> " + name, params);
+                });
                 if(this._connection !== null) {
                     this._connection.emit(name, params);
                 }

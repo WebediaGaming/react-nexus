@@ -87,8 +87,14 @@ module.exports = function(R) {
                 if(!this.fluxStoreWillUpdate) {
                     this.fluxStoreWillUpdate = this._FluxMixinDefaultFluxStoreWillUpdate;
                 }
+                if(!this.fluxStoreDidUpdate) {
+                    this.fluxStoreDidUpdate = this._FluxMixinDefaultFluxStoreDidUpdate;
+                }
                 if(!this.fluxEventEmitterWillEmit) {
                     this.fluxEventEmitterWillEmit = this._FluxMixinDefaultFluxEventEmitterWillEmit;
+                }
+                if(!this.fluxEventEmitterDidEmit) {
+                    this.fluxEventEmitterDidEmit = this._FluxMixinDefaultFluxEventEmitterDidEmit;
                 }
             },
             componentDidMount: function componentDidMount() {
@@ -136,7 +142,7 @@ module.exports = function(R) {
                 var renderedComponent = surrogateComponent.render();
                 var childContext = (surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : this.context);
                 surrogateComponent.componentWillUnmount();
-                yield React.Children.mapDescendants(renderedComponent, function(childComponent) {
+                yield React.Children.mapTree(renderedComponent, function(childComponent) {
                     return new Promise(function(resolve, reject) {
                         if(!_.isObject(childComponent)) {
                             return resolve();
@@ -188,10 +194,16 @@ module.exports = function(R) {
             _FluxMixinDefaultGetFluxEventEmittersListeners: function getFluxEventEmittersListeners(props) {
                 return {};
             },
-            _FluxMixinDefaultFluxStoreWillUpdate: function fluxStoreWillUpdate(storeName, storeKey, val) {
+            _FluxMixinDefaultFluxStoreWillUpdate: function fluxStoreWillUpdate(storeName, storeKey, newVal, oldVal) {
+                return void 0;
+            },
+            _FluxMixinDefaultFluxStoreDidUpdate: function fluxStoreDidUpdate(storeName, storeKey, newVal, oldVal) {
                 return void 0;
             },
             _FluxMixinDefaultFluxEventEmitterWillEmit: function fluxEventEmitterWillEmit(eventEmitterName, eventName, params) {
+                return void 0;
+            },
+            _FluxMixinDefaultFluxEventEmitterDidEmit: function fluxEventEmitterDidEmit(eventEmitterName, eventName, params) {
                 return void 0;
             },
             _FluxMixinClear: function _FluxMixinClear() {
@@ -244,10 +256,10 @@ module.exports = function(R) {
                     if(!this.isMounted()) {
                         return;
                     }
-                    if(this.fluxStoreWillUpdate) {
-                        this.fluxStoreWillUpdate(stateKey, location, val);
-                    }
+                    var previousVal = this.state ? this.state[stateKey] : undefined;
+                    this.fluxStoreWillUpdate(stateKey, location, val, previousVal);
                     this.setState(R.record(stateKey, val));
+                    this.fluxStoreDidUpdate(stateKey, location, val, previousVal);
                 }, this);
             },
             _FluxMixinAddListener: function _FluxMixinAddListener(fn, location) {
@@ -277,6 +289,7 @@ module.exports = function(R) {
                     }
                     this.fluxEventEmitterWillEmit(eventEmitterName, eventName, params);
                     fn(params);
+                    this.fluxEventEmitterDidEmit(eventEmitterName, eventName, params);
                 }, this);
             },
             _FluxMixinUnsubscribe: function _FluxMixinUnsubscribe(entry, uniqueId) {

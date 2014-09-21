@@ -40,17 +40,6 @@ module.exports = function(R) {
             };
         },
         /**
-         * @param {Function} fn
-         * @param {Function} wrapper
-         * @return {Function}
-         * @private
-         */
-        _CallLater: function _CallLater(fn, wrapper) {
-            return R.Async.IfMounted(function() {
-                return wrapper(R.scope(fn, this));
-            });
-        },
-        /**
          * @param {Function}
          * @return {Function}
          * @private
@@ -112,11 +101,12 @@ module.exports = function(R) {
          * @public
          */
         Deferred: function Deferred(fn, delay) {
+            fn = R.Async.IfMounted(fn);
             if(!delay) {
                 return R.Async.DeferredImmediate(fn);
             }
             else {
-                return R.Async._CallLater(fn, R.Async._DeferToTimeout(delay));
+                return R.Async._DeferToTimeout(fn, delay);
             }
         },
         /**
@@ -126,7 +116,8 @@ module.exports = function(R) {
          * @public
          */
         DeferredImmediate: function Deferred(fn) {
-            return R.Async._CallLater(fn, R.Async._DeferToNextImmediate);
+            fn = R.Async.IfMounted(fn);
+            return R.Async._DeferToNextImmediate(fn);
         },
         /**
          * Decorates a method so that upon invocation, it is actually invoked upon the next animation frame and only the component has not unmounted.
@@ -135,7 +126,8 @@ module.exports = function(R) {
          * @public
          */
         DeferredAnimationFrame: function DeferredAnimationFrame(fn) {
-            return R.Async._CallLater(fn, R.Async._DeferToNextAnimationFrame);
+            fn = R.Async.IfMounted(fn);
+            return R.Async._DeferToNextAnimationFrame(fn);
         },
     };
 

@@ -102,7 +102,11 @@ module.exports = function(R) {
                             return fetch(key);
                         case 2:
                             val = context$4$0.sent;
-                            _.each(subscribers[key], R.callWith(val));
+                            _.each(subscribers[key], function(fn) {
+                                if(fn) {
+                                    fn(val);
+                                }
+                            });
                         case 4:
                         case "end":
                             return context$4$0.stop();
@@ -123,7 +127,6 @@ module.exports = function(R) {
                     subscribers[key] = {};
                 }
                 subscribers[key][subscription.uniqueId] = _signalUpdate;
-                console.warn("sub", key, subscription.uniqueId);
                 co(regeneratorRuntime.mark(function callee$3$0() {
                     var val;
 
@@ -144,14 +147,12 @@ module.exports = function(R) {
                 return subscription;
             };
             var unsub = function unsub(subscription) {
-                console.warn("unsub", subscription.key, subscription.uniqueId);
                 R.Debug.dev(function() {
                     assert(!_destroyed, "R.Store.MemoryStore.unsub(...): instance destroyed.");
                     assert(subscription instanceof R.Store.Subscription, "R.Store.MemoryStore.unsub(...): type R.Store.Subscription expected.");
                     assert(_.has(subscribers, subscription.key), "R.Store.MemoryStore.unsub(...): no subscribers for this key.");
                     assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.MemoryStore.unsub(...): no such subscription.");
                 });
-                console.warn("ok");
                 delete subscribers[subscription.key][subscription.uniqueId];
                 if(_.size(subscribers[subscription.key]) === 0) {
                     delete subscribers[subscription.key];
@@ -183,6 +184,7 @@ module.exports = function(R) {
             return R.Store.createStore({
                 displayName: "MemoryStore",
                 _data: data,
+                _subscribers: subscribers,
                 fetch: fetch,
                 get: get,
                 sub: sub,
@@ -251,11 +253,11 @@ module.exports = function(R) {
                         case 2:
                             val = context$4$0.sent;
                             if(_.has(subscribers, key)) {
-                                console.warn("subscribers of", key);
-                                _.each(subscribers[key], function(fn) {
-                                    console.warn({fn: fn});
+                                _.each(subscribers[key], function(fn, uniqueId) {
+                                    if(fn) {
+                                        fn(val);
+                                    }
                                 });
-                                _.each(subscribers[key], R.callWith(val));
                             }
                         case 4:
                         case "end":
@@ -339,6 +341,8 @@ module.exports = function(R) {
             return R.Store.createStore({
                 displayName: "UplinkStore",
                 _data: data,
+                _subscribers: subscribers,
+                _updaters: updaters,
                 fetch: fetch,
                 get: get,
                 sub: sub,

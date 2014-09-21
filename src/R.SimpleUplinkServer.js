@@ -154,6 +154,9 @@ module.exports = function(R) {
                 co(function*() {
                     var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
                     var key = this._storeRouter.match(path);
+                    R.Debug.dev(function() {
+                        console.warn("<<< fetch", path);
+                    });
                     return yield this.getStore(key);
                 }).call(this, function(err, val) {
                     if(err) {
@@ -181,6 +184,9 @@ module.exports = function(R) {
                         yield this.sessionCreated(guid);
                     }
                     var params = _.extend({}, { guid: req.body.guid }, req.body.params);
+                    R.Debug.dev(function() {
+                        console.warn("<<< action", path, params);
+                    });
                     return yield handler(params);
                 }).call(this, function(err, val) {
                     if(err) {
@@ -267,6 +273,9 @@ module.exports = function(R) {
                 this._socket.on("unhandshake", R.scope(this._handleUnHandshake, this));
             },
             emit: function emit(name, params) {
+                R.Debug.dev(function() {
+                    console.warn("[C] >>> " + name, params);
+                });
                 this._socket.emit(name, params);
             },
             _handleHandshake: function _handleHandshake(params) {
@@ -420,6 +429,9 @@ module.exports = function(R) {
                 delete this._subscriptions[key];
             },
             _emit: function _emit(name, params) {
+                R.Debug.dev(function() {
+                    console.warn("[S] >>> " + name, params);
+                });
                 if(this._connection !== null) {
                     this._connection.emit(name, params);
                 }

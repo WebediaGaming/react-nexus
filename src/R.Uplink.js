@@ -77,6 +77,7 @@ module.exports = function(R) {
             R.Debug.dev(R.scope(function() {
                 assert(this._socket && null !== this._socket, "R.Uplink.emit(...): no active socket ('" + name + "', '" + params + "')");
             }, this));
+            this._debugLog(">>> " + name, params);
             this._socket.emit(name, params);
         },
         _initInClient: function _initInClient() {
@@ -125,7 +126,7 @@ module.exports = function(R) {
             this.ready = Promise.cast(true);
         },
         _handleUpdate: function _handleUpdate(params) {
-            this._debugLog("update", params);
+            this._debugLog("<<< update", params.key);
             var key = params.key;
             if(_.has(this._subscriptions, key)) {
                 _.each(this._subscriptions[key], function(fn) {
@@ -134,7 +135,7 @@ module.exports = function(R) {
             }
         },
         _handleEvent: function _handleEvent(params) {
-            this._debugLog("event", params);
+            this._debugLog("<<< event", params.eventName);
             var eventName = params.eventName;
             var eventParams = params.params;
             if(_.has(this._listeners, eventName)) {
@@ -144,35 +145,35 @@ module.exports = function(R) {
             }
         },
         _handleDisconnect: function _handleDisconnect(params) {
-            this._debugLog("disconnect", params);
+            this._debugLog("<<< disconnect", params);
             this.ready = new Promise(R.scope(function(resolve, reject) {
                 this._acknowledgeHandshake = resolve;
             }, this));
         },
         _handleConnect: function _handleConnect() {
-            this._debugLog("connect");
+            this._debugLog("<<< connect");
             this._emit("handshake", { guid: this._guid });
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
-            this._debugLog("handshake-ack", params);
+            this._debugLog("<<< handshake-ack", params);
             this._acknowledgeHandshake(params);
         },
         _handleDebug: function _handleDebug(params) {
-            this._debugLog("debug", params);
+            this._debugLog("<<< debug", params);
             R.Debug.dev(function() {
                 console.warn("R.Uplink.debug(...):", params.debug);
             });
         },
         _handleLog: function _handleLog(params) {
-            this._debugLog("log", params);
+            this._debugLog("<<< log", params);
             console.log("R.Uplink.log(...):", params.log);
         },
         _handleWarn: function _handleWarn(params) {
-            this._debugLog("warn", params);
+            this._debugLog("<<< warn", params);
             console.warn("R.Uplink.warn(...):", params.warn);
         },
         _handleError: function _handleError(params) {
-            this._debugLog("error", params);
+            this._debugLog("<<< error", params);
             console.error("R.Uplink.err(...):", params.err);
         },
         _handleUnload: function _handleUnload(prevHandler) {
@@ -264,19 +265,26 @@ module.exports = function(R) {
             }
         },
         fetch: function fetch(key) {
-            return R.scope(function(fn) {
+            return new Promise(R.scope(function(resolve, reject) {
+                this._debugLog(">>> fetch", key);
                 request({
                     url: this._getFullUrl(key),
                     method: "GET",
                     json: true,
                     withCredentials: false,
                 }, function(err, res, body) {
-                    return err ? fn(err) : fn(null, body);
+                    if(err) {
+                        return reject(err);
+                    }
+                    else {
+                        return resolve(body);
+                    }
                 });
-            }, this);
+            }, this));
         },
         dispatch: function dispatch(action, params) {
-            return R.scope(function(fn) {
+            return new Promise(R.scope(function(resolve, reject) {
+                this._debugLog(">>> dispatch", action, params);
                 request({
                     url: this._getFullUrl(action),
                     method: "POST",
@@ -284,9 +292,14 @@ module.exports = function(R) {
                     json: true,
                     withCredentials: false,
                 }, function(err, res, body) {
-                    return err ? fn(err) : fn(null, body);
+                    if(err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(body);
+                    }
                 });
-            }, this);
+            }, this));
         },
         destroy: function destroy() {
             if(R.isClient()) {

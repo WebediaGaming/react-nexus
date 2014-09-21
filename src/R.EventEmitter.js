@@ -54,7 +54,11 @@ module.exports = function(R) {
             var emit = function emit(event, params) {
                 params = params || {};
                 if(_.has(listeners, event)) {
-                    _.each(listeners[event], R.callWith(params));
+                    _.each(listeners[event], function(fn) {
+                        if(fn) {
+                            fn(params);
+                        }
+                    });
                 }
             };
             return R.EventEmitter.createEventEmitter({
@@ -92,7 +96,11 @@ module.exports = function(R) {
             var emit = function emit(event, params) {
                 params = params || {};
                 if(_.has(listeners, event)) {
-                    _.each(listeners[event], R.callWith(params));
+                    _.each(listeners[event], function(fn) {
+                        if(fn) {
+                            fn(params);
+                        }
+                    });
                 }
             };
             return R.EventEmitter.createEventEmitter({

@@ -1,7 +1,7 @@
 module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
-    var d3 = R.d3;
+    var d3 = require("d3");
     var raf = require("raf");
     var Animate = {
         Mixin: {
@@ -17,7 +17,7 @@ module.exports = function(R) {
                 this._AnimateMixinInterpolationTickers = null;
             },
             isAnimating: function isAnimating(name) {
-                return _.has(this._AnimateMixinInterpolationTickers, name);
+                return this._AnimateMixinInterpolationTickers[name];
             },
             _AnimateMixinGetStateKey: function _AnimateMixinGetStateKey(name) {
                 return "_AnimateMixinStyle-" + name;
@@ -61,12 +61,13 @@ module.exports = function(R) {
                 }, this);
                 params.onComplete = R.scope(function(animatedStyle, t) {
                     original.onComplete(animatedStyle, t);
-                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), animatedStyle));
+                    delete this._AnimateMixinInterpolationTickers[name];
+                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
                 }, this);
                 params.onAbort = R.scope(function() {
                     original.onAbort();
-                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
                     delete this._AnimateMixinInterpolationTickers[name];
+                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
                 }, this);
                 var interpolationTicker = new R.Animate.InterpolationTicker(params);
                 this._AnimateMixinInterpolationTickers[name] = interpolationTicker;
@@ -88,22 +89,22 @@ module.exports = function(R) {
         },
         InterpolationTicker: function InterpolationTicker(params) {
             R.Debug.dev(function() {
-                assert(_.isPlainObject(params), "R.Animate.InterpolationTicker(...).params: expected Object.");
+                assert(_.isPlainObject(params), "R.Animate.InterpolationTicker(...).params: expected Object. ('" + params + "')");
             });
-            params = _.extend({}, params, {
-                from: null,
-                to: null,
+            _.defaults(params, {
                 easing: "cubic-in-out",
-                duration: null,
                 onTick: _.noop,
                 onComplete: _.noop,
                 onAbort: _.noop,
             });
             R.Debug.dev(function() {
-                assert(params.from && _.isPlainObject(params.from), "R.Animate.InterpolationTicker(...).params.from: expected Object.");
-                assert(params.to && _.isPlainObject(params.to), "R.Animate.InterpolationTicker(...).params.to: expected Object.");
-                assert(params.duration && _.isNumber(params.duration), "R.Animate.InterpolationTicker(...).params.duration: expected Number.");
-                assert(params.easing && (_.isPlainObject(params.easing) || _.isString(params.easing)), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object } or String.");
+                assert(params.from && _.isPlainObject(params.from), "R.Animate.InterpolationTicker(...).params.from: expected Object. ('" + params.from + "')");
+                assert(params.to && _.isPlainObject(params.to), "R.Animate.InterpolationTicker(...).params.to: expected Object. ('" + params.to + "')");
+                assert(params.duration && _.isNumber(params.duration), "R.Animate.InterpolationTicker(...).params.duration: expected Number. ('" + params.duration + "')");
+                assert(params.easing && (_.isPlainObject(params.easing) || _.isString(params.easing)), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object } or String. ('" + params.easing + "')");
+                assert(params.onTick && _.isFunction(params.onTick), "R.Animate.InterpolationTicker(...).params.onTick: expected Function. ('" + params.onTick + "')");
+                assert(params.onComplete && _.isFunction(params.onComplete), "R.Animate.InterpolationTicker(...).params.onComplete: expected Function. ('" + params.onComplete + "')");
+                assert(params.onAbort && _.isFunction(params.onAbort), "R.Animate.InterpolationTicker(...).params.onAbort: expected Function. ('" + params.onAbort + "')");
             });
             this._from = params.from;
             this._to = params.to;

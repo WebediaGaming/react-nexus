@@ -72,6 +72,11 @@ module.exports = function(R) {
         mapDescendants: function mapDescendants(component, fn) {
             return _.map(_patchedChildren.getDescendantsList(component), fn);
         },
+        mapTree: function mapTree(component, fn) {
+            var tree = _patchedChildren.getDescendantsList(component, fn);
+            tree.unshift(component);
+            return _.map(tree, fn);
+        },
     });
 
     var patchReact = {

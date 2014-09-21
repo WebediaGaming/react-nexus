@@ -33,6 +33,9 @@ module.exports = function(R) {
         setMode: function setMode(mode) {
             assert('development' === mode || 'production' === mode, "R.Debug.setMode(...): mode should be either 'development' or 'production'.");
             R.Debug._mode = mode;
+            if(process && process.env) {
+                process.env.NODE_ENV = mode;
+            }
             if(mode === 'production') {
                 R.Debug.disableStackTracesForSetImmediate();
             }

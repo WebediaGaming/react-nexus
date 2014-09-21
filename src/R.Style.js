@@ -7,8 +7,14 @@ module.exports = function(R) {
 
     var Style = {
         slowlyAutoPrefixStyle: function slowlyAutoPrefixStyle(style) {
-            var unprefixedCSS = R.Style.fromReactStyleToCSS(style);
-            var prefixedCSS = autoprefixer.process(unprefixedCSS).css;
+            var unprefixedCSS, prefixedCSS;
+            try {
+                unprefixedCSS ="* {\n" + R.Style.fromReactStyleToCSS(style) + "}\n";
+                prefixedCSS = autoprefixer.process(unprefixedCSS).css;
+            }
+            catch(err) {
+                console.error(R.Debug.extendError(err, "R.Style.slowlyAutoPrefixStyle(...)"), style);
+            }
             return R.Style.slowlyFromCSSToReactStyle(prefixedCSS);
         },
         fromReactStyleToCSS: function fromReactStyleToCSS(style) {
@@ -20,7 +26,6 @@ module.exports = function(R) {
             }).join("");
         },
         slowlyFromCSSToReactStyle: function slowlyFromCSSToReactStyle(css) {
-            css = "* {\n" + css + "}\n";
             var style = {};
             var parsed = parse(css);
             R.Debug.dev(function() {
@@ -30,7 +35,7 @@ module.exports = function(R) {
                 if(rule.type === "rule") {
                     _.each(rule.declarations, function(decl) {
                         if(decl.type === "declaration") {
-                            style[recase.camelCase()] = decl.value;
+                            style[recase.camelCase(decl.property)] = decl.value;
                         }
                     });
                 }
