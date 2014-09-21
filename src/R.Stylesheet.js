@@ -37,7 +37,7 @@ module.exports = function(R) {
                     prefixedCSS = autoprefixer.process(unprefixedCSS).css;
                 }
                 catch(err) {
-                    console.error(err, "R.Stylesheet.slowlyExportToCSS(...)", unprefixedCSS);
+                    console.error("R.Stylesheet.slowlyExportToCSS(...)", unprefixedCSS, err.toString());
                     prefixedCSS = unprefixedCSS;
                 }
                 return prefixedCSS;

@@ -13,7 +13,7 @@ module.exports = function(R) {
                 prefixedCSS = autoprefixer.process(unprefixedCSS).css;
             }
             catch(err) {
-                console.error(err, "R.Style.slowlyAutoPrefixStyle(...)", style);
+                console.error("R.Style.slowlyAutoPrefixStyle(...)", style, err.toString());
                 prefixedCSS = unprefixedCSS;
             }
             return R.Style.slowlyFromCSSToReactStyle(prefixedCSS);
