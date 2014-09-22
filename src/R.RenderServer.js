@@ -2,16 +2,17 @@ module.exports = function(R) {
     var co = require("co");
     var _ = require("lodash");
     var assert = require("assert");
+    var url = require("url");
 
-    var Server = function Server(appParams) {
+    var RenderServer = function RenderServer(App) {
         R.Debug.dev(function() {
-            assert(R.isServer(), "R.Server(...): should only be called in the server.");
+            assert(R.isServer(), "R.RenderServer(...): should only be called in the server.");
         });
-        this._app = new R.App(appParams);
+        this._app = new App();
         this.middleware = R.scope(this.middleware, this);
     };
 
-    _.extend(Server.prototype, /** @lends R.Server.Prototype */ {
+    _.extend(RenderServer.prototype, /** @lends R.RenderServer.Prototype */ {
         _app: null,
         middleware: function middleware(req, res) {
             co(function*() {
@@ -32,6 +33,6 @@ module.exports = function(R) {
         },
     });
 
-    R.Server = Server;
+    R.RenderServer = RenderServer;
     return R;
 };

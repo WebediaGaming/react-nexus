@@ -3,16 +3,40 @@ module.exports = function(R) {
     var assert = require("assert");
     var Locales = require("locale").Locales;
 
-    var _cache = {};
-
-    var Localize = function Localize(storeName, dispatcherName) {
-        if(!_cache[storeName]) {
-            _cache[storeName] = R.Component.createClass(/** @lends R.Localize.prototype */{
-                displayName: "Localize",
-                _LocalizeStoreName: storeName,
+    var Localize = {
+        _extractLocale: function _extractLocale(headers, supported) {
+            R.Debug.dev(function() {
+                assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
+            });
+            var supportedLocales = new Locales(supported);
+            var acceptedLocales = new Locales(headers["accept-language"]);
+            return acceptedLocales.best(supportedLocales);
+        },
+        Plugin: function Plugin(supportedLocales, storeName, dispatcherName) {
+            return new R.App.createPlugin({
+                installInClient: function installInClient(flux, window) {
+                    flux.getFluxDispatcher(dispatcherName).addActionListener("/Localize/setLocale", function* setLocale(params) {
+                        R.Debug.dev(function() {
+                            assert(params.locale && _.isString(params.locale), dispatcherName + "://Localize/setLocale.params.locale: expected String.");
+                        });
+                        yield _.defer;
+                        flux.getFluxStore(storeName).set("/Localize/locale", Localize._extractLocale(params.locale));
+                    });
+                },
+                installInServer: function installInServer(flux, req) {
+                    flux.getFluxStore(storeName).set("/Localize/locale", Localize._extractLocale(req.headers, supported));
+                },
+            });
+        },
+        createClass: function createClass(specs) {
+            R.Debug.dev(function() {
+                assert(specs.storeName && _.isString(specs.storeName), "R.Localize.createClass(...).specs.storeName: expected String.");
+                assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.Localize.createClass(...).specs.dispatcherName: expected String.");
+            });
+            return React.createClass({
                 propTypes: {
-                    locale: React.PropTypes.string.isRequired,
-                    children: React.PropTypes.component,
+                    locale: React.propTypes.string.isRequired,
+                    children: React.PropTypes.component.isRequired,
                 },
                 getInitialState: function getInitialState() {
                     return {
@@ -20,11 +44,7 @@ module.exports = function(R) {
                     };
                 },
                 getFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) {
-                    return [{
-                        storeName: storeName,
-                        storeKey: "locale",
-                        stateKey: "locale",
-                    }];
+                    return R.record(specs.storeName + "://Localize/locale", "locale");
                 },
                 render: function render() {
                     if(this.props.locale === this.state.locale) {
@@ -35,32 +55,8 @@ module.exports = function(R) {
                     }
                 },
             });
-            _.extend(_cache[storeName], /** @lends R.Localize.prototype */{
-                setLocale: function setLocale(flux, locale) {
-                    Localize.setLocale(flux, dispatcherName, locale);
-                },
-            });
-        }
-        return _cache[storeName];
-    };
-
-    _.extend(Localize, /** @lends R.Localize */{
-        extractLocale: function extractLocale(headers, supported) {
-            R.Debug.dev(function() {
-                assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
-            });
-            var supportedLocales = new Locales(supported);
-            var acceptedLocales = new Locales(headers["accept-language"]);
-            return acceptedLocales.best(supportedLocales);
         },
-        localize: function localize(flux, storeName, map) {
-            var locale = flux.getStore(storeName).get("locale");
-            return map[locale];
-        },
-        setLocale: function setLocale(flux, dispatcherName, locale) {
-            flux.getDispatcher(dispatcherName).trigger("setLocale", { locale: locale });
-        },
-    });
+    },
 
     R.Localize = Localize;
     return R;

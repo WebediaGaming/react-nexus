@@ -3,7 +3,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var React = R.React;
 
-    var Client = function Client(appParams) {
+    var Client = function Client(App) {
         R.Debug.dev(function() {
             assert(R.isClient(), "R.Client(...): should only be called in the client.");
             if(window.React) {
@@ -20,7 +20,7 @@ module.exports = function(R) {
             }
             window.__ReactOnRails.apps.push(this);
         }, this));
-        this._app = new R.App(appParams);
+        this._app = new App();
     };
 
     _.extend(Client.prototype, /** @lends R.Client.prototype */ {

@@ -176,9 +176,9 @@ module.exports = function(R) {
             getFluxStylesheet: function getFluxStylesheet(name) {
                 return this.getFlux().getStylesheet(name);
             },
-            triggerFluxAction: function* triggerFluxAction(dispatcherLocation, params) {
+            dispatch: function* dispatch(dispatcherLocation, params) {
                 var r = abstractLocationRegExp.exec(location);
-                assert(r !== null, "R.Flux.triggerFluxAction(...): incorrect location ('" + this.displayName + "')");
+                assert(r !== null, "R.Flux.dispatch(...): incorrect location ('" + this.displayName + "')");
                 var entry = {
                     dispatcherName: r[1],
                     action: r[2],

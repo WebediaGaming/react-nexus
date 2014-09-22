@@ -10,8 +10,6 @@ var R = {
             require("./R.Animate"),
             require("./R.App"),
             require("./R.Async"),
-            require("./R.Decorate"),
-            require("./R.Descriptor"),
             require("./R.Dispatcher"),
             require("./R.EventEmitter"),
             require("./R.Flux"),
@@ -27,7 +25,7 @@ var R = {
             require("./R.Root"),
             require("./R.Component"),
 
-            require("./R.Server"),
+            require("./R.RenderServer"),
             require("./R.SimpleUplinkServer"),
         ].forEach(function(inject) {
             inject(R);

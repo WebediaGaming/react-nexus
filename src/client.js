@@ -5,13 +5,12 @@ var R = {
         [
             require("./R.utils"),
             require("./R.Debug"),
-            require("./R.patchReact"),
+            require("./R.ReactChildren"),
+            require("./R.ReactCreateClass"),
 
             require("./R.Animate"),
             require("./R.App"),
             require("./R.Async"),
-            require("./R.Decorate"),
-            require("./R.Descriptor"),
             require("./R.Dispatcher"),
             require("./R.EventEmitter"),
             require("./R.Flux"),
