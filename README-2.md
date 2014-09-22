@@ -11,11 +11,11 @@ React on Rails fully embraces the core design choices of React from the bottom t
 - Full-stack by default. Write logic once, get pre-rendering for free and without jsdom/PhantomJS/node-fibers black magic. And I mean asynchronous pre-rendering. With data-fetching even in complex dependencies setups. Automagically. Yup.
 - Production-ready performance. React is all about elegance that actually improves performance.
 - Batteries included. React on Rails comes bundled with a set of must-have features optimized for React, including React CSS Style autoprefixing, Animations, Routing, History, i18n.
-- Backend-agnostic. Use one or several data backends to power your Flux: memory, HTTP REST, localStorage, Uplink (see below), or easily write your own adapter.
+- Backend-agnostic. Use one or several data backends to power your Flux: memory, HTTP REST, localStorage, WebSockets, or easily write your own adapter.
 
 ## Also included
 
-- REAL TIME BY DEFAULT/FLUX OVER THE WIRE: Client and simple server for Uplink, a micro-protocol mixin REST and socket.io to achieve production-ready real-time data propagation. Client components trigger actions, server dispatchers update server-side stores, and client components get updated.
+- REAL TIME BY DEFAULT/FLUX OVER THE WIRE: Client and simple server for Uplink, a custom micro-protocol on top of HTTP and socket.io to achieve production-ready real-time data propagation. Client components trigger actions, server dispatchers update server-side stores, and client components get updated.
 - Exensible CSS processor for React CSS Style processing.
 - Extensions of React.Children to allow jQuery-like manipulation of Children.
 - Generic Router, an extension of Regular Expression commonly used for URL and messages routing.
@@ -109,8 +109,8 @@ The most simple flux implementations are backed by a local hash-map like feature
 Namely:
 - From the components point of view, an Uplink Store/EventEmitter/Dispatcher is just like any memory-backed Store/EventEmitter/Dispatcher.
 - An Uplink Server implements the Store/EventEmitter/Dispatcher API.
-    - GET <path> exposes the <path> key of the store,
-    - POST <path> { params as json } exposes the <path> action of the dispatcher,
+    - GET `<path>` exposes the `<path>` key of the store,
+    - POST `<path>` { params as json } exposes the `<path>` action of the dispatcher,
     - WebSocket (actually socket.io) implements signaling both ways: client subscribes to updates, and gets notified whenever the remote store is updated.
 - Unline traditional REST, Uplink is actually stateful. Each client is uniquely and securedly identified by a guid key, which allows for the implementation of authentication or other schemes.
 
@@ -119,7 +119,7 @@ TL;DR: Uplink makes client-server synchronization as easy as client-memory synch
 
 ## React on Rails Goodness Examples ##
 
-The following component is a simple scale dice. Whenever the button is clicked, the Uplink server dispatches the "/setRandomScale" action with the { in: [1, 2, 3]} params, which will set the uplink store "/currentScale" value to either "1", "2", or "3". Upon changing this value, the div will smoothly transition to the new color. The CSS style is injected in the top-level stylesheet statically at pre-rendering time. The button is also dynamically localized.
+The following component is a simple scale dice. Whenever the button is clicked, the Uplink server dispatches the "/setRandomScale" action with the { in: [1, 2, 3]} params, which will set the uplink store "/currentScale" value to either "1", "2", or "3". Upon changing this value, the div will smoothly transition to the new scale. The CSS style is injected in the top-level stylesheet statically at pre-rendering time. The button is also dynamically localized.
 
 ```js
 var R = require("react-rails");
@@ -204,48 +204,71 @@ var ScaleDice = React.createClass({
 
 ### API Reference
 
-#### Top-level API: Utilities
+#### Top-level API
+##### Utilities
 
-#### R.Animate: Animating stuff the React Way
+#### R.Animate
+##### Animating stuff the React Way
 
-#### R.App: Bootstrapping a React on Rails App
+#### R.App
+##### Bootstrapping a React on Rails App
 
-#### R.Async: Dealing with Asynchrony without breaking everything
+#### R.Async
+##### Dealing with Asynchrony without breaking everything
 
-#### R.Client: React on Rails Client
+#### R.Client
+##### React on Rails Client
 
-#### R.Component: Batteries-included React on Rails Component Mixin
+#### R.Component
+##### Batteries-included React on Rails Component Mixin
 
-#### R.Debug: No-compromise debugging utilies
+#### R.Debug
+##### No-compromise debugging utilies
 
-#### R.Dispatcher: Generic Flux Dispatcher for React on Rails
+#### R.Dispatcher
+##### Generic Flux Dispatcher for React on Rails
 
-#### R.EventEmitter: Abstract Flux EventEmitter for React on Rails. Include implementations of MemoryEventEmitter and UplinkEventEmitter.
+#### R.EventEmitter
+##### Abstract Flux EventEmitter for React on Rails. Include implementations of MemoryEventEmitter and UplinkEventEmitter.
 
-#### R.Flux: Generic Flux for React on Rails
+#### R.Flux
+##### Generic Flux for React on Rails
 
-#### R.History: History plugin to implement HTML5 navigation consistently
+#### R.History
+##### History plugin to implement HTML5 navigation consistently
 
-#### R.Localize: Localization plugin to implement i18n consistently
+#### R.Localize
+##### Localization plugin to implement i18n consistently
 
-#### R.Pure: Generic Pure Mixin
+#### R.Pure
+##### Generic Pure Mixin
 
-#### R.Query/R.$: jQuery-like manipulation of descriptors
+#### R.Query/R.$
+##### jQuery-like manipulation and transformation of descriptors
 
-#### R.ReactChildren: Extension/monkey-patch of React.Children
+#### R.ReactChildren
+##### Extension/monkey-patch of React.Children backing R.Query
 
-#### R.ReactCreateClass: Extension/monkey-patch of React.createClass
+#### R.ReactCreateClass
+##### Extension/monkey-patch of React.createClass
 
-#### R.RenderServer: React on Rails Render Server
+#### R.RenderServer
+##### React on Rails Render Server
 
-#### R.Root: Batteries-included React on Rails Root Mixin
+#### R.Root
+##### Batteries-included React on Rails Root Mixin
 
-#### R.Router: Generic Router, implementing generalized URL/keys/events/actions matching
+#### R.Router
+##### Generic Router, implementing generalized URL/keys/events/actions matching
 
-#### R.Store: Abstract Flux Store EventEmitter for React on Rails. Include implementations of MemoryStore and UplinkStore.
+#### R.Store
+##### Abstract Flux Store EventEmitter for React on Rails. Include implementations of MemoryStore and UplinkStore.
 
-#### R.Style: Style manipulation and processing the React Way
+#### R.Style
+##### Style manipulation and processing the React Way
 
-#### R.Stylesheet: Generic Flux Stylesheet for React on Rails
+#### R.Stylesheet
+##### Generic Flux Stylesheet for React on Rails
 
-#### R.Uplink: Uplink Client for React on Rails
+#### R.Uplink
+##### Uplink Client for React on Rails
