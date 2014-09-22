@@ -6,7 +6,7 @@ React on Rails - The Ultimate React Framework
 React on Rails has a simple goal: make it easy for you to deliver production-ready full stack web apps on top of React.
 React on Rails fully embraces the core design choices of React from the bottom to the top.
 
-* Core features
+# Core features
 
 - Full-stack by default. Write logic once, get pre-rendering for free and without jsdom/PhantomJS/node-fibers black magic. And I mean asynchronous pre-rendering. With data-fetching even in complex dependencies setups. Automagically. Yup.
 - Production-ready performance. React is all about elegance that actually improves performance.
@@ -31,17 +31,17 @@ behaviour should be fully ismorphic (ie. run both on the client and the server) 
 The `flux` is bootstrapped before the page is first rendered, and is then updated by actions. It always remains serializable, and thus can be bootstrapped server-side before being recovered client-side.
 - Since everything is encapsulated in a serializable flux, then all components can be pure and benefit from the almighty heuristics of React's `shouldComponentUpdate`.
 
-## Design choices
+### Design choices
 
 Like React, React on Rails strongly relies on its strong and opiniated design choices to achieve usability and performance. Among which:
 - It uses generators. A lot. You should consider using them, too. See `regenerator`.
 - Unless explicitly specified, all code is assumed to be isomorphic, except:
-## Code executed after `componentDidMount`.
-## Dispatchers callbacks (dispatchers aren't even mounted server-side).
-## Code guarded with either `R.isServer()` or `R.isClient()`.
+    - Code executed after `componentDidMount`.
+    - Dispatchers callbacks (dispatchers aren't even mounted server-side).
+    - Code guarded with either `R.isServer()` or `R.isClient()`.
 - You don't *have* to, but full-JS extremism is supported: in React on Rails, you won't need to write a single line outside of JS files. Your JS will be CommonJS, your HTML will be JS, and even your CSS will be JS.
 
-## Understanding the React on Rails flow ##
+### Understanding the React on Rails flow
 
 A React on Rails app usually consists in code executed in three distinct locations:
 - The clients' browser, running its JS engine.
@@ -60,7 +60,7 @@ The flow is then:
     - The serialized flux, embedding the whole app state.
 - The client receives the already-rendered app. It revives its flux instance using the serialized data, mounts the Root components of the app, and automagically subscribes to all stores updates. Data that has updated in between is directly updated.
 
-## Bootstrapping a React on Rails app ##
+### Bootstrapping a React on Rails app
 
 A React on Rails app consists in the following components:
 - An R.App class definition, referencing a full page HTML template, a React Root component class, and an R.Flux class definition.
@@ -69,7 +69,7 @@ A React on Rails app consists in the following components:
 - Optionally, an R.UplinkServer class definition, if you chose to use an Uplink data backend server. A simple but efficient implementation is shipped in R.SimpleUplinkServer.
 - You React components, of course. Mix R.Root.Mixin to your Root component class and R.Component.Mixin to any other component class to enjoy all the goodness of React on Rails.
 
-## Data, events, and actions in React on Rails ##
+### Data, events, and actions in React on Rails
 
 Aside from props, components in React on Rails can depend on a global encapsulated state named the flux.
 The flux hosts:
@@ -89,7 +89,7 @@ For example, inside an R.Component:
 `yield this.dispatch("uplink://sayHello", { hello: "world" });` will forward the "/sayHello" action to the "uplink" dispatcher, and pass it `{ hello: "world "}` as params.
 `getFluxStoreSubscriptions: function() { return { "memory://Localize/locale": "locale"; }; }` will declare the value inside "/Localize/locale" from the `memory` store as a dependency to inject into the `locale` state key.
 
-## Plugins ##
+### Plugins
 
 React on Rails provides a consistent framework to reason about to deploy application-wide behaviour.
 This kind of application-wide takes the form of R.App.Plugin class definitions, and define how a plugin hooks into an App.
@@ -97,7 +97,7 @@ This kind of application-wide takes the form of R.App.Plugin class definitions, 
 React on Rails comes with the following plugins:
 - Localize: easily internationalize an entire app. Enables using directives such as <Localize locale="en-US"><span>Hello</span></Localize><Localize locale="fr-FR"><span>Bonjour</span></Localize>, and exposes a /setLocale
 
-## Uplink: Flux over the wire ##
+### Uplink: Flux over the wire
 
 The most simple flux implementations are backed by a local hash-map like feature, usually a raw Object, localStorage or sessionStorage. However, since action dispatching is asynchronous anyway, it is absolutely feasible to back the flux by a remote implementation of the opaque flux logic. Uplink is an extremely simple protocol mixing REST and RPC principles in JSON to implement this feature.
 Namely:
@@ -113,7 +113,7 @@ TL;DR: Uplink makes client-server synchronization as easy as client-memory synch
 
 ## React on Rails Goodness Examples ##
 
-The following component is a simple scale dice. Whenever the button is clicked, the Uplink server dispatches the "/setRandomScale" action with the { in: [1, 2, 3]} params, which will set the uplink store "/currentScale" value to either "1", "2", or "3". Upon changing this value, the div will smoothly transition to the new color. The CSS style is injected in the top-level stylesheet statically at pre-rendering time.
+The following component is a simple scale dice. Whenever the button is clicked, the Uplink server dispatches the "/setRandomScale" action with the { in: [1, 2, 3]} params, which will set the uplink store "/currentScale" value to either "1", "2", or "3". Upon changing this value, the div will smoothly transition to the new color. The CSS style is injected in the top-level stylesheet statically at pre-rendering time. The button is also dynamically localized.
 
 ```js
 var R = require("react-rails");
@@ -124,14 +124,14 @@ var styles = {
 };
 
 var ScaleDice = React.createClass({
-    mixins: [R.Component.Mixin],
+    mixins: [R.Component.Mixin, R.Localize.Mixin("memory", "dispatcher")], // Declare the referenced store and dispatcher
     statics: {
         getStylesheetRules: function getStylesheetRules() { // lifecycle method called by R
             return {
                 "main": {
                     ".ScaleDice": {
-                        backgroundColor: "black", // automatically vendor-prefixed/bundled/minified at server pre-rendering time; not evaluated at client runtime
-                        color: "white",
+                        backgroundColor: "black", // automatically vendor-prefixed/bundled/minified
+                        color: "white",           // at server pre-rendering time; not evaluated at client runtime
                         height: 200,
                         width: 1000,
                     },
@@ -155,6 +155,7 @@ var ScaleDice = React.createClass({
     getFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) { // props unused here but available if needed
         return {
             "uplink://currentScale": "currentScale",
+            "memory://Localize/locale": "currentLocale",
         };
     },
     fluxStoreWillUpdate: function fluxStoreWillUpdate(stateKey, location, nextVal, curVal) { // lifecycle method called by R
@@ -167,8 +168,8 @@ var ScaleDice = React.createClass({
             from: styles[fromScale],
             to: styles[toScale],
             duration: 1000,
-            easing: "cubic-in-out",
-        });
+            easing: "cubic-in-out", // Any of d3's easing can be used
+        }); // no need to worry about aborting/canceling the animation; all is handled by R.Animate.Mixin
     },
     setRandomScale: function(event) {
         event.preventDefault();
@@ -176,11 +177,18 @@ var ScaleDice = React.createClass({
             yield this.dispatch("uplink://setRandomScale", { in: [1, 2, 3] }); // dispatch method from R.Component.Mixin (delegated to R.Flux.Mixin.dispatch)
         }).call(this);
     },
+    // implicitly pure mixin (shouldComponentUpdate delegated to R.Pure.Mixin from R.Component.Mixin)
     render: function render() { // style and localization is dynamic
         var setRandomScale = this.setRandomScale;
-        return (<div className="ScaleDice" style={this.isAnimating("transition") ? this.getAnimatedStyle("transition") : styles[this.state.currentScale])}>
-            <Localize locale="en-US" key="en-US"><button onClick={setRandomScale}>Click to set random scale</button></Localize>
-            <Localize locale="fr-FR" key="fr-FR"><button onClick={setRandomScale}>Cliquer pour une échelle aléatoire</button></Localize>
+        var style = this.isAnimating("transition") ? this.getAnimatedStyle("transition") : styles[this.state.currentScale]);
+        // For the record, this.state.currentLocale contains the current locale, although its not used here.
+        return (<div className="ScaleDice" style={style}>
+            <Localize locale="en-US" key="en-US">
+                <button onClick={setRandomScale}>Click to set random scale</button>
+            </Localize>
+            <Localize locale="fr-FR" key="fr-FR">
+                <button onClick={setRandomScale}>Cliquer pour une échelle aléatoire</button>
+            </Localize>
         </div>);
     },
 });
@@ -188,50 +196,50 @@ var ScaleDice = React.createClass({
 
 
 
-* API Reference *
+### API Reference
 
-## Top-level API: Utilities
+#### Top-level API: Utilities
 
-## R.Animate: Animating stuff the React Way
+#### R.Animate: Animating stuff the React Way
 
-## R.App: Bootstrapping a React on Rails App
+#### R.App: Bootstrapping a React on Rails App
 
-## R.Async: Dealing with Asynchrony without breaking everything
+#### R.Async: Dealing with Asynchrony without breaking everything
 
-## R.Client: React on Rails Client
+#### R.Client: React on Rails Client
 
-## R.Component: Batteries-included React on Rails Component Mixin
+#### R.Component: Batteries-included React on Rails Component Mixin
 
-## R.Debug: No-compromise debugging utilies
+#### R.Debug: No-compromise debugging utilies
 
-## R.Dispatcher: Generic Flux Dispatcher for React on Rails
+#### R.Dispatcher: Generic Flux Dispatcher for React on Rails
 
-## R.EventEmitter: Abstract Flux EventEmitter for React on Rails. Include implementations of MemoryEventEmitter and UplinkEventEmitter.
+#### R.EventEmitter: Abstract Flux EventEmitter for React on Rails. Include implementations of MemoryEventEmitter and UplinkEventEmitter.
 
-## R.Flux: Generic Flux for React on Rails
+#### R.Flux: Generic Flux for React on Rails
 
-## R.History: History plugin to implement HTML5 navigation consistently
+#### R.History: History plugin to implement HTML5 navigation consistently
 
-## R.Localize: Localization plugin to implement i18n consistently
+#### R.Localize: Localization plugin to implement i18n consistently
 
-## R.Pure: Generic Pure Mixin
+#### R.Pure: Generic Pure Mixin
 
-## R.Query/R.$: jQuery-like manipulation of descriptors
+#### R.Query/R.$: jQuery-like manipulation of descriptors
 
-## R.ReactChildren: Extension/monkey-patch of React.Children
+#### R.ReactChildren: Extension/monkey-patch of React.Children
 
-## R.ReactCreateClass: Extension/monkey-patch of React.createClass
+#### R.ReactCreateClass: Extension/monkey-patch of React.createClass
 
-## R.RenderServer: React on Rails Render Server
+#### R.RenderServer: React on Rails Render Server
 
-## R.Root: Batteries-included React on Rails Root Mixin
+#### R.Root: Batteries-included React on Rails Root Mixin
 
-## R.Router: Generic Router, implementing generalized URL/keys/events/actions matching
+#### R.Router: Generic Router, implementing generalized URL/keys/events/actions matching
 
-## R.Store: Abstract Flux Store EventEmitter for React on Rails. Include implementations of MemoryStore and UplinkStore.
+#### R.Store: Abstract Flux Store EventEmitter for React on Rails. Include implementations of MemoryStore and UplinkStore.
 
-## R.Style: Style manipulation and processing the React Way
+#### R.Style: Style manipulation and processing the React Way
 
-## R.Stylesheet: Generic Flux Stylesheet for React on Rails
+#### R.Stylesheet: Generic Flux Stylesheet for React on Rails
 
-## R.Uplink: Uplink Client for React on Rails
+#### R.Uplink: Uplink Client for React on Rails
