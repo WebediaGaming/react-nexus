@@ -95,7 +95,13 @@ React on Rails provides a consistent framework to reason about to deploy applica
 This kind of application-wide takes the form of R.App.Plugin class definitions, and define how a plugin hooks into an App.
 
 React on Rails comes with the following plugins:
-- Localize: easily internationalize an entire app. Enables using directives such as <Localize locale="en-US"><span>Hello</span></Localize><Localize locale="fr-FR"><span>Bonjour</span></Localize>, and exposes a /setLocale
+- Localize: easily internationalize an entire app. Enables using directives such as `<Localize locale="en-US" key="a"><span>Hello</span></Localize><Localize locale="fr-FR" key="b"><span>Bonjour</span></Localize>` and exposed the current locale in a Memory Store as /Localize/locale.
+- History: consistently handle History in an isomorphic and HTML5-friendly way. Sets up and manages /History/pathname and /History/route (is a Router is also passed) in a Memory Store.
+- Fullscreen: consistently handle fullscreen. Sets up and manages /Fullscreen/isFullscreen and dispatches /Fullscreen/startFullscreen and /Fullscreen/stopFullscreen.
+- Window: consistently handle window.resize, window.height, etc. Sets up and manages /Window/height, /Window/width, /Window/scrollTop, /Window/scrollLeft, /Window/title, /Window/meta in stores, /Window/resize, /Window/scroll in events, and dispatches /Window/resize, /Window/scrollTo, /Window/setTitle, and /Window/setMeta.
+- XWindow: consistently handle window.postMessage. Sets up and manages /XWindow/windows in stores, /XWindow/:window in events, and dispatches /XWindow/:window/postMessage.
+- Connection: consistently handle online/offline status. Sets up and manages /Connection/status in stores, /Connection/connect, /Connection/disconnect in events.
+- Power: consistently handle power status. Sets up and manages /Power/status.
 
 ### Uplink: Flux over the wire
 
