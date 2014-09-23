@@ -114,3 +114,16 @@ dispatcher.addListener("/rollTheDice", function*(params) {
     yield this.getFlux().getStore("memory").set("/diceValue", diceValue);
 });
 ```
+
+
+
+Roadmap
+=======
+
+- Release v0.1.0
+    - Stabilize the API
+    - Document the API
+    - Add more tests
+
+- Release v0.2.0
+    - Lightweight builds/move plugins out of core

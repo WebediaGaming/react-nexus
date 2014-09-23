@@ -33,7 +33,10 @@ the React Way.
 | Your own feature        | Your own implementation                  | R.App.Plugin                           |
 
 React on Rails comes with many more, but in addition, it provides a rock-solid framework to idiomaticly implement application-wide features
-using its very simple plugin system.
+using its very simple plugin system, because more often that not, mixin-level or component-level integration just isn't enough.
+Examples of plugins include:
+- Integration with third-party asynchonous SDKs (Facebook, YouTube, ...)
+- Integration with polyfills (screenfull, localforage, ...)
 
 
 ### Flux, the side-effect free global state
@@ -96,5 +99,5 @@ While adopting this way of coding is entirely up to you, React on Rails fully su
 - Markup, using JSX and templates
 - But also styling, including static stylesheets (not restricted to inline style in components)
 
-In addition, most asynchronous APIs return thunks, making it really straightfoward to integrate with `co` and `regenerators`.
+In addition, most asynchronous APIs return thunks, making it really straightfoward to integrate with `co` and `regenerator`.
 Generators are cool. Use them.
