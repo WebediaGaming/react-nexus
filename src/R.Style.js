@@ -10,7 +10,11 @@ module.exports = function(R) {
         return autoprefixer.process(css).css;
     }];
 
-    var Style = {
+    var Style = function Style(style) {
+        return Style.slowlyProcessReactStyle(style);
+    };
+
+    _.extend(Style, {
         Processors: {
             autoprefixer: function autoprefixer(css) {
                 return autoprefixer.process(css).css;

@@ -1,69 +1,110 @@
-WORK IN PROGRESS - DONT USE!
+React on Rails - The Ultimate React Framework
+=============================================
 
+React on Rails is your way into production-ready React apps.
+Embracing the core principles of React, React on Rails provides you with all you need
+to start making you React-powered, full stack JS WebApp, that actually does actual things
+in actualy browsers of actual visitors, served by actual servers crawled by actual spiders.
+Not your grandma's WebApp.
 
-React on Rails
-===========
+Installation & Usage
+====================
+`npm install react-rails` and start hacking.
+Fork `react-rails-starterkit` if you want to start from scratch.
 
-React on Rails (`R` in the code) is a real-world webapp thin framework upon React. It fully embraces the React paradigm and implements
-many useful programmatic tools and mixins to do things the React way all along.
+Check out the Introduction and the Full API Docs for more info.
 
-React on Rails means to provide all you need to never need again to hack into React yourself, and instead fully enjoy its power and neatness
-to build things that work outside of `todolist.js`.
+Core principles
+===============
+- First-class server-side pre-rendering, even with complex, async data dependencies.
+- Fully-integrated flux implementation, including flux over the wire.
+- Real-time full-duplex data propagation by default.
+- Idiomatic React implementation of all you need for you WebApp: animations, routing,
+tree transformation, HTTP backend communication, session management, etc, the React Way.
 
-Core principles:
-- Neatness should not cost performance, it should improve it.
-- Server-side rendering and efficient data-fetching are mandatory for real-world apps.
-- Data must always flow. Non-private data should always be conceived as by the leafiers immutable and mutable by the rootiers.
-- Components are pure relatively to 3 sources of ground truth: props, state, and flux, which consists in tree-global, controlled stores and event emitters.
-- Stores and Dispatchers are asynchronous by default. This way the flux can be backed by a remote backend, not only a local, in-memory backend.
-- Components initialization can be asynchronous, but once they have rendered once, they must be kept consistent synchronously.
-- Data-backend-agnostic; you should be able to roll whichever complex, real-world resilient data backend you wish.
+SHOW ME THE CODE
+================
 
-What React on Rails provides:
-- Structure and guidelines for architecturing your app
-- Efficient implementation of commonly needed primitives and patterns
-- Full-blown frontend, with cacheable and load-balancable server-side SEO/performance-friendly prerendering
+#### Animating
 
-What React on Rails doesn't provide:
-- Strict checking that you will follow the guidelines
-- Support for non-recommended patterns (non-pure components, integration with jQuery, etc)
-- Data backend implementation (although it integrates very well with commonly used backends patterns)
+Toggles the rotation of an image upon click a button.
 
-Contents
-========
+```js
+var R = require("react-rails");
+var styles = { // Styles are automatically processed (vendor-prefixing, etc)
+    "left": new R.Style({ transform: "rotate(0deg)" }),
+    "right": new R.Style({ transform: "rotate(180deg)" }),
+};
 
-- `R.utils`: global utilities, such as `R.isServer`/`R.isClient` or `R.scope`, a lightweight version of `Function.prototype.bind`.
-- `R.Debug`: debugging utilities, to avoid length try/catch in production while developing safely.
-- `R.Decorate`: Functional decoration.
-- `R.Descriptor`: lightweight representation and manipulation of React Component Descriptors, to perform tree walking/transformations.
-- `R.Query`: utility functions on top of R.Descriptor. `$` for React.
-- `R.App`: React.createClass wrapper to bootstrap your application with R goodness.
-- `R.Component`: React.createClass wrapper to bootstrap your components with R goodness.
-- `R.Pure`: Pure components mixin and utilities.
-- `R.Async`: Efficiently dealing with asynchronous operations in React Components.
-- `R.Animate`: Efficient programmatic animation in React Components. `Velocity` for React.
-- `R.Style`: Sane style management in React components. Includes vendor-prefixing and bundling.
-- `R.Store`: Asynchronous Store management in React. Supports local and remote backends.
-- `R.EventEmitter`: Asynchronous EventEmitter management in React. Supports local and remote backends.
-- `R.Flux`: Asynchronous flux management in React. Supports bootstrapping the flux on either the server (based on the `req`) or the client (based on `window`).
-- `R.SimpleUplinkServer`: Single-process implementation of the Uplink pattern. Suitable for medium scale usage out of the box.
-- `R.Router`: Router for an R app.
-- `R.Client`: Client entry point into an R app.
-- `R.Server`: Server entry point into an R app.
-- `R.Uplink.Session`: Sessions for an R + Uplink app.
-- `R.Uplink.Users`: Users/permissions for an R + Uplink app.
+module.exports = React.createClass({
+    mixins: [R.Component.Mixin],
+    propTypes: {
+        src: React.PropTypes.string.isRequired,
+    },
+    getInitialState: function() { return { orientation: "left" }; },
+    rotate: function(from, to) {
+        this.animate("rotate", { // starts an animation.
+            from: styles[from],  // the component can be safely unmounted
+            to: styles[to],      // during the animation,
+            duration: 1000,      // R.Animate handles everything properly.
+            easing: "cubic-in-out",
+        });
+        this.setState({ orientation: to });
+    },
+    handleClick: function() {
+        if(this.state.orientation === "left") {
+            this.rotate("left", "right");
+        }
+        else {
+            this.rotate("right", "left");
+        }
+    },
+    render: function() {
+        return (<div>
+            <button onClick={this.handleClick}>Click to rotate</button>
+            <img src={this.props.src} style={this.isAnimating("rotate") ? this.getAnimatedStyle("rotate") : styles[this.state.orientation]} />
+        </div>);
+    },
+});
+```
 
-Conventions
-===========
+#### Basic Flux - Component
 
-- Private variables are prefixed with _. The behaviour of R is undefined if private variables are accessed.
-- Read-only variables are decorated with @readOnly. The behaviour of R is undefined if readOnly variables are written.
-- All methods (object properties that are Functions) are assumed readOnly unless otherwise explicitly mentionned.
-- All Mixin-specific variables are prefixed with _$NameOfTheMixin and are assumed private.
-- All Components are assumed Pure.
-- All Components are assumed to be create with either R.createAppClass or R.createComponentClass. Don't call React.createClass directly.
-- You should pass NODE_ENV=development when developing, and NODE_ENV=production in production. Use envify.
-- All code is assumed isomorphic, unless otherwise mentionned. If you need to execute environment-specific code, use R.IfServer or R.IfClient.
-- Code in componentDidMount doesn't need to be ismorphic.
-- We use generators. Use regenerator or node --harmony.
-- Typechecking and other assertions should be wrapped in R.Debug.dev to avoid lengthy try/catch blocks in production.
+Tells a memory dispatcher to roll a dice, and continusouly update state to reflect its status.
+
+```js
+var R = require("react-rails");
+
+module.exports = React.createClass({
+    mixins: [R.Component.Mixin],
+    getFluxStoreSubscriptions: function() {
+        return { "memory://diceValue": "diceValue" };  // subscribe to a store value
+    },
+    handleClick: function() {
+        // dispatch an action, throws on error
+        this.dispatch("dispatcher://rollTheDice", { from: 0, to: 6 })(R.Debug.rethrow("Something when wrong!"));
+    },
+    render: function() {
+        return (<div>
+            <span>Current dice value: {this.state.diceValue}</span>
+            <button onClick={this.handleClick}>Roll the dice</button>
+        </div>);
+    },
+});
+```
+
+#### Basic Flux - Backend (with generators)
+
+Dispatches a "/rollTheDice" action.
+
+```js
+
+dispatcher.addListener("/rollTheDice", function*(params) {
+    R.Debug.dev(function() { // Ignored in production
+        assert(params.from && _.isNumber(params.from));
+        assert(params.to && _.isNumber(params.to));
+    });
+    // asynchronously udpate the memory store
+    yield this.getFlux().getStore("memory").set("/diceValue", _.random(params.from, params.to));
+});
+```
