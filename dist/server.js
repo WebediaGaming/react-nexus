@@ -479,6 +479,9 @@ var R = {
             require("./R.Window"),
             require("./R.XWindow"),
 
+            require("./R.Root"),
+            require("./R.Component"),
+
             require("./R.RenderServer"),
             require("./R.SimpleUplinkServer"),
         ], mixInto);
