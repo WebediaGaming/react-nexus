@@ -24,9 +24,9 @@ module.exports = function(R) {
                     _bootstrapTemplateVarsInServer: specs._bootstrapTemplateVarsInServer,
                     _vars: params.vars || {},
                     _plugins: params.plugins || {},
-                    _templateLibs: _.extend(params.templateLibs || {}) {
+                    _templateLibs: _.extend(params.templateLibs || {}, {
                         _: _,
-                    },
+                    }),
                 });
                 _.extend(this, specs);
                 _.each(specs, R.scope(function(val, attr) {

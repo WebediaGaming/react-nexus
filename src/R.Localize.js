@@ -56,7 +56,7 @@ module.exports = function(R) {
                 },
             });
         },
-    },
+    };
 
     R.Localize = Localize;
     return R;

@@ -212,14 +212,14 @@ module.exports = function(R) {
             getFluxStylesheet: function getFluxStylesheet(name) {
                 return this.getFlux().getStylesheet(name);
             },
-            triggerFluxAction: regeneratorRuntime.mark(function triggerFluxAction(dispatcherLocation, params) {
+            dispatch: regeneratorRuntime.mark(function dispatch(dispatcherLocation, params) {
                 var r, entry;
 
-                return regeneratorRuntime.wrap(function triggerFluxAction$(context$2$0) {
+                return regeneratorRuntime.wrap(function dispatch$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
                     case 0:
                         r = abstractLocationRegExp.exec(location);
-                        assert(r !== null, "R.Flux.triggerFluxAction(...): incorrect location ('" + this.displayName + "')");
+                        assert(r !== null, "R.Flux.dispatch(...): incorrect location ('" + this.displayName + "')");
 
                         entry = {
                             dispatcherName: r[1],
@@ -234,7 +234,7 @@ module.exports = function(R) {
                     case "end":
                         return context$2$0.stop();
                     }
-                }, triggerFluxAction, this);
+                }, dispatch, this);
             }),
             _FluxMixinDefaultGetStyleClasses: function getStyleClasses() {
                 return {};
