@@ -152,6 +152,11 @@ module.exports = function(R) {
                             return resolve();
                         }
                         var surrogateChildComponent = new childType.__ReactOnRailsSurrogate(childContext, childComponent.props);
+                        if(!surrogateChildComponent.componentWillMount) {
+                            R.Debug.dev(function() {
+                                console.error("Component doesn't have componentWillMount. Maybe you forgot R.Component.Mixin? ('" + surrogateChildComponent.displayName + "')");
+                            });
+                        }
                         surrogateChildComponent.componentWillMount();
                         co(function*() {
                             yield surrogateChildComponent.prefetchFluxStores();
@@ -388,7 +393,7 @@ module.exports = function(R) {
         registerDispatcher: function registerDispatcher(name, dispatcher) {
             assert(R.isClient(), "R.Flux.FluxInstance.registerDispatcher(...): should not be called in the server. (" + name + ")");
             R.Debug.dev(R.scope(function() {
-                assert(dispatcher._isDispatcher_, "R.Flux.FluxInstance.registerDispatcher(...): expecting a R.Dispatcher. (" + name + ")");
+                assert(dispatcher._isDispatcherInstance_, "R.Flux.FluxInstance.registerDispatcher(...): expecting a R.Dispatcher.DispatcherInstance (" + name + ")");
                 assert(!_.has(this._dispatchers, name), "R.Flux.FluxInstance.registerDispatcher(...): name already assigned. (" + name + ")");
             }, this));
             this._dispatchers[name] = dispatcher;

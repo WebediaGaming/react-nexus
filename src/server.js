@@ -6,12 +6,14 @@ var R = {
 
         var mixInto = function mixInto(inject) { inject(R); };
         _.each([require("./R.utils"), require("./R.Debug")], mixInto);
-
         R.Debug.setMode(params.mode);
+
         _.each([
             require("./R.utils"),
             require("./R.Debug"),
-            require("./R.patchReact"),
+            require("./R.ReactChildren"),
+            require("./R.ReactCreateClass"),
+            require("./R.Lock"),
 
             require("./R.Animate"),
             require("./R.App"),

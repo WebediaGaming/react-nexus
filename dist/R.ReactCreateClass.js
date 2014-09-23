@@ -1,6 +1,6 @@
 module.exports = function(R) {
     var _ = require("lodash");
-    var React = require("react");
+    var React = R.React;
 
     var _vanillaCreateClass = R.scope(React.createClass, React);
 
@@ -43,6 +43,8 @@ module.exports = function(R) {
             __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
         });
 
+        console.warn("createClass", specs.displayName);
+
         return createdClass;
     };
 
@@ -50,6 +52,9 @@ module.exports = function(R) {
         React.createClass = _vanillaCreateClass;
     };
 
+    R.Debug.dev(function() {
+        console.log("Patching React.createClass.");
+    });
     R.ReactCreateClass = React.createClass = _patchedCreateClass;
 
     return R;

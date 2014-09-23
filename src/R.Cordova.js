@@ -3,8 +3,9 @@
  */
 module.exports = function(R) {
     var Cordova = {
-        Plugin: function Plugin(storeName, dispatcherName) {
+        createPlugin: function createPlugin(storeName, dispatcherName) {
             return R.App.createPlugin({
+                displayName: "Cordova",
                 installInClient: function installInClient(flux, window) {
                 },
                 installInServer: function installInServer(flux, req) {

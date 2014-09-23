@@ -314,7 +314,10 @@ module.exports = function(R) {
                     withCredentials: false,
                 }, function(err, res, body) {
                     if(err) {
-                        return reject(err);
+                        R.Debug.dev(function() {                            
+                            console.warn("R.Uplink.fetch(...): couldn't fetch '" + key + "':", err.toString());
+                        });
+                        return resolve(err);
                     }
                     else {
                         return resolve(body);

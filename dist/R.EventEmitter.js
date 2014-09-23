@@ -31,83 +31,93 @@ module.exports = function(R) {
             this.event = event;
         },
         createMemoryEventEmitter: function createMemoryEventEmitter() {
-            var listeners = {};
-            var addListener = function addListener(event, fn) {
-                var listener = new R.EventEmitter.Listener(event);
-                if(!_.has(listeners, event)) {
-                    listeners[event] = {};
-                }
-                listeners[event][listener.uniqueId] = fn;
-                return listener;
-            };
-            var removeListener = function removeListener(listener) {
-                R.Debug.dev(function() {
-                    assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.MemoryEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                    assert(_.has(listeners, listener.event), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no listeners for this event.");
-                    assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
-                });
-                delete listeners[listener.event][listener.uniqueId];
-                if(_.size(listeners[listener.event]) === 0) {
-                    delete listeners[listener.event];
-                }
-            };
-            var emit = function emit(event, params) {
-                params = params || {};
-                if(_.has(listeners, event)) {
-                    _.each(listeners[event], function(fn) {
-                        if(fn) {
-                            fn(params);
-                        }
+            return function MemoryEventEmitter() {
+                var listeners = {};
+                var addListener = function addListener(event, fn) {
+                    var listener = new R.EventEmitter.Listener(event);
+                    if(!_.has(listeners, event)) {
+                        listeners[event] = {};
+                    }
+                    listeners[event][listener.uniqueId] = fn;
+                    return listener;
+                };
+                var removeListener = function removeListener(listener) {
+                    R.Debug.dev(function() {
+                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.MemoryEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
+                        assert(_.has(listeners, listener.event), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no listeners for this event.");
+                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
                     });
-                }
+                    delete listeners[listener.event][listener.uniqueId];
+                    if(_.size(listeners[listener.event]) === 0) {
+                        delete listeners[listener.event];
+                    }
+                };
+                var emit = function emit(event, params) {
+                    params = params || {};
+                    if(_.has(listeners, event)) {
+                        _.each(listeners[event], function(fn) {
+                            if(fn) {
+                                fn(params);
+                            }
+                        });
+                    }
+                };
+                return new (R.EventEmitter.createEventEmitter({
+                    displayName: "MemoryEventEmitter",
+                    addListener: addListener,
+                    removeListener: removeListener,
+                    emit: emit,
+                }))();
             };
-            return R.EventEmitter.createEventEmitter({
-                displayName: "MemoryEventEmitter",
-                addListener: addListener,
-                removeListener: removeListener,
-                emit: emit,
-            });
         },
-        createUplinkEventEmitter: function createUplinkEventEmitter(listenTo, unlistenFrom) {
-            var listeners = {};
-            var emitters = {};
-            var addListener = function addListener(event, fn) {
-                var listener = new R.EventEmitter.Listener(event);
-                if(!_.has(listeners, event)) {
-                    emitters[event] = listenTo(event, _.partial(emit, event));
-                    listeners[event] = {};
-                }
-                listeners[event][listener.uniqueId] = fn;
-                return listener;
-            };
-            var removeListener = function removeListener(listener) {
+        createUplinkEventEmitter: function createUplinkEventEmitter() {
+            return function UplinkEventEmitter(uplink) {
                 R.Debug.dev(function() {
-                    assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.UplinkEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                    assert(_.has(listeners, listener.event), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no listeners for this event.");
-                    assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
+                    assert(uplink.listenTo && _.isFunction(uplink.listenTo), "R.EventEmitter.createUplinkEventEmitter(...).uplink.listenTo: expecting Function.");
+                    assert(uplink.unlistenFrom && _.isFunction(uplink.unlistenFrom), "R.EventEmitter.createUplinkEventEmitter(...).uplink.unlistenFrom: expecting Function.");
                 });
-                delete listeners[listener.event][listener.uniqueId];
-                if(_.size(listeners[listener.event]) === 0) {
-                    unlistenFrom(listener.event, emitters[event]);
-                    delete listeners[listener.event];
-                    delete emitters[listener.event];
-                }
-            };
-            var emit = function emit(event, params) {
-                params = params || {};
-                if(_.has(listeners, event)) {
-                    _.each(listeners[event], function(fn) {
-                        if(fn) {
-                            fn(params);
-                        }
+                var listenTo = uplink.listenTo;
+                var unlistenFrom = uplink.unlistenFrom;
+                var listeners = {};
+                var emitters = {};
+                var addListener = function addListener(event, fn) {
+                    var listener = new R.EventEmitter.Listener(event);
+                    if(!_.has(listeners, event)) {
+                        emitters[event] = listenTo(event, _.partial(emit, event));
+                        listeners[event] = {};
+                    }
+                    listeners[event][listener.uniqueId] = fn;
+                    return listener;
+                };
+                var removeListener = function removeListener(listener) {
+                    R.Debug.dev(function() {
+                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.UplinkEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
+                        assert(_.has(listeners, listener.event), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no listeners for this event.");
+                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
                     });
-                }
+                    delete listeners[listener.event][listener.uniqueId];
+                    if(_.size(listeners[listener.event]) === 0) {
+                        unlistenFrom(listener.event, emitters[event]);
+                        delete listeners[listener.event];
+                        delete emitters[listener.event];
+                    }
+                };
+                var emit = function emit(event, params) {
+                    params = params || {};
+                    if(_.has(listeners, event)) {
+                        _.each(listeners[event], function(fn) {
+                            if(fn) {
+                                fn(params);
+                            }
+                        });
+                    }
+                };
+                return new (R.EventEmitter.createEventEmitter({
+                    displayName: "UplinkEventEmitter",
+                    addListener: addListener,
+                    removeListener: removeListener,
+                }))();
             };
-            return R.EventEmitter.createEventEmitter({
-                displayName: "UplinkEventEmitter",
-                addListener: addListener,
-                removeListener: removeListener,
-            });
         },
     };
 

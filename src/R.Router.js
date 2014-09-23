@@ -20,7 +20,7 @@ module.exports = function(R) {
                     console.warn("R.Router.route(...): route already registered.");
                 }
             }, this));
-            regexp = this._routeToRegExp(pattern);
+            var regexp = this._routeToRegExp(pattern);
             this._routes[pattern] = {
                 regexp: regexp,
                 fn: fn,
