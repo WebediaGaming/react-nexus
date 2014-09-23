@@ -104,14 +104,14 @@ Dispatches a "/rollTheDice" action.
 
 ```js
 
-dispatcher.addListener("/rollTheDice", function*(params) {
+flux.getDispatcher("dispatcher").addActionListener("/rollTheDice", function*(params) {
     R.Debug.dev(function() { // Ignored in production
         assert(params.from && _.isNumber(params.from));
         assert(params.to && _.isNumber(params.to));
     });
     // asynchronously udpate the memory store
     var diceValue = _.random(params.from, params.to);
-    yield this.getFlux().getStore("memory").set("/diceValue", diceValue);
+    yield flux.getStore("memory").set("/diceValue", diceValue);
 });
 ```
 
