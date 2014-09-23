@@ -1,13 +1,12 @@
 React on Rails - Introduction
 =============================
 
-Facebook's mindblowing library, React, brings us a neat, clean, and fast implementation of the View layer
-of a WebApp.
-
-
 ### Real world WebApps, the React Way
 
-However, its mindblowing core principle, using a Virtual DOM in immediate mode instead of manipulating the Real DOM,
+
+
+Facebook's mindblowing library, React, brings us a neat, clean, and fast implementation of the View layer
+of a WebApp. However, its mindblowing core principle, using a Virtual DOM in immediate mode instead of manipulating the Real DOM,
 makes nearly every single UI-oriented JS lib obsolete. You can wrap them in special, container components, but
 you can do way better than that: you can port their features and hacks directly into React.
 React on Rails ports many of the core features you need to build a real-world UI, providing you with a clean, idiomatic implementation
