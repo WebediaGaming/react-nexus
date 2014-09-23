@@ -1,8 +1,14 @@
+var _ = require("lodash");
 var R = {
-    install: function install(React, instantiateReactComponent) {
-        R.React = React;
-        R.instantiateReactComponent = instantiateReactComponent;
-        [
+    install: function install(params) {
+        R.React = params.React;
+        R.instantiateReactComponent = params.instantiateReactComponent;
+
+        var mixInto = function mixInto(inject) { inject(R); };
+        _.each([require("./R.utils"), require("./R.Debug")], mixInto);
+
+        R.Debug.setMode(params.mode);
+        _.each([
             require("./R.utils"),
             require("./R.Debug"),
             require("./R.patchReact"),
@@ -29,11 +35,12 @@ var R = {
             require("./R.Window"),
             require("./R.XWindow"),
 
+            require("./R.Root"),
+            require("./R.Component"),
+
             require("./R.RenderServer"),
             require("./R.SimpleUplinkServer"),
-        ].forEach(function(inject) {
-            inject(R);
-        });
+        ], mixInto);
         return R;
     },
 };

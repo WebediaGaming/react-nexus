@@ -5,7 +5,7 @@ module.exports = function(R) {
 
     var Root = {
         Mixin: {
-            mixins: [R.Pure.Mixin, R.$.Mixin, R.Async.Mixin, R.Animate.Mixin, R.Flux.Mixin],
+            mixins: [R.Pure.Mixin, R.Async.Mixin, R.Animate.Mixin, R.Flux.Mixin],
             _AppMixinHasAppMixin: true,
             propTypes: {
                 flux: R.Flux.PropType,

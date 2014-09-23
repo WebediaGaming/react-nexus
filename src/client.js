@@ -4,8 +4,8 @@ var R = {
         R.React = params.React;
         R.instantiateReactComponent = params.instantiateReactComponent;
 
-        var install = function install(inject) { inject(R); };
-        _.each([require("./R.utils"), require("./R.Debug")], install);
+        var mixInto = function mixInto(inject) { inject(R); };
+        _.each([require("./R.utils"), require("./R.Debug")], mixInto);
         R.Debug.setMode(params.mode);
 
         _.each([
@@ -39,7 +39,7 @@ var R = {
             require("./R.Component"),
 
             require("./R.Client"),
-        ], install);
+        ], mixInto);
 
         return R;
     },

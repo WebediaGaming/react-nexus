@@ -62,7 +62,7 @@ module.exports = function(R) {
             });
             return style;
         },
-    };
+    });
 
     R.Style = Style;
     return R;
