@@ -4,7 +4,7 @@ module.exports = function(R) {
     var Locales = require("locale").Locales;
 
     var Localize = {
-        _extractLocale: function _extractLocale(headers, supported) {
+        extractLocale: function extractLocale(headers, supported) {
             R.Debug.dev(function() {
                 assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
             });
@@ -20,11 +20,11 @@ module.exports = function(R) {
                             assert(params.locale && _.isString(params.locale), dispatcherName + "://Localize/setLocale.params.locale: expected String.");
                         });
                         yield _.defer;
-                        flux.getFluxStore(storeName).set("/Localize/locale", Localize._extractLocale(params.locale));
+                        flux.getFluxStore(storeName).set("/Localize/locale", Localize.extractLocale(params.locale, supportedLocales));
                     });
                 },
                 installInServer: function installInServer(flux, req) {
-                    flux.getFluxStore(storeName).set("/Localize/locale", Localize._extractLocale(req.headers, supported));
+                    flux.getFluxStore(storeName).set("/Localize/locale", Localize.extractLocale(req.headers, supportedLocales));
                 },
             });
         },

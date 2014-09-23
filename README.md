@@ -10,7 +10,7 @@ Not your grandma's WebApp.
 Installation & Usage
 ====================
 `npm install react-rails` and start hacking.
-Fork `react-rails-starterkit` if you want to start from scratch.
+Fork [`react-rails-starterkit`](https://github.com/elierotenberg/react-rails-starterkit) if you want an opinionated file structure & toolkip.
 
 Check out the [Introduction](https://github.com/elierotenberg/react-rails/blob/master/INTRO.md) and the [Full API Docs](https://github.com/elierotenberg/react-rails/blob/master/API.md) for more info.
 
