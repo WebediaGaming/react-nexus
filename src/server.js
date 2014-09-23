@@ -22,8 +22,12 @@ var R = {
             require("./R.Stylesheet"),
             require("./R.Uplink"),
 
-            require("./R.Root"),
-            require("./R.Component"),
+            require("./R.Cordova"),
+            require("./R.Fullscreen"),
+            require("./R.History"),
+            require("./R.Localize"),
+            require("./R.Window"),
+            require("./R.XWindow"),
 
             require("./R.RenderServer"),
             require("./R.SimpleUplinkServer"),

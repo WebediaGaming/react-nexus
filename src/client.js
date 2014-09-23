@@ -20,7 +20,6 @@ var R = {
             require("./R.Dispatcher"),
             require("./R.EventEmitter"),
             require("./R.Flux"),
-            require("./R.Localize"),
             require("./R.Pure"),
             require("./R.Query"),
             require("./R.Router"),
@@ -28,6 +27,13 @@ var R = {
             require("./R.Style"),
             require("./R.Stylesheet"),
             require("./R.Uplink"),
+
+            require("./R.Cordova"),
+            require("./R.Fullscreen"),
+            require("./R.History"),
+            require("./R.Localize"),
+            require("./R.Window"),
+            require("./R.XWindow"),
 
             require("./R.Root"),
             require("./R.Component"),
