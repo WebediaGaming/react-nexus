@@ -12,7 +12,7 @@ Installation & Usage
 `npm install react-rails` and start hacking.
 Fork `react-rails-starterkit` if you want to start from scratch.
 
-Check out the Introduction and the Full API Docs for more info.
+Check out the [Introduction](https://github.com/elierotenberg/react-rails/blob/master/INTRO.md) and the [Full API Docs](https://github.com/elierotenberg/react-rails/blob/master/API.md) for more info.
 
 Core principles
 ===============
@@ -60,9 +60,10 @@ module.exports = React.createClass({
         }
     },
     render: function() {
+        var style = this.isAnimating("rotate") ? this.getAnimatedStyle("rotate") : styles[this.state.orientation];
         return (<div>
             <button onClick={this.handleClick}>Click to rotate</button>
-            <img src={this.props.src} style={this.isAnimating("rotate") ? this.getAnimatedStyle("rotate") : styles[this.state.orientation]} />
+            <img src={this.props.src} style={style} />
         </div>);
     },
 });
@@ -77,13 +78,17 @@ var R = require("react-rails");
 
 module.exports = React.createClass({
     mixins: [R.Component.Mixin],
-    getFluxStoreSubscriptions: function() {
-        return { "memory://diceValue": "diceValue" };  // subscribe to a store value
-    },
+    getFluxStoreSubscriptions: _.constant({ // subscribe to a stored resources and auto-injects
+        "memory://diceValue": "diceValue",  // the up-to-date value in state.
+    }),
     handleClick: function() {
-        // dispatch an action, throws on error
-        this.dispatch("dispatcher://rollTheDice", { from: 0, to: 6 })(R.Debug.rethrow("Something when wrong!"));
+        this.dispatch("dispatcher://rollTheDice", { from: 0, to: 6 })(this.handleDispatched);
     },
+    handleDispatched: R.Async.IfMounted(function(err) { // Will only execute if the component
+        R.Debug.dev(function() {                        // is still mounted when invoked
+            if(err) { throw err; }
+        });
+    }),
     render: function() {
         return (<div>
             <span>Current dice value: {this.state.diceValue}</span>
@@ -105,6 +110,7 @@ dispatcher.addListener("/rollTheDice", function*(params) {
         assert(params.to && _.isNumber(params.to));
     });
     // asynchronously udpate the memory store
-    yield this.getFlux().getStore("memory").set("/diceValue", _.random(params.from, params.to));
+    var diceValue = _.random(params.from, params.to);
+    yield this.getFlux().getStore("memory").set("/diceValue", diceValue);
 });
 ```

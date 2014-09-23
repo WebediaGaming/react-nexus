@@ -13,7 +13,6 @@ you can do way better than that: you can port their features and hacks directly 
 React on Rails ports many of the core features you need to build a real-world UI, providing you with a clean, idiomatic implementation
 the React Way.
 
-|-------------------------------------------------------------------------------------------------------------|
 | Feature                 | Example Vanilla implementation           | React on Rails implementation          |
 |-------------------------|------------------------------------------|----------------------------------------|
 | Animation               | Velocity JS                              | R.Animate                              |
@@ -32,7 +31,6 @@ the React Way.
 | SEO/mobile prerendering | React.renderComponentToString, SYNC ONLY | R.App.renderToStringInServer           |
 | Complex data fetching   | Spaghetti/PHP                            | R.App.renderToStringInServer           |
 | Your own feature        | Your own implementation                  | R.App.Plugin                           |
-|-------------------------|------------------------------------------|----------------------------------------|
 
 React on Rails comes with many more, but in addition, it provides a rock-solid framework to idiomaticly implement application-wide features
 using its very simple plugin system.
@@ -87,3 +85,16 @@ In addition to the aforementioned features, React on Rails comes with the follow
 - R.Window: Window state, events, and manipulation (scrolling, etc).
 - R.XWindow: Cross-window messages (send and receive) over window.postMessage.
 - R.Cordova: Support for the Cordova API.
+
+You have a great plugin you think everyone could enjoy? PR!
+
+
+### Full-JS extremism and JS-of-the-future supported
+
+While adopting this way of coding is entirely up to you, React on Rails fully supports writing your entire application in JS, including:
+- Logic (duh), both on the client and the server
+- Markup, using JSX and templates
+- But also styling, including static stylesheets (not restricted to inline style in components)
+
+In addition, most asynchronous APIs return thunks, making it really straightfoward to integrate with `co` and `regenerators`.
+Generators are cool. Use them.
