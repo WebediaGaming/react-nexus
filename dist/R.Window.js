@@ -3,8 +3,9 @@
  */
 module.exports = function(R) {
     var Window = {
-        Plugin: function Plugin(storeName, dispatcherName) {
+        createPlugin: function createPlugin(storeName, dispatcherName) {
             return R.App.createPlugin({
+                displayName: "Window",
                 installInClient: function installInClient(flux, window) {
                 },
                 installInServer: function installInServer(flux, req) {

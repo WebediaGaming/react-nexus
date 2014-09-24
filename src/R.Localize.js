@@ -2,6 +2,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var Locales = require("locale").Locales;
+    var React = R.React;
 
     var Localize = {
         extractLocale: function extractLocale(headers, supported) {
@@ -12,19 +13,20 @@ module.exports = function(R) {
             var acceptedLocales = new Locales(headers["accept-language"]);
             return acceptedLocales.best(supportedLocales);
         },
-        Plugin: function Plugin(supportedLocales, storeName, dispatcherName) {
-            return new R.App.createPlugin({
+        createPlugin: function createPlugin(storeName, dispatcherName, supportedLocales) {
+            return R.App.createPlugin({
+                displayName: "Localize",
                 installInClient: function installInClient(flux, window) {
-                    flux.getFluxDispatcher(dispatcherName).addActionListener("/Localize/setLocale", function* setLocale(params) {
+                    flux.getDispatcher(dispatcherName).addActionListener("/Localize/setLocale", function* setLocale(params) {
                         R.Debug.dev(function() {
                             assert(params.locale && _.isString(params.locale), dispatcherName + "://Localize/setLocale.params.locale: expected String.");
                         });
                         yield _.defer;
-                        flux.getFluxStore(storeName).set("/Localize/locale", Localize.extractLocale(params.locale, supportedLocales));
+                        flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(params.locale, supportedLocales));
                     });
                 },
                 installInServer: function installInServer(flux, req) {
-                    flux.getFluxStore(storeName).set("/Localize/locale", Localize.extractLocale(req.headers, supportedLocales));
+                    flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(req.headers, supportedLocales));
                 },
             });
         },

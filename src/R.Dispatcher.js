@@ -6,17 +6,15 @@ module.exports = function(R) {
         createDispatcher: function createDispatcher(specs) {
             R.Debug.dev(function() {
                 assert(_.isObject(specs), "R.Dispatcher.createDispatcher(...).specs: expecting Object.");
-                assert(specs.actions && _.isObject(specs), "R.Dispatcher.createDispatcher(...).specs.actions: expecting Object.");
+                assert(specs.actions && _.isObject(specs.actions), "R.Dispatcher.createDispatcher(...).specs.actions: expecting Object.");
                 assert(specs.displayName && _.isString(specs.displayName), "R.Dispatcher.createDispatcher(...).specs.displayName: expecting String.");
             });
 
             var DispatcherInstance = function DispatcherInstance() {
-                this.displayName = specs.displayName;
                 this._actionsListeners = {};
                 this.addActionListener = R.scope(this.addActionListener, this);
                 this.removeActionListener = R.scope(this.removeActionListener, this);
                 this.dispatch = R.scope(this.dispatch, this);
-                _.extend(this, specs);
                 _.each(specs, R.scope(function(val, attr) {
                     if(_.isFunction(val)) {
                         this[attr] = R.scope(val, this);
@@ -25,10 +23,12 @@ module.exports = function(R) {
                 _.each(specs.actions, this.addActionListener);
             };
 
-            _.extend(DispatcherInstance, R.Dispatcher._DispatcherInstancePrototype);
+            _.extend(DispatcherInstance.prototype, specs, R.Dispatcher._DispatcherInstancePrototype);
+
+            return DispatcherInstance;
         },
         _DispatcherInstancePrototype: {
-            _isDispatcher_: true,
+            _isDispatcherInstance_: true,
             displayName: null,
             _actionsListeners: null,
             addActionListener: function addActionListener(action, fn) {

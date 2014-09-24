@@ -3,11 +3,13 @@ module.exports = function(R) {
     var assert = require("assert");
     var React = R.React;
 
+    assert(R.isClient(), "R.Client: should only be loaded in the client.");
+    window.React = React;
+
     var Client = function Client(App) {
         R.Debug.dev(function() {
-            assert(R.isClient(), "R.Client(...): should only be called in the client.");
-            if(window.React) {
-                console.warn("Warning: React is already attached to window.");
+            if(!window.React) {
+                console.warn("Warning: React is not attached to window.");
             }
         });
         window.React = React;

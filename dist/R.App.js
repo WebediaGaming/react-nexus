@@ -9,10 +9,10 @@ module.exports = function(R) {
         createApp: function createApp(specs) {
             R.Debug.dev(function() {
                 assert(_.isPlainObject(specs), "R.App.createApp(...).specs: expecting Object.");
-                assert(specs.fluxClass && _.isFunction(params.fluxClass), "R.App.createApp(...).params.fluxClass: expecting Function.");
-                assert(specs.rootClass && _.isFunction(params.rootClass), "R.App.createApp(...).params.rootClass: expecting Function.");
-                assert(specs.componentsClasses && _.isPlainObject(params.componentsClasses), "R.App.createApp(...).params.componentsClasses: expecting Object.");
-                assert(specs.bootstrapTemplateVarsInServer && _.isFunction(params.bootstrapTemplateVarsInServer, "R.App.createApp(...).params.bootstrapTemplateVarsInServer: expecting Function."));
+                assert(specs.fluxClass && _.isFunction(specs.fluxClass), "R.App.createApp(...).specs.fluxClass: expecting Function.");
+                assert(specs.rootClass && _.isFunction(specs.rootClass), "R.App.createApp(...).specs.rootClass: expecting Function.");
+                assert(specs.componentsClasses && _.isPlainObject(specs.componentsClasses), "R.App.createApp(...).specs.componentsClasses: expecting Object.");
+                assert(specs.bootstrapTemplateVarsInServer && _.isFunction(specs.bootstrapTemplateVarsInServer, "R.App.createApp(...).specs.bootstrapTemplateVarsInServer: expecting Function."));
             });
 
             var AppInstance = function AppInstance() {
@@ -21,10 +21,10 @@ module.exports = function(R) {
                     _rootClass: specs.rootClass,
                     _template: specs.template || App.defaultTemplate,
                     _componentsClasses: specs.componentsClasses,
-                    _bootstrapTemplateVarsInServer: specs._bootstrapTemplateVarsInServer,
-                    _vars: params.vars || {},
-                    _plugins: params.plugins || {},
-                    _templateLibs: _.extend(params.templateLibs || {}, {
+                    _bootstrapTemplateVarsInServer: specs.bootstrapTemplateVarsInServer,
+                    _vars: specs.vars || {},
+                    _plugins: specs.plugins || {},
+                    _templateLibs: _.extend(specs.templateLibs || {}, {
                         _: _,
                     }),
                 });
@@ -35,7 +35,7 @@ module.exports = function(R) {
                     }
                 }, this));
             };
-            _.extend(AppInstance.prototype, R.App.AppInstance._AppInstancePrototype);
+            _.extend(AppInstance.prototype, R.App._AppInstancePrototype);
             return AppInstance;
         },
         _AppInstancePrototype: {
@@ -46,7 +46,7 @@ module.exports = function(R) {
             _bootstrapTemplateVarsInServer: null,
             _cachedStyleChunks: null,
             _vars: null,
-            _libs: null,
+            _templateLibs: null,
             _plugins: null,
             renderToStringInServer: regeneratorRuntime.mark(function renderToStringInServer(req) {
                 var guid, flux, rootProps, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
@@ -59,22 +59,35 @@ module.exports = function(R) {
                         });
                         guid = R.guid();
                         flux = new this._fluxClass();
-                        _.each(this.plugins, function(plugin) {
+                        context$2$0.next = 5;
+                        return flux.bootstrapInServer(req, req.headers, guid);
+                    case 5:
+                        _.each(this._plugins, function(Plugin, name) {
+                            var plugin = new Plugin();
+                            R.Debug.dev(function() {
+                                if(!plugin.installInServer) {
+                                    console.warn("name", name);
+                                    R.Debug.display("plugin", plugin);
+                                }
+                                assert(plugin.installInServer && _.isFunction(plugin.installInServer), "R.App.renderToStringInServer(...).plugins[...].installInServer: expecting Function. ('" + name + "')");
+                            });
                             plugin.installInServer(flux, req);
                         });
-                        context$2$0.next = 6;
-                        return flux.bootstrapInServer(req, req.headers, guid);
-                    case 6:
                         flux.registerAllComponentsStylesheetRules(this._componentsClasses);
                         rootProps = { flux: flux };
                         R.Debug.dev(R.scope(function() {
                             _.extend(rootProps, { __ReactOnRailsApp: this });
                         }, this));
                         surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, rootProps);
+                        if(!surrogateRootComponent.componentWillMount) {
+                            R.Debug.dev(function() {
+                                console.error("Root component doesn't have componentWillMount. Maybe you forgot R.Root.Mixin? ('" + surrogateRootComponent.displayName + "')");
+                            });
+                        }
                         surrogateRootComponent.componentWillMount();
-                        context$2$0.next = 13;
+                        context$2$0.next = 14;
                         return surrogateRootComponent.prefetchFluxStores();
-                    case 13:
+                    case 14:
                         surrogateRootComponent.componentWillUnmount();
                         rootComponent = this._rootClass(rootProps);
                         flux.startInjectingFromStores();
@@ -83,13 +96,13 @@ module.exports = function(R) {
                         serializedFlux = flux.serialize();
                         if(!this._cachedStyleChunks) {
                             this._cachedStyleChunks = _.map(flux.getAllStylesheets(), function(stylesheet) {
-                                return stylesheet.slowlyExportToCSS();
+                                return stylesheet.getProcessedCSS();
                             });
                         }
                         flux.destroy();
-                        context$2$0.next = 23;
+                        context$2$0.next = 24;
                         return this._bootstrapTemplateVarsInServer(req);
-                    case 23:
+                    case 24:
                         context$2$0.t0 = context$2$0.sent;
 
                         context$2$0.t1 = {
@@ -101,8 +114,8 @@ module.exports = function(R) {
                         };
 
                         context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
-                        return context$2$0.abrupt("return", this._template(context$2$0.t2, this._libs));
-                    case 27:
+                        return context$2$0.abrupt("return", this._template(context$2$0.t2, this._templateLibs));
+                    case 28:
                     case "end":
                         return context$2$0.stop();
                     }
@@ -125,15 +138,19 @@ module.exports = function(R) {
                         R.Debug.dev(function() {
                             window.__ReactOnRails.flux = flux;
                         });
-                        _.each(this.plugins, function(plugin) {
-                            plugin.installInServer(flux, window);
-                        });
                         headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
                         guid = window.__ReactOnRails.guid;
-                        context$2$0.next = 8;
+                        context$2$0.next = 7;
                         return flux.bootstrapInClient(window, headers, guid);
-                    case 8:
+                    case 7:
                         flux.unserialize(window.__ReactOnRails.serializedFlux);
+                        _.each(this._plugins, function(Plugin, name) {
+                            var plugin = new Plugin();
+                            R.Debug.dev(function() {
+                                assert(plugin.installInClient && _.isFunction(plugin.installInClient), "R.App.renderToStringInServer(...).plugins[...].installInClient: expecting Function. ('" + name + "')");
+                            });
+                            plugin.installInClient(flux, window);
+                        });
                         rootProps = { flux: flux };
                         R.Debug.dev(R.scope(function() {
                             _.extend(rootProps, { __ReactOnRailsApp: this });
@@ -156,13 +173,12 @@ module.exports = function(R) {
             R.Debug.dev(function() {
                 assert(specs && _.isPlainObject(specs), "R.App.createPlugin(...).specs: expecting Object.");
                 assert(specs.displayName && _.isString(specs.displayName), "R.App.createPlugin(...).specs.displayName: expecting String.");
-                assert(specs.installInClient && _.isFunction(specs.installInClient), "R.App.createPlugin(...).specs.installInFlux: expecting Function.");
                 assert(specs.installInServer && _.isFunction(specs.installInServer), "R.App.createPlugin(...).specs.installInServer: expecting Function.");
+                assert(specs.installInClient && _.isFunction(specs.installInClient), "R.App.createPlugin(...).specs.installInClient: expecting Function.");
             });
 
             var PluginInstance = function PluginInstance() {
                 this.displayName = specs.displayName;
-                _.extend(this, specs);
                 _.each(specs, R.scope(function(val, attr) {
                     if(_.isFunction(val)) {
                         this[attr] = R.scope(val, this);
@@ -170,11 +186,14 @@ module.exports = function(R) {
                 }, this));
             };
 
-            _.extend(PluginInstance, App._PluginInstancePrototype);
+            _.extend(PluginInstance.prototype, specs, App._PluginInstancePrototype);
+
+            return PluginInstance;
         },
         _PluginInstancePrototype: {
             displayName: null,
-            installInFlux: null,
+            installInClient: null,
+            installInServer: null,
         },
     };
 

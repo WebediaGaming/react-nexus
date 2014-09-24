@@ -6,9 +6,7 @@ module.exports = function(R) {
     var _autoprefixer = require("autoprefixer-core");
     var CleanCSS = require("clean-css");
 
-    var localProcessors = [function(css) {
-        return autoprefixer.process(css).css;
-    }];
+    var localProcessors = [];
 
     var Style = function Style(style) {
         return Style.slowlyProcessReactStyle(style);

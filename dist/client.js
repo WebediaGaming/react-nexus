@@ -455,6 +455,7 @@ var R = {
         _.each([
             require("./R.utils"),
             require("./R.Debug"),
+            require("./R.Lock"),
             require("./R.ReactChildren"),
             require("./R.ReactCreateClass"),
 

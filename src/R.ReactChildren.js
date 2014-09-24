@@ -1,6 +1,6 @@
 module.exports = function(R) {
-    var React = require("react");
     var _ = require("lodash");
+    var React = R.React;
 
     var _vanillaReactChildren = React.Children;
 
@@ -52,7 +52,10 @@ module.exports = function(R) {
         },
     });
 
-    R.ReactChildren = React.Children = _patchedChildren;
+    R.Debug.dev(function() {
+        console.log("Patching React.Children.");
+    });
+    R.ReactChildren = React.Children = _patchedReactChildren;
 
     return R;
 };
