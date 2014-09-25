@@ -3,6 +3,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var util = require("util");
+    var Promise = require("bluebird");
     /**
      * Debugging utilities embedded with R.
      * Provides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.
@@ -207,6 +208,7 @@ module.exports = function(R) {
 
     if(Debug.isDev()) {
         Debug.enableStackTracesForSetImmediate();
+        Promise.longStackTraces();
     }
 
     return R;

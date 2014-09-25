@@ -43,8 +43,6 @@ module.exports = function(R) {
             __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
         });
 
-        console.warn("createClass", specs.displayName);
-
         return createdClass;
     };
 
