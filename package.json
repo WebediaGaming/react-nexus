@@ -1,6 +1,6 @@
 {
   "name": "react-rails",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
   "main": "dist/server.js",
   "browser": "dist/client.js",
@@ -34,6 +34,7 @@
     "d3": "^3.4.11",
     "envify": "^3.0.0",
     "grunt-contrib-jst": "^0.6.0",
+    "grunt-jstransform": "^0.1.0",
     "grunt-regenerator": "^1.1.0",
     "grunt-smash": "^0.1.0",
     "locale": "0.0.17",
