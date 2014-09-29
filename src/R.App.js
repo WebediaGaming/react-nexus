@@ -44,7 +44,6 @@ module.exports = function(R) {
             _template: null,
             _componentsClasses: null,
             _bootstrapTemplateVarsInServer: null,
-            _cachedStyleChunks: null,
             _vars: null,
             _templateLibs: null,
             _plugins: null,
@@ -66,7 +65,6 @@ module.exports = function(R) {
                     });
                     plugin.installInServer(flux, req);
                 });
-                flux.registerAllComponentsStylesheetRules(this._componentsClasses);
                 var rootProps = { flux: flux };
                 R.Debug.dev(R.scope(function() {
                     _.extend(rootProps, { __ReactOnRailsApp: this });
@@ -85,14 +83,8 @@ module.exports = function(R) {
                 var rootHtml = React.renderComponentToString(rootComponent);
                 flux.stopInjectingFromStores();
                 var serializedFlux = flux.serialize();
-                if(!this._cachedStyleChunks) {
-                    this._cachedStyleChunks = _.map(flux.getAllStylesheets(), function(stylesheet) {
-                        return stylesheet.getProcessedCSS();
-                    });
-                }
                 flux.destroy();
                 return this._template(_.extend({}, yield this._bootstrapTemplateVarsInServer(req), this._vars, {
-                    styleChunks: this._cachedStyleChunks,
                     rootHtml: rootHtml,
                     serializedFlux: serializedFlux,
                     serializedHeaders: R.Base64.encode(JSON.stringify(req.headers)),

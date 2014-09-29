@@ -44,7 +44,6 @@ module.exports = function(R) {
             _template: null,
             _componentsClasses: null,
             _bootstrapTemplateVarsInServer: null,
-            _cachedStyleChunks: null,
             _vars: null,
             _templateLibs: null,
             _plugins: null,
@@ -73,7 +72,6 @@ module.exports = function(R) {
                             });
                             plugin.installInServer(flux, req);
                         });
-                        flux.registerAllComponentsStylesheetRules(this._componentsClasses);
                         rootProps = { flux: flux };
                         R.Debug.dev(R.scope(function() {
                             _.extend(rootProps, { __ReactOnRailsApp: this });
@@ -85,28 +83,22 @@ module.exports = function(R) {
                             });
                         }
                         surrogateRootComponent.componentWillMount();
-                        context$2$0.next = 14;
+                        context$2$0.next = 13;
                         return surrogateRootComponent.prefetchFluxStores();
-                    case 14:
+                    case 13:
                         surrogateRootComponent.componentWillUnmount();
                         rootComponent = this._rootClass(rootProps);
                         flux.startInjectingFromStores();
                         rootHtml = React.renderComponentToString(rootComponent);
                         flux.stopInjectingFromStores();
                         serializedFlux = flux.serialize();
-                        if(!this._cachedStyleChunks) {
-                            this._cachedStyleChunks = _.map(flux.getAllStylesheets(), function(stylesheet) {
-                                return stylesheet.getProcessedCSS();
-                            });
-                        }
                         flux.destroy();
-                        context$2$0.next = 24;
+                        context$2$0.next = 22;
                         return this._bootstrapTemplateVarsInServer(req);
-                    case 24:
+                    case 22:
                         context$2$0.t0 = context$2$0.sent;
 
                         context$2$0.t1 = {
-                            styleChunks: this._cachedStyleChunks,
                             rootHtml: rootHtml,
                             serializedFlux: serializedFlux,
                             serializedHeaders: R.Base64.encode(JSON.stringify(req.headers)),
@@ -115,7 +107,7 @@ module.exports = function(R) {
 
                         context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
                         return context$2$0.abrupt("return", this._template(context$2$0.t2, this._templateLibs));
-                    case 28:
+                    case 26:
                     case "end":
                         return context$2$0.stop();
                     }
