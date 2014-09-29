@@ -18,8 +18,8 @@ module.exports = function(R) {
             });
         },
         getProcessedCSS: function getProcessedCSS() {
-            R.Style.applyAllProcessors(_.map(this._rules, function(rule) {
-                return rule.selector + "{\n" + R.Style.getCSSFromReactStyle(rule.style) + "}\n";
+            return R.Style.applyAllProcessors(_.map(this._rules, function(rule) {
+                return rule.selector + " {\n" + R.Style.getCSSFromReactStyle(rule.style, "  ") + "}\n";
             }).join("\n"));
         },
     });

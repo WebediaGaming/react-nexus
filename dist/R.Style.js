@@ -30,17 +30,19 @@ module.exports = function(R) {
             _.each(Style.localProcessors, function(process) {
                 rCSS = process(rCSS);
             });
+            return rCSS;
         },
         slowlyProcessReactStyle: function slowlyAutoPrefixStyle(style) {
             var css = R.Style.applyAllProcessors("* {\n" + R.Style.fromReactStyleToCSS(style) + "}\n");
             return R.Style.slowlyFromCSSToReactStyle(css);
         },
-        getCSSFromReactStyle: function getCSSFromReactStyle(style) {
+        getCSSFromReactStyle: function getCSSFromReactStyle(style, indent) {
+            indent = indent || "";
             R.Debug.dev(function() {
                 assert(_.isPlainObject(style), "R.Style.getCSSFromReactStyle(...).style: expecting Object.");
             });
             return _.map(style, function(val, attr) {
-                return recase.paramCase(attr) + ": " + val + ";\n";
+                return indent + recase.paramCase(attr) + ": " + val + ";\n";
             }).join("");
         },
         slowlyGetReactStyleFromCSS: function slowlyGetReactStyleFromCSS(css) {

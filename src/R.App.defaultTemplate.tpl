@@ -11,13 +11,6 @@
                 <link rel="stylesheet" type="text/css" href="<%- href %>">
             <% }); %>
         <% } %>
-        <% if(vars.styleChunks) { %>
-            <% libs._.each(vars.styleChunks, function(chunk, name) { %>
-                <style type="text/css" data-stylesheet="<%- name %>">
-                    <%= chunk %>
-                </style>
-            <% }); %>
-        <% } %>
     </head>
     <body>
         <div id="ReactOnRails-App-Root">
