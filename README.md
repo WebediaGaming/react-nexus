@@ -10,7 +10,7 @@ Not your grandma's WebApp.
 Installation & Usage
 ====================
 `npm install react-rails` and start hacking.
-Fork [`react-rails-starterkit`](https://github.com/elierotenberg/react-rails-starterkit) if you want an opinionated file structure & toolkip.
+Clone/fork [`react-rails-starterkit`](https://github.com/elierotenberg/react-rails-starterkit) if you want an opinionated file structure & toolkip.
 
 Check out the [Introduction](https://github.com/elierotenberg/react-rails/blob/master/INTRO.md) and the [Full API Docs](https://github.com/elierotenberg/react-rails/blob/master/API.md) for more info.
 
@@ -21,6 +21,11 @@ Core principles
 - Real-time full-duplex data propagation by default.
 - Idiomatic React implementation of all you need for you WebApp: animations, routing,
 tree transformation, HTTP backend communication, session management, etc, the React Way.
+
+Release notes/news
+==================
+- 30/9/2014: Should be ready for use, but expect some bugs, still very early release.
+Feel free to post and issue. Check out [`react-rails-starterkit`](https://github.com/elierotenberg/react-rails-starterkit).
 
 SHOW ME THE CODE
 ================

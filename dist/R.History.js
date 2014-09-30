@@ -51,12 +51,9 @@ module.exports = function(R) {
                         return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
                             while (1) switch (context$4$0.prev = context$4$0.next) {
                             case 0:
-                                console.warn("click", this.props.pathname);
-                                context$4$0.next = 3;
+                                context$4$0.next = 2;
                                 return this.getFluxDispatcher(specs.dispatcherName).dispatch("/History/navigate", { pathname: this.props.pathname });
-                            case 3:
-                                console.warn("clicked", this.props.pathname);
-                            case 4:
+                            case 2:
                             case "end":
                                 return context$4$0.stop();
                             }
