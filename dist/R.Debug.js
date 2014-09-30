@@ -47,24 +47,24 @@ module.exports = function(R) {
             assert(R.Debug.isDev(), "R.enableStackTracesForSetImmediate(...): should only be called in development mode.");
             assert(R._vanillaSetImmediate !== null, "R.enableStackTracesForSetImmediate(...): already enabled.");
             if(R.isClient()) {
-                _vanillaSetImmediate = window.setImmediate;
-                _vanillaClearImmediate = clearTimeout;
+                Debug._vanillaSetImmediate = window.setImmediate;
+                Debug._vanillaClearImmediate = clearTimeout;
                 window.setImmediate = _.defer;
                 window.clearImmediate = clearTimeout;
             }
             else if(R.isServer()) {
-                _vanillaSetImmediate = global.setImmediate;
-                _vanillaClearImmediate = clearTimeout;
+                Debug._vanillaSetImmediate = global.setImmediate;
+                Debug._vanillaClearImmediate = clearTimeout;
                 global.setImmediate = _.defer;
                 global.clearImmediate = clearTimeout;
             }
         },
         disableStackTracesForSetImmediate: function disableStackTracesForSetImmediate() {
-            if(R.isClient()) {
-                window.setImmediate = _vanillaSetImmediate;
+            if(Debug._vanillaSetImmediate) {
+                window.setImmediate = Debug._vanillaSetImmediate;
             }
-            else {
-                global.setImmediate = _.defer;
+            if(Debug._vanillaClearImmediate) {
+                window.clearImmediate = Debug._vanillaClearImmediate;
             }
         },
         /**

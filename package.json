@@ -1,11 +1,12 @@
 {
   "name": "react-rails",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
   "main": "dist/server.js",
   "browser": "dist/client.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "grunt"
   },
   "repository": {
     "type": "git",

@@ -48,9 +48,7 @@ module.exports = function(R) {
                 handleClick: function handleClick(event) {
                     event.preventDefault();
                     co(function*() {
-                        console.warn("click", this.props.pathname);
                         yield this.getFluxDispatcher(specs.dispatcherName).dispatch("/History/navigate", { pathname: this.props.pathname });
-                        console.warn("clicked", this.props.pathname);
                     }).call(this);
                 },
                 render: function render() {
