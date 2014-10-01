@@ -253,7 +253,7 @@ module.exports = function(R) {
                 };
 
                 return new (R.Store.createStore({
-                    displayName: "UplinkStore",
+                    displayName: "HTTPStore",
                     _data: data,
                     _subscribers: subscribers,
                     fetch: fetch,

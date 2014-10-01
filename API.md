@@ -328,7 +328,7 @@ Callback methods called before/after flux updates/emits, much like `componentWil
 Under usual circumstances you won't need them, but they can prove handy.
 
 #### `R.Flux.Mixin#dispatch*(String location, Object params)`
-Asynchrnously dispatches an action. `location` must be like `dispatcherName:/actionName`, eg. `myDispatcher://myAction` represents the
+Asynchronously dispatches an action. `location` must be like `dispatcherName:/actionName`, eg. `myDispatcher://myAction` represents the
 action named `/myAction` in the dispatcher `myDispatcher`.
 Be cautious if you do something after yielding, since at this point the component might be unmounted (see `R.Async.Mixin#IfMounted`).
 
@@ -362,6 +362,67 @@ Used for pre-rendering magic.
 Not intented for public use.
 
 ### `R.Store`
+A `React on Rails` Store represents a generalization of the canonical Flux store. It is an abstract data container, from which
+components can read and subscribe. In the canonical Flux, however, the stores are only memory-based: they are basically augmented Objects
+used as associative maps. In `React on Rails`, a memory store is only a special case, and a store can be backed not only by a tab-local,
+in-memory object, but also by other backends. Most common store backends are memory, HTTP (think of "read-only REST"), and Uplink (think "REST
++ update notifications via WebSocket"). Other backends can easily be implemented, for adapting other containers (LocalStorage, SessionStorage, cookies,
+whatever ugly flash API you have to work with, or you own custom data backend).
+Store maintain an internal cache, so that after data has been fetched asynchronously, it can be accessed synchronously.
+This particular behaviour must be preserved across the serialization/deserialization process, ie if data is fetched, then the store is serialized,
+then the store is deserialized, one should still be able to synchronously get the data.
+A Store is basically just an API contract. Any object that implement the following methods with the appropriate semantics can be used as a store:
+- `displayName: String`: name of the store, required for debugging,
+- `fetch*(key): Any`: asynchronously fetch data from the backend.
+- `get(key): Any`: assuming that the data has been fetched before, synchronously retrieves the data. If data wasn't fetch, throws in dev mode and returns undefined in prod mode.
+- `sub(String key, Function(Any val) signalUpdate): Subscription`: subscribes to the updates of `key`, so that `signalUpdate(val)` is invoked whenever its value is updated. `signalUpdate` will
+ be invoked whenever the value is ready after the subscription.
+ - `unsub(Subscription sub)`: unsubscribes a previous subscription.
+ - `serialize(): String`: serializes the current state of the data cache, preserving `fetch`/`get` semantics.
+ - `unserialize(String str)`: unserializes a previously serialized data cache, restoring `fetch`/`get` semantics.
+ - `destroy()`: release all allocated resources.
+
+#### `R.Store.createStore(Object specs): Function(): new Store`
+Returns a `Store` constructor (a Function which returns a Store instance when called with `new`) with the provided specs.
+You probably won't need to call this function if you only want to use predefined Store classes (`MemoryStore`, `HTTPStore` or `UplinkStore`).
+
+#### `R.Store.Subscription(String key): new Subscription`
+Constructs a new Subscription instance for the given key. Thin wrapper around:
+```
+{
+    uniqueId: String,
+    key: String,
+}
+```
+
+#### `R.Store.Subscription.uniqueId: String`
+Unique identifier for the given subscription. Useful for indexing using associative maps.
+
+#### `R.Store.createMemoryStore(): Function(): new MemoryStore`
+Returns a new `MemoryStore` constructor (a Function which returns a MemoryStore instance when called with `new`).
+A `MemoryStore` implements the `Store` API, and is meant to represent a memory-local store, eg. navigation,
+mouse interactions, etc.
+In addition to the `Store` API, it exposes `MemoryStore#set(String key, Any Val)`, which is intented to be invoked
+inside a `Dispatcher` to update the store. Components must not use this method directly.
+
+#### `R.Store.createHTTPStore(): Function(Object http): new HTTPStore`
+Returns a new `HTTPStore` constructor (a Function which returns a HTTPStore instance when called with `new`).
+An `HTTPStore` implements the `Store` API, and is meant to represent a read-only remote store, eg. list of users,
+of pages, etc.
+The returned constructor expects an `http` argument, which must implement:
+- `fetch*(String key): Any` usually wraps an HTTP GET abstraction (consider using (`request`)[https://www.npmjs.org/package/request] for isomorphism).
+
+#### `R.Store.createUplinkStore(): Function(Object uplink): new UplinkStore`
+Returns a new `HTTPStore` constructor (a Function which returns a HTTPStore instance when called with `new`).
+An `UplinkStore` implements the  `Store` API, and is meant to represent a flux-over-the-wire store, eg. remote store
+with automatic updates controlled by server-side dispatchers. It is useful to implement data shared across multiple clients,
+eg. chat messages, live feeds, etc.
+The returned constructor expects an `uplink` argument, which must implement:
+- `fetch*(String key): Any`: retrieve data from the remote uplink server
+- `subscribeTo(String key, Function signalUpdate): Updater`: subscribe to the updates of `key` to the uplink server (once per store and per key)
+- `unsubscribeFrom(String key, Updater up)`: unsubscribe from a previously subscribed updater.
+An `Uplink` instance is usually created using `new R.Uplink` or `new (R.createUplink(...))`.
+
 
 ### `R.EventEmitter`
 
