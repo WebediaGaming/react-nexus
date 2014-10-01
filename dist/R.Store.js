@@ -199,6 +199,116 @@ module.exports = function(R) {
 
         },
         /**
+         * @class Implementation of R.Store using a remote, HTTP passive Store. The store is read-only from the components,
+         * as well as from the Client in general. However, its values may be updated across refreshes/reloads, but the remote
+         * backend should be wired-up with R.Dispatcher.HTTPDispatcher to implement a second-class over-the-wire Flux.
+         */
+        createHTTPStore: function createHTTPStore() {
+            return function HTTPStore(http) {
+                R.Debug.dev(function() {
+                    assert(http.fetch && _.isFunction(http.fetch), "R.Store.createHTTPStore(...).http.fetch: expecting Function.");
+                });
+                var _fetch = http.fetch;
+                var _destroyed = false;
+                var data = {};
+                var subscribers = {};
+                var fetch = regeneratorRuntime.mark(function fetch(key) {
+                    var val;
+
+                    return regeneratorRuntime.wrap(function fetch$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            context$4$0.next = 2;
+                            return _fetch(key);
+                        case 2:
+                            val = context$4$0.sent;
+
+                            if (_destroyed) {
+                                context$4$0.next = 8;
+                                break;
+                            }
+
+                            data[key] = val;
+                            return context$4$0.abrupt("return", val);
+                        case 8:
+                            throw new Error("R.Store.HTTPStore.fetch(...): instance destroyed.");
+                        case 9:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, fetch, this);
+                });
+
+                var get = function get(key) {
+                    R.Debug.dev(function() {
+                        assert(_.has(data, key), "R.Store.HTTPStore.get(...): data not available. ('" + key + "')");
+                    });
+                    return data[key];
+                };
+
+                var sub = function sub(key) {
+                    var subscription = new R.Store.Subscription(key);
+                    if(!_.has(subscribers, key)) {
+                        subscribers[key] = {};
+                    }
+                    subscribers[key][subscription.uniqueId] = subscription;
+                    return subscription;
+                };
+
+                var unsub = function unsub(subscription) {
+                    R.Debug.dev(function() {
+                        assert(!_destroyed, "R.Store.UplinkStore.unsub(...): instance destroyed.");
+                        assert(subscription instanceof R.Store.Subscription, "R.Store.UplinkStore.unsub(...): type R.Store.Subscription expected.");
+                        assert(_.has(subscribers, subscription.key), "R.Store.UplinkStore.unsub(...): no subscribers for this key. ('" + subscription.key + "')");
+                        assert(_.has(subscribers[subscription.key], subscription.uniqueId), "R.Store.UplinkStore.unsub(...): no such subscription. ('" + subscription.key + "', '" + subscription.uniqueId + "')");
+                    });
+                    delete subscribers[subscription.key][subscription.uniqueId];
+                    if(_.size(subscribers[subscription.key]) === 0) {
+                        delete subscribers[subscription.key];
+                        if(_.has(data, subscription.key)) {
+                            delete data[subscription.key];
+                        }
+                    }
+                };
+
+                var serialize = function serialize() {
+                    return JSON.stringify(data);
+                };
+
+                var unserialize = function unserialize(str) {
+                    _.extend(data, JSON.parse(str));
+                };
+
+                var destroy = function destroy() {
+                    R.Debug.dev(function() {
+                        assert(!_destroyed, "R.Store.UplinkStore.destroy(...): instance destroyed.");
+                    });
+                    _.each(subscribers, function(keySubscribers, key) {
+                        _.each(subscribers[key], unsub);
+                    });
+                    _.each(data, function(val, key) {
+                        delete data[key];
+                    });
+                    data = null;
+                    subscribers = null;
+                    _destroyed = true;
+                };
+
+                return new (R.Store.createStore({
+                    displayName: "UplinkStore",
+                    _data: data,
+                    _subscribers: subscribers,
+                    fetch: fetch,
+                    get: get,
+                    sub: sub,
+                    unsub: unsub,
+                    serialize: serialize,
+                    unserialize: unserialize,
+                    destroy: destroy,
+                }))();
+            };
+        },
+        /**
          * @class Implementation of R.Store using a remote, REST-like Store. The store is read-only from the components,
          * as well as from the Client in general, but the remote backend should be wired-up with R.Dispatcher.UplinkDispatcher to
          * implement the over-the-wire Flux.
@@ -319,6 +429,9 @@ module.exports = function(R) {
                         unsubscribeFrom(subscription.key, updaters[subscription.key]);
                         delete subscribers[subscription.key];
                         delete updaters[subscription.key];
+                        if(_.has(data, subscription.key)) {
+                            delete data[subscription.key];
+                        }
                     }
                 };
 

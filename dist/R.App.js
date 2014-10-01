@@ -11,7 +11,6 @@ module.exports = function(R) {
                 assert(_.isPlainObject(specs), "R.App.createApp(...).specs: expecting Object.");
                 assert(specs.fluxClass && _.isFunction(specs.fluxClass), "R.App.createApp(...).specs.fluxClass: expecting Function.");
                 assert(specs.rootClass && _.isFunction(specs.rootClass), "R.App.createApp(...).specs.rootClass: expecting Function.");
-                assert(specs.componentsClasses && _.isPlainObject(specs.componentsClasses), "R.App.createApp(...).specs.componentsClasses: expecting Object.");
                 assert(specs.bootstrapTemplateVarsInServer && _.isFunction(specs.bootstrapTemplateVarsInServer, "R.App.createApp(...).specs.bootstrapTemplateVarsInServer: expecting Function."));
             });
 
@@ -20,7 +19,6 @@ module.exports = function(R) {
                     _fluxClass: specs.fluxClass,
                     _rootClass: specs.rootClass,
                     _template: specs.template || App.defaultTemplate,
-                    _componentsClasses: specs.componentsClasses,
                     _bootstrapTemplateVarsInServer: specs.bootstrapTemplateVarsInServer,
                     _vars: specs.vars || {},
                     _plugins: specs.plugins || {},
@@ -42,7 +40,6 @@ module.exports = function(R) {
             _fluxClass: null,
             _rootClass: null,
             _template: null,
-            _componentsClasses: null,
             _bootstrapTemplateVarsInServer: null,
             _vars: null,
             _templateLibs: null,
@@ -64,10 +61,6 @@ module.exports = function(R) {
                         _.each(this._plugins, function(Plugin, name) {
                             var plugin = new Plugin();
                             R.Debug.dev(function() {
-                                if(!plugin.installInServer) {
-                                    console.warn("name", name);
-                                    R.Debug.display("plugin", plugin);
-                                }
                                 assert(plugin.installInServer && _.isFunction(plugin.installInServer), "R.App.renderToStringInServer(...).plugins[...].installInServer: expecting Function. ('" + name + "')");
                             });
                             plugin.installInServer(flux, req);
@@ -113,10 +106,10 @@ module.exports = function(R) {
                     }
                 }, renderToStringInServer, this);
             }),
-            renderIntoDocumentInClient: regeneratorRuntime.mark(function renderAppInExistingDocumentInClient(window) {
+            renderIntoDocumentInClient: regeneratorRuntime.mark(function renderIntoDocumentInClient(window) {
                 var flux, headers, guid, rootProps, rootComponent;
 
-                return regeneratorRuntime.wrap(function renderAppInExistingDocumentInClient$(context$2$0) {
+                return regeneratorRuntime.wrap(function renderIntoDocumentInClient$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
                     case 0:
                         R.Debug.dev(function() {
@@ -158,7 +151,7 @@ module.exports = function(R) {
                     case "end":
                         return context$2$0.stop();
                     }
-                }, renderAppInExistingDocumentInClient, this);
+                }, renderIntoDocumentInClient, this);
             }),
         },
         createPlugin: function createPlugin(specs) {

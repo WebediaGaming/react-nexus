@@ -34,7 +34,7 @@ module.exports = function(R) {
                         return res.status(500).json({ err: err.toString(), stack: err.stack });
                     }
                     else {
-                        return res.status(500).json({ err: err.toString(), stack: err.stack });
+                        return res.status(500).json({ err: err.toString() });
                     }
                 }
                 else {
