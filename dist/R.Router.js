@@ -25,6 +25,7 @@ module.exports = function(R) {
                 regexp: regexp,
                 fn: fn,
             };
+            return this;
         },
         routes: function routes(patterns) {
             if(_.isUndefined(patterns)) {
@@ -33,9 +34,11 @@ module.exports = function(R) {
             _.each(patterns, R.scope(function(fn, pattern) {
                 this.route(pattern, fn);
             }, this));
+            return this;
         },
         def: function def(fn) {
             this._default = fn;
+            return this;
         },
         match: function match(fragment) {
             var res = null;

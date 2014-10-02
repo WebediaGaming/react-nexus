@@ -40,7 +40,7 @@ module.exports = function(R) {
                 },
             });
         },
-        createClass: function createClass(specs) {
+        createLocalizeClass: function createClass(specs) {
             R.Debug.dev(function() {
                 assert(specs.storeName && _.isString(specs.storeName), "R.Localize.createClass(...).specs.storeName: expected String.");
                 assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.Localize.createClass(...).specs.dispatcherName: expected String.");

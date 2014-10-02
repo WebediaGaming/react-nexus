@@ -281,7 +281,7 @@ Returns a `Flux` constructor (a Function which returns a Flux instance when call
 - `specs.destroyInServer()`: (Optional) Free resources allocated in `bootstrapInServer*()`. Defaults to noop.
 It is expected that after bootstrapping on either the client or the server, the state of the flux is the same, ie. ensuring isomorphic semantics.
 
-#### `R.Flux.Mixin: Object`
+#### `R.Flux.Mixin: ReactComponentMixin`
 React Component Mixin interfacing the current flux.
 This mixin expects the component to implement `this.getFlux(): Flux`, which is usually implement by either `R.Root.Mixin` or `R.Component.Mixin`.
 
@@ -362,7 +362,7 @@ Used for pre-rendering magic.
 Not intented for public use.
 
 ### `R.Store`
-A `React on Rails` Store represents a generalization of the canonical Flux store. It is an abstract data container, from which
+A `React on Rails` Store is a generalization of the canonical Flux store. It is an abstract data container, from which
 components can read and subscribe. In the canonical Flux, however, the stores are only memory-based: they are basically augmented Objects
 used as associative maps. In `React on Rails`, a memory store is only a special case, and a store can be backed not only by a tab-local,
 in-memory object, but also by other backends. Most common store backends are memory, HTTP (think of "read-only REST"), and Uplink (think "REST
@@ -406,7 +406,7 @@ In addition to the `Store` API, it exposes `MemoryStore#set(String key, Any Val)
 inside a `Dispatcher` to update the store. Components must not use this method directly.
 
 #### `R.Store.createHTTPStore(): Function(Object http): new HTTPStore`
-Returns a new `HTTPStore` constructor (a Function which returns a HTTPStore instance when called with `new`).
+Returns a new `HTTPStore` constructor (a Function which returns an HTTPStore instance when called with `new`).
 An `HTTPStore` implements the `Store` API, and is meant to represent a read-only remote store, eg. list of users,
 of pages, etc.
 The returned constructor expects an `http` argument, which must implement:
@@ -419,51 +419,256 @@ with automatic updates controlled by server-side dispatchers. It is useful to im
 eg. chat messages, live feeds, etc.
 The returned constructor expects an `uplink` argument, which must implement:
 - `fetch*(String key): Any`: retrieve data from the remote uplink server
-- `subscribeTo(String key, Function signalUpdate): Updater`: subscribe to the updates of `key` to the uplink server (once per store and per key)
-- `unsubscribeFrom(String key, Updater up)`: unsubscribe from a previously subscribed updater.
+- `subscribeTo(String key, Function signalUpdate): UplinkSubscription`: subscribe to the updates of `key` to the uplink server (once per store and per key),
+- `unsubscribeFrom(String key, UplinkSubscription sub)`: unsubscribe from a previously subscribed key.
 An `Uplink` instance is usually created using `new R.Uplink` or `new (R.createUplink(...))`.
 
 
 ### `R.EventEmitter`
+A `React on Rails` EventEmitter is very similar to a Store. In fact, EventEmitters are backed by internal mechanisms very close to those used
+by the stores. It just provides a slightly different abstraction, that is sometimes more suited. All in all, Event Emitters are event-oriented stores
+without persistence. They just forward events.
+For example, if you want to trigger an animation every time the user clicks somewhere, then the Event Emitter abstraction is just more suited
+that the store abstraction. If you try to implement the same behaviour using only stores, you will end up reinventing the wheel and reimplementing
+the Event Emitter pattern inside your stores. True story.
+
+#### `R.EventEmitter.createEventEmitter(Object specs): Function(): new EventEmitter`
+Returns a new `EventEmitter` constructor (a Function which returns an EventEmitter instance when called with `new`).
+Like a Store, an EventEmitter implements an API contract and must implement:
+- `displayName: String`
+- `addListener(String eventName, Function emit): Listener`
+- `removeListener(Listener listener)`
+
+#### `R.EventEmitter.createMemoryEventEmitter`
+Returns a new `MemoryEventEmitter` constructor (a Function which returns a `MemoryEventEmitter` instance when called with `new`).
+A `MemoryEventEmitter` implements the `EventEmitter` API, and is meant to represent a memory-local store, eg. clicks, window events, etc.
+In addition to the `EventEmitter` API, it exposes `MemoryEventEmitter#emit(String eventName, Object params)`, which is intented to be invoked
+inside a `Dispatcher`. Components must not use this method directly.
+
+#### `R.EventEmitter.createUplinkEventEmitter`
+Returns a new `MemoryEventEmitter` constructor (a Function which returns an `UplinkEventEmitter` instance when called with `new`).
+An `UplinkEventEmitter` implements the `EventEmitter` API, and is meant to represent a remote event emitter, eg. global notifications,
+broadcasts, etc.
+The returned constructor expecs an `uplink` argument, which must implement:
+- `listenTo(String eventName, Function callback): UplinkListener`: listens to the events named `eventName` to the uplink server (once per event emitter and per key),
+- `unlistenFrom(String eventName, UplinkListener listener)`: stops listening events named `eventName`.
+An `Uplink` instance is usually created using `new R.Uplink` or `new (R.createUplink(...))`.
 
 ### `R.Dispatcher`
 
+A `React on Rails` Dispatcher is a generalization of the canonical Flux dispatcher. It acts as a layer of mediation between Stores/EventEmitters ("models") and
+components ("views"). This allows for proper control and synchronization. Dispatcher handle (route) actions, with are basically a String identifying the action type,
+and an Object encapsulating the action payload. A component may submit an action to a dispatcher, which may or may not dispatch it and perform whatever updates required
+(such as updating a MemoryStore or sending a POST request to an Uplink server).
+Like stores and event emitters, dispatchers implement the fowllowing API contract:
+- actions are dispatched asynchronously and in an opaque manner (no feedback)
+- `displayName: String`: useful for debugging
+- `addActionListener(String actionName, Function* handler): ActionListener`: register an async action listener
+- `removeActionListener(ActionListener listener)`: unregisters a previously added action listener
+- `dispatch*(String action, Object params): Array`: asynchronously dispatches an action
+- `destroy()`: free side effects
+
+#### `R.Dispatcher.createDispatcher(Object specs): Function(): new Dispatcher`
+- `specs.actions: Object`
+- `specs.displayName: String`
+
+#### `R.Dispatcher#addActionListener(String action, Function* handler): ActionListener`
+#### `R.Dispatcher#removeActionListener(ActionListener listener)`
+#### `R.Dispatcher#dispatch*(String action, Object params)`
+#### `R.Dispatcher#destroy()`
+
 ### `R.Root`
+
+#### `R.Root.Mixin: ReactComponentMixin`
+#### `R.Root.Mixin#getFlux(): Flux`
 
 ### `R.Component`
 
-### `R.Style`
+#### `R.Component.Mixin: ReactComponentMixin`
+#### `R.Component.Mixin#getFlux(): Flux`
 
-### `R.Stylesheet`
+### `R.Style: Function(Object reactStyle): new Style`
 
-### `R.Uplink`
+#### `R.Style.Processors.autoprefixer(String css): String`
+#### `R.Style.Processors.min(String css): String`
+#### `R.Style.registerCSSProcessor(Function process)`
+#### `R.Style.applyAllProcessors(String css): String`
+#### `R.Style.slowlyProcessReactStyle(Object reactStyle): Object`
+#### `R.Style.getCSSFromReactStyle(Object reactStyle): String`
+#### `R.Style.slowlyGetReactStyleFromCSS(String css): Object`
+
+### `R.Stylesheet(): new Stylesheet`
+
+#### `R.Stylesheet#registerRule(String selector, Object reactStyle)`
+#### `R.Stylesheet#getProcessedCSS(): String`
+
+### `R.Uplink(String httpEndpoint, String socketEndpoint, String guid): new Uplink`
+
+#### `R.Uplink#ready: Promise()`
+#### `R.Uplink#subscribeTo(String key, Function signalUpdate): UplinkSubscription`
+#### `R.Uplink#unsubscribeFrom(String key, UplinkSubscription subscription)`
+#### `R.Uplink#listenTo(String eventName, Function emit): UplinkListener`
+#### `R.Uplink#unlistenFrom(String eventName, UplinkListener listener)`
+#### `R.Uplink#fetch(String key): Promise(Any val)`
+#### `R.Uplink#dispatch(String action, Object params): Promise(Any res)`
+#### `R.Uplink#destroy()`
 
 ### `R.SimpleUplinkServer`
 
-### `R.Lock`
+#### `R.SimpleUplinkServer.createServer(specs): Function(): new SimpleUplinkServer`
+#### `R.SimpleUplinkServer#setStore*(String key, Any val)`
+#### `R.SimpleUplinkServer#getStore*(String key): Any`
+#### `R.SimpleUplinkServer#emitEvent(String eventName, Object params)`
+#### `R.SimpleUplinkServer#emitDebug(String guid, Object params)`
+#### `R.SimpleUplinkServer#emitLog(String guid, Object params)`
+#### `R.SimpleUplinkServer#emitWarn(String guid, Object params)`
+#### `R.SimpleUplinkServer#emitError(String guid, Object params)`
+#### `R.SimpleUplinkServer#installHandlers(HttpServer app, String prefix="/uplink/")`
+#### `R.SimpleUplinkServer.Connection(Socket socket, Function handleSocketDisconnection, Function linkSession, Function unlinkSession)`
+#### `R.SimpleUplinkServer.Connection#guid: null|String`
+#### `R.SimpleUplinkServer.Connection#uniqueId: String`
+#### `R.SimpleUplinkServer.Connection#emit(String name, Object params)`
+#### `R.SimpleUplinkServer.Session(String guid, EventEmitter storeEvent, EventEmitter eventsEvents, EventEmitter sessionsEvents, Number timeout)`
+#### `R.SimpleUplinkServer.Session#attachConnection(Connection conn)`
+#### `R.SimpleUplinkServer.Session#detachConnection()`
+#### `R.SimpleUplinkServer.Session#terminate()`
+#### `R.SimpleUplinkServer.Session#subscribeTo(String key)`
+#### `R.SimpleUplinkServer.Session#unsubscrimbeFrom(String key)`
+#### `R.SimpleUplinkServer.Session#listenTo(String eventName)`
+#### `R.SimpleUplinkServer.Session#unlistemFrom(String eventName)`
+
+### `R.Lock(): new Lock`
+
+#### `R.Lock#acquire*()`
+#### `R.Lock#release()`
+#### `R.Lock#performSync*(Function fn)`
+#### `R.Lock#perform*(Function* fn)`
 
 ### `React.Children`
+
+#### `React.Children.getChildrenList(ReactDescriptor root): Array(ReactDescriptor)`
+#### `React.Children.getDescendantsList(ReactDescriptor root): Array(ReactDescriptor)`
+#### `React.Children.mapDescendants(ReactDescriptor root, Function fn(...): T): Array(T)`
+#### `React.Children.mapTree(ReactDescriptor root, Function fn(...): T): Array(T)`
+#### `React.Children.transformDescendants(ReactDescriptor root, Function fn(...): ReactDescriptor): ReactDescriptor`
+#### `React.Children.transformTree(ReactDescriptor root, Function fn(...): ReactDescriptor): ReactDescriptor`
 
 ### `React.createClass`
 
 ### `R.Pure`
 
+#### `R.Pure.shouldComponentUpdate(Object props, Object state): Boolean`
+#### `R.Pure.Mixin: ReactComponentMixin`
+#### `R.Pure.Mixin#shouldComponentUpdate(Object props, Object state): Boolean`
+
 ### `R.Async`
+
+#### `R.Async.IfMounted(Function fn): Function`
+#### `R.Async.Deferred(Function fn, Number delay=0): Function`
+#### `R.Async.DeferredImmediate(Function fn): Function`
+#### `R.Async.DeferredAnimationFrame(Function fn): Function`
+#### `R.Async.Mixin: ReactComponentMixin`
+#### `R.Async.Mixin#componentWillMount()`
+#### `R.Async.Mixin#componentWillUnmount()`
+#### `R.Async.Mixin#setStateIfMounted(Object state)`
 
 ### `R.Animate`
 
+#### `R.Animate.Mixin: ReactComponentMixin`
+#### `R.Animate.Mixin#componentWillMount()`
+#### `R.Animate.Mixin#componentWillUnmount()`
+#### `R.Animate.Mixin#isAnimating(String animation): Boolean`
+#### `R.Animate.Mixin#getAnimatedStyle(String animation): Object`
+#### `R.Animate.Mixin#abortAnimation(String animation)`
+#### `R.Animate.Mixin#animate(String animation, Object params)`
+- `params.onTick(Object currentStyle, Number t)`
+- `params.onComplete(Object currentStyle, Number t)`
+- `params.onAbort(Object currentStyle, Number t)`
+- `params.easing: String`
+- `params.from: Object`
+- `params.to: Object`
+#### `R.Animate.createInterpolator(Object from, Object to)`
+#### `R.Animate.createEasing(String type, Object params={})`
+#### `R.Animate.InterpolationTicker(Object params): new InterpolationTicker`
+#### `R.Animate.shouldEnableHA(): Boolean`
+#### `R.Animate.transformAttributes: Array(String)`
+#### `R.Animate.InterpolationTicker#start()`
+#### `R.Animate.InterpolationTicker#abort()`
+
 ### `R.Query` aka `R.$`
 
-### `R.Router`
+#### `R.$(ReactDescriptor subject) = new $`
+#### `R.$#get(): ReactDescriptor`
+#### `R.$#type([String type]): String|$` (Getter/Chainable setter)
+#### `R.$#prop(String key, [Any val]): Any|$` (Getter or Chainable setter)
+#### `R.$#props(Object props|Array(String) keys: Object|$` (Getter/Chainable setter)
+#### `R.$#classNameList([Array(String) list]): Array(String)` (Getter/Chainable setter)
+#### `R.$#addClassName(String className): R.$` (Chainable)
+#### `R.$#removeClassName(String className): R.$` (Chainable)
+#### `R.$#hasClassName(String className): Boolean`
+#### `R.$#toggleClassName(String className, [Boolean set]): R.$` (Chainable)
+#### `R.$#append(ReactDescriptor child): R.$` (Chainable)
+#### `R.$#prepend(ReactDescriptor child): R.$` (Chainable)
+#### `R.$#transformTree(Function fn): R.$` (Chainable)
+#### `R.$#tap(Function fn(ReactDescriptor subject)): R.$` (Chainable)
+#### `R.$#walkTree(Function fn(ReactDescriptor each)): R.$` (Chainable)
+#### `R.$#end()`
+
+### `R.Router(): new Router`
+
+#### `R.Router#route(String pattern, Function fn): Router` (Chainable)
+#### `R.Router#routes(Array(String) patterns): Router` (Chainable)
+#### `R.Router#def(Function fn): Router` (Chainable)
+#### `R.Router#match(String fragment): Any?`
 
 ### `R.History`
 
+#### `R.History.createPlugin(String storeName, String dispatcherName): Function(): new HistoryPlugin @extends R.App.Plugin`
+- `${storeName}://History/pathname: String`
+- `${dispatcherName}://History/navigate(Object{ pathname: String } params)`
+
+#### `R.History.HistoryPlugin#installInClient()`
+#### `R.History.HistoryPlugin#installInServer()`
+#### `R.History.createLinkClass(): Function(): new HistoryLink @extends ReactComponent`
+#### `R.History.HistoryLink#handleClick`
+
 ### `R.Localize`
 
-### `R.Window`
+#### `R.Localize.createPlugin(String storeName, String dispatcherName, Array(String) supportedLocales): Function(): new LocalizePlugin @extends R.App.Plugin`
+- `${storeName}://Localize/locale: String`
+- `${dispatcherName}://Localize/setLocale(Object{ locale: String } params)`
+
+#### `R.Localize.LocalizePlugin#installInClient()`
+#### `R.Localize.LocalizePlugin#installInServer()`
+#### `R.Localize.createLocalizeClass(): Function(): new LocalizeLink @extends ReactComponent`
+- `props.locale: String`
+#### `R.Localize.Localize#handleClick`
 
 ### `R.Window`
+
+#### `R.Window.createPlugin(String storeName, String dispatcherName, string eventEmitterName): Function(): new WindowPlugin @extends R.App.Plugin`
+- `${storeName}://Window/scrollTop: Number`
+- `${storeName}://Window/scrollLeft: Number`
+- `${storeName}://Window/height: Number`
+- `${storeName}://Window/widht: Number`
+- `${dispatcherName}://Window/scrollTo(Object{ top: Number, left: Number } params)`
+
+#### `R.Window.WindowPlugin#installInClient()`
+#### `R.Window.WindowPlugin#installInClient()`
 
 ### `R.XWindow`
 
+#### `R.XWindow.createPlugin(String storeName, String dispatcherName, string eventEmitterName): Function(): new XWindowPlugin @extends R.App.Plugin`
+
+- `${storeName}://XWindow/: Array(String key)`
+- `${dispatcherName}://XWindow/${key}/open(Object { config: Object } params)`
+- `${dispatcherName}://XWindow/${key}/close(Object params={})`
+- `${dispatcherName}://XWindow/${key}/send(Object { message: Any } params)`
+- `${eventEmitterName}://XWindow/${key}/recv(Object { message: Any } params)`
+- `${eventEmitterName}://XWindow/${key}/closed`
+
 ### `R.Cordova`
+
+#### `R.Cordova.createPlugin(String storeName, String dispatcherName, string eventEmitterName): Function(): new CordovaPlugin @extends R.App.Plugin`
+
+WIP

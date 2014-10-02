@@ -16,8 +16,8 @@ module.exports = function(R) {
                 assert(specs.sessionDestroyed && _.isFunction(specs.sessionDestroyed), "R.SimpleUplinkServer.createServer(...).specs.sessionDestroyed: expecting Function.");
                 assert(specs.sessionTimeout && _.isNumber(specs.sessionTimeout), "R.SimpleUplinkServer.createServer(...).specs.sessionTimeout: expecting Number.");
             });
-            var SimpleUplinkServerInstance = function SimpleUplinkServerInstance(app, prefix) {
-                SimpleUplinkServer.SimpleUplinkServerInstance.call(this, app, prefix);
+            var SimpleUplinkServerInstance = function SimpleUplinkServerInstance() {
+                SimpleUplinkServer.SimpleUplinkServerInstance.call(this);
                 this._specs = specs;
             };
             _.extend(SimpleUplinkServerInstance.prototype, SimpleUplinkServer.SimpleUplinkServerInstance.prototype, specs);
