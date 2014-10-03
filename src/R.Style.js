@@ -6,8 +6,6 @@ module.exports = function(R) {
     var _autoprefixer = require("autoprefixer-core");
     var CleanCSS = require("clean-css");
 
-    var localProcessors = [];
-
     var Style = function Style(style) {
         return Style.slowlyProcessReactStyle(style);
     };
@@ -15,7 +13,7 @@ module.exports = function(R) {
     _.extend(Style, {
         Processors: {
             autoprefixer: function autoprefixer(css) {
-                return autoprefixer.process(css).css;
+                return _autoprefixer.process(css).css;
             },
             min: function min(css) {
                 return new CleanCSS().minify(css);
@@ -27,7 +25,7 @@ module.exports = function(R) {
         },
         applyAllProcessors: function applyAllProcessors(css) {
             var rCSS = css;
-            _.each(Style.localProcessors, function(process) {
+            _.each(Style._processors, function(process) {
                 rCSS = process(rCSS);
             });
             return rCSS;
