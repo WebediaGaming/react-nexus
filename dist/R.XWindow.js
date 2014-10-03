@@ -14,7 +14,5 @@ module.exports = function(R) {
         },
     };
 
-    R.XWindow = XWindow;
-
-    module.exports = R;
+    return XWindow;
 };

@@ -314,7 +314,7 @@ module.exports = function(R) {
                     withCredentials: false,
                 }, function(err, res, body) {
                     if(err) {
-                        R.Debug.dev(function() {                            
+                        R.Debug.dev(function() {
                             console.warn("R.Uplink.fetch(...): couldn't fetch '" + key + "':", err.toString());
                         });
                         return resolve(err);
@@ -365,6 +365,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Uplink = Uplink;
-    return R;
+    return Uplink;
 };

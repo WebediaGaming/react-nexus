@@ -33,6 +33,5 @@ module.exports = function(R) {
         },
     });
 
-    R.RenderServer = RenderServer;
-    return R;
+    return RenderServer;
 };

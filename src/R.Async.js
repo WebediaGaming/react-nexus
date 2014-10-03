@@ -153,6 +153,5 @@ module.exports = function(R) {
         }),
     };
 
-    R.Async = Async;
-    return R;
+    return Async;
 };

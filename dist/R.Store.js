@@ -489,6 +489,5 @@ module.exports = function(R) {
         key: null,
     });
 
-    R.Store = Store;
-    return R;
+    return Store;
 };

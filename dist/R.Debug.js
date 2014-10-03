@@ -38,13 +38,13 @@ module.exports = function(R) {
                 process.env.NODE_ENV = mode;
             }
             if(mode === 'production') {
-                R.Debug.disableStackTracesForSetImmediate();
+                Debug.disableStackTracesForSetImmediate();
             }
         },
         _vanillaSetImmediate: null,
         _vanillaClearImmediate: null,
         enableStackTracesForSetImmediate: function enableStackTracesForSetImmediate() {
-            assert(R.Debug.isDev(), "R.enableStackTracesForSetImmediate(...): should only be called in development mode.");
+            assert(Debug.isDev(), "R.enableStackTracesForSetImmediate(...): should only be called in development mode.");
             assert(R._vanillaSetImmediate !== null, "R.enableStackTracesForSetImmediate(...): already enabled.");
             if(R.isClient()) {
                 Debug._vanillaSetImmediate = window.setImmediate;
@@ -73,7 +73,7 @@ module.exports = function(R) {
          * @public
          */
         isDev: function isDev() {
-            return 'development' === R.Debug._mode;
+            return 'development' === Debug._mode;
         },
         /**
          * Returns a boolean describing whether the current mode is prod.
@@ -81,7 +81,7 @@ module.exports = function(R) {
          * @public
          */
         isProd: function isProd() {
-            return 'production' === R.Debug._mode;
+            return 'production' === Debug._mode;
         },
         /**
          * Runs a function iff the current mode is dev.
@@ -90,7 +90,7 @@ module.exports = function(R) {
          * @public
          */
         dev: function dev(fn) {
-            return R.Debug.isDev() ? fn() : void 0;
+            return Debug.isDev() ? fn() : void 0;
         },
         /**
          * Runs a function iff the current mode is prod.
@@ -99,7 +99,7 @@ module.exports = function(R) {
          * @public
          */
         prod: function prod(fn) {
-            return R.Debug.isProd() ? fn(): void 0;
+            return Debug.isProd() ? fn(): void 0;
         },
         /**
          * Returns a function iff the current mode is dev, otherwise returns a noop function.
@@ -109,7 +109,7 @@ module.exports = function(R) {
          * @public
          */
         maybeDev: function maybeDev(fn) {
-            return R.Debug.isDev() ? fn : _.noop;
+            return Debug.isDev() ? fn : _.noop;
         },
         /**
          * Returns a function iff the current mode is prod, otherwise returns a noop function.
@@ -204,12 +204,10 @@ module.exports = function(R) {
         },
     };
 
-    R.Debug = Debug;
-
     if(Debug.isDev()) {
         Debug.enableStackTracesForSetImmediate();
         Promise.longStackTraces();
     }
 
-    return R;
+    return Debug;
 };

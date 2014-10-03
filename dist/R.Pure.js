@@ -29,6 +29,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Pure = Pure;
-    return R;
+    return Pure;
 };

@@ -3,7 +3,7 @@ module.exports = function(R) {
     var assert = require("assert");
     var sha256 = require("sha256");
 
-    _.extend(R, /** @lends R */{
+    return {
         /**
          * Returns the original function modified so that its context is always the given context.
          * Lightweight alternative to Function.prototype.bind.
@@ -112,8 +112,5 @@ module.exports = function(R) {
                 return new Buffer(s, "base64").toString('utf-8');
             },
         },
-    });
-
-    return R;
-
+    };
 };

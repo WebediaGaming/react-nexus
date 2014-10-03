@@ -1,11 +1,10 @@
 {
   "name": "react-rails",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
   "main": "dist/server.js",
   "browser": "dist/client.js",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://git@bitbucket.org:elierotenberg/react-rails.git"
@@ -35,6 +34,7 @@
     "locale": "0.0.17",
     "lodash": "^2.4.1",
     "raf": "^2.0.3",
+    "react": "^0.11.2",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
     "react-query": "0.0.10",
@@ -52,7 +52,6 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-less": "^0.11.4",
     "grunt-react": "^0.9.0",
-    "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-jst": "^0.6.0",
     "grunt-jstransform": "^0.1.0",
     "grunt-regenerator": "^1.1.0",

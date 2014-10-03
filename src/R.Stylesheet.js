@@ -24,6 +24,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Stylesheet = Stylesheet;
-    return R;
+    return Stylesheet;
 };

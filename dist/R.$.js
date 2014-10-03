@@ -109,6 +109,5 @@ module.exports = function(R) {
         },
     });
 
-    R.$ = $;
-    return R;
+    return $;
 };

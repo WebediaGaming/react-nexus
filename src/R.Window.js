@@ -50,7 +50,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Window = Window;
-
-    module.exports = R;
+    return Window;
 };

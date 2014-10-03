@@ -64,6 +64,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Style = Style;
-    return R;
+    return Style;
 };

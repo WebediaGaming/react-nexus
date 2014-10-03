@@ -44,7 +44,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Lock = Lock;
-
-    return R;
+    return Lock;
 };

@@ -16,6 +16,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Component = Component;
-    return R;
+    return Component;
 };

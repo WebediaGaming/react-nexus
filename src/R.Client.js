@@ -34,6 +34,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Client = Client;
-    return R;
+    return Client;
 };

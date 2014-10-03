@@ -89,6 +89,5 @@ module.exports = function(R) {
         action: null,
     });
 
-    R.Dispatcher = Dispatcher;
-    return R;
+    return Dispatcher;
 };

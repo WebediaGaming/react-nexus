@@ -136,6 +136,5 @@ module.exports = function(R) {
         event: null,
     });
 
-    R.EventEmitter = EventEmitter;
-    return R;
+    return EventEmitter;
 };

@@ -463,6 +463,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Flux = Flux;
-    return R;
+    return Flux;
 };

@@ -53,7 +53,8 @@ module.exports = function(R) {
     R.Debug.dev(function() {
         console.log("Patching React.createClass.");
     });
-    R.ReactCreateClass = React.createClass = _patchedCreateClass;
 
-    return R;
+    React.createClass = _patchedCreateClass;
+
+    return _patchedCreateClass;
 };

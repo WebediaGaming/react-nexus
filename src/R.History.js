@@ -63,7 +63,5 @@ module.exports = function(R) {
         },
     };
 
-    R.History = History;
-
-    module.exports = R;
+    return History;
 };

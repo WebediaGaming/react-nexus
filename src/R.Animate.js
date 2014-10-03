@@ -206,6 +206,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Animate = Animate;
-    return R;
+    return Animate;
 };

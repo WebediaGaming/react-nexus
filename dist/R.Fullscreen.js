@@ -14,7 +14,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Fullscreen = Fullscreen;
-
-    module.exports = R;
+    return Fullscreen;
 };

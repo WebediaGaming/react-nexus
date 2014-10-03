@@ -14,7 +14,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Cordova = Cordova;
-
-    module.exports = R;
+    return Cordova;
 };

@@ -24,6 +24,5 @@ module.exports = function(R) {
         },
     };
 
-    R.Root = Root;
-    return R;
+    return Root;
 };

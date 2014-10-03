@@ -478,6 +478,5 @@ module.exports = function(R) {
     _.extend(SimpleUplinkServer.Connection.prototype, SimpleUplinkServer._ConnectionProtoProps);
     _.extend(SimpleUplinkServer.Session.prototype, SimpleUplinkServer._SessionProtoProps);
 
-    R.SimpleUplinkServer = SimpleUplinkServer;
-    return R;
+    return SimpleUplinkServer;
 };

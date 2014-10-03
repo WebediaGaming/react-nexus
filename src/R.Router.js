@@ -79,6 +79,5 @@ module.exports = function(R) {
         },
     });
 
-    R.Router = Router;
-    return R;
+    return Router;
 };

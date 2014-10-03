@@ -161,6 +161,5 @@ module.exports = function(R) {
         };
     }
 
-    R.App = App;
-    return R;
+    return App;
 };
