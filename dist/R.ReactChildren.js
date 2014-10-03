@@ -52,10 +52,6 @@ module.exports = function(R) {
         },
     });
 
-    R.Debug.dev(function() {
-        console.log("Patching React.Children.");
-    });
-
     React.Children = _patchedReactChildren;
 
     return _patchedReactChildren;

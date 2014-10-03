@@ -50,10 +50,6 @@ module.exports = function(R) {
         React.createClass = _vanillaCreateClass;
     };
 
-    R.Debug.dev(function() {
-        console.log("Patching React.createClass.");
-    });
-
     React.createClass = _patchedCreateClass;
 
     return _patchedCreateClass;

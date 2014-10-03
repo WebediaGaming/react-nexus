@@ -32,9 +32,9 @@ module.exports = function(R) {
             });
             return rCSS;
         },
-        slowlyProcessReactStyle: function slowlyAutoPrefixStyle(style) {
-            var css = R.Style.applyAllProcessors("* {\n" + R.Style.fromReactStyleToCSS(style) + "}\n");
-            return R.Style.slowlyFromCSSToReactStyle(css);
+        slowlyProcessReactStyle: function slowlyProcessReactStyle(style) {
+            var css = R.Style.applyAllProcessors("* {\n" + R.Style.getCSSFromReactStyle(style) + "}\n");
+            return R.Style.slowlyGetReactStyleFromCSS(css);
         },
         getCSSFromReactStyle: function getCSSFromReactStyle(style, indent) {
             indent = indent || "";
