@@ -85,7 +85,9 @@ module.exports = function(R) {
                 };
                 var get = function get(key) {
                     R.Debug.dev(function() {
-                        assert(_.has(data, key), "R.Store.MemoryStore.get(...): data not available. ('" + key + "')");
+                        if(!_.has(data, key)) {
+                            console.warn("R.Store.MemoryStore.get(...): data not available. ('" + key + "')");
+                        }
                     });
                     return data[key];
                 };
@@ -198,9 +200,9 @@ module.exports = function(R) {
                 };
 
                 var get = function get(key) {
-                    R.Debug.dev(function() {
-                        assert(_.has(data, key), "R.Store.HTTPStore.get(...): data not available. ('" + key + "')");
-                    });
+                    if(!_.has(data, key)) {
+                        console.warn("R.Store.MemoryStore.get(...): data not available. ('" + key + "')");
+                    }
                     return data[key];
                 };
 
