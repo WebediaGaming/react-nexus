@@ -184,7 +184,7 @@ module.exports = function(R) {
                     dispatcherName: r[1],
                     action: r[2],
                 };
-                return yield this.getFluxDispatcher(entry.dispatcherName).trigger(entry.action, params);
+                return yield this.getFluxDispatcher(entry.dispatcherName).dispatch(entry.action, params);
             },
             _FluxMixinDefaultGetFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) {
                 return {};

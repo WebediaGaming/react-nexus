@@ -228,7 +228,7 @@ module.exports = function(R) {
                         };
 
                         context$2$0.next = 5;
-                        return this.getFluxDispatcher(entry.dispatcherName).trigger(entry.action, params);
+                        return this.getFluxDispatcher(entry.dispatcherName).dispatch(entry.action, params);
                     case 5:
                         return context$2$0.abrupt("return", context$2$0.sent);
                     case 6:
