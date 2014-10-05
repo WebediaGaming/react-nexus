@@ -213,7 +213,7 @@ module.exports = function(R) {
             getFluxDispatcher: function getFluxDispatcher(name) {
                 return this.getFlux().getDispatcher(name);
             },
-            dispatch: regeneratorRuntime.mark(function dispatch(dispatcherLocation, params) {
+            dispatch: regeneratorRuntime.mark(function dispatch(location, params) {
                 var r, entry;
 
                 return regeneratorRuntime.wrap(function dispatch$(context$2$0) {

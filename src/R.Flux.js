@@ -177,7 +177,7 @@ module.exports = function(R) {
             getFluxDispatcher: function getFluxDispatcher(name) {
                 return this.getFlux().getDispatcher(name);
             },
-            dispatch: function* dispatch(dispatcherLocation, params) {
+            dispatch: function* dispatch(location, params) {
                 var r = abstractLocationRegExp.exec(location);
                 assert(r !== null, "R.Flux.dispatch(...): incorrect location ('" + this.displayName + "')");
                 var entry = {
