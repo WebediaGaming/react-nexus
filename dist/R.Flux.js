@@ -273,8 +273,8 @@ module.exports = function(R) {
                     }
                 }, this));
 
-                var currentListeners = this.getFluxEventEmitter(this.props);
-                var nextListeners = this.getFluxEventEmitter(props);
+                var currentListeners = this.getFluxEventEmittersListeners(this.props);
+                var nextListeners = this.getFluxEventEmittersListeners(props);
                 _.each(currentListeners, R.scope(function(fn, location) {
                     if(!nextListeners[location] || nextListeners[location] !== currentListeners[location]) {
                         this._FluxMixinRemoveListener(fn, location);

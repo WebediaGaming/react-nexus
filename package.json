@@ -1,6 +1,6 @@
 {
   "name": "react-rails",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
   "main": "dist/server.js",
   "browser": "dist/client.js",
