@@ -260,7 +260,9 @@ module.exports = function(R) {
                 _.each(this._FluxMixinListeners, this.FluxMixinRemoveListener);
             },
             _FluxMixinUpdate: function _FluxMixinUpdate(props) {
-                var currentSubscriptions = this.getFluxStoreSubscriptions(this.props);
+                var currentSubscriptions = _.object(_.map(this._FluxMixinSubscriptions, function(entry) {
+                    return [entry.location, entry.stateKey];
+                }));
                 var nextSubscriptions = this.getFluxStoreSubscriptions(props);
                 _.each(currentSubscriptions, R.scope(function(stateKey, location) {
                     if(!nextSubscriptions[location] || nextSubscriptions[location] !== currentSubscriptions[location]) {
@@ -273,7 +275,9 @@ module.exports = function(R) {
                     }
                 }, this));
 
-                var currentListeners = this.getFluxEventEmittersListeners(this.props);
+                var currentListeners = _.object(_.map(this._FluxMixinListeners, function(entry) {
+                    return [entry.location, entry.fn];
+                }));
                 var nextListeners = this.getFluxEventEmittersListeners(props);
                 _.each(currentListeners, R.scope(function(fn, location) {
                     if(!nextListeners[location] || nextListeners[location] !== currentListeners[location]) {
@@ -316,6 +320,8 @@ module.exports = function(R) {
                 var store = this.getFluxStore(entry.storeName);
                 var subscription = store.sub(entry.storeKey, this._FluxMixinStoreSignalUpdate(stateKey, location));
                 this._FluxMixinSubscriptions[subscription.uniqueId] = {
+                    location: location,
+                    stateKey: stateKey,
                     storeName: entry.storeName,
                     subscription: subscription,
                 };
@@ -350,6 +356,8 @@ module.exports = function(R) {
                 var eventEmitter = this.getFluxEventEmitter(entry.eventEmitterName);
                 var listener = eventEmitter.addListener(entry.eventName, this._FluxMixinEventEmitterEmit(entry.eventEmitterName, entry.eventName, entry.fn));
                 this._FluxMixinListeners[listener.uniqueId] = {
+                    location: location,
+                    fn: fn,
                     eventEmitterName: entry.eventEmitterName,
                     listener: listener,
                 };
