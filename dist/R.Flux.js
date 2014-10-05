@@ -260,11 +260,31 @@ module.exports = function(R) {
                 _.each(this._FluxMixinListeners, this.FluxMixinRemoveListener);
             },
             _FluxMixinUpdate: function _FluxMixinUpdate(props) {
-                this._FluxMixinClear();
-                var subscriptions = this.getFluxStoreSubscriptions(props);
-                _.each(subscriptions, this._FluxMixinSubscribe);
-                var listeners = this.getFluxEventEmittersListeners(props);
-                _.each(listeners, this._FluxMixinAddListener);
+                var currentSubscriptions = this.getFluxStoreSubscriptions(this.props);
+                var nextSubscriptions = this.getFluxStoreSubscriptions(props);
+                _.each(currentSubscriptions, R.scope(function(stateKey, location) {
+                    if(!nextSubscriptions[location] || nextSubscriptions[location] !== currentSubscriptions[location]) {
+                        this._FluxMixinUnsubscribe(stateKey, location);
+                    }
+                }, this));
+                _.each(nextSubscriptions, R.scope(function(stateKey, location) {
+                    if(!currentSubscriptions[location] || currentSubscriptions[location] !== stateKey) {
+                        this._FluxMixinSubscribe(stateKey, location);
+                    }
+                }, this));
+
+                var currentListeners = this.getFluxEventEmitter(this.props);
+                var nextListeners = this.getFluxEventEmitter(props);
+                _.each(currentListeners, R.scope(function(fn, location) {
+                    if(!nextListeners[location] || nextListeners[location] !== currentListeners[location]) {
+                        this._FluxMixinRemoveListener(fn, location);
+                    }
+                }, this));
+                _.each(nextListeners, R.scope(function(fn, location) {
+                    if(!currentListeners[location] || currentListeners[location] !== fn) {
+                        this._FluxMixinAddListener(fn, location);
+                    }
+                }, this));
             },
             _FluxMixinInject: function _FluxMixinInject(stateKey, location) {
                 var r = abstractLocationRegExp.exec(location);
@@ -306,6 +326,9 @@ module.exports = function(R) {
                         return;
                     }
                     var previousVal = this.state ? this.state[stateKey] : undefined;
+                    if(_.isEqual(previousVal, val)) {
+                        return;
+                    }
                     this.fluxStoreWillUpdate(stateKey, location, val, previousVal);
                     this.setState(R.record(stateKey, val));
                     this.fluxStoreDidUpdate(stateKey, location, val, previousVal);
