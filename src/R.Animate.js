@@ -118,20 +118,6 @@ module.exports = function(R) {
                     this._from[attr] = val;
                 }
             }, this));
-            _.each(R.Animate.transformAttributes, R.scope(function(attr) {
-                if(!_.has(this._from, attr)) {
-                    this._from[attr] = "translateZ(0)";
-                }
-                else {
-                    this._from[attr] = "translateZ(0) " + this._from[attr];
-                }
-                if(!_.has(this._to, attr)) {
-                    this._to[attr] = "translateZ(0)";
-                }
-                else {
-                    this._to[attr] = "translateZ(0) " + this._to[attr];
-                }
-            }, this));
             if(_.isPlainObject(params.easing)) {
                 R.Debug.dev(function() {
                     assert(_.has(params.easing, "type") && _.isString(params.easing.type), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object }.");
@@ -163,7 +149,6 @@ module.exports = function(R) {
                 return true;
             }
         },
-        transformAttributes: ["WebkitTransform", "MozTransform", "MSTransform", "OTransform", "Transform"],
     };
 
     _.extend(Animate.InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */ {
@@ -200,7 +185,7 @@ module.exports = function(R) {
         },
         abort: function abort() {
             if(this._requestAnimationFrameHandle) {
-                this._requestAnimationFrameHandle.cancel();
+                raf.cancel(this._requestAnimationFrameHandle);
                 this._requestAnimationFrameHandle = null;
             }
         },
