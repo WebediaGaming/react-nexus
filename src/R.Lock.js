@@ -3,10 +3,12 @@ module.exports = function(R) {
     var assert = require("assert");
 
     var Lock = function Lock() {
-        _acquired = false;
+        this._acquired = false;
+        this._queue = [];
     };
 
     _.extend(Lock.prototype, {
+        _acquired: null,
         _queue: null,
         acquire: function acquire() {
             return R.scope(function(fn) {
@@ -24,7 +26,7 @@ module.exports = function(R) {
             if(_.size(this._queue) > 0) {
                 var fn = this._queue[0];
                 this._queue.shift();
-                _defer(fn);
+                _.defer(fn);
             }
             else {
                 this._acquired = false;
