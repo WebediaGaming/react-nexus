@@ -159,13 +159,15 @@ module.exports = function(R) {
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
             this._debugLog("<<< handshake-ack", params);
-            if(this._pid && params._pid !== this._pid && this.shouldReloadOnServerRestart) {
+            if(this._pid && params.pid !== this._pid && this.shouldReloadOnServerRestart) {
                 R.Debug.dev(function() {
                     console.warn("Server pid has changed, reloading page.");
                 });
-                window.location.reload(true);
+                setTimeout(function() {
+                    window.location.reload(true);
+                }, _.random(2000, 10000));
             }
-            this._pid = params._pid;
+            this._pid = params.pid;
             this._acknowledgeHandshake(params);
         },
         _handleDebug: function _handleDebug(params) {
