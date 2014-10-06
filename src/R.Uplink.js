@@ -40,7 +40,7 @@ module.exports = function(R) {
      * Server: send "err": { err: err } Error-level message
      */
 
-    var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid) {
+    var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid, shouldReloadOnServerRestart) {
         this._httpEndpoint = httpEndpoint;
         this._socketEndPoint = socketEndpoint;
         this._guid = guid;
@@ -56,6 +56,7 @@ module.exports = function(R) {
         this.listenTo = R.scope(this.listenTo, this);
         this.unlistenFrom = R.scope(this.unlistenFrom, this);
         this.dispatch = R.scope(this.dispatch, this);
+        this.shouldReloadOnServerRestart = shouldReloadOnServerRestart;
     };
 
     _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
@@ -65,7 +66,9 @@ module.exports = function(R) {
         _listeners: null,
         _socket: null,
         _guid: null,
+        _pid: null,
         ready: null,
+        shouldReloadOnServerRestart: null,
         _acknowledgeHandshake: null,
         _debugLog: function _debugLog() {
             var args = arguments;
@@ -156,6 +159,13 @@ module.exports = function(R) {
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
             this._debugLog("<<< handshake-ack", params);
+            if(this._pid && params._pid !== this._pid && this.shouldReloadOnServerRestart) {
+                R.Debug.dev(function() {
+                    console.warn("Server pid has changed, reloading page.");
+                });
+                window.location.reload(true);
+            }
+            this._pid = params._pid;
             this._acknowledgeHandshake(params);
         },
         _handleDebug: function _handleDebug(params) {
