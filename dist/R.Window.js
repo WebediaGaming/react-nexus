@@ -11,6 +11,7 @@ module.exports = function(R) {
 
     var Window = {
         createPlugin: function createPlugin(storeName, dispatcherName, eventEmitterName, params) {
+            params = params || {};
             _.defaults(params, defaultParams);
             return R.App.createPlugin({
                 displayName: "Window",
@@ -51,11 +52,14 @@ module.exports = function(R) {
                     });
                     flux.getStore(storeName).set("/Window/height", window.innerHeight);
                     flux.getStore(storeName).set("/Window/width", window.innerWidth);
+                    flux.getStore(storeName).set("/Window/scrollTop", window.scrollTop);
+                    flux.getStore(storeName).set("/Window/scrollLeft", window.scrollLeft);
                 },
                 installInServer: function installInServer(flux, req) {
-                    _.each(params, function(val, key) {
-                        flux.getStore(storeName).set("/Window/" + key, val);
-                    });
+                    flux.getStore(storeName).set("/Window/height", params.height);
+                    flux.getStore(storeName).set("/Window/width", params.width);
+                    flux.getStore(storeName).set("/Window/scrollTop", params.scrollTop);
+                    flux.getStore(storeName).set("/Window/scrollLeft", params.scrollLeft);
                 },
             });
         },
