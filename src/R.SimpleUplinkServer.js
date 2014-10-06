@@ -85,7 +85,9 @@ module.exports = function(R) {
                     var val;
                     try {
                         R.Debug.dev(R.scope(function() {
-                            assert(_.has(this._store, key), "R.SimpleUplinkServer(...).getStore: no such key (" + key + ")");
+                            if(!_.has(this._store, key)) {
+                                console.warn("R.SimpleUplinkServer(...).getStore: no such key (" + key + ")");
+                            }
                         }, this));
                         val = this._store[key];
                     }
