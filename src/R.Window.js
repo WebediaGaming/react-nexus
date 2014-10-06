@@ -33,15 +33,15 @@ module.exports = function(R) {
                         });
                     });
                     window.addEventListener("resize", function() {
-                        flux.getStore(storeName).set("/Window/height", window.outerHeight);
-                        flux.getStore(storeName).set("/Window/width", window.outerWidth);
+                        flux.getStore(storeName).set("/Window/height", window.innerHeight);
+                        flux.getStore(storeName).set("/Window/width", window.innerWidth);
                         flux.getEventEmitter(eventEmitterName).emit("/Window/resize", {
-                            height: window.outerHeight,
-                            width: window.outerWidth,
+                            height: window.innerHeight,
+                            width: window.innerWidth,
                         });
                     });
-                    flux.getStore(storeName).set("/Window/height", window.outerHeight);
-                    flux.getStore(storeName).set("/Window/width", window.outerWidth);
+                    flux.getStore(storeName).set("/Window/height", window.innerHeight);
+                    flux.getStore(storeName).set("/Window/width", window.innerWidth);
                 },
                 installInServer: function installInServer(flux, req) {
                     _.each(params, function(val, key) {
