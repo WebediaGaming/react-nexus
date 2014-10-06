@@ -119,7 +119,9 @@ module.exports = function(R) {
                     subscribers[key][subscription.uniqueId] = _signalUpdate;
                     co(function*() {
                         var val = yield fetch(key);
-                        _signalUpdate(val);
+                        _.defer(function() {
+                            _signalUpdate(val);
+                        });
                     }).call(this, R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value"));
                     return subscription;
                 };
@@ -331,7 +333,9 @@ module.exports = function(R) {
                     subscribers[key][subscription.uniqueId] = _signalUpdate;
                     co(function*() {
                         var val = yield fetch(key);
-                        _signalUpdate(val);
+                        _.defer(function() {
+                            _signalUpdate(val);
+                        });
                     }).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available. ('" + key + "')"));
                     return subscription;
                 };

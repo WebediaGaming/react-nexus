@@ -140,7 +140,9 @@ module.exports = function(R) {
                                 return fetch(key);
                             case 2:
                                 val = context$5$0.sent;
-                                _signalUpdate(val);
+                                _.defer(function() {
+                                    _signalUpdate(val);
+                                });
                             case 4:
                             case "end":
                                 return context$5$0.stop();
@@ -410,7 +412,9 @@ module.exports = function(R) {
                                 return fetch(key);
                             case 2:
                                 val = context$5$0.sent;
-                                _signalUpdate(val);
+                                _.defer(function() {
+                                    _signalUpdate(val);
+                                });
                             case 4:
                             case "end":
                                 return context$5$0.stop();
