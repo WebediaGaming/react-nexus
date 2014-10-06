@@ -329,7 +329,7 @@ module.exports = function(R) {
                         R.Debug.dev(function() {
                             console.warn("R.Uplink.fetch(...): couldn't fetch '" + key + "':", err.toString());
                         });
-                        return resolve(err);
+                        return resolve(null);
                     }
                     else {
                         return resolve(body);
