@@ -40,6 +40,8 @@ module.exports = function(R) {
                             width: window.outerWidth,
                         });
                     });
+                    flux.getStore(storeName).set("/Window/height", window.outerHeight);
+                    flux.getStore(storeName).set("/Window/width", window.outerWidth);
                 },
                 installInServer: function installInServer(flux, req) {
                     _.each(params, function(val, key) {
