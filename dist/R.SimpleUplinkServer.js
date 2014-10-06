@@ -19,6 +19,7 @@ module.exports = function(R) {
             var SimpleUplinkServerInstance = function SimpleUplinkServerInstance() {
                 SimpleUplinkServer.SimpleUplinkServerInstance.call(this);
                 this._specs = specs;
+                this._pid = R.guid("SimpleUplinkServer");
             };
             _.extend(SimpleUplinkServerInstance.prototype, SimpleUplinkServer.SimpleUplinkServerInstance.prototype, specs);
             return SimpleUplinkServerInstance;
@@ -48,6 +49,7 @@ module.exports = function(R) {
         },
         _SimpleUplinkServerInstanceProtoProps: /** @lends R.SimpleUplinkServer.SimpleUplinkServerInstance.prototype */{
             _specs: null,
+            _pid: null,
             _prefix: null,
             _app: null,
             _io: null,
@@ -247,7 +249,7 @@ module.exports = function(R) {
                 });
             },
             _handleSocketConnection: function _handleSocketConnection(socket) {
-                var connection = new R.SimpleUplinkServer.Connection(socket, this._handleSocketDisconnection, this._linkSession, this._unlinkSession);
+                var connection = new R.SimpleUplinkServer.Connection(this._pid, socket, this._handleSocketDisconnection, this._linkSession, this._unlinkSession);
                 this._connections[connection.uniqueId] = connection;
             },
             _handleSocketDisconnection: function _handleSocketDisconnection(uniqueId) {
@@ -309,7 +311,8 @@ module.exports = function(R) {
                 })).call(this, R.Debug.rethrow("R.SimpleUplinkServer._handleSessionExpire(...)"));
             },
         },
-        Connection: function Connection(socket, handleSocketDisconnection, linkSession, unlinkSession) {
+        Connection: function Connection(pid, socket, handleSocketDisconnection, linkSession, unlinkSession) {
+            this._pid = pid;
             this.uniqueId = _.uniqueId("R.SimpleUplinkServer.Connection");
             this._socket = socket;
             this._handleSocketDisconnection = handleSocketDisconnection;
@@ -319,6 +322,7 @@ module.exports = function(R) {
         },
         _ConnectionProtoProps: /** @lends R.SimpleUplinkServer.Connection.prototype */{
             _socket: null,
+            _pid: null,
             uniqueId: null,
             guid: null,
             _handleSocketDisconnection: null,
@@ -363,7 +367,10 @@ module.exports = function(R) {
                                 return this._linkSession(this, this.guid);
                             case 3:
                                 s = context$3$0.sent;
-                                this.emit("handshake-ack", { recovered: s.recovered });
+                                this.emit("handshake-ack", {
+                                    pid: this._pid,
+                                    recovered: s.recovered,
+                                });
                                 this._subscribeTo = s.subscribeTo;
                                 this._unsubscribeFrom = s.unsubscribeFrom;
                                 this._listenTo = s.listenTo;

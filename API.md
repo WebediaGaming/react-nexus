@@ -502,7 +502,7 @@ Like stores and event emitters, dispatchers implement the fowllowing API contrac
 #### `R.Stylesheet#registerRule(String selector, Object reactStyle)`
 #### `R.Stylesheet#getProcessedCSS(): String`
 
-### `R.Uplink(String httpEndpoint, String socketEndpoint, String guid): new Uplink`
+### `R.Uplink(String httpEndpoint, String socketEndpoint, String guid, Boolean shouldReloadOnServerRestart): new Uplink`
 
 #### `R.Uplink#ready: Promise()`
 #### `R.Uplink#subscribeTo(String key, Function signalUpdate): UplinkSubscription`
