@@ -160,7 +160,7 @@ module.exports = function(R) {
                 }
             }, this));
         },
-        _shouldFetchKey: function(key, entry) {
+        _shouldFetchKey: function _shouldFetchKey(key, entry) {
             if(!_.has(this._data, key) || !_.has(this._hashes, key)) {
                 return true;
             }
@@ -169,7 +169,7 @@ module.exports = function(R) {
             }
             return false;
         },
-        _performUpdateIfNecessary: function(key, entry) {
+        _performUpdateIfNecessary: function _performUpdateIfNecessary(key, entry) {
             return R.scope(function(fn) {
                 co(regeneratorRuntime.mark(function callee$3$0() {
                     return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {

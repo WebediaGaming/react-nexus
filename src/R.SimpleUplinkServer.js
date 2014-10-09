@@ -78,7 +78,6 @@ module.exports = function(R) {
                         this._hashes[key] = hash;
                         this._storeEvents.emit("set:" + key, {
                             k: key,
-                            v: val,
                             d: diff,
                             h: previousHash,
                         });
