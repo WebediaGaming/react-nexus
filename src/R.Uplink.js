@@ -52,6 +52,8 @@ module.exports = function(R) {
         }
         this._data = {};
         this._hashes = {};
+        this._performUpdateIfNecessary = R.scope(this._performUpdateIfNecessary, this);
+        this._shouldFetchKey = R.scope(this._shouldFetchKey, this);
         this.fetch = R.scope(this.fetch, this);
         this.subscribeTo = R.scope(this.subscribeTo, this);
         this.unsubscribeFrom = R.scope(this.unsubscribeFrom, this);
@@ -136,8 +138,8 @@ module.exports = function(R) {
                 assert(_.isObject(params), "R.Uplink._handleUpdate.params: expecting Object.");
                 assert(params.k && _.isString(params.k), "R.Uplink._handleUpdate.params.k: expecting String.");
                 assert(_.has(params, "v"), "R.Uplink._handleUpdate.params.v: expecting an entry.");
-                assert(params.d && _.isObject(params.d), "R.Uplink._handleUpdate.params.d: expecting Object.");
-                assert(params.h && _.isObject(params.h), "R.Uplink._handleUpdate.params.h: expecting Object.");
+                assert(params.d && _.isArray(params.d), "R.Uplink._handleUpdate.params.d: expecting Array.");
+                assert(params.h && _.isString(params.h), "R.Uplink._handleUpdate.params.h: expecting String.");
             });
             var key = params.k;
             this._performUpdateIfNecessary(key, params)(R.scope(function(err, val) {
@@ -158,7 +160,7 @@ module.exports = function(R) {
                 }
             }, this));
         },
-        _shouldFetchKey: function(key, entry) {
+        _shouldFetchKey: function _shouldFetchKey(key, entry) {
             if(!_.has(this._data, key) || !_.has(this._hashes, key)) {
                 return true;
             }
@@ -167,14 +169,18 @@ module.exports = function(R) {
             }
             return false;
         },
-        _performUpdateIfNecessary: co(function*(key, entry) {
-            if(this._shouldFetchKey(key, entry)) {
-                return yield this.fetch(key);
-            }
-            else {
-                return R.patch(this._data[key], entry.diff);
-            }
-        }),
+        _performUpdateIfNecessary: function _performUpdateIfNecessary(key, entry) {
+            return R.scope(function(fn) {
+                co(function*() {
+                    if(this._shouldFetchKey(key, entry)) {
+                        return yield this.fetch(key);
+                    }
+                    else {
+                        return R.patch(this._data[key], entry.diff);
+                    }
+                }).call(this, fn);
+            }, this);
+        },
         _handleEvent: function _handleEvent(params) {
             this._debugLog("<<< event", params.eventName);
             var eventName = params.eventName;

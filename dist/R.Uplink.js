@@ -52,6 +52,8 @@ module.exports = function(R) {
         }
         this._data = {};
         this._hashes = {};
+        this._performUpdateIfNecessary = R.scope(this._performUpdateIfNecessary, this);
+        this._shouldFetchKey = R.scope(this._shouldFetchKey, this);
         this.fetch = R.scope(this.fetch, this);
         this.subscribeTo = R.scope(this.subscribeTo, this);
         this.unsubscribeFrom = R.scope(this.unsubscribeFrom, this);
@@ -136,8 +138,8 @@ module.exports = function(R) {
                 assert(_.isObject(params), "R.Uplink._handleUpdate.params: expecting Object.");
                 assert(params.k && _.isString(params.k), "R.Uplink._handleUpdate.params.k: expecting String.");
                 assert(_.has(params, "v"), "R.Uplink._handleUpdate.params.v: expecting an entry.");
-                assert(params.d && _.isObject(params.d), "R.Uplink._handleUpdate.params.d: expecting Object.");
-                assert(params.h && _.isObject(params.h), "R.Uplink._handleUpdate.params.h: expecting Object.");
+                assert(params.d && _.isArray(params.d), "R.Uplink._handleUpdate.params.d: expecting Array.");
+                assert(params.h && _.isString(params.h), "R.Uplink._handleUpdate.params.h: expecting String.");
             });
             var key = params.k;
             this._performUpdateIfNecessary(key, params)(R.scope(function(err, val) {
@@ -167,27 +169,31 @@ module.exports = function(R) {
             }
             return false;
         },
-        _performUpdateIfNecessary: co(regeneratorRuntime.mark(function callee$1$0(key, entry) {
-            return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
-                while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    if (!this._shouldFetchKey(key, entry)) {
-                        context$2$0.next = 6;
-                        break;
-                    }
+        _performUpdateIfNecessary: function(key, entry) {
+            return R.scope(function(fn) {
+                co(regeneratorRuntime.mark(function callee$3$0() {
+                    return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+                        while (1) switch (context$4$0.prev = context$4$0.next) {
+                        case 0:
+                            if (!this._shouldFetchKey(key, entry)) {
+                                context$4$0.next = 6;
+                                break;
+                            }
 
-                    context$2$0.next = 3;
-                    return this.fetch(key);
-                case 3:
-                    return context$2$0.abrupt("return", context$2$0.sent);
-                case 6:
-                    return context$2$0.abrupt("return", R.patch(this._data[key], entry.diff));
-                case 7:
-                case "end":
-                    return context$2$0.stop();
-                }
-            }, callee$1$0, this);
-        })),
+                            context$4$0.next = 3;
+                            return this.fetch(key);
+                        case 3:
+                            return context$4$0.abrupt("return", context$4$0.sent);
+                        case 6:
+                            return context$4$0.abrupt("return", R.patch(this._data[key], entry.diff));
+                        case 7:
+                        case "end":
+                            return context$4$0.stop();
+                        }
+                    }, callee$3$0, this);
+                })).call(this, fn);
+            }, this);
+        },
         _handleEvent: function _handleEvent(params) {
             this._debugLog("<<< event", params.eventName);
             var eventName = params.eventName;
