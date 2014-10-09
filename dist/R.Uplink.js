@@ -50,6 +50,8 @@ module.exports = function(R) {
         if(R.isServer()) {
             this._initInServer();
         }
+        this._data = {};
+        this._hashes = {};
         this.fetch = R.scope(this.fetch, this);
         this.subscribeTo = R.scope(this.subscribeTo, this);
         this.unsubscribeFrom = R.scope(this.unsubscribeFrom, this);
@@ -129,14 +131,63 @@ module.exports = function(R) {
             this.ready = Promise.cast(true);
         },
         _handleUpdate: function _handleUpdate(params) {
-            this._debugLog("<<< update", params.key);
-            var key = params.key;
-            if(_.has(this._subscriptions, key)) {
-                _.each(this._subscriptions[key], function(fn) {
-                    fn();
+            this._debugLog("<<< update", params);
+            R.Debug.dev(function() {
+                assert(_.isObject(params), "R.Uplink._handleUpdate.params: expecting Object.");
+                assert(params.k && _.isString(params.k), "R.Uplink._handleUpdate.params.k: expecting String.");
+                assert(_.has(params, "v"), "R.Uplink._handleUpdate.params.v: expecting an entry.");
+                assert(params.d && _.isObject(params.d), "R.Uplink._handleUpdate.params.d: expecting Object.");
+                assert(params.h && _.isObject(params.h), "R.Uplink._handleUpdate.params.h: expecting Object.");
+            });
+            var key = params.k;
+            this._performUpdateIfNecessary(key, params)(R.scope(function(err, val) {
+                R.Debug.dev(function() {
+                    if(err) {
+                        throw R.Debug.extendError(err, "R.Uplink._handleUpdate(...): couldn't _performUpdateIfNecessary.");
+                    }
                 });
-            }
+                if(err) {
+                    return;
+                }
+                this._data[key] = val;
+                this._hashes[key] = R.hash(JSON.stringify(val));
+                if(_.has(this._subscriptions, key)) {
+                    _.each(this._subscriptions[key], function(fn) {
+                        fn(key, val);
+                    });
+                }
+            }, this));
         },
+        _shouldFetchKey: function(key, entry) {
+            if(!_.has(this._data, key) || !_.has(this._hashes, key)) {
+                return true;
+            }
+            if(this._hashes[key] !== entry.from) {
+                return true;
+            }
+            return false;
+        },
+        _performUpdateIfNecessary: co(regeneratorRuntime.mark(function callee$1$0(key, entry) {
+            return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
+                while (1) switch (context$2$0.prev = context$2$0.next) {
+                case 0:
+                    if (!this._shouldFetchKey(key, entry)) {
+                        context$2$0.next = 6;
+                        break;
+                    }
+
+                    context$2$0.next = 3;
+                    return this.fetch(key);
+                case 3:
+                    return context$2$0.abrupt("return", context$2$0.sent);
+                case 6:
+                    return context$2$0.abrupt("return", R.patch(this._data[key], entry.diff));
+                case 7:
+                case "end":
+                    return context$2$0.stop();
+                }
+            }, callee$1$0, this);
+        })),
         _handleEvent: function _handleEvent(params) {
             this._debugLog("<<< event", params.eventName);
             var eventName = params.eventName;
@@ -241,6 +292,8 @@ module.exports = function(R) {
             if(!_.has(this._subscriptions, key)) {
                 this._subscribeTo(key);
                 this._subscriptions[key] = {};
+                this._data[key] = {};
+                this._hashes[key] = R.hash(JSON.stringify({}));
             }
             this._subscriptions[key][subscription.uniqueId] = fn;
             return subscription;
@@ -250,9 +303,11 @@ module.exports = function(R) {
                 assert(_.has(this._subscriptions, key), "R.Uplink.unsub(...): no such key.");
                 assert(_.has(this._subscriptions[key], subscription.uniqueId), "R.Uplink.unsub(...): no such subscription.");
             }, this));
-            delete this._subscriptions[key];
+            delete this._subscriptions[key][subscription.uniqueId];
             if(_.size(this._subscriptions[key]) === 0) {
                 delete this._subscriptions[key];
+                delete this._data[key];
+                delete this._hashes[key];
                 this._unsubscribeFrom(key);
             }
         },

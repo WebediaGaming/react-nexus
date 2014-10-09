@@ -31,6 +31,7 @@
     "css-selector-parser": "^1.0.3",
     "d3": "^3.4.11",
     "envify": "^3.0.0",
+    "fast-json-patch": "^0.4.0",
     "locale": "0.0.17",
     "lodash": "^2.4.1",
     "raf": "^2.0.3",

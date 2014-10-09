@@ -366,33 +366,15 @@ module.exports = function(R) {
                     });
                     return data[key];
                 };
-                var signalUpdate = function signalUpdate(key) {
+                var signalUpdate = function signalUpdate(key, val) {
                     if(!_.has(subscribers, key)) {
                         return;
                     }
-                    co(regeneratorRuntime.mark(function callee$4$0() {
-                        var val;
-
-                        return regeneratorRuntime.wrap(function callee$4$0$(context$5$0) {
-                            while (1) switch (context$5$0.prev = context$5$0.next) {
-                            case 0:
-                                context$5$0.next = 2;
-                                return fetch(key);
-                            case 2:
-                                val = context$5$0.sent;
-                                if(_.has(subscribers, key)) {
-                                    _.each(subscribers[key], function(fn, uniqueId) {
-                                        if(fn) {
-                                            fn(val);
-                                        }
-                                    });
-                                }
-                            case 4:
-                            case "end":
-                                return context$5$0.stop();
-                            }
-                        }, callee$4$0, this);
-                    })).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...) ('" + key + "')"));
+                    _.each(subscribers[key], function(fn, uniqueId) {
+                        if(fn) {
+                            fn(val);
+                        }
+                    });
                 };
                 var sub = function sub(key, _signalUpdate) {
                     R.Debug.dev(function() {
@@ -401,7 +383,7 @@ module.exports = function(R) {
                     var subscription = new R.Store.Subscription(key);
                     if(!_.has(subscribers, key)) {
                         subscribers[key] = {};
-                        updaters[key] = subscribeTo(key, _.partial(signalUpdate, key));
+                        updaters[key] = subscribeTo(key, signalUpdate);
                     }
                     subscribers[key][subscription.uniqueId] = _signalUpdate;
                     co(regeneratorRuntime.mark(function callee$4$0() {

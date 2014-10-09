@@ -26,6 +26,7 @@ module.exports = function(R) {
         },
         SimpleUplinkServerInstance: function SimpleUplinkServerInstance() {
             this._store = {};
+            this._hashes = {};
             this._storeRouter = new R.Router();
             this._storeRouter.def(_.constant({
                 err: "Unknown store key",
@@ -69,8 +70,18 @@ module.exports = function(R) {
             setStore: function setStore(key, val) {
                 return R.scope(function(fn) {
                     try {
+                        var previousVal = this._store[key] || {};
+                        var previousHash = this._hashes[key] || R.hash(JSON.stringify(previousVal));
+                        var diff = R.diff(previousVal, val);
+                        var hash = R.hash(JSON.stringify(val));
                         this._store[key] = val;
-                        this._storeEvents.emit("set:" + key, val);
+                        this._hashes[key] = hash;
+                        this._storeEvents.emit("set:" + key, {
+                            k: key,
+                            v: val,
+                            d: diff,
+                            h: previousHash,
+                        });
                     }
                     catch(err) {
                         return fn(R.Debug.extendError(err, "R.SimpleUplinkServer.setStore('" + key + "', '" + val + "')"));
@@ -427,7 +438,7 @@ module.exports = function(R) {
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._subscriptions, key), "R.SimpleUplinkServer.Session.subscribeTo(...): already subscribed.");
                 }, this));
-                this._subscriptions[key] = this._signalUpdate(key);
+                this._subscriptions[key] = this._signalUpdate();
                 this._storeEvents.addListener("set:" + key, this._subscriptions[key]);
             },
             unsubscribeFrom: function unsubscribeFrom(key) {
@@ -451,9 +462,9 @@ module.exports = function(R) {
                     });
                 }
             },
-            _signalUpdate: function _signalUpdate(key) {
-                return R.scope(function() {
-                    this._emit("update", { key: key });
+            _signalUpdate: function _signalUpdate() {
+                return R.scope(function(patch) {
+                    this._emit("update", patch);
                 }, this);
             },
             _signalEvent: function _signalEvent(eventName) {

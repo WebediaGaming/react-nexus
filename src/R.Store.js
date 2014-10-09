@@ -308,20 +308,15 @@ module.exports = function(R) {
                     });
                     return data[key];
                 };
-                var signalUpdate = function signalUpdate(key) {
+                var signalUpdate = function signalUpdate(key, val) {
                     if(!_.has(subscribers, key)) {
                         return;
                     }
-                    co(function*() {
-                        var val = yield fetch(key);
-                        if(_.has(subscribers, key)) {
-                            _.each(subscribers[key], function(fn, uniqueId) {
-                                if(fn) {
-                                    fn(val);
-                                }
-                            });
+                    _.each(subscribers[key], function(fn, uniqueId) {
+                        if(fn) {
+                            fn(val);
                         }
-                    }).call(this, R.Debug.rethrow("R.Store.UplinkStore.signalUpdate(...) ('" + key + "')"));
+                    });
                 };
                 var sub = function sub(key, _signalUpdate) {
                     R.Debug.dev(function() {
@@ -330,7 +325,7 @@ module.exports = function(R) {
                     var subscription = new R.Store.Subscription(key);
                     if(!_.has(subscribers, key)) {
                         subscribers[key] = {};
-                        updaters[key] = subscribeTo(key, _.partial(signalUpdate, key));
+                        updaters[key] = subscribeTo(key, signalUpdate);
                     }
                     subscribers[key][subscription.uniqueId] = _signalUpdate;
                     co(function*() {

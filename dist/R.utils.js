@@ -2,6 +2,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var sha256 = require("sha256");
+    var jsonpatch = require("jsonpatch");
 
     return {
         /**
@@ -85,6 +86,12 @@ module.exports = function(R) {
             return begin === prefix;
         },
         hash: sha256,
+        diff: function diff(prev, next) {
+            return jsonpatch.compare(prev, next);
+        },
+        patch: function patch(prev, next) {
+            return jsonpatch.apply(prev, next);
+        },
         /**
          * @type {Function}
          * @private
