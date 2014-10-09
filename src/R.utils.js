@@ -2,7 +2,7 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var sha256 = require("sha256");
-    var jsonpatch = require("jsonpatch");
+    var jsonpatch = require("fast-json-patch");
 
     return {
         /**
@@ -87,7 +87,16 @@ module.exports = function(R) {
         },
         hash: sha256,
         diff: function diff(prev, next) {
-            return jsonpatch.compare(prev, next);
+            var d;
+            try {
+                d = jsonpatch.compare(prev, next);
+            }
+            catch(err) {
+                console.warn("prev", prev);
+                console.warn("next", next);
+                throw err;
+            }
+            return d;
         },
         patch: function patch(prev, next) {
             return jsonpatch.apply(prev, next);
