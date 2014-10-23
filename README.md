@@ -4,7 +4,7 @@ React on Rails - The Ultimate React Framework
 React on Rails is your way into production-ready React apps.
 Embracing the core principles of React, React on Rails provides you with all you need
 to start making you React-powered, full stack JS WebApp, that actually does actual things
-in actualy browsers of actual visitors, served by actual servers crawled by actual spiders.
+in actual browsers of actual visitors, served by actual servers crawled by actual spiders.
 Not your grandma's WebApp.
 
 Installation & Usage
