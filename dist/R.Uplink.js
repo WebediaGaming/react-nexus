@@ -3,7 +3,13 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var Promise = require("bluebird");
-    var request = require("request");
+    var request;
+    if(R.isClient()) {
+        request = require("brower-request");
+    }
+    else {
+        request = require("request");
+    }
     var co = require("co");
 
     /**
