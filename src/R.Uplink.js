@@ -5,7 +5,7 @@ module.exports = function(R) {
     var Promise = require("bluebird");
     var request;
     if(R.isClient()) {
-        request = require("brower-request");
+        request = require("browser-request");
     }
     else {
         request = require("request");
