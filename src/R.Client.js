@@ -5,7 +5,14 @@ module.exports = function(R) {
 
     assert(R.isClient(), "R.Client: should only be loaded in the client.");
     window.React = React;
-
+    /**
+    * <p>Simply provides an specified App for the client</p>
+    * <p>Provides instance of App </p>
+    * <ul>
+    * <li> Client.mount => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions </li>
+    * </ul>
+    * @class R.Client
+    */
     var Client = function Client(App) {
         R.Debug.dev(function() {
             if(!window.React) {
@@ -28,6 +35,10 @@ module.exports = function(R) {
     _.extend(Client.prototype, /** @lends R.Client.prototype */ {
         _app: null,
         _rendered: false,
+        /**
+        * <p> Call the renderIntoDocumentInClient from R.App function </p>
+        * @method mount
+        */
         mount: function* mount() {
             assert(!this._rendered, "R.Client.render(...): should only call mount() once.");
             yield this._app.renderIntoDocumentInClient(window);

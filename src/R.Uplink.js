@@ -13,39 +13,49 @@ module.exports = function(R) {
     var co = require("co");
 
     /**
-     * The Uplink micro-protocol is a simple set of conventions to implement real-time reactive Flux over the wire.
-     * The frontend and the backend server share 2 means of communications :
-     * - a WebSocket-like (socket.io wrapper) duplex connection to handshake and subscribe to keys/listen to events
-     * - regulars HTTP requests (front -> back) to actually get data from the stores
-     *
-     * PROTOCOL:
-     *
-     * Connection/reconnection:
-     *
-     * Client: bind socket
-     * Server: Acknowledge connection
-     * Client: send "handshake" { guid: guid }
-     * Server: send "handshake-ack" { recovered: bool } (recover previous session if existing based upon guid; recovered is true iff previous session existed)
-     *
-     * Stores:
-     * Client: send "subscribeTo" { key: key }
-     * Server: send "update" { key: key }
-     * Client: XHR GET /uplink/key
-     *
+     * <p>The Uplink micro-protocol is a simple set of conventions to implement real-time reactive Flux over the wire. <br />
+     * The frontend and the backend server share 2 means of communications : <br />
+     * - a WebSocket-like (socket.io wrapper) duplex connection to handshake and subscribe to keys/listen to events <br />
+     * - regulars HTTP requests (front -> back) to actually get data from the stores</p>
+     * <p>
+     * PROTOCOL: <br />
+     *<br />
+     * Connection/reconnection:<br />
+     *<br />
+     * Client: bind socket<br />
+     * Server: Acknowledge connection<br />
+     * Client: send "handshake" { guid: guid }<br />
+     * Server: send "handshake-ack" { recovered: bool } (recover previous session if existing based upon guid; recovered is true iff previous session existed)<br /><br />
+     *<br />
+     * Stores:<br />
+     * Client: send "subscribeTo" { key: key }<br />
+     * Server: send "update" { key: key }<br />
+     * Client: XHR GET /uplink/key<br />
+     *<br />
      * Events:
-     * Client: send "listenTo" { eventName: eventName }
-     * Server: send "event" { eventName: eventName, params: params }
-     *
-     * Actions:
-     * Client: XHR POST /uplink/action { params: params }
-     *
-     * Other notifications:
-     * Server: send "debug": { debug: debug } Debug-level message
-     * Server: send "log" { log: log } Log-level message
-     * Server: send "warn": { warn: warn } Warn-level message
-     * Server: send "err": { err: err } Error-level message
+     * Client: send "listenTo" { eventName: eventName }<br />
+     * Server: send "event" { eventName: eventName, params: params }<br />
+     *<br />
+     * Actions:<br />
+     * Client: XHR POST /uplink/action { params: params }<br />
+     *<br />
+     * Other notifications:<br />
+     * Server: send "debug": { debug: debug } Debug-level message<br />
+     * Server: send "log" { log: log } Log-level message<br />
+     * Server: send "warn": { warn: warn } Warn-level message<br />
+     * Server: send "err": { err: err } Error-level message<br />
+     * </p>
+     * @class R.Uplink
      */
 
+    /**
+    * <p> Initializes the uplink according to the specifications provided </p>
+    * @method Uplink
+    * @param {object} httpEndpoint 
+    * @param {object} socketEndpoint 
+    * @param {object} guid 
+    * @param {object} shouldReloadOnServerRestart
+    */
     var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid, shouldReloadOnServerRestart) {
         this._httpEndpoint = httpEndpoint;
         this._socketEndPoint = socketEndpoint;
@@ -93,6 +103,11 @@ module.exports = function(R) {
             this._debugLog(">>> " + name, params);
             this._socket.emit(name, params);
         },
+
+        /**
+        * <p> Creating io connection client-side in order to use sockets </p>
+        * @method _initInClient
+        */
         _initInClient: function _initInClient() {
             R.Debug.dev(function() {
                 assert(R.isClient(), "R.Uplink._initInClient(...): should only be called in the client.");
@@ -107,7 +122,9 @@ module.exports = function(R) {
                 }
                 this._subscriptions = {};
                 this._listeners = {};
+                //Connect to uplink server-side. Trigger the uplink-server on io.on("connection")
                 var socket = this._socket = io(this._socketEndPoint);
+                //Prepare all event client-side, listening:
                 socket.on("update", R.scope(this._handleUpdate, this));
                 socket.on("event", R.scope(this._handleEvent, this));
                 socket.on("disconnect", R.scope(this._handleDisconnect, this));
@@ -132,12 +149,22 @@ module.exports = function(R) {
                 this.ready = Promise.cast(true);
             }
         },
+        /**
+        * <p>Server-side</p>
+        * @method _initInServer
+        */
         _initInServer: function _initInClient() {
             R.Debug.dev(function() {
                 assert(R.isServer(), "R.Uplink._initInServer(...): should only be called in the server.");
             });
             this.ready = Promise.cast(true);
         },
+        /**
+        * <p>Triggered when a data is updated according to the specific key <br />
+        * Call corresponding function key </p>
+        * @method _handleUpdate
+        * @param {object} params The specific key
+        */
         _handleUpdate: function _handleUpdate(params) {
             this._debugLog("<<< update", params);
             R.Debug.dev(function() {
@@ -166,6 +193,12 @@ module.exports = function(R) {
                 }
             }, this));
         },
+        /**
+        * @method _shouldFetchKey
+        * @param {string} key
+        * @param {object} entry
+        * @return {Boolean} bool The boolean
+        */
         _shouldFetchKey: function _shouldFetchKey(key, entry) {
             if(!_.has(this._data, key) || !_.has(this._hashes, key)) {
                 return true;
@@ -175,6 +208,13 @@ module.exports = function(R) {
             }
             return false;
         },
+
+        /**
+        * @method _performUpdateIfNecessary
+        * @param {string} key
+        * @param {object} entry
+        * @return {Function} fn The Function to call
+        */
         _performUpdateIfNecessary: function _performUpdateIfNecessary(key, entry) {
             return R.scope(function(fn) {
                 co(function*() {
@@ -187,6 +227,11 @@ module.exports = function(R) {
                 }).call(this, fn);
             }, this);
         },
+
+        /**
+        * @method _handleEvent
+        * @param {string} params
+        */
         _handleEvent: function _handleEvent(params) {
             this._debugLog("<<< event", params.eventName);
             var eventName = params.eventName;
@@ -197,14 +242,20 @@ module.exports = function(R) {
                 });
             }
         },
+        /**
+        * @method _handleDisconnect
+        * @param {string} params
+        */
         _handleDisconnect: function _handleDisconnect(params) {
             this._debugLog("<<< disconnect", params);
             this.ready = new Promise(R.scope(function(resolve, reject) {
                 this._acknowledgeHandshake = resolve;
             }, this));
         },
+        /** occurs after a connection */
         _handleConnect: function _handleConnect() {
             this._debugLog("<<< connect");
+            //notify uplink-server
             this._emit("handshake", { guid: this._guid });
         },
         _handleHandshakeAck: function _handleHandshakeAck(params) {
@@ -266,6 +317,11 @@ module.exports = function(R) {
                 this._emit("unsubscribeFrom", { key: key });
             }).call(this, R.Debug.rethrow("R.Uplink._subscribeTo(...): couldn't unsubscribe (" + key + ")"));
         },
+        /**
+        * Etablishes a subscription to a key, and call the specified function when _handleUpdate occurs
+        * @param {string} key The key to subscribe
+        * @param {function} fn The function to execute
+        */
         subscribeTo: function subscribeTo(key, fn) {
             var subscription = new R.Uplink.Subscription(key);
             if(!_.has(this._subscriptions, key)) {
@@ -330,6 +386,10 @@ module.exports = function(R) {
                 return this._httpEndpoint + suffix;
             }
         },
+        /** Fetch data from the uplink server with the get method
+        * @param {string} key The key to fetch
+        * @return {object} return fetched data according to the key
+        */
         fetch: function fetch(key) {
             return new Promise(R.scope(function(resolve, reject) {
                 this._debugLog(">>> fetch", key);

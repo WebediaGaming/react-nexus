@@ -7,6 +7,10 @@ module.exports = function(R) {
     var splatParam = /\*\w+/g;
     var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
+    /**
+    * <p>R.Route provides methods in order to define specifics routes for the Router components</p>
+    * @class R.Router
+    */
     var Router = function Router() {
         this._routes = {};
     };
@@ -14,6 +18,13 @@ module.exports = function(R) {
     _.extend(Router.prototype, /** @lends R.Router.prototype */ {
         _routes: null,
         _default: null,
+        /**
+        * <p>Sets a route in a pattern, and combines function returning specific data</p>
+        * @method route
+        * @param {string} pattern The pattern that will be associated with function
+        * @param {string} pattern The pattern that will be associated with function
+        * @return {object} this
+        */
         route: function route(pattern, fn) {
             R.Debug.dev(R.scope(function() {
                 if(_.has(this._routes, pattern)) {
@@ -27,6 +38,11 @@ module.exports = function(R) {
             };
             return this;
         },
+        /**
+        * @method routes
+        * @param {string} patterns
+        * @return {object} this
+        */
         routes: function routes(patterns) {
             if(_.isUndefined(patterns)) {
                 return this._routes;
@@ -36,10 +52,22 @@ module.exports = function(R) {
             }, this));
             return this;
         },
+        /**
+        * <p> Setting up the default fonction to use for the match Function </p>
+        * @method def
+        * @param {string} fn
+        * @return {object} this
+        */
         def: function def(fn) {
             this._default = fn;
             return this;
         },
+        /**
+        * <p>Determines whether the sentence match with at least one of routes</p>
+        * @method match
+        * @param {string} fragment The sentence to test
+        * @return {object} res The object of the corresponding route
+        */
         match: function match(fragment) {
             var res = null;
             _.each(this._routes, R.scope(function(r) {
@@ -59,6 +87,12 @@ module.exports = function(R) {
             }
             return res;
         },
+        /**
+        * @method _routeToRegExp
+        * @param {object} route
+        * @return {object} RegExp
+        * @private
+        */
         _routeToRegExp: function _routeToRegExp(route) {
             route = route.replace(escapeRegExp, '\\$&')
                          .replace(optionalParam, '(?:$1)?')
@@ -68,6 +102,13 @@ module.exports = function(R) {
                          .replace(splatParam, '([^?]*?)');
             return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
         },
+        /**
+        * @method _extractParameters
+        * @param {object} regexp
+        * @param {object} fragment
+        * @return {object} param
+        * @private
+        */
         _extractParameters: function _extractParameters(regexp, fragment) {
             var params = regexp.exec(fragment).slice(1);
             return _.map(params, function(param, i) {

@@ -2,7 +2,19 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
 
+    /**
+    * <p>R.EventEmitter is similar to R.Store. <br />
+    * Event Emitters are event-oriented stores without persistence. <br />
+    * It juste provides a slightly different abstraction, that is sometimes more suited.</p>
+    * @class R.EventEmitter
+    */
     var EventEmitter = {
+        /**
+        * <p> Returns a new EventEmitter constructor
+        * @method createEventEmitter
+        * @param {object} specs The specifications
+        * @return {object} EventEmitterInstance The created EventEmitterInstance
+        */
         createEventEmitter: function createEventEmitter(specs) {
             R.Debug.dev(function() {
                 assert(_.isObject(specs), "R.EventEmitter.createEventEmitter(...): expecting an Object as specs.");
@@ -11,7 +23,6 @@ module.exports = function(R) {
                 assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)");
             });
             /**
-             * @class
              * @memberOf R.EventEmitter
              * @public
              */
@@ -30,6 +41,11 @@ module.exports = function(R) {
             this.uniqueId = _.uniqueId("R.EventEmitter.Listener");
             this.event = event;
         },
+        /**
+        * <p> Returns a new MemoryEventEmitter that represents a memory-local store, eg. clicks, window events.</p>
+        * @method createMemoryEventEmitter
+        * @return {object} MemoryEventEmitter The created MemoryEventEmitter instance
+        */
         createMemoryEventEmitter: function createMemoryEventEmitter() {
             return function MemoryEventEmitter() {
                 var listeners = {};
@@ -70,6 +86,11 @@ module.exports = function(R) {
                 }))();
             };
         },
+        /**
+        * <p> Returns a new UplinkEventEmitter that represents a remote event emmiter, eg. global notifications, broadcasts. </p>
+        * @method createUplinkEventEmitter
+        * @return {object} UplinkEventEmitter The created UplinkEventEmitter instance
+        */
         createUplinkEventEmitter: function createUplinkEventEmitter() {
             return function UplinkEventEmitter(uplink) {
                 R.Debug.dev(function() {
@@ -123,12 +144,14 @@ module.exports = function(R) {
 
     _.extend(EventEmitter.Listener.prototype, /** @lends R.EventEmitter.Listener.prototype */ {
         /**
+         * @property uniqueId
          * @type {String}
          * @public
          * @readOnly
          */
         uniqueId: null,
         /**
+         * @property event
          * @type {String}
          * @public
          * @readOnly

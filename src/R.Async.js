@@ -12,16 +12,19 @@ module.exports = function(R) {
      * Utilities for dealing with asynchronous callbacks in components.
      * @memberOf R
      * @public
+     * @class R.Async
      */
     var Async = {
         /**
          * React mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.
+         * @type Mixin
          * @mixin
          * @public
          */
         Mixin: null,
         /**
          * Decorates a method so that upon invocation, it is only actually invoked if the component has not unmounted.
+         * @method IfMounted
          * @param {Function}
          * @return {Function}
          * @public
@@ -40,6 +43,7 @@ module.exports = function(R) {
             };
         },
         /**
+         * @method _DeferToNextImmediate
          * @param {Function}
          * @return {Function}
          * @private
@@ -56,6 +60,7 @@ module.exports = function(R) {
             };
         },
         /**
+         * @method  _DeferToNextAnimationFrame
          * @param {Function}
          * @return {Function}
          * @private
@@ -72,6 +77,7 @@ module.exports = function(R) {
             };
         },
         /**
+         * @method _DeferToTimeout
          * @param {Number}
          * @return {Function(Function): Function}
          * @private
@@ -96,6 +102,7 @@ module.exports = function(R) {
         /**
          * Decorates a method so that upon invocation, it is actually invoked after a timeout and only the component has not unmounted.
          * If no timeout is provided, then it will defer to setImmediate.
+         * @method Deferred
          * @param {Function}
          * @return {Function}
          * @public
@@ -111,6 +118,7 @@ module.exports = function(R) {
         },
         /**
          * Decorates a method so that upon invocation, it is actually invoked after deferral and only the component has not unmounted.
+         * @method DeferredImmediate
          * @param {Function}
          * @return {Function}
          * @public
@@ -121,6 +129,7 @@ module.exports = function(R) {
         },
         /**
          * Decorates a method so that upon invocation, it is actually invoked upon the next animation frame and only the component has not unmounted.
+         * @method DeferredAnimationFrame
          * @param {Function}
          * @return {Function}
          * @public

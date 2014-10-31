@@ -54,10 +54,25 @@ module.exports = function(grunt) {
                 }
             },
         },
-    });
-    grunt.loadNpmTasks("grunt-regenerator");
-    grunt.loadNpmTasks("grunt-contrib-jshint");
-    grunt.loadNpmTasks("grunt-contrib-jst");
-    grunt.loadNpmTasks("grunt-smash");
-    grunt.registerTask("default", ["jshint", "regenerator"]);
+        pkg: grunt.file.readJSON('package.json'),
+        yuidoc: {
+            compile: {
+              name: '<%= pkg.name %>',
+              description: '<%= pkg.description %>',
+              version: '<%= pkg.version %>',
+              url: '<%= pkg.homepage %>',
+              options: {
+                paths: 'src/',
+                outdir: 'doc/'
+            }
+        }
+    },
+});
+grunt.loadNpmTasks("grunt-regenerator");
+grunt.loadNpmTasks("grunt-contrib-jshint");
+grunt.loadNpmTasks("grunt-contrib-jst");
+grunt.loadNpmTasks("grunt-smash");
+grunt.loadNpmTasks("grunt-contrib-yuidoc");
+grunt.registerTask("default", ["jshint", "regenerator"]);
+grunt.registerTask("doc", ["yuidoc"]);
 };

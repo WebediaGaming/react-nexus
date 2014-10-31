@@ -7,7 +7,7 @@ module.exports = function(R) {
 
     /**
      * @memberOf R
-     * @class R.Store is a generic, abstract Store representation. A Store is defined by its capacity to provide components with data and updates.
+     * R.Store is a generic, abstract Store representation. A Store is defined by its capacity to provide components with data and updates.
      * `get` will be used at getInitialState time.
      * `sub` will be invoked at componentDidMount time.
      * `unsub` will be invoked at componentWillUnmount time.
@@ -16,12 +16,15 @@ module.exports = function(R) {
      *     - MemoryStore (Flux-like, changes are pushed via `set`)
      *     - UplinkStore (REST + updates, changes are pushed via `signalUpdate`)
      * @public
+     * @class R.Store
      */
     var Store = {
         /**
+         * <p> Initializes the Store according to the specifications provided </p>
+         * @method createStore
          * @param {Object} specs Options to create the store.
          * @public
-         * @return {R.Store.StoreInstance}
+         * @return {R.Store.StoreInstance} StoreInstance The instance of the created StoreInstance
          */
         createStore: function createStore(specs) {
             R.Debug.dev(function() {
@@ -36,8 +39,8 @@ module.exports = function(R) {
                 assert(_.has(specs, "destroy") && _.isFunction(specs.destroy), "R.Store.createStore(...): requires destroy().");
             });
             /**
-             * @class
              * @memberOf R.Store
+             * @method StoreInstance
              * @public
              * @abstract
              */
@@ -54,8 +57,10 @@ module.exports = function(R) {
             return StoreInstance;
         },
         /**
-         * @class Represents a single subscription into a Store to avoid the pain of passing Functions back and forth.
-         * An instance of R.Store.Subscription is returned by sub and should be passed to unsub.
+         * <p> Represents a single subscription into a Store to avoid the pain of passing Functions back and forth. <br />
+         * An instance of R.Store.Subscription is returned by sub and should be passed to unsub. </p>
+         * @method Subscription
+         * @param {string} key 
          * @public
          */
         Subscription: function Subscription(key) {
@@ -63,8 +68,9 @@ module.exports = function(R) {
             this.key = key;
         },
         /**
-         * @class Implementation of R.Store using a traditionnal, Flux-like memory-based Store. The store is read-only from the components,
-         * but is writable from the toplevel using "set". Wire up to a R.Dispatcher.MemoryDispatcher to implement the canonical Flux.
+         * <p> Implementation of R.Store using a traditionnal, Flux-like memory-based Store. The store is read-only from the components,<br />
+         * but is writable from the toplevel using "set". Wire up to a R.Dispatcher.MemoryDispatcher to implement the canonical Flux. </p>
+         * @class R.Store.MemoryStore
          * @implements {R.Store}
          */
         createMemoryStore: function createMemoryStore() {
@@ -72,6 +78,13 @@ module.exports = function(R) {
                 var _destroyed = false;
                 var data = {};
                 var subscribers = {};
+
+                /**
+                * <p>Fetch data according to a key</p>
+                * @method fetch
+                * @param {string} key The key
+                * @return {Function} fn the yielded fonction
+                */
                 var fetch = function fetch(key) {
                     return function(fn) {
                         if(!_destroyed) {
@@ -83,6 +96,13 @@ module.exports = function(R) {
                         }
                     };
                 };
+
+                /**
+                * <p>Return data according to a key</p>
+                * @method get
+                * @param {string} key The key
+                * @return {Function} fn the yielded fonction
+                */
                 var get = function get(key) {
                     R.Debug.dev(function() {
                         if(!_.has(data, key)) {
@@ -91,6 +111,14 @@ module.exports = function(R) {
                     });
                     return data[key];
                 };
+
+                /** 
+                * <p>Triggered by the set function. <br />
+                * Fetch data according to the given key. <br />
+                * Call the saved function contained in subscribers. </p>
+                * @method signalUpdate
+                * @param {string} key The key to fetch
+                */
                 var signalUpdate = function signalUpdate(key) {
                     if(!_.has(subscribers, key)) {
                         return;
@@ -104,10 +132,25 @@ module.exports = function(R) {
                         });
                     }).call(this, "R.Store.MemoryStore.signalUpdate(...)");
                 };
+
+                /**
+                * <p>Set data according to a key, then call signalUpdate in order to rerender matching React component</p>
+                * @method set
+                * @param {string} key The key
+                * @param {object} val The val
+                */
                 var set = function set(key, val) {
                     data[key] = val;
                     signalUpdate(key);
                 };
+
+               /**
+                * <p> Subscribe at a specific key </p>
+                * @method sub
+                * @param {string} key The specific key to subscribe
+                * @param {function} _signalUpdate the function that will be call when a data corresponding to a key will be updated
+                * @return {Object} subscription The saved subscription
+                */
                 var sub = function sub(key, _signalUpdate) {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.MemoryStore.sub(...): instance destroyed.");
@@ -125,6 +168,11 @@ module.exports = function(R) {
                     }).call(this, R.Debug.rethrow("R.Store.MemoryStore.sub.fetch(...): couldn't fetch current value"));
                     return subscription;
                 };
+                /**
+                * <p>Unsubscribe</p>
+                * @method unsub
+                * @param {object} subscription The subscription that contains the key to unsuscribe
+                */
                 var unsub = function unsub(subscription) {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.MemoryStore.unsub(...): instance destroyed.");
@@ -137,6 +185,10 @@ module.exports = function(R) {
                         delete subscribers[subscription.key];
                     }
                 };
+                /**
+                * <p> Clean UplinkStore store </p>
+                * @method destroy
+                */
                 var destroy = function destroy() {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.MemoryStore.destroy(...): instance destroyed.");
@@ -154,9 +206,19 @@ module.exports = function(R) {
                     data = null;
                     _destroyed = true;
                 };
+                /**
+                * <p> Serialize the UplinkStore store </p>
+                * @method serialize
+                * @return {string} data The serialized UplinkStore store
+                */
                 var serialize = function serialize() {
                     return JSON.stringify(data);
                 };
+                /**
+                * <p> Unserialize the MemoryStore store </p>
+                * @method unserialize
+                * @param {string} str The string to unserialise
+                */
                 var unserialize = function unserialize(str) {
                     _.extend(data, JSON.parse(str));
                 };
@@ -177,9 +239,9 @@ module.exports = function(R) {
 
         },
         /**
-         * @class Implementation of R.Store using a remote, HTTP passive Store. The store is read-only from the components,
-         * as well as from the Client in general. However, its values may be updated across refreshes/reloads, but the remote
-         * backend should be wired-up with R.Dispatcher.HTTPDispatcher to implement a second-class over-the-wire Flux.
+         * <p> Implementation of R.Store using a remote, HTTP passive Store. The store is read-only from the components, <br />
+         * as well as from the Client in general. However, its values may be updated across refreshes/reloads, but the remote <br />
+         * backend should be wired-up with R.Dispatcher.HTTPDispatcher to implement a second-class over-the-wire Flux. </p>
          */
         createHTTPStore: function createHTTPStore() {
             return function HTTPStore(http) {
@@ -271,9 +333,10 @@ module.exports = function(R) {
             };
         },
         /**
-         * @class Implementation of R.Store using a remote, REST-like Store. The store is read-only from the components,
-         * as well as from the Client in general, but the remote backend should be wired-up with R.Dispatcher.UplinkDispatcher to
-         * implement the over-the-wire Flux.
+         * <p>Implementation of R.Store using a remote, REST-like Store. The store is read-only from the components, <br />
+         * as well as from the Client in general, but the remote backend should be wired-up with R.Dispatcher.UplinkDispatcher to 
+         * implement the over-the-wire Flux. </p>
+         * @class R.Store.UplinkStore
          * @implements {R.Store}
          */
         createUplinkStore: function createUplinkStore() {
@@ -290,6 +353,13 @@ module.exports = function(R) {
                 var data = {};
                 var subscribers = {};
                 var updaters = {};
+
+                /**
+                * <p>Fetch data according to a key</p>
+                * @method fetch
+                * @param {string} key The key
+                * @return {Function} fn the yielded fonction
+                */
                 var fetch = function* fetch(key) {
                     var val = yield _fetch(key);
                     if(!_destroyed) {
@@ -308,6 +378,13 @@ module.exports = function(R) {
                     });
                     return data[key];
                 };
+                /** 
+                * <p>Triggered by the socket.on("update") event in R.Uplink <br />
+                * Fetch data according to the given key <br />
+                * Call the saved function contained in subscribers </p>
+                * @method signalUpdate
+                * @param {string} key The key to fetch
+                */
                 var signalUpdate = function signalUpdate(key, val) {
                     if(!_.has(subscribers, key)) {
                         return;
@@ -318,6 +395,13 @@ module.exports = function(R) {
                         }
                     });
                 };
+               /**
+                * <p> Subscribe at a specific key </p>
+                * @method sub
+                * @param {string} key The specific key to subscribe
+                * @param {function} _signalUpdate the function that will be call when a data corresponding to a key will be updated
+                * @return {Object} subscription The saved subscription
+                */
                 var sub = function sub(key, _signalUpdate) {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.UplinkStore.sub(...): instance destroyed. ('" + key + "')");
@@ -325,6 +409,7 @@ module.exports = function(R) {
                     var subscription = new R.Store.Subscription(key);
                     if(!_.has(subscribers, key)) {
                         subscribers[key] = {};
+                        // call subscribeTo from R.Uplink => emit "subscribeTo" signal
                         updaters[key] = subscribeTo(key, signalUpdate);
                     }
                     subscribers[key][subscription.uniqueId] = _signalUpdate;
@@ -336,6 +421,11 @@ module.exports = function(R) {
                     }).call(this, R.Debug.rethrow("R.Store.sub.fetch(...): data not available. ('" + key + "')"));
                     return subscription;
                 };
+                /**
+                * <p> Unsubscribe</p>
+                * @method unsub
+                * @param {object} subscription The subscription that contains the key to unsuscribe
+                */
                 var unsub = function unsub(subscription) {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.UplinkStore.unsub(...): instance destroyed.");
@@ -354,12 +444,28 @@ module.exports = function(R) {
                     }
                 };
 
+                /**
+                * <p> Serialize the UplinkStore store </p>
+                * @method serialize
+                * @return {string} data The serialized UplinkStore store
+                */
                 var serialize = function serialize() {
                     return JSON.stringify(data);
                 };
+
+                /**
+                * <p> Unserialize the UplinkStore store </p>
+                * @method unserialize
+                * @param {string} str The string to unserialise
+                */
                 var unserialize = function unserialize(str) {
                     _.extend(data, JSON.parse(str));
                 };
+
+                /**
+                * <p> Clean UplinkStore store </p>
+                * @method destroy
+                */
                 var destroy = function destroy() {
                     R.Debug.dev(function() {
                         assert(!_destroyed, "R.Store.UplinkStore.destroy(...): instance destroyed.");

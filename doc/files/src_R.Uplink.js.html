@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src\R.Uplink.js - react-rails</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="react-rails"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.2.2</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/R.App.html">R.App</a></li>
+            
+                <li><a href="../classes/R.Async.html">R.Async</a></li>
+            
+                <li><a href="../classes/R.Client.html">R.Client</a></li>
+            
+                <li><a href="../classes/R.Component.html">R.Component</a></li>
+            
+                <li><a href="../classes/R.Debug.html">R.Debug</a></li>
+            
+                <li><a href="../classes/R.Dispatcher.html">R.Dispatcher</a></li>
+            
+                <li><a href="../classes/R.EventEmitter.html">R.EventEmitter</a></li>
+            
+                <li><a href="../classes/R.Flux.html">R.Flux</a></li>
+            
+                <li><a href="../classes/R.ReactChildren.html">R.ReactChildren</a></li>
+            
+                <li><a href="../classes/R.ReactCreateClass.html">R.ReactCreateClass</a></li>
+            
+                <li><a href="../classes/R.RenderServer.html">R.RenderServer</a></li>
+            
+                <li><a href="../classes/R.Root.html">R.Root</a></li>
+            
+                <li><a href="../classes/R.Router.html">R.Router</a></li>
+            
+                <li><a href="../classes/R.SimpleUplinkServer.html">R.SimpleUplinkServer</a></li>
+            
+                <li><a href="../classes/R.Store.html">R.Store</a></li>
+            
+                <li><a href="../classes/R.Store.MemoryStore.html">R.Store.MemoryStore</a></li>
+            
+                <li><a href="../classes/R.Store.UplinkStore.html">R.Store.UplinkStore</a></li>
+            
+                <li><a href="../classes/R.Uplink.html">R.Uplink</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: src\R.Uplink.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+module.exports = function(R) {
+    var url = require(&quot;url&quot;);
+    var _ = require(&quot;lodash&quot;);
+    var assert = require(&quot;assert&quot;);
+    var Promise = require(&quot;bluebird&quot;);
+    var request;
+    if(R.isClient()) {
+        request = require(&quot;brower-request&quot;);
+    }
+    else {
+        request = require(&quot;request&quot;);
+    }
+    var co = require(&quot;co&quot;);
+
+    /**
+     * &lt;p&gt;The Uplink micro-protocol is a simple set of conventions to implement real-time reactive Flux over the wire. &lt;br /&gt;
+     * The frontend and the backend server share 2 means of communications : &lt;br /&gt;
+     * - a WebSocket-like (socket.io wrapper) duplex connection to handshake and subscribe to keys/listen to events &lt;br /&gt;
+     * - regulars HTTP requests (front -&gt; back) to actually get data from the stores&lt;/p&gt;
+     * &lt;p&gt;
+     * PROTOCOL: &lt;br /&gt;
+     *&lt;br /&gt;
+     * Connection/reconnection:&lt;br /&gt;
+     *&lt;br /&gt;
+     * Client: bind socket&lt;br /&gt;
+     * Server: Acknowledge connection&lt;br /&gt;
+     * Client: send &quot;handshake&quot; { guid: guid }&lt;br /&gt;
+     * Server: send &quot;handshake-ack&quot; { recovered: bool } (recover previous session if existing based upon guid; recovered is true iff previous session existed)&lt;br /&gt;&lt;br /&gt;
+     *&lt;br /&gt;
+     * Stores:&lt;br /&gt;
+     * Client: send &quot;subscribeTo&quot; { key: key }&lt;br /&gt;
+     * Server: send &quot;update&quot; { key: key }&lt;br /&gt;
+     * Client: XHR GET /uplink/key&lt;br /&gt;
+     *&lt;br /&gt;
+     * Events:
+     * Client: send &quot;listenTo&quot; { eventName: eventName }&lt;br /&gt;
+     * Server: send &quot;event&quot; { eventName: eventName, params: params }&lt;br /&gt;
+     *&lt;br /&gt;
+     * Actions:&lt;br /&gt;
+     * Client: XHR POST /uplink/action { params: params }&lt;br /&gt;
+     *&lt;br /&gt;
+     * Other notifications:&lt;br /&gt;
+     * Server: send &quot;debug&quot;: { debug: debug } Debug-level message&lt;br /&gt;
+     * Server: send &quot;log&quot; { log: log } Log-level message&lt;br /&gt;
+     * Server: send &quot;warn&quot;: { warn: warn } Warn-level message&lt;br /&gt;
+     * Server: send &quot;err&quot;: { err: err } Error-level message&lt;br /&gt;
+     * &lt;/p&gt;
+     * @class R.Uplink
+     */
+
+    /**
+    * &lt;p&gt; Initializes the uplink according to the specifications provided &lt;/p&gt;
+    * @method Uplink
+    * @param {object} httpEndpoint 
+    * @param {object} socketEndpoint 
+    * @param {object} guid 
+    * @param {object} shouldReloadOnServerRestart
+    */
+    var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid, shouldReloadOnServerRestart) {
+        this._httpEndpoint = httpEndpoint;
+        this._socketEndPoint = socketEndpoint;
+        this._guid = guid;
+        if(R.isClient()) {
+            this._initInClient();
+        }
+        if(R.isServer()) {
+            this._initInServer();
+        }
+        this._data = {};
+        this._hashes = {};
+        this._performUpdateIfNecessary = R.scope(this._performUpdateIfNecessary, this);
+        this._shouldFetchKey = R.scope(this._shouldFetchKey, this);
+        this.fetch = R.scope(this.fetch, this);
+        this.subscribeTo = R.scope(this.subscribeTo, this);
+        this.unsubscribeFrom = R.scope(this.unsubscribeFrom, this);
+        this.listenTo = R.scope(this.listenTo, this);
+        this.unlistenFrom = R.scope(this.unlistenFrom, this);
+        this.dispatch = R.scope(this.dispatch, this);
+        this.shouldReloadOnServerRestart = shouldReloadOnServerRestart;
+    };
+
+    _.extend(Uplink.prototype, /** @lends R.Uplink.prototype */ {
+        _httpEndpoint: null,
+        _socketEndPoint: null,
+        _subscriptions: null,
+        _listeners: null,
+        _socket: null,
+        _guid: null,
+        _pid: null,
+        ready: null,
+        shouldReloadOnServerRestart: null,
+        _acknowledgeHandshake: null,
+        _debugLog: function _debugLog() {
+            var args = arguments;
+            R.Debug.dev(function() {
+                console.log.apply(console, args);
+            });
+        },
+        _emit: function _emit(name, params) {
+            R.Debug.dev(R.scope(function() {
+                assert(this._socket &amp;&amp; null !== this._socket, &quot;R.Uplink.emit(...): no active socket (&#x27;&quot; + name + &quot;&#x27;, &#x27;&quot; + params + &quot;&#x27;)&quot;);
+            }, this));
+            this._debugLog(&quot;&gt;&gt;&gt; &quot; + name, params);
+            this._socket.emit(name, params);
+        },
+
+        /**
+        * &lt;p&gt; Creating io connection client-side in order to use sockets &lt;/p&gt;
+        * @method _initInClient
+        */
+        _initInClient: function _initInClient() {
+            R.Debug.dev(function() {
+                assert(R.isClient(), &quot;R.Uplink._initInClient(...): should only be called in the client.&quot;);
+            });
+            if(this._socketEndPoint) {
+                var io;
+                if(window.io &amp;&amp; _.isFunction(window.io)) {
+                    io = window.io;
+                }
+                else {
+                    io = require(&quot;socket.io-client&quot;);
+                }
+                this._subscriptions = {};
+                this._listeners = {};
+                //Connect to uplink server-side. Trigger the uplink-server on io.on(&quot;connection&quot;)
+                var socket = this._socket = io(this._socketEndPoint);
+                //Prepare all event client-side, listening:
+                socket.on(&quot;update&quot;, R.scope(this._handleUpdate, this));
+                socket.on(&quot;event&quot;, R.scope(this._handleEvent, this));
+                socket.on(&quot;disconnect&quot;, R.scope(this._handleDisconnect, this));
+                socket.on(&quot;connect&quot;, R.scope(this._handleConnect, this));
+                socket.on(&quot;handshake-ack&quot;, R.scope(this._handleHandshakeAck, this));
+                socket.on(&quot;debug&quot;, R.scope(this._handleDebug, this));
+                socket.on(&quot;log&quot;, R.scope(this._handleLog, this));
+                socket.on(&quot;warn&quot;, R.scope(this._handleWarn, this));
+                socket.on(&quot;err&quot;, R.scope(this._handleError, this));
+                this.ready = new Promise(R.scope(function(resolve, reject) {
+                    this._acknowledgeHandshake = resolve;
+                }, this));
+                if(window.onbeforeunload) {
+                    var prevHandler = window.onbeforeunload;
+                    window.onbeforeunload = R.scope(this._handleUnload(prevHandler), this);
+                }
+                else {
+                    window.onbeforeunload = R.scope(this._handleUnload(null), this);
+                }
+            }
+            else {
+                this.ready = Promise.cast(true);
+            }
+        },
+        /**
+        * &lt;p&gt;Server-side&lt;/p&gt;
+        * @method _initInServer
+        */
+        _initInServer: function _initInClient() {
+            R.Debug.dev(function() {
+                assert(R.isServer(), &quot;R.Uplink._initInServer(...): should only be called in the server.&quot;);
+            });
+            this.ready = Promise.cast(true);
+        },
+        /**
+        * &lt;p&gt;Triggered when a data is updated according to the specific key &lt;br /&gt;
+        * Call corresponding function key &lt;/p&gt;
+        * @method _handleUpdate
+        * @param {object} params The specific key
+        */
+        _handleUpdate: function _handleUpdate(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; update&quot;, params);
+            R.Debug.dev(function() {
+                assert(_.isObject(params), &quot;R.Uplink._handleUpdate.params: expecting Object.&quot;);
+                assert(params.k &amp;&amp; _.isString(params.k), &quot;R.Uplink._handleUpdate.params.k: expecting String.&quot;);
+                assert(_.has(params, &quot;v&quot;), &quot;R.Uplink._handleUpdate.params.v: expecting an entry.&quot;);
+                assert(params.d &amp;&amp; _.isArray(params.d), &quot;R.Uplink._handleUpdate.params.d: expecting Array.&quot;);
+                assert(params.h &amp;&amp; _.isString(params.h), &quot;R.Uplink._handleUpdate.params.h: expecting String.&quot;);
+            });
+            var key = params.k;
+            this._performUpdateIfNecessary(key, params)(R.scope(function(err, val) {
+                R.Debug.dev(function() {
+                    if(err) {
+                        throw R.Debug.extendError(err, &quot;R.Uplink._handleUpdate(...): couldn&#x27;t _performUpdateIfNecessary.&quot;);
+                    }
+                });
+                if(err) {
+                    return;
+                }
+                this._data[key] = val;
+                this._hashes[key] = R.hash(JSON.stringify(val));
+                if(_.has(this._subscriptions, key)) {
+                    _.each(this._subscriptions[key], function(fn) {
+                        fn(key, val);
+                    });
+                }
+            }, this));
+        },
+        /**
+        * @method _shouldFetchKey
+        * @param {string} key
+        * @param {object} entry
+        * @return {Boolean} bool The boolean
+        */
+        _shouldFetchKey: function _shouldFetchKey(key, entry) {
+            if(!_.has(this._data, key) || !_.has(this._hashes, key)) {
+                return true;
+            }
+            if(this._hashes[key] !== entry.from) {
+                return true;
+            }
+            return false;
+        },
+
+        /**
+        * @method _performUpdateIfNecessary
+        * @param {string} key
+        * @param {object} entry
+        * @return {Function} fn The Function to call
+        */
+        _performUpdateIfNecessary: function _performUpdateIfNecessary(key, entry) {
+            return R.scope(function(fn) {
+                co(function*() {
+                    if(this._shouldFetchKey(key, entry)) {
+                        return yield this.fetch(key);
+                    }
+                    else {
+                        return R.patch(this._data[key], entry.diff);
+                    }
+                }).call(this, fn);
+            }, this);
+        },
+
+        /**
+        * @method _handleEvent
+        * @param {string} params
+        */
+        _handleEvent: function _handleEvent(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; event&quot;, params.eventName);
+            var eventName = params.eventName;
+            var eventParams = params.params;
+            if(_.has(this._listeners, eventName)) {
+                _.each(this._listeners[eventName], function(fn) {
+                    fn(eventParams);
+                });
+            }
+        },
+        /**
+        * @method _handleDisconnect
+        * @param {string} params
+        */
+        _handleDisconnect: function _handleDisconnect(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; disconnect&quot;, params);
+            this.ready = new Promise(R.scope(function(resolve, reject) {
+                this._acknowledgeHandshake = resolve;
+            }, this));
+        },
+        /** occurs after a connection */
+        _handleConnect: function _handleConnect() {
+            this._debugLog(&quot;&lt;&lt;&lt; connect&quot;);
+            //notify uplink-server
+            this._emit(&quot;handshake&quot;, { guid: this._guid });
+        },
+        _handleHandshakeAck: function _handleHandshakeAck(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; handshake-ack&quot;, params);
+            if(this._pid &amp;&amp; params.pid !== this._pid &amp;&amp; this.shouldReloadOnServerRestart) {
+                R.Debug.dev(function() {
+                    console.warn(&quot;Server pid has changed, reloading page.&quot;);
+                });
+                setTimeout(function() {
+                    window.location.reload(true);
+                }, _.random(2000, 10000));
+            }
+            this._pid = params.pid;
+            this._acknowledgeHandshake(params);
+        },
+        _handleDebug: function _handleDebug(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; debug&quot;, params);
+            R.Debug.dev(function() {
+                console.warn(&quot;R.Uplink.debug(...):&quot;, params.debug);
+            });
+        },
+        _handleLog: function _handleLog(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; log&quot;, params);
+            console.log(&quot;R.Uplink.log(...):&quot;, params.log);
+        },
+        _handleWarn: function _handleWarn(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; warn&quot;, params);
+            console.warn(&quot;R.Uplink.warn(...):&quot;, params.warn);
+        },
+        _handleError: function _handleError(params) {
+            this._debugLog(&quot;&lt;&lt;&lt; error&quot;, params);
+            console.error(&quot;R.Uplink.err(...):&quot;, params.err);
+        },
+        _handleUnload: function _handleUnload(prevHandler) {
+            return R.scope(function() {
+                if(prevHandler) {
+                    prevHandler();
+                }
+                this._emit(&quot;unhandshake&quot;);
+            }, this);
+        },
+        _destroyInClient: function _destroyInClient() {
+            if(this._socket) {
+                this._socket.close();
+            }
+        },
+        _destroyInServer: function _destroyInServer() {
+            return void 0;
+        },
+        _subscribeTo: function _subscribeTo(key) {
+            co(function*() {
+                yield this.ready;
+                this._emit(&quot;subscribeTo&quot;, { key: key });
+            }).call(this, R.Debug.rethrow(&quot;R.Uplink._subscribeTo(...): couldn&#x27;t subscribe (&quot; + key + &quot;)&quot;));
+        },
+        _unsubscribeFrom: function _unsubscribeFrom(key) {
+            co(function*() {
+                yield this.ready;
+                this._emit(&quot;unsubscribeFrom&quot;, { key: key });
+            }).call(this, R.Debug.rethrow(&quot;R.Uplink._subscribeTo(...): couldn&#x27;t unsubscribe (&quot; + key + &quot;)&quot;));
+        },
+        /**
+        * Etablishes a subscription to a key, and call the specified function when _handleUpdate occurs
+        * @param {string} key The key to subscribe
+        * @param {function} fn The function to execute
+        */
+        subscribeTo: function subscribeTo(key, fn) {
+            var subscription = new R.Uplink.Subscription(key);
+            if(!_.has(this._subscriptions, key)) {
+                this._subscribeTo(key);
+                this._subscriptions[key] = {};
+                this._data[key] = {};
+                this._hashes[key] = R.hash(JSON.stringify({}));
+            }
+            this._subscriptions[key][subscription.uniqueId] = fn;
+            return subscription;
+        },
+        unsubscribeFrom: function unsubscribeFrom(key, subscription) {
+            R.Debug.dev(R.scope(function() {
+                assert(_.has(this._subscriptions, key), &quot;R.Uplink.unsub(...): no such key.&quot;);
+                assert(_.has(this._subscriptions[key], subscription.uniqueId), &quot;R.Uplink.unsub(...): no such subscription.&quot;);
+            }, this));
+            delete this._subscriptions[key][subscription.uniqueId];
+            if(_.size(this._subscriptions[key]) === 0) {
+                delete this._subscriptions[key];
+                delete this._data[key];
+                delete this._hashes[key];
+                this._unsubscribeFrom(key);
+            }
+        },
+        _listenTo: function _listenTo(eventName) {
+            co(function*() {
+                yield this.ready;
+                this._emit(&quot;listenTo&quot;, { eventName: eventName });
+            }).call(this, R.Debug.rethrow(&quot;R.Uplink._listenTo: couldn&#x27;t listen (&quot; + eventName + &quot;)&quot;));
+        },
+        _unlistenFrom: function _unlistenFrom(eventName) {
+            co(function*() {
+                yield this.ready;
+                this._emit(&quot;unlistenFrom&quot;, { eventName: eventName });
+            }).call(this, R.Debug.rethrow(&quot;R.Uplink._unlistenFrom: couldn&#x27;t unlisten (&quot; + eventName + &quot;)&quot;));
+        },
+        listenTo: function listenTo(eventName, fn) {
+            var listener = R.Uplink.Listener(eventName);
+            if(!_.has(this._listeners, eventName)) {
+                this._listenTo(eventName);
+                this._listeners[eventName] = {};
+            }
+            this._listeners[eventName][listener.uniqueId] = fn;
+            return listener;
+        },
+        unlistenFrom: function unlistenFrom(eventName, listener) {
+            R.Debug.dev(R.scope(function() {
+                assert(_.has(this._listeners, eventName), &quot;R.Uplink.removeListener(...): no such eventName.&quot;);
+                assert(_.has(this._listeners[eventName], listener.uniqueId), &quot;R.Uplink.removeListener(...): no such listener.&quot;);
+            }, this));
+            delete this._listeners[eventName];
+            if(_.size(this._listeners[eventName]) === 0) {
+                delete this._listeners[eventName];
+                this._unlistenFrom(eventName);
+            }
+        },
+        _getFullUrl: function _getFullUrl(suffix) {
+            if(suffix.slice(0, 1) === &quot;/&quot; &amp;&amp; this._httpEndpoint.slice(-1) === &quot;/&quot;) {
+                return this._httpEndpoint.slice(0, -1) + suffix;
+            }
+            else {
+                return this._httpEndpoint + suffix;
+            }
+        },
+        /** Fetch data from the uplink server with the get method
+        * @param {string} key The key to fetch
+        * @return {object} return fetched data according to the key
+        */
+        fetch: function fetch(key) {
+            return new Promise(R.scope(function(resolve, reject) {
+                this._debugLog(&quot;&gt;&gt;&gt; fetch&quot;, key);
+                request({
+                    url: this._getFullUrl(key),
+                    method: &quot;GET&quot;,
+                    json: true,
+                    withCredentials: false,
+                }, function(err, res, body) {
+                    if(err) {
+                        R.Debug.dev(function() {
+                            console.warn(&quot;R.Uplink.fetch(...): couldn&#x27;t fetch &#x27;&quot; + key + &quot;&#x27;:&quot;, err.toString());
+                        });
+                        return resolve(null);
+                    }
+                    else {
+                        return resolve(body);
+                    }
+                });
+            }, this));
+        },
+        dispatch: function dispatch(action, params) {
+            return new Promise(R.scope(function(resolve, reject) {
+                this._debugLog(&quot;&gt;&gt;&gt; dispatch&quot;, action, params);
+                request({
+                    url: this._getFullUrl(action),
+                    method: &quot;POST&quot;,
+                    body: { guid: this._guid, params: params },
+                    json: true,
+                    withCredentials: false,
+                }, function(err, res, body) {
+                    if(err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(body);
+                    }
+                });
+            }, this));
+        },
+        destroy: function destroy() {
+            if(R.isClient()) {
+                this._destroyInClient();
+            }
+            if(R.isServer()) {
+                this._destroyInServer();
+            }
+        },
+    });
+
+    _.extend(Uplink, {
+        Subscription: function Subscription(key) {
+            this.key = key;
+            this.uniqueId = _.uniqueId(&quot;R.Uplink.Subscription&quot;);
+        },
+        Listener: function Listener(eventName) {
+            this.eventName = eventName;
+            this.uniqueId = _.uniqueId(&quot;R.Uplink.Listener&quot;);
+        },
+    });
+
+    return Uplink;
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
