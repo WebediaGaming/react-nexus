@@ -71,9 +71,11 @@ module.exports = function(R) {
                 surrogateRootComponent.componentWillMount();
                 yield surrogateRootComponent.prefetchFluxStores();
                 surrogateRootComponent.componentWillUnmount();
-                var rootComponent = this._rootClass(rootProps);
+
+                var factoryRootComponent = React.createFactory(this._rootClass);
+                var rootComponent = factoryRootComponent(rootProps);
                 flux.startInjectingFromStores();
-                var rootHtml = React.renderComponentToString(rootComponent);
+                var rootHtml = React.renderToString(rootComponent);
                 flux.stopInjectingFromStores();
                 var serializedFlux = flux.serialize();
                 flux.destroy();
@@ -111,12 +113,13 @@ module.exports = function(R) {
                 R.Debug.dev(R.scope(function() {
                     _.extend(rootProps, { __ReactOnRailsApp: this });
                 }, this));
-                var rootComponent = this._rootClass(rootProps);
+                var factoryRootComponent = React.createFactory(this._rootClass);
+                var rootComponent = factoryRootComponent(rootProps);
                 R.Debug.dev(function() {
                     window.__ReactOnRails.rootComponent = rootComponent;
                 });
                 flux.startInjectingFromStores();
-                React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
+                React.render(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                 flux.stopInjectingFromStores();
             },
         },
