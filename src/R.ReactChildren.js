@@ -40,9 +40,11 @@ module.exports = function(R) {
                 return component;
             }
             else {
-                component.props.children = React.Children.mapDescendants(component, function(childComponent) {
-                    return React.Children.transformTree(childComponent, fn);
-                });
+                if(component.props){
+                    component.props.children = React.Children.mapDescendants(component, function(childComponent) {
+                        return React.Children.transformTree(childComponent, fn);
+                    });
+                }
                 return component;
             }
         },
