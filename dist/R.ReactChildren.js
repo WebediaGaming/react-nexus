@@ -6,7 +6,7 @@ module.exports = function(R) {
 
     var _patchedReactChildren = _.extend({}, React.Children, {
         getChildrenList: function getChildrenList(component) {
-            if(null === component || !component.props.children) {
+            if(null === component || !component.props || !component.props.children) {
                 return [];
             }
             return React.Children.map(component.props.children, _.identity);
@@ -40,9 +40,11 @@ module.exports = function(R) {
                 return component;
             }
             else {
-                component.props.children = React.Children.mapDescendants(component, function(childComponent) {
-                    return React.Children.transformTree(childComponent, fn);
-                });
+                if(component.props){
+                    component.props.children = React.Children.mapDescendants(component, function(childComponent) {
+                        return React.Children.transformTree(childComponent, fn);
+                    });
+                }
                 return component;
             }
         },

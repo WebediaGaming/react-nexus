@@ -3004,23 +3004,47 @@
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 107,
+            "line": 99,
+            "description": "<p>Emits a socket signal to the uplink-server</p>",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the signal",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "The specifics params to send",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 113,
             "description": "<p> Creating io connection client-side in order to use sockets </p>",
             "itemtype": "method",
             "name": "_initInClient",
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 152,
+            "line": 159,
             "description": "<p>Server-side</p>",
             "itemtype": "method",
             "name": "_initInServer",
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 162,
+            "line": 170,
             "description": "<p>Triggered when a data is updated according to the specific key <br />\nCall corresponding function key </p>",
             "itemtype": "method",
             "name": "_handleUpdate",
@@ -3031,11 +3055,13 @@
                     "type": "Object"
                 }
             ],
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 196,
+            "line": 205,
             "itemtype": "method",
             "name": "_shouldFetchKey",
             "params": [
@@ -3054,11 +3080,14 @@
                 "description": "bool The boolean",
                 "type": "Boolean"
             },
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 212,
+            "line": 222,
+            "description": "<p>Determines if the the data must be fetched</p>",
             "itemtype": "method",
             "name": "_performUpdateIfNecessary",
             "params": [
@@ -3077,11 +3106,13 @@
                 "description": "fn The Function to call",
                 "type": "Function"
             },
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 231,
+            "line": 243,
             "itemtype": "method",
             "name": "_handleEvent",
             "params": [
@@ -3091,11 +3122,13 @@
                     "type": "String"
                 }
             ],
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 245,
+            "line": 258,
             "itemtype": "method",
             "name": "_handleDisconnect",
             "params": [
@@ -3105,17 +3138,180 @@
                     "type": "String"
                 }
             ],
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 255,
+            "line": 269,
+            "description": "<p>Occurs after a connection. When a connection is established, the client sends a signal \"handshake\".</p>",
+            "itemtype": "method",
+            "name": "_handleDisconnect",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 280,
+            "description": "<p> Identifies if the pid of the server has changed (due to a potential reboot server-side) since the last client connection. <br />\nIf this is the case, a page reload is performed<p>",
+            "itemtype": "method",
+            "name": "_handleHandshakeAck",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 300,
+            "itemtype": "method",
+            "name": "_handleDebug",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 311,
+            "itemtype": "method",
+            "name": "_handleLog",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
             "line": 320,
-            "description": "Etablishes a subscription to a key, and call the specified function when _handleUpdate occurs",
+            "itemtype": "method",
+            "name": "_handleWarn",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 329,
+            "itemtype": "method",
+            "name": "_handleError",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 339,
+            "description": "<p>Occurs when a client unloads the document</p>",
+            "itemtype": "method",
+            "name": "_handleUnload",
+            "params": [
+                {
+                    "name": "prevHandler",
+                    "description": "The function to execute when the page will be unloaded",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "function",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 355,
+            "description": "<p>Simply closes the socket</p>",
+            "itemtype": "method",
+            "name": "_destroyInClient",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 365,
+            "description": "<p>Does nothing</p>",
+            "itemtype": "method",
+            "name": "_destroyInClient",
+            "return": {
+                "description": "void0",
+                "type": "*"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 375,
+            "description": "<p>Notifies the uplink-server that a subscription is required by client</p>",
+            "itemtype": "method",
+            "name": "_subscribeTo",
+            "return": {
+                "description": "key The key to subscribe",
+                "type": "String"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 388,
+            "description": "<p>Notifies the uplink-server that a subscription is over</p>",
+            "itemtype": "method",
+            "name": "_subscribeTo",
+            "return": {
+                "description": "key The key to unsubscribe",
+                "type": "String"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 401,
+            "description": "<p>Etablishes a subscription to a key, and call the specified function when _handleUpdate occurs</p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
             "params": [
                 {
                     "name": "key",
@@ -3128,11 +3324,137 @@
                     "type": "Function"
                 }
             ],
+            "return": {
+                "description": "subscription The created subscription",
+                "type": "Object"
+            },
             "class": "R.Uplink"
         },
         {
             "file": "src\\R.Uplink.js",
-            "line": 389,
+            "line": 420,
+            "description": "<p>Removes a subscription to a key</p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to subscribe",
+                    "type": "String"
+                },
+                {
+                    "name": "subscription",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 439,
+            "description": "<p>Sends the listener signal \"listenTo\"</p>",
+            "itemtype": "method",
+            "name": "_listenTo",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 451,
+            "description": "<p>Sends the unlistener signal \"unlistenFrom\"</p>",
+            "itemtype": "method",
+            "name": "_unlistenFrom",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 463,
+            "description": "<p>Create a listener according to a specific name</p>",
+            "itemtype": "method",
+            "name": "listenTo",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute when triggered",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "listener The created listener",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 480,
+            "description": "<p>Remove a listener </p>",
+            "itemtype": "method",
+            "name": "unlistenFrom",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to remove",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 497,
+            "itemtype": "method",
+            "name": "_getFullUrl",
+            "params": [
+                {
+                    "name": "suffix",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 511,
+            "description": "<p>Fetch data by GET request from the uplink-server</p>",
+            "itemtype": "method",
+            "name": "fetch",
             "params": [
                 {
                     "name": "key",
@@ -3141,9 +3463,41 @@
                 }
             ],
             "return": {
-                "description": "return fetched data according to the key",
+                "description": "object Fetched data according to the key",
                 "type": "Object"
             },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 539,
+            "description": "<p>Dispatches an action by POST request from the uplink-server</p>",
+            "itemtype": "method",
+            "name": "dispatch",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "The specific action to dispatch",
+                    "type": "Object"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "object Fetched data according to the specified action",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 565,
+            "description": "<p>Destroy socket client-side</p>",
+            "itemtype": "method",
+            "name": "destroy",
             "class": "R.Uplink"
         },
         {
@@ -3304,6 +3658,30 @@
             "line": " src\\R.Store.js:335"
         },
         {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:280"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:300"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:311"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:320"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:329"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:339"
+        },
+        {
             "message": "Missing item type\nReact mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.",
             "line": " src\\R.Async.js:18"
         },
@@ -3364,16 +3742,8 @@
             "line": " src\\R.Store.js:509"
         },
         {
-            "message": "Missing item type",
-            "line": " src\\R.Uplink.js:255"
-        },
-        {
-            "message": "Missing item type\nEtablishes a subscription to a key, and call the specified function when _handleUpdate occurs",
-            "line": " src\\R.Uplink.js:320"
-        },
-        {
-            "message": "Missing item type",
-            "line": " src\\R.Uplink.js:389"
+            "message": "Missing item type\n<p>Emits a socket signal to the uplink-server</p>",
+            "line": " src\\R.Uplink.js:99"
         },
         {
             "message": "Missing item type\nTODO",
