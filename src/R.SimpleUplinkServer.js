@@ -416,7 +416,7 @@ module.exports = function(R) {
                     recovered: recovered,
                     subscribeTo: R.scope(this.subscribeTo, this),
                     unsubscribeFrom: R.scope(this.unsubscribeFrom, this),
-                    listenTo: R.scope(this.listenTon, this),
+                    listenTo: R.scope(this.listenTo, this),
                     unlistenFrom: R.scope(this.unlistenFrom, this),
                 };
             },
