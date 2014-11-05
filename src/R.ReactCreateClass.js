@@ -4,6 +4,11 @@ module.exports = function(R) {
 
     var _vanillaCreateClass = R.scope(React.createClass, React);
 
+    /**
+    * <p>Method definition that complements React.createClass. <br />
+    * Used to compute an instance of a React component</p>
+    * @class R.ReactCreateClass
+    */
     var _patchedCreateClass = function createClass(specs) {
         var createdClass;
 
@@ -12,6 +17,14 @@ module.exports = function(R) {
             statics: {},
         });
 
+        /**
+        * <p> Returns an instance of a component by React context, the property and a defined state </p>
+        * @method __ReactOnRailsSurrogate
+        * @param {object} context The context of the future component
+        * @param {object} props The props of the future component
+        * @param {object} initialState The state of the future component
+        * @return {object} instance The created component instance
+        */
         var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
             var instance;
             React.withContext(context, function() {
@@ -46,6 +59,10 @@ module.exports = function(R) {
         return createdClass;
     };
 
+    /**
+    * <p> Function to use if you want restore native function of React.createClass </p>
+    * @method restoreVanillaCreateClass
+    */
     _patchedCreateClass.restoreVanillaCreateClass = function() {
         React.createClass = _vanillaCreateClass;
     };

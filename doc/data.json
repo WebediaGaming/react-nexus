@@ -1,0 +1,3769 @@
+{
+    "project": {
+        "name": "react-rails",
+        "description": "Opinionated React extensions for Real-World Production-Level Applications.",
+        "version": "0.2.2",
+        "url": ""
+    },
+    "files": {
+        "src\\R.App.js": {
+            "name": "src\\R.App.js",
+            "modules": {},
+            "classes": {
+                "R.App": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Async.js": {
+            "name": "src\\R.Async.js",
+            "modules": {},
+            "classes": {
+                "R.Async": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Client.js": {
+            "name": "src\\R.Client.js",
+            "modules": {},
+            "classes": {
+                "R.Client": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Component.js": {
+            "name": "src\\R.Component.js",
+            "modules": {},
+            "classes": {
+                "R.Component": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Cordova.js": {
+            "name": "src\\R.Cordova.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Debug.js": {
+            "name": "src\\R.Debug.js",
+            "modules": {},
+            "classes": {
+                "R.Debug": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Dispatcher.js": {
+            "name": "src\\R.Dispatcher.js",
+            "modules": {},
+            "classes": {
+                "R.Dispatcher": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.EventEmitter.js": {
+            "name": "src\\R.EventEmitter.js",
+            "modules": {},
+            "classes": {
+                "R.EventEmitter": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Flux.js": {
+            "name": "src\\R.Flux.js",
+            "modules": {},
+            "classes": {
+                "R.Flux": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Fullscreen.js": {
+            "name": "src\\R.Fullscreen.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Pure.js": {
+            "name": "src\\R.Pure.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.ReactChildren.js": {
+            "name": "src\\R.ReactChildren.js",
+            "modules": {},
+            "classes": {
+                "R.ReactChildren": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.ReactCreateClass.js": {
+            "name": "src\\R.ReactCreateClass.js",
+            "modules": {},
+            "classes": {
+                "R.ReactCreateClass": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.RenderServer.js": {
+            "name": "src\\R.RenderServer.js",
+            "modules": {},
+            "classes": {
+                "R.RenderServer": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Root.js": {
+            "name": "src\\R.Root.js",
+            "modules": {},
+            "classes": {
+                "R.Root": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Router.js": {
+            "name": "src\\R.Router.js",
+            "modules": {},
+            "classes": {
+                "R.Router": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.SimpleUplinkServer.js": {
+            "name": "src\\R.SimpleUplinkServer.js",
+            "modules": {},
+            "classes": {
+                "R.SimpleUplinkServer": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Store.js": {
+            "name": "src\\R.Store.js",
+            "modules": {},
+            "classes": {
+                "R.Store": 1,
+                "R.Store.MemoryStore": 1,
+                "R.Store.UplinkStore": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.Uplink.js": {
+            "name": "src\\R.Uplink.js",
+            "modules": {},
+            "classes": {
+                "R.Uplink": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.XWindow.js": {
+            "name": "src\\R.XWindow.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\R.utils.js": {
+            "name": "src\\R.utils.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "R.App": {
+            "name": "R.App",
+            "shortname": "R.App",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.App.js",
+            "line": 8,
+            "description": "<p>Simply create an App class with specifics</p>\n<p>Provides methods in order to render the specified App server-side and client-side</p>\n<ul>\n<li> App.createApp => initializes methods of an application according to the specifications provided </li>\n<li> App.renderToStringInServer => compute all React Components with data and render the corresponding HTML for the requesting client </li>\n<li> App.renderIntoDocumentInClient => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions</li>\n<li> App.createPlugin => initiliaziation method of a plugin for the application </li>\n</ul>"
+        },
+        "R.Async": {
+            "name": "R.Async",
+            "shortname": "R.Async",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Async.js",
+            "line": 11,
+            "description": "Utilities for dealing with asynchronous callbacks in components.",
+            "memberof": "R",
+            "access": "public",
+            "tagname": ""
+        },
+        "R.Client": {
+            "name": "R.Client",
+            "shortname": "R.Client",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Client.js",
+            "line": 8,
+            "description": "<p>Simply provides an specified App for the client</p>\n<p>Provides instance of App </p>\n<ul>\n<li> Client.mount => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions </li>\n</ul>"
+        },
+        "R.Component": {
+            "name": "R.Component",
+            "shortname": "R.Component",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Component.js",
+            "line": 6,
+            "description": "<p>Defines a specific mixin</p>\n<p>This will allow to components to access the main methods of react-rails</p>\n<ul>\n<li> Component.getFlux => Provide Flux for the current component </li>\n</ul>"
+        },
+        "R.Debug": {
+            "name": "R.Debug",
+            "shortname": "R.Debug",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Debug.js",
+            "line": 7,
+            "description": "<p>Debugging utilities embedded with R.<br />\nProvides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.</p>",
+            "memberof": "R",
+            "type": "{Object}"
+        },
+        "R.Dispatcher": {
+            "name": "R.Dispatcher",
+            "shortname": "R.Dispatcher",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Dispatcher.js",
+            "line": 5,
+            "description": "<p>R.Dispatcher acts as a layer between Store/EventEmitters and components.\nA React component may submit an action to a dispatcher (such as a click event) and perform updates required.</p>\n<ul>\n<li> Dispatcher.createDispatcher => initialize methods according to the specifications provided</li>\n<li> Dispatcher.addActionListener => add an action listener</li>\n<li> Dispatcher.removeActionListener => remove an action listener</li>\n<li> Dispatcher.dispatch => dispatches an action submitted by a React component</li>\n<li> Dispatcher.destroy => remove all listener previously added</li>\n</ul>"
+        },
+        "R.EventEmitter": {
+            "name": "R.EventEmitter",
+            "shortname": "R.EventEmitter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.EventEmitter.js",
+            "line": 5,
+            "description": "<p>R.EventEmitter is similar to R.Store. <br />\nEvent Emitters are event-oriented stores without persistence. <br />\nIt juste provides a slightly different abstraction, that is sometimes more suited.</p>"
+        },
+        "R.Flux": {
+            "name": "R.Flux",
+            "shortname": "R.Flux",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Flux.js",
+            "line": 13,
+            "memberof": "R\n<p>R.Flux represents the data flowing from the backends (either local or remote).\nTo enable isomoprhic rendering, it should be computable either or in the server or in the client.\nIt represents the global state, including but not limited to:</p>\n<ul>\n<li>Routing information</li>\n<li>Session information</li>\n<li>Navigation information</li>\n</ul>\n<p>Inside an App, each components can interact with the Flux instance using Flux.Mixin (generally via Root.Mixin or Component.Mixin).</p>"
+        },
+        "R.ReactChildren": {
+            "name": "R.ReactChildren",
+            "shortname": "R.ReactChildren",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.ReactChildren.js",
+            "line": 6,
+            "description": "<p>Method definitions that complements React.Children. <br />\nUsed to navigate through all children of a specific component in order to calculate its descendants. </p>"
+        },
+        "R.ReactCreateClass": {
+            "name": "R.ReactCreateClass",
+            "shortname": "R.ReactCreateClass",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.ReactCreateClass.js",
+            "line": 7,
+            "description": "<p>Method definition that complements React.createClass. <br />\nUsed to compute an instance of a React component</p>"
+        },
+        "R.RenderServer": {
+            "name": "R.RenderServer",
+            "shortname": "R.RenderServer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.RenderServer.js",
+            "line": 7,
+            "description": "<p>Simply provides an specified App for the RenderServer</p>\n<p>Provides instance of App </p>\n<ul>\n<li> RenderServer.middleware => compute all React Components with data and render the corresponding HTML for the requesting client </li>\n</ul>"
+        },
+        "R.Root": {
+            "name": "R.Root",
+            "shortname": "R.Root",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Root.js",
+            "line": 6,
+            "description": "<p>Defines the specific mixin for the root component<br />\nThis will allow components to access the main methods of react-rails</p>\n<ul>\n<li> Component.getFlux => Provide Flux for the current component </li>\n</ul>"
+        },
+        "R.Router": {
+            "name": "R.Router",
+            "shortname": "R.Router",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Router.js",
+            "line": 10,
+            "description": "<p>R.Route provides methods in order to define specifics routes for the Router components</p>"
+        },
+        "R.SimpleUplinkServer": {
+            "name": "R.SimpleUplinkServer",
+            "shortname": "R.SimpleUplinkServer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 9,
+            "description": "<p> SimpleUplinkServer represents an uplink-server that will be able to store data via an other server.<br />\nThere also will be able to notify each client who suscribes to a data when an update will occurs thanks to socket </p>\n<p> SimpleUplinkServer will be requested by GET or POST via R.Uplink server-side and client-side"
+        },
+        "R.Store": {
+            "name": "R.Store",
+            "shortname": "R.Store",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Store.js",
+            "line": 8,
+            "memberof": "R\nR.Store is a generic, abstract Store representation. A Store is defined by its capacity to provide components with data and updates.\n`get` will be used at getInitialState time.\n`sub` will be invoked at componentDidMount time.\n`unsub` will be invoked at componentWillUnmount time.\n`sub` will trigger a deferred call to the `signalUpdate` function it is passed, so make sure it is wrapped in R.Async.IfMounted if necessary.\nProvided implementations:\n    - MemoryStore (Flux-like, changes are pushed via `set`)\n    - UplinkStore (REST + updates, changes are pushed via `signalUpdate`)",
+            "access": "public",
+            "tagname": ""
+        },
+        "R.Store.MemoryStore": {
+            "name": "R.Store.MemoryStore",
+            "shortname": "R.Store.MemoryStore",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Store.js",
+            "line": 70,
+            "description": "<p> Implementation of R.Store using a traditionnal, Flux-like memory-based Store. The store is read-only from the components,<br />\nbut is writable from the toplevel using \"set\". Wire up to a R.Dispatcher.MemoryDispatcher to implement the canonical Flux. </p>",
+            "implements": "{R.Store}"
+        },
+        "R.Store.UplinkStore": {
+            "name": "R.Store.UplinkStore",
+            "shortname": "R.Store.UplinkStore",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Store.js",
+            "line": 335,
+            "description": "<p>Implementation of R.Store using a remote, REST-like Store. The store is read-only from the components, <br />\nas well as from the Client in general, but the remote backend should be wired-up with R.Dispatcher.UplinkDispatcher to \nimplement the over-the-wire Flux. </p>",
+            "implements": "{R.Store}"
+        },
+        "R.Uplink": {
+            "name": "R.Uplink",
+            "shortname": "R.Uplink",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "src\\R.Uplink.js",
+            "line": 15,
+            "description": "<p>The Uplink micro-protocol is a simple set of conventions to implement real-time reactive Flux over the wire. <br />\nThe frontend and the backend server share 2 means of communications : <br />\n- a WebSocket-like (socket.io wrapper) duplex connection to handshake and subscribe to keys/listen to events <br />\n- regulars HTTP requests (front -> back) to actually get data from the stores</p>\n<p>\nPROTOCOL: <br />\n<br />\nConnection/reconnection:<br />\n<br />\nClient: bind socket<br />\nServer: Acknowledge connection<br />\nClient: send \"handshake\" { guid: guid }<br />\nServer: send \"handshake-ack\" { recovered: bool } (recover previous session if existing based upon guid; recovered is true iff previous session existed)<br /><br />\n<br />\nStores:<br />\nClient: send \"subscribeTo\" { key: key }<br />\nServer: send \"update\" { key: key }<br />\nClient: XHR GET /uplink/key<br />\n<br />\nEvents:\nClient: send \"listenTo\" { eventName: eventName }<br />\nServer: send \"event\" { eventName: eventName, params: params }<br />\n<br />\nActions:<br />\nClient: XHR POST /uplink/action { params: params }<br />\n<br />\nOther notifications:<br />\nServer: send \"debug\": { debug: debug } Debug-level message<br />\nServer: send \"log\" { log: log } Log-level message<br />\nServer: send \"warn\": { warn: warn } Warn-level message<br />\nServer: send \"err\": { err: err } Error-level message<br />\n</p>"
+        }
+    },
+    "classitems": [
+        {
+            "file": "src\\R.App.js",
+            "line": 20,
+            "description": "<p> Initializes the application according to the specifications provided </p>",
+            "itemtype": "method",
+            "name": "createApp",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "All the specifications of the App",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "AppInstance The instance of the created App",
+                "type": "AppInstance"
+            },
+            "class": "R.App"
+        },
+        {
+            "file": "src\\R.App.js",
+            "line": 64,
+            "description": "<p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>",
+            "itemtype": "method",
+            "name": "renderToStringInServer",
+            "params": [
+                {
+                    "name": "req",
+                    "description": "The classical request object",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "template : the computed HTML template with data for the requesting client",
+                "type": "Object"
+            },
+            "class": "R.App"
+        },
+        {
+            "file": "src\\R.App.js",
+            "line": 131,
+            "description": "<p>Setting all the data for each React Component and Render it into the client. <br />\nConnecting to the uplink-server via in order to enable the establishment of subsriptions for each React Component</p>",
+            "itemtype": "method",
+            "name": "renderIntoDocumentInClient",
+            "params": [
+                {
+                    "name": "window",
+                    "description": "The classical window object",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.App"
+        },
+        {
+            "file": "src\\R.App.js",
+            "line": 186,
+            "description": "<p>Initiliaziation method of a plugin for the application</p>",
+            "itemtype": "method",
+            "name": "createPlugin",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "The specified specs provided by the plugin",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "PluginInstance The instance of the created plugin",
+                "type": "Object"
+            },
+            "class": "R.App"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 18,
+            "description": "React mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.",
+            "type": "Mixin",
+            "mixin": "",
+            "access": "public",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 25,
+            "description": "Decorates a method so that upon invocation, it is only actually invoked if the component has not unmounted.",
+            "itemtype": "method",
+            "name": "IfMounted",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 45,
+            "itemtype": "method",
+            "name": "_DeferToNextImmediate",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 62,
+            "itemtype": "method",
+            "name": "_DeferToNextAnimationFrame",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 79,
+            "itemtype": "method",
+            "name": "_DeferToTimeout",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function(Function): Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 86,
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 102,
+            "description": "Decorates a method so that upon invocation, it is actually invoked after a timeout and only the component has not unmounted.\nIf no timeout is provided, then it will defer to setImmediate.",
+            "itemtype": "method",
+            "name": "Deferred",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 119,
+            "description": "Decorates a method so that upon invocation, it is actually invoked after deferral and only the component has not unmounted.",
+            "itemtype": "method",
+            "name": "DeferredImmediate",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Async.js",
+            "line": 130,
+            "description": "Decorates a method so that upon invocation, it is actually invoked upon the next animation frame and only the component has not unmounted.",
+            "itemtype": "method",
+            "name": "DeferredAnimationFrame",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Async"
+        },
+        {
+            "file": "src\\R.Client.js",
+            "line": 38,
+            "description": "<p> Call the renderIntoDocumentInClient from R.App function </p>",
+            "itemtype": "method",
+            "name": "mount",
+            "class": "R.Client"
+        },
+        {
+            "file": "src\\R.Component.js",
+            "line": 16,
+            "description": "<p>Refers to specifics mixins in order to manage Pure, Async, Animate and Flux methods</p>",
+            "itemtype": "property",
+            "name": "mixins",
+            "type": "{array.object}",
+            "class": "R.Component"
+        },
+        {
+            "file": "src\\R.Component.js",
+            "line": 22,
+            "description": "<p>Defines context object for the current component<br />\nAllows all components using this mixin to have reference to R.Flux (Provides by the R.Root)</p>",
+            "itemtype": "property",
+            "name": "contextTypes",
+            "type": "{object} flux",
+            "class": "R.Component"
+        },
+        {
+            "file": "src\\R.Component.js",
+            "line": 33,
+            "itemtype": "method",
+            "name": "getFlux",
+            "return": {
+                "description": "this.context.flux The Flux of the App",
+                "type": "Object"
+            },
+            "class": "R.Component"
+        },
+        {
+            "file": "src\\R.Cordova.js",
+            "line": 1,
+            "description": "TODO",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 15,
+            "itemtype": "method",
+            "name": "_mode",
+            "return": {
+                "description": "string The basic string",
+                "type": "String"
+            },
+            "type": "{String}",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 31,
+            "description": "<p>Manually override mode to either 'production' or 'development'.<br/>\nUse this if you don't want to use envify.</p>",
+            "itemtype": "method",
+            "name": "setMode",
+            "params": [
+                {
+                    "name": "mode",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 74,
+            "description": "<p> Returns a boolean describing whether the current mode is dev. </p>",
+            "itemtype": "method",
+            "name": "isDev",
+            "return": {
+                "description": "boolean Truthy iff the current mode is dev.",
+                "type": "Boolean"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 83,
+            "description": "<p> Returns a boolean describing whether the current mode is prod. </p>",
+            "itemtype": "method",
+            "name": "isProd",
+            "return": {
+                "description": "boolean Truthy iff the current mode is prod.",
+                "type": "Boolean"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 92,
+            "description": "<p>Runs a function iff the current mode is dev.</p>",
+            "itemtype": "method",
+            "name": "dev",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to invoke iff the current mode is dev.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "* The return value of fn iff the current mode is dev, undefined otherwise.",
+                "type": "*"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 102,
+            "description": "<p>Runs a function iff the current mode is prod.</p>",
+            "itemtype": "method",
+            "name": "prod",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to invoke iff the current mode is prod.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "* The return value of fn iff the current mode is prod, undefined otherwise.",
+                "type": "*"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 112,
+            "description": "<p>Returns a function iff the current mode is dev, otherwise returns a noop function.<br />\n\"dev-only\" maybe monad.</p>",
+            "itemtype": "method",
+            "name": "maybeDev",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to be returned if the current mode is dev.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "The original function iff the current mode is dev, no-op function otherwise.",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 123,
+            "description": "<p>Returns a function iff the current mode is prod, otherwise returns a noop function.<br />\n\"prod-only\" maybe monad.</p>",
+            "itemtype": "method",
+            "name": "maybeProd",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to be returned if the current mode is prod.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "The original function iff the current mode is prod, no-op function otherwise.",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 134,
+            "description": "<p>Trigger a debugger breakpoint without raising jshint errors.</p>",
+            "itemtype": "method",
+            "name": "breakpoint",
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 158,
+            "description": "<p>Runs assert from node core with the same arguments.<br />\nThrows if the assert fails and the current mode is dev.<br />\nconsole.error if the assert fails and the current mode is prod.<br />\nNo side effect if the assert doesn't fail.</p>",
+            "itemtype": "method",
+            "name": "check",
+            "return": {
+                "description": "Truthy only if the assert doesn't fail. False if the assert fails and not in dev mode.",
+                "type": "Boolean"
+            },
+            "type": "{Function}",
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 183,
+            "description": "<p>Extends an Error to provide additional information while preserving the error stack.<br />\nUses VError under the hood.</p>",
+            "itemtype": "method",
+            "name": "extendError",
+            "params": [
+                {
+                    "name": "originalErr",
+                    "description": "The original error.",
+                    "type": "Error"
+                },
+                {
+                    "name": "wrappingErr",
+                    "description": "The error to use as wrapper.",
+                    "type": "Error|String"
+                }
+            ],
+            "return": {
+                "description": "The new, extended Error.",
+                "type": "Error"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Debug.js",
+            "line": 196,
+            "description": "Returns a function that will rethrow when passed an error.",
+            "itemtype": "method",
+            "name": "rethrow",
+            "params": [
+                {
+                    "name": "wrappingErr",
+                    "description": "Optionnal error to use as wrapper.",
+                    "type": "Error|String",
+                    "optional": true
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "R.Debug"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 18,
+            "description": "Initializes the dispatcher according to the specifications provided",
+            "itemtype": "method",
+            "name": "createDispatcher",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "The specifications",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "DispatcherInstance The created dispatcher instance",
+                "type": "DispatcherInstance"
+            },
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 52,
+            "description": "<p>Register an async action listener</p>",
+            "itemtype": "method",
+            "name": "addActionListener",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "The action name",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute when the listener will be notified",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "actionListener The created actionListener",
+                "type": "Dispatcher.ActionListener"
+            },
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 67,
+            "description": "<p>Remove the previously added action listener</p>",
+            "itemtype": "method",
+            "name": "removeActionListener",
+            "params": [
+                {
+                    "name": "actionListener",
+                    "description": "The action name",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 83,
+            "description": "<p>Dispatches an action submitted by a React component</p>",
+            "itemtype": "method",
+            "name": "dispatch",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "The action name of the listener",
+                    "type": "Action"
+                },
+                {
+                    "name": "params",
+                    "description": "The specifics params necessary for an action",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "* the data that may be provided by the listener function",
+                "type": "*"
+            },
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 103,
+            "description": "<p>Remove all listener previously added </p>",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 119,
+            "itemtype": "property",
+            "name": "",
+            "type": "{String}",
+            "access": "private",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.Dispatcher.js",
+            "line": 126,
+            "itemtype": "property",
+            "name": "",
+            "type": "{String}",
+            "access": "private",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.Dispatcher"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 12,
+            "description": "<p> Returns a new EventEmitter constructor",
+            "itemtype": "method",
+            "name": "createEventEmitter",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "The specifications",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "EventEmitterInstance The created EventEmitterInstance",
+                "type": "Object"
+            },
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 25,
+            "memberof": "R.EventEmitter",
+            "access": "public",
+            "tagname": "",
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 31,
+            "description": "Type dirty-checking.",
+            "access": "private",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 44,
+            "description": "<p> Returns a new MemoryEventEmitter that represents a memory-local store, eg. clicks, window events.</p>",
+            "itemtype": "method",
+            "name": "createMemoryEventEmitter",
+            "return": {
+                "description": "MemoryEventEmitter The created MemoryEventEmitter instance",
+                "type": "Object"
+            },
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 89,
+            "description": "<p> Returns a new UplinkEventEmitter that represents a remote event emmiter, eg. global notifications, broadcasts. </p>",
+            "itemtype": "method",
+            "name": "createUplinkEventEmitter",
+            "return": {
+                "description": "UplinkEventEmitter The created UplinkEventEmitter instance",
+                "type": "Object"
+            },
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 146,
+            "itemtype": "property",
+            "name": "uniqueId",
+            "type": "{String}",
+            "access": "public",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.EventEmitter.js",
+            "line": 153,
+            "itemtype": "property",
+            "name": "event",
+            "type": "{String}",
+            "access": "public",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.EventEmitter"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 27,
+            "description": "<p>Returns a Flux constructor</p>",
+            "itemtype": "method",
+            "name": "createFlux",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "The specifications of the flux",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 42,
+            "description": "<p>Check if the flux provided by props is an object and a flux instance</p>",
+            "params": [
+                {
+                    "name": "props",
+                    "description": "The props to check",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "valid The result boolean of the checked flux",
+                "type": "Boolean"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 68,
+            "description": "<p>The getInitialState of React mechanics will be call at:</p>\n - React.render() <br />\n - React.renderToString() <br />\n<p>Never return a null object, by default: {}, otherwise return data stocked from the corresponding store</p>",
+            "itemtype": "method",
+            "name": "getInitialState",
+            "return": {
+                "description": "object An object like: [stateKey, data]",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 95,
+            "description": "<p>The componentWillMount of React mechanics</p>\n<p>Initialize flux functions for each components when componentWillMount is invoked by React</p>",
+            "itemtype": "method",
+            "name": "componentWillMount",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 128,
+            "description": "<p>Call the manager subscriptions when componendDidMount is invoked by React (only client-side)</p>",
+            "itemtype": "method",
+            "name": "componentDidMount",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 144,
+            "description": "<p>Fetch all components from a root component in order to initialize all data, fill the corresponding stores</p>\n<p>Executed server-side<p>",
+            "itemtype": "method",
+            "name": "prefetchFluxStores",
+            "return": {
+                "description": "",
+                "type": "Void"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 233,
+            "description": "<p>Returns the FluxEventEmitter according the provided name</p>",
+            "itemtype": "method",
+            "name": "getFluxEventEmitter",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "EventEmitter the EventEmitter",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 242,
+            "description": "<p>Returns the FluxDispatcher according the provided name</p>",
+            "itemtype": "method",
+            "name": "getFluxDispatcher",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Dispatcher the Dispatcher",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 251,
+            "description": "<p>Get the corresponding dispatcher and dispatch the action submitted by a React component<br />\nTrigged on event like \"click\"</p>",
+            "params": [
+                {
+                    "name": "location",
+                    "description": "The url to go (eg. \"//History/navigate\")",
+                    "type": "String"
+                },
+                {
+                    "name": "param",
+                    "description": "The specific data for the action",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "* the data that may be provided by the dispatcher",
+                "type": "*"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 289,
+            "description": "<p>Manage subscriptions, unsubscriptions and event emitters</p>",
+            "itemtype": "method",
+            "name": "_FluxMixinUpdate",
+            "params": [
+                {
+                    "name": "props",
+                    "description": "The props of component",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 327,
+            "itemtype": "method",
+            "name": "_FluxMixinInject",
+            "params": [
+                {
+                    "name": "stateKey",
+                    "description": "The stateKey",
+                    "type": "String"
+                },
+                {
+                    "name": "location",
+                    "description": "The location",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 348,
+            "description": "<p>Allow a React Component to subscribe at any data in order to fill state</p>",
+            "itemtype": "method",
+            "name": "_FluxMixinSubscribe",
+            "params": [
+                {
+                    "name": "stateKey",
+                    "description": "The key to be subscribed",
+                    "type": "String"
+                },
+                {
+                    "name": "location",
+                    "description": "The url that will be requested",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Void"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 381,
+            "description": "<p>Rerendering a component when data update occurs</p>",
+            "itemtype": "method",
+            "name": "_FluxMixinStoreSignalUpdate",
+            "params": [
+                {
+                    "name": "stateKey",
+                    "description": "The key to be subscribed",
+                    "type": "String"
+                },
+                {
+                    "name": "location",
+                    "description": "The url that will be requested",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 404,
+            "itemtype": "method",
+            "name": "_FluxMixinAddListener",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The fn",
+                    "type": "Fonction"
+                },
+                {
+                    "name": "location",
+                    "description": "The location",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 432,
+            "itemtype": "method",
+            "name": "_FluxMixinEventEmitterEmit",
+            "params": [
+                {
+                    "name": "eventEmitterName",
+                    "description": "The eventEmitterName",
+                    "type": "String"
+                },
+                {
+                    "name": "eventName",
+                    "description": "The eventName",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "The fn",
+                    "type": "Fonction"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 449,
+            "itemtype": "method",
+            "name": "_FluxMixinUnsubscribe",
+            "params": [
+                {
+                    "name": "entry",
+                    "description": "The entry",
+                    "type": "Object"
+                },
+                {
+                    "name": "uniqueId",
+                    "description": "The uniqueId",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 464,
+            "itemtype": "method",
+            "name": "_FluxMixinRemoveListener",
+            "params": [
+                {
+                    "name": "entry",
+                    "description": "The entry",
+                    "type": "Object"
+                },
+                {
+                    "name": "uniqueId",
+                    "description": "The uniqueId",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 495,
+            "description": "<p>Sets the flag telling all the flux-mixed-in components to attempt to inject pre-fetched values from the cache. Used for pre-rendering magic.</p>",
+            "itemtype": "method",
+            "name": "startInjectingFromStores",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 505,
+            "description": "<p>Unsets the flag telling all the flux-mixed-in components to attempt to inject pre-fetched values from the cache. Used for pre-rendering magic.</p>",
+            "itemtype": "method",
+            "name": "startInjectingFromStores",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 515,
+            "description": "<p>Serialize a serialized flux by the server in order to initialize flux into client</p>",
+            "itemtype": "method",
+            "name": "serialize",
+            "return": {
+                "description": "string The serialized string",
+                "type": "String"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 525,
+            "description": "Unserialize a serialized flux by the server in order to initialize flux into client",
+            "itemtype": "method",
+            "name": "unserialize",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "The string to unserialize",
+                    "type": "String"
+                }
+            ],
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 538,
+            "description": "<p>Getter for the store</p>",
+            "itemtype": "method",
+            "name": "getStore",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the store",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "store The corresponding store",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 550,
+            "description": "<p>Register a store defined in the flux class of App <br />\nTypically : Memory or Uplink</p>",
+            "itemtype": "method",
+            "name": "registerStore",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name to register",
+                    "type": "String"
+                },
+                {
+                    "name": "store",
+                    "description": "The store to register",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 564,
+            "description": "<p>Getter for the event emitter</p>",
+            "itemtype": "method",
+            "name": "getEventEmitter",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the store",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "eventEmitter The corresponding event emitter",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 577,
+            "description": "<p>Register an event emitter defined in the flux class of App</p>",
+            "itemtype": "method",
+            "name": "registerEventEmitter",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name to register",
+                    "type": "String"
+                },
+                {
+                    "name": "eventEmitter",
+                    "description": "The event emitter to register",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 592,
+            "description": "<p>Getter for the dispatcher</p>",
+            "itemtype": "method",
+            "name": "getDispatcher",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the store",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "dispatcher The corresponding dispatcher",
+                "type": "Object"
+            },
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 604,
+            "description": "<p>Register a dispatcher defined in the flux class of App</p>",
+            "itemtype": "method",
+            "name": "registerDispatcher",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name to register",
+                    "type": "String"
+                },
+                {
+                    "name": "dispatcher",
+                    "description": "The dispatcher to register",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Flux.js",
+            "line": 619,
+            "description": "<p>Clears the store by calling either this.destroyInServer or this.destroyInClient and recursively applying destroy on each store/event emittre/dispatcher.<br />\nUsed for pre-rendering magic.</p>",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "R.Flux"
+        },
+        {
+            "file": "src\\R.Fullscreen.js",
+            "line": 1,
+            "description": "TODO",
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.Pure.js",
+            "line": 8,
+            "memberof": "R",
+            "type": "{Object}",
+            "access": "public",
+            "tagname": "",
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.Pure.js",
+            "line": 14,
+            "description": "Implements React shouldComponentUpdate for pure components,\nie. update iff props or state has changed.",
+            "type": "{Function}",
+            "access": "public",
+            "tagname": "",
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.Pure.js",
+            "line": 21,
+            "description": "Mixin for Pure components implementing the pure shouldComponentUpdate.",
+            "type": "{Object}",
+            "access": "public",
+            "tagname": "",
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 12,
+            "description": "<p>Returns the child of the specified component </p>",
+            "itemtype": "method",
+            "name": "getChildrenList",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "object The child of the specified component",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 24,
+            "description": "<p>Returns all children of the specified component </p>",
+            "itemtype": "method",
+            "name": "getDescendantsList",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "descendantsList The list of children of the specified component",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 42,
+            "description": "<p>Returns all children of the specified component and execute the specified function </p>",
+            "itemtype": "method",
+            "name": "mapDescendants",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "object The list of children of the specified component",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 52,
+            "description": "<p>Compute all children of the specified component and execute the function </p>",
+            "itemtype": "method",
+            "name": "mapTree",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "object The list of children without the component and call fn for each of them",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 64,
+            "description": "<p> Function to use if you want restore native function of React.Children </p>",
+            "itemtype": "method",
+            "name": "restoreVanillaChildren",
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 71,
+            "description": "<p> Function to use if you want convert all the descendants of the component using a specified function </p>",
+            "itemtype": "method",
+            "name": "transformDescendants",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "component The computed component",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactChildren.js",
+            "line": 92,
+            "description": "<p> Convert all the current descendant of the component using a specified function </p>",
+            "itemtype": "method",
+            "name": "transformTree",
+            "params": [
+                {
+                    "name": "component",
+                    "description": "The current component",
+                    "type": "Object"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "object Call the transformDescendants function in order to convert the subdescendant of the current component",
+                "type": "Object"
+            },
+            "class": "R.ReactChildren"
+        },
+        {
+            "file": "src\\R.ReactCreateClass.js",
+            "line": 20,
+            "description": "<p> Returns an instance of a component by React context, the property and a defined state </p>",
+            "itemtype": "method",
+            "name": "__ReactOnRailsSurrogate",
+            "params": [
+                {
+                    "name": "context",
+                    "description": "The context of the future component",
+                    "type": "Object"
+                },
+                {
+                    "name": "props",
+                    "description": "The props of the future component",
+                    "type": "Object"
+                },
+                {
+                    "name": "initialState",
+                    "description": "The state of the future component",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "instance The created component instance",
+                "type": "Object"
+            },
+            "class": "R.ReactCreateClass"
+        },
+        {
+            "file": "src\\R.ReactCreateClass.js",
+            "line": 62,
+            "description": "<p> Function to use if you want restore native function of React.createClass </p>",
+            "itemtype": "method",
+            "name": "restoreVanillaCreateClass",
+            "class": "R.ReactCreateClass"
+        },
+        {
+            "file": "src\\R.RenderServer.js",
+            "line": 25,
+            "description": "<p> Call the renderToStringInServer from R.App function </p>",
+            "itemtype": "method",
+            "name": "middleware",
+            "class": "R.RenderServer"
+        },
+        {
+            "file": "src\\R.Root.js",
+            "line": 16,
+            "description": "<p>Refers to specifics mixins in order to manage Pure, Async, Animate and Flux methods</p>",
+            "itemtype": "property",
+            "name": "mixins",
+            "type": "{array.object}",
+            "class": "R.Root"
+        },
+        {
+            "file": "src\\R.Root.js",
+            "line": 24,
+            "itemtype": "property",
+            "name": "propTypes",
+            "type": "{object} flux",
+            "class": "R.Root"
+        },
+        {
+            "file": "src\\R.Root.js",
+            "line": 32,
+            "itemtype": "property",
+            "name": "childContextTypes",
+            "type": "{object} flux",
+            "class": "R.Root"
+        },
+        {
+            "file": "src\\R.Root.js",
+            "line": 40,
+            "itemtype": "method",
+            "name": "getChildContext",
+            "return": {
+                "description": "flux The flux of current component",
+                "type": "Object"
+            },
+            "class": "R.Root"
+        },
+        {
+            "file": "src\\R.Root.js",
+            "line": 50,
+            "itemtype": "method",
+            "name": "getFlux",
+            "return": {
+                "description": "this.context.flux The Flux of the App",
+                "type": "Object"
+            },
+            "class": "R.Root"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 21,
+            "description": "<p>Sets a route in a pattern, and combines function returning specific data</p>",
+            "itemtype": "method",
+            "name": "route",
+            "params": [
+                {
+                    "name": "pattern",
+                    "description": "The pattern that will be associated with function",
+                    "type": "String"
+                },
+                {
+                    "name": "pattern",
+                    "description": "The pattern that will be associated with function",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 41,
+            "itemtype": "method",
+            "name": "routes",
+            "params": [
+                {
+                    "name": "patterns",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 55,
+            "description": "<p> Setting up the default fonction to use for the match Function </p>",
+            "itemtype": "method",
+            "name": "def",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 65,
+            "description": "<p>Determines whether the sentence match with at least one of routes</p>",
+            "itemtype": "method",
+            "name": "match",
+            "params": [
+                {
+                    "name": "fragment",
+                    "description": "The sentence to test",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "res The object of the corresponding route",
+                "type": "Object"
+            },
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 90,
+            "itemtype": "method",
+            "name": "_routeToRegExp",
+            "params": [
+                {
+                    "name": "route",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "RegExp",
+                "type": "Object"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.Router.js",
+            "line": 105,
+            "itemtype": "method",
+            "name": "_extractParameters",
+            "params": [
+                {
+                    "name": "regexp",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "fragment",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "param",
+                "type": "Object"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Router"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 16,
+            "description": "<p> Initializes the SimpleUplinkServer according to the specifications provided </p>",
+            "itemtype": "method",
+            "name": "createApp",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "All the specifications of the SimpleUplinkServer",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "SimpleUplinkServerInstance The instance of the created SimpleUplinkServer",
+                "type": "SimpleUplinkServerInstance"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 39,
+            "description": "<p> Setting up necessary methods for the SimpleUplinkServer </p>",
+            "itemtype": "method",
+            "name": "SimpleUplinkServerInstance",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 86,
+            "description": "<p>Saves data in store.\nCalled by another server that will provide data for each updated data </p>",
+            "itemtype": "method",
+            "name": "setStore",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The specified key to set",
+                    "type": "String"
+                },
+                {
+                    "name": "val",
+                    "description": "The value to save",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 118,
+            "description": "<p> Provides data from store. <br />\nCalled when the fetching data occurs. <br />\nRequested by GET from R.Store server-side or client-side</p>",
+            "itemtype": "method",
+            "name": "getStore",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The specified key to set",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Function"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 145,
+            "itemtype": "method",
+            "name": "emitEvent",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 153,
+            "itemtype": "method",
+            "name": "emitDebug",
+            "params": [
+                {
+                    "name": "guid",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 165,
+            "itemtype": "method",
+            "name": "emitLog",
+            "params": [
+                {
+                    "name": "guid",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 175,
+            "itemtype": "method",
+            "name": "emitWarn",
+            "params": [
+                {
+                    "name": "guid",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 185,
+            "itemtype": "method",
+            "name": "emitError",
+            "params": [
+                {
+                    "name": "guid",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 207,
+            "description": "<p> Setting up UplinkServer. <br />\n- create the socket connection <br />\n- init get and post app in order to provide data via R.Uplink.fetch</p>",
+            "itemtype": "method",
+            "name": "installHandlers",
+            "params": [
+                {
+                    "name": "app",
+                    "description": "The specified App",
+                    "type": "Object"
+                },
+                {
+                    "name": "prefix",
+                    "description": "The prefix string that will be requested. Tipically \"/uplink\"",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 233,
+            "description": "<p>Return the saved data from store</p>\n<p>Requested from R.Store server-side or client-side</p>",
+            "itemtype": "method",
+            "name": "_handleHttpGet",
+            "params": [
+                {
+                    "name": "req",
+                    "description": "The classical request",
+                    "type": "Object"
+                },
+                {
+                    "name": "res",
+                    "description": "The response to send",
+                    "type": "Object"
+                },
+                {
+                    "name": "next",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "val The computed json value",
+                "type": "String"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 264,
+            "itemtype": "method",
+            "name": "_handleHttpPost",
+            "params": [
+                {
+                    "name": "req",
+                    "description": "The classical request",
+                    "type": "Object"
+                },
+                {
+                    "name": "res",
+                    "description": "The response to send",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "str",
+                "type": "String"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 300,
+            "description": "<p> Create a R.SimpleUplinkServer.Connection in order to set up handler items. <br />\nTriggered when a socket connection is established </p>",
+            "itemtype": "method",
+            "name": "_handleSocketConnection",
+            "params": [
+                {
+                    "name": "socket",
+                    "description": "The socket used in the connection",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 311,
+            "description": "<p> Destroy a R.SimpleUplinkServer.Connection. <br />\nTriggered when a socket connection is closed </p>",
+            "itemtype": "method",
+            "name": "_handleSocketDisconnection",
+            "params": [
+                {
+                    "name": "uniqueId",
+                    "description": "The unique Id of the connection",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 325,
+            "description": "<p>Link a Session in order to set up subscribing and unsubscribing methods uplink-server-side</p>",
+            "itemtype": "method",
+            "name": "_linkSession",
+            "params": [
+                {
+                    "name": "connection",
+                    "description": "The created connection",
+                    "type": "SimpleUplinkServer.Connection"
+                },
+                {
+                    "name": "guid",
+                    "description": "Unique string GUID",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "the object that contains methods subscriptions/unsubscriptions",
+                "type": "Object"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 340,
+            "description": "<p>Unlink a Session</p>",
+            "itemtype": "method",
+            "name": "_unlinkSession",
+            "params": [
+                {
+                    "name": "connection",
+                    "description": "",
+                    "type": "SimpleUplinkServer.Connection"
+                },
+                {
+                    "name": "guid",
+                    "description": "Unique string GUID",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "fn",
+                "type": "Function"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 360,
+            "itemtype": "method",
+            "name": "_handleSessionExpire",
+            "params": [
+                {
+                    "name": "guid",
+                    "description": "Unique string GUID",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 374,
+            "description": "<p>Setting up a connection in order to initialies methods and to provides specifics listeners on the socket</p>",
+            "itemtype": "method",
+            "name": "Connection",
+            "params": [
+                {
+                    "name": "pid",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "socket",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "handleSocketDisconnection",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "linkSession",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "unlinkSession",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 405,
+            "description": "<p>Setting up the specifics listeners for the socket</p>",
+            "itemtype": "method",
+            "name": "_bindHandlers",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 418,
+            "description": "<p> Simply emit a specific action on the socket </p>",
+            "itemtype": "method",
+            "name": "emit",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the action to send",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "The params",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 430,
+            "description": "<p> Triggered by the recently connected client. <br />\nCombines methods of subscriptions that will be triggered by the client via socket listening</p>",
+            "itemtype": "method",
+            "name": "_handleHandshake",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "Contains the unique string GUID",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 458,
+            "description": "<p> Triggered by the recently disconnected client. <br />\nRemoves methods of subscriptions</p>",
+            "itemtype": "method",
+            "name": "_handleHandshake",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 479,
+            "description": "<p>Maps the triggered event with the _subscribeTo methods </p>",
+            "itemtype": "method",
+            "name": "_handleSubscribeTo",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "Contains the key provided by client",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 495,
+            "description": "<p>Maps the triggered event with the _unsubscribeFrom methods</p>",
+            "itemtype": "method",
+            "name": "_handleUnsubscribeFrom",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "Contains the key provided by client",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 511,
+            "description": "<p>Maps the triggered event with the listenTo methods</p>",
+            "itemtype": "method",
+            "name": "_handleListenTo",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "Contains the eventName provided by client",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 527,
+            "description": "<p>Maps the triggered event with the unlistenFrom methods</p>",
+            "itemtype": "method",
+            "name": "_handleUnlistenFrom",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "Contains the eventName provided by client",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 543,
+            "description": "<p>Triggered by the recently disconnected client.</p>",
+            "itemtype": "method",
+            "name": "_handleDisconnect",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 551,
+            "description": "<p>Setting up a session</p>",
+            "itemtype": "method",
+            "name": "Session",
+            "params": [
+                {
+                    "name": "pid",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "storeEvents",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "eventsEvents",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "sessionsEvents",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "timeout",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 583,
+            "description": "<p>Bind the subscribing and unsubscribing methods when a connection is established <br />\nMethods that trigger on client issues (like emit(\"subscribeTo\"), emit(\"unsubscribeFrom\"))</p>",
+            "itemtype": "method",
+            "name": "attachConnection",
+            "params": [
+                {
+                    "name": "connection",
+                    "description": "the current created connection",
+                    "type": "SimpleUplinkServer.Connection"
+                }
+            ],
+            "return": {
+                "description": "the binded object with methods",
+                "type": "Object"
+            },
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 607,
+            "description": "<p>Remove the previously added connection, and clean the message queue </p>",
+            "itemtype": "method",
+            "name": "detachConnection",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 621,
+            "itemtype": "method",
+            "name": "terminate",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 627,
+            "description": "<p>Method invoked by client via socket emit <br />\nStore the _signalUpdate method in subscription <br />\nAdd a listener that will call _signalUpdate when triggered </p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to subscribe",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 642,
+            "description": "<p>Method invoked by client via socket emit <br />\nRemove a listener according to the key</p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to unsubscribe",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 655,
+            "description": "<p> Simply emit a specific action on the socket </p>",
+            "itemtype": "method",
+            "name": "_emit",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the action to send",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "The params",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 675,
+            "description": "The client is listening on the action \"update\" socket </p>",
+            "itemtype": "method",
+            "name": "_signalUpdate",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 684,
+            "description": "The client is listening on the action \"event\" socket </p>",
+            "itemtype": "method",
+            "name": "_signalEvent",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 693,
+            "itemtype": "method",
+            "name": "_expire",
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 701,
+            "description": "<p> Create a listener for the events </p>",
+            "itemtype": "method",
+            "name": "listenTo",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The name of the event that will be registered",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.SimpleUplinkServer.js",
+            "line": 713,
+            "description": "<p> Remove a listener from the events </p>",
+            "itemtype": "method",
+            "name": "unlistenFrom",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The name of the event that will be unregistered",
+                    "type": "String"
+                }
+            ],
+            "class": "R.SimpleUplinkServer"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 22,
+            "description": "<p> Initializes the Store according to the specifications provided </p>",
+            "itemtype": "method",
+            "name": "createStore",
+            "params": [
+                {
+                    "name": "specs",
+                    "description": "Options to create the store.",
+                    "type": "Object"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "return": {
+                "description": "StoreInstance The instance of the created StoreInstance",
+                "type": "R.Store.StoreInstance"
+            },
+            "class": "R.Store"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 41,
+            "memberof": "R.Store",
+            "itemtype": "method",
+            "name": "StoreInstance",
+            "access": "public",
+            "tagname": "",
+            "abstract": "",
+            "class": "R.Store"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 49,
+            "description": "Type dirty-checking",
+            "type": "{Boolean}",
+            "access": "private",
+            "tagname": "",
+            "readonly": "",
+            "class": "R.Store"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 59,
+            "description": "<p> Represents a single subscription into a Store to avoid the pain of passing Functions back and forth. <br />\nAn instance of R.Store.Subscription is returned by sub and should be passed to unsub. </p>",
+            "itemtype": "method",
+            "name": "Subscription",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "R.Store"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 82,
+            "description": "<p>Fetch data according to a key</p>",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "fn the yielded fonction",
+                "type": "Function"
+            },
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 100,
+            "description": "<p>Return data according to a key</p>",
+            "itemtype": "method",
+            "name": "get",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "fn the yielded fonction",
+                "type": "Function"
+            },
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 115,
+            "description": "<p>Triggered by the set function. <br />\nFetch data according to the given key. <br />\nCall the saved function contained in subscribers. </p>",
+            "itemtype": "method",
+            "name": "signalUpdate",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to fetch",
+                    "type": "String"
+                }
+            ],
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 136,
+            "description": "<p>Set data according to a key, then call signalUpdate in order to rerender matching React component</p>",
+            "itemtype": "method",
+            "name": "set",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key",
+                    "type": "String"
+                },
+                {
+                    "name": "val",
+                    "description": "The val",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 147,
+            "description": "<p> Subscribe at a specific key </p>",
+            "itemtype": "method",
+            "name": "sub",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The specific key to subscribe",
+                    "type": "String"
+                },
+                {
+                    "name": "_signalUpdate",
+                    "description": "the function that will be call when a data corresponding to a key will be updated",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "subscription The saved subscription",
+                "type": "Object"
+            },
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 171,
+            "description": "<p>Unsubscribe</p>",
+            "itemtype": "method",
+            "name": "unsub",
+            "params": [
+                {
+                    "name": "subscription",
+                    "description": "The subscription that contains the key to unsuscribe",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 188,
+            "description": "<p> Clean UplinkStore store </p>",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 209,
+            "description": "<p> Serialize the UplinkStore store </p>",
+            "itemtype": "method",
+            "name": "serialize",
+            "return": {
+                "description": "data The serialized UplinkStore store",
+                "type": "String"
+            },
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 217,
+            "description": "<p> Unserialize the MemoryStore store </p>",
+            "itemtype": "method",
+            "name": "unserialize",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "The string to unserialise",
+                    "type": "String"
+                }
+            ],
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 241,
+            "description": "<p> Implementation of R.Store using a remote, HTTP passive Store. The store is read-only from the components, <br />\nas well as from the Client in general. However, its values may be updated across refreshes/reloads, but the remote <br />\nbackend should be wired-up with R.Dispatcher.HTTPDispatcher to implement a second-class over-the-wire Flux. </p>",
+            "class": "R.Store.MemoryStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 357,
+            "description": "<p>Fetch data according to a key</p>",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "fn the yielded fonction",
+                "type": "Function"
+            },
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 381,
+            "description": "<p>Triggered by the socket.on(\"update\") event in R.Uplink <br />\nFetch data according to the given key <br />\nCall the saved function contained in subscribers </p>",
+            "itemtype": "method",
+            "name": "signalUpdate",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to fetch",
+                    "type": "String"
+                }
+            ],
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 398,
+            "description": "<p> Subscribe at a specific key </p>",
+            "itemtype": "method",
+            "name": "sub",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The specific key to subscribe",
+                    "type": "String"
+                },
+                {
+                    "name": "_signalUpdate",
+                    "description": "the function that will be call when a data corresponding to a key will be updated",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "subscription The saved subscription",
+                "type": "Object"
+            },
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 424,
+            "description": "<p> Unsubscribe</p>",
+            "itemtype": "method",
+            "name": "unsub",
+            "params": [
+                {
+                    "name": "subscription",
+                    "description": "The subscription that contains the key to unsuscribe",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 447,
+            "description": "<p> Serialize the UplinkStore store </p>",
+            "itemtype": "method",
+            "name": "serialize",
+            "return": {
+                "description": "data The serialized UplinkStore store",
+                "type": "String"
+            },
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 456,
+            "description": "<p> Unserialize the UplinkStore store </p>",
+            "itemtype": "method",
+            "name": "unserialize",
+            "params": [
+                {
+                    "name": "str",
+                    "description": "The string to unserialise",
+                    "type": "String"
+                }
+            ],
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 465,
+            "description": "<p> Clean UplinkStore store </p>",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 503,
+            "access": "public",
+            "tagname": "",
+            "readonly": "",
+            "type": "{String}",
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Store.js",
+            "line": 509,
+            "access": "public",
+            "tagname": "",
+            "readonly": "",
+            "type": "{String}",
+            "class": "R.Store.UplinkStore"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 51,
+            "description": "<p> Initializes the uplink according to the specifications provided </p>",
+            "itemtype": "method",
+            "name": "Uplink",
+            "params": [
+                {
+                    "name": "httpEndpoint",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "socketEndpoint",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "guid",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "shouldReloadOnServerRestart",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 99,
+            "description": "<p>Emits a socket signal to the uplink-server</p>",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "The name of the signal",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "The specifics params to send",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 113,
+            "description": "<p> Creating io connection client-side in order to use sockets </p>",
+            "itemtype": "method",
+            "name": "_initInClient",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 159,
+            "description": "<p>Server-side</p>",
+            "itemtype": "method",
+            "name": "_initInServer",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 170,
+            "description": "<p>Triggered when a data is updated according to the specific key <br />\nCall corresponding function key </p>",
+            "itemtype": "method",
+            "name": "_handleUpdate",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "The specific key",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 205,
+            "itemtype": "method",
+            "name": "_shouldFetchKey",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "entry",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "bool The boolean",
+                "type": "Boolean"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 222,
+            "description": "<p>Determines if the the data must be fetched</p>",
+            "itemtype": "method",
+            "name": "_performUpdateIfNecessary",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "entry",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "fn The Function to call",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 243,
+            "itemtype": "method",
+            "name": "_handleEvent",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 258,
+            "itemtype": "method",
+            "name": "_handleDisconnect",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 269,
+            "description": "<p>Occurs after a connection. When a connection is established, the client sends a signal \"handshake\".</p>",
+            "itemtype": "method",
+            "name": "_handleDisconnect",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 280,
+            "description": "<p> Identifies if the pid of the server has changed (due to a potential reboot server-side) since the last client connection. <br />\nIf this is the case, a page reload is performed<p>",
+            "itemtype": "method",
+            "name": "_handleHandshakeAck",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 300,
+            "itemtype": "method",
+            "name": "_handleDebug",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 311,
+            "itemtype": "method",
+            "name": "_handleLog",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 320,
+            "itemtype": "method",
+            "name": "_handleWarn",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 329,
+            "itemtype": "method",
+            "name": "_handleError",
+            "params": [
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 339,
+            "description": "<p>Occurs when a client unloads the document</p>",
+            "itemtype": "method",
+            "name": "_handleUnload",
+            "params": [
+                {
+                    "name": "prevHandler",
+                    "description": "The function to execute when the page will be unloaded",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "function",
+                "type": "Function"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 355,
+            "description": "<p>Simply closes the socket</p>",
+            "itemtype": "method",
+            "name": "_destroyInClient",
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 365,
+            "description": "<p>Does nothing</p>",
+            "itemtype": "method",
+            "name": "_destroyInClient",
+            "return": {
+                "description": "void0",
+                "type": "*"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 375,
+            "description": "<p>Notifies the uplink-server that a subscription is required by client</p>",
+            "itemtype": "method",
+            "name": "_subscribeTo",
+            "return": {
+                "description": "key The key to subscribe",
+                "type": "String"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 388,
+            "description": "<p>Notifies the uplink-server that a subscription is over</p>",
+            "itemtype": "method",
+            "name": "_subscribeTo",
+            "return": {
+                "description": "key The key to unsubscribe",
+                "type": "String"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 401,
+            "description": "<p>Etablishes a subscription to a key, and call the specified function when _handleUpdate occurs</p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to subscribe",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "subscription The created subscription",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 420,
+            "description": "<p>Removes a subscription to a key</p>",
+            "itemtype": "method",
+            "name": "subscribeTo",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to subscribe",
+                    "type": "String"
+                },
+                {
+                    "name": "subscription",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 439,
+            "description": "<p>Sends the listener signal \"listenTo\"</p>",
+            "itemtype": "method",
+            "name": "_listenTo",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 451,
+            "description": "<p>Sends the unlistener signal \"unlistenFrom\"</p>",
+            "itemtype": "method",
+            "name": "_unlistenFrom",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 463,
+            "description": "<p>Create a listener according to a specific name</p>",
+            "itemtype": "method",
+            "name": "listenTo",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to listen",
+                    "type": "String"
+                },
+                {
+                    "name": "fn",
+                    "description": "The function to execute when triggered",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "listener The created listener",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 480,
+            "description": "<p>Remove a listener </p>",
+            "itemtype": "method",
+            "name": "unlistenFrom",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "The eventName to remove",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 497,
+            "itemtype": "method",
+            "name": "_getFullUrl",
+            "params": [
+                {
+                    "name": "suffix",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 511,
+            "description": "<p>Fetch data by GET request from the uplink-server</p>",
+            "itemtype": "method",
+            "name": "fetch",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The key to fetch",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "object Fetched data according to the key",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 539,
+            "description": "<p>Dispatches an action by POST request from the uplink-server</p>",
+            "itemtype": "method",
+            "name": "dispatch",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "The specific action to dispatch",
+                    "type": "Object"
+                },
+                {
+                    "name": "params",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "object Fetched data according to the specified action",
+                "type": "Object"
+            },
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.Uplink.js",
+            "line": 565,
+            "description": "<p>Destroy socket client-side</p>",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "R.Uplink"
+        },
+        {
+            "file": "src\\R.XWindow.js",
+            "line": 1,
+            "description": "TODO",
+            "class": ""
+        },
+        {
+            "file": "src\\R.utils.js",
+            "line": 8,
+            "description": "Returns the original function modified so that its context is always the given context.\nLightweight alternative to Function.prototype.bind.",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to scope.",
+                    "type": "Function"
+                },
+                {
+                    "name": "ctx",
+                    "description": "The context to scope.",
+                    "type": "*"
+                }
+            ],
+            "return": {
+                "description": "The scoped function.",
+                "type": "Function"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": ""
+        },
+        {
+            "file": "src\\R.utils.js",
+            "line": 29,
+            "description": "Returns a POJO with a single key-val pair.",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The unique key of the returned Object.",
+                    "type": "String"
+                },
+                {
+                    "name": "val",
+                    "description": "The unique value associated with the given key in the retuend Object.",
+                    "type": "*"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": ""
+        },
+        {
+            "file": "src\\R.utils.js",
+            "line": 104,
+            "type": "{Function}",
+            "access": "private",
+            "tagname": "",
+            "class": ""
+        },
+        {
+            "file": "src\\R.utils.js",
+            "line": 113,
+            "description": "Returns a random, unique string GUID, with an optional prefix.",
+            "params": [
+                {
+                    "name": "prefix",
+                    "description": "",
+                    "type": "String?"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": ""
+        }
+    ],
+    "warnings": [
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Async.js:11"
+        },
+        {
+            "message": "unknown tag: mixin",
+            "line": " src\\R.Async.js:18"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:25"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:45"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:62"
+        },
+        {
+            "message": "param name missing: {Number}",
+            "line": " src\\R.Async.js:79"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:86"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:102"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:119"
+        },
+        {
+            "message": "param name missing: {Function}",
+            "line": " src\\R.Async.js:130"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Debug.js:7"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.EventEmitter.js:25"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Flux.js:13"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Pure.js:8"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Store.js:8"
+        },
+        {
+            "message": "unknown tag: memberof",
+            "line": " src\\R.Store.js:41"
+        },
+        {
+            "message": "unknown tag: abstract",
+            "line": " src\\R.Store.js:41"
+        },
+        {
+            "message": "unknown tag: implements",
+            "line": " src\\R.Store.js:70"
+        },
+        {
+            "message": "unknown tag: implements",
+            "line": " src\\R.Store.js:335"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:280"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:300"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:311"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:320"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:329"
+        },
+        {
+            "message": "replacing incorrect tag: params with param",
+            "line": " src\\R.Uplink.js:339"
+        },
+        {
+            "message": "Missing item type\nReact mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.",
+            "line": " src\\R.Async.js:18"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.Async.js:86"
+        },
+        {
+            "message": "Missing item type\nTODO",
+            "line": " src\\R.Cordova.js:1"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.EventEmitter.js:25"
+        },
+        {
+            "message": "Missing item type\nType dirty-checking.",
+            "line": " src\\R.EventEmitter.js:31"
+        },
+        {
+            "message": "Missing item type\n<p>Check if the flux provided by props is an object and a flux instance</p>",
+            "line": " src\\R.Flux.js:42"
+        },
+        {
+            "message": "Missing item type\n<p>Get the corresponding dispatcher and dispatch the action submitted by a React component<br />\nTrigged on event like \"click\"</p>",
+            "line": " src\\R.Flux.js:251"
+        },
+        {
+            "message": "Missing item type\nTODO",
+            "line": " src\\R.Fullscreen.js:1"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.Pure.js:8"
+        },
+        {
+            "message": "Missing item type\nImplements React shouldComponentUpdate for pure components,\nie. update iff props or state has changed.",
+            "line": " src\\R.Pure.js:14"
+        },
+        {
+            "message": "Missing item type\nMixin for Pure components implementing the pure shouldComponentUpdate.",
+            "line": " src\\R.Pure.js:21"
+        },
+        {
+            "message": "Missing item type\nType dirty-checking",
+            "line": " src\\R.Store.js:49"
+        },
+        {
+            "message": "Missing item type\n<p> Implementation of R.Store using a remote, HTTP passive Store. The store is read-only from the components, <br />\nas well as from the Client in general. However, its values may be updated across refreshes/reloads, but the remote <br />\nbackend should be wired-up with R.Dispatcher.HTTPDispatcher to implement a second-class over-the-wire Flux. </p>",
+            "line": " src\\R.Store.js:241"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.Store.js:503"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.Store.js:509"
+        },
+        {
+            "message": "Missing item type\n<p>Emits a socket signal to the uplink-server</p>",
+            "line": " src\\R.Uplink.js:99"
+        },
+        {
+            "message": "Missing item type\nTODO",
+            "line": " src\\R.XWindow.js:1"
+        },
+        {
+            "message": "Missing item type\nReturns the original function modified so that its context is always the given context.\nLightweight alternative to Function.prototype.bind.",
+            "line": " src\\R.utils.js:8"
+        },
+        {
+            "message": "Missing item type\nReturns a POJO with a single key-val pair.",
+            "line": " src\\R.utils.js:29"
+        },
+        {
+            "message": "Missing item type",
+            "line": " src\\R.utils.js:104"
+        },
+        {
+            "message": "Missing item type\nReturns a random, unique string GUID, with an optional prefix.",
+            "line": " src\\R.utils.js:113"
+        }
+    ]
+}

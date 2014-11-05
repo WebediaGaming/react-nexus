@@ -6,7 +6,19 @@ module.exports = function(R) {
     var EventEmitter = require("events").EventEmitter;
     var bodyParser = require("body-parser");
 
+    /**
+    * <p> SimpleUplinkServer represents an uplink-server that will be able to store data via an other server.<br />
+    * There also will be able to notify each client who suscribes to a data when an update will occurs thanks to socket </p>
+    * <p> SimpleUplinkServer will be requested by GET or POST via R.Uplink server-side and client-side
+    * @class R.SimpleUplinkServer
+    */
     var SimpleUplinkServer = {
+        /**
+        * <p> Initializes the SimpleUplinkServer according to the specifications provided </p>
+        * @method createApp
+        * @param {object} specs All the specifications of the SimpleUplinkServer
+        * @return {SimpleUplinkServerInstance} SimpleUplinkServerInstance The instance of the created SimpleUplinkServer
+        */
         createServer: function createServer(specs) {
             R.Debug.dev(function() {
                 assert(specs.store && _.isArray(specs.store), "R.SimpleUplinkServer.createServer(...).specs.store: expecting Array.");
@@ -24,6 +36,10 @@ module.exports = function(R) {
             _.extend(SimpleUplinkServerInstance.prototype, SimpleUplinkServer.SimpleUplinkServerInstance.prototype, specs);
             return SimpleUplinkServerInstance;
         },
+        /**
+        * <p> Setting up necessary methods for the SimpleUplinkServer </p>
+        * @method SimpleUplinkServerInstance
+        */
         SimpleUplinkServerInstance: function SimpleUplinkServerInstance() {
             this._store = {};
             this._hashes = {};
@@ -67,6 +83,14 @@ module.exports = function(R) {
             sessionCreated: null,
             sessionDestroyed: null,
             sessionTimeout: null,
+            /**
+            * <p>Saves data in store.
+            * Called by another server that will provide data for each updated data </p>
+            * @method setStore
+            * @param {string} key The specified key to set
+            * @param {string} val The value to save
+            * @return {function} 
+            */
             setStore: function setStore(key, val) {
                 return R.scope(function(fn) {
                     try {
@@ -90,6 +114,15 @@ module.exports = function(R) {
                     });
                 }, this);
             },
+
+            /**
+            * <p> Provides data from store. <br />
+            * Called when the fetching data occurs. <br />
+            * Requested by GET from R.Store server-side or client-side</p>
+            * @method getStore
+            * @param {string} key The specified key to set
+            * @return {function} 
+            */
             getStore: function getStore(key) {
                 return R.scope(function(fn) {
                     var val;
@@ -109,9 +142,19 @@ module.exports = function(R) {
                     });
                 }, this);
             },
+            /**
+            * @method emitEvent
+            * @param {string} eventName
+            * @param {object} params
+            */
             emitEvent: function emitEvent(eventName, params) {
                 this._eventsEvents.emit("emit:" + eventName, params);
             },
+            /**
+            * @method emitDebug
+            * @param {string} guid
+            * @param {object} params
+            */
             emitDebug: function emitDebug(guid, params) {
                 R.Debug.dev(R.scope(function() {
                     if(this._sessions[guid]) {
@@ -119,16 +162,31 @@ module.exports = function(R) {
                     }
                 }, this));
             },
+            /**
+            * @method emitLog
+            * @param {string} guid
+            * @param {object} params
+            */
             emitLog: function emitLog(guid, params) {
                 if(this._sessions[guid]) {
                     this._sessions[guid].emit("log", params);
                 }
             },
+            /**
+            * @method emitWarn
+            * @param {string} guid
+            * @param {object} params
+            */
             emitWarn: function emitLog(guid, params) {
                 if(this._sessions[guid]) {
                     this._sessions[guid].emit("warn", params);
                 }
             },
+            /**
+            * @method emitError
+            * @param {string} guid
+            * @param {object} params
+            */            
             emitError: function emitLog(guid, params) {
                 if(this._sessions[guid]) {
                     this._sessions[guid].emit("err", params);
@@ -146,6 +204,14 @@ module.exports = function(R) {
             _bindActionsRoute: function _bindActionsRoute(handler, route) {
                 this._actionsRouter.route(route, _.constant(R.scope(handler, this)));
             },
+            /** 
+            * <p> Setting up UplinkServer. <br />
+            * - create the socket connection <br />
+            * - init get and post app in order to provide data via R.Uplink.fetch</p>
+            * @method installHandlers
+            * @param {object} app The specified App
+            * @param {string} prefix The prefix string that will be requested. Tipically "/uplink"
+            */
             installHandlers: function* installHandlers(app, prefix) {
                 assert(this._app === null, "R.SimpleUplinkServer.SimpleUplinkServerInstance.installHandlers(...): app already mounted.");
                 this._app = app;
@@ -164,6 +230,15 @@ module.exports = function(R) {
                 yield this.bootstrap();
                 return server;
             },
+            /**
+            * <p>Return the saved data from store</p>
+            * <p>Requested from R.Store server-side or client-side</p>
+            * @method _handleHttpGet
+            * @param {object} req The classical request
+            * @param {object} res The response to send
+            * @param {object} next
+            * @return {string} val The computed json value
+            */
             _handleHttpGet: function _handleHttpGet(req, res, next) {
                 co(function*() {
                     var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
@@ -186,6 +261,12 @@ module.exports = function(R) {
                     }
                 });
             },
+            /**
+            * @method _handleHttpPost
+            * @param {object} req The classical request
+            * @param {object} res The response to send
+            * @return {string} str
+            */
             _handleHttpPost: function _handleHttpPost(req, res) {
                 co(function*() {
                     var path = req.path.slice(this._prefix.length - 1); // keep the leading slash
@@ -216,10 +297,23 @@ module.exports = function(R) {
                     }
                 });
             },
+            /** 
+            * <p> Create a R.SimpleUplinkServer.Connection in order to set up handler items. <br />
+            * Triggered when a socket connection is established </p>
+            * @method _handleSocketConnection
+            * @param {Object} socket The socket used in the connection
+            */
             _handleSocketConnection: function _handleSocketConnection(socket) {
                 var connection = new R.SimpleUplinkServer.Connection(this._pid, socket, this._handleSocketDisconnection, this._linkSession, this._unlinkSession);
                 this._connections[connection.uniqueId] = connection;
             },
+
+            /** 
+            * <p> Destroy a R.SimpleUplinkServer.Connection. <br />
+            * Triggered when a socket connection is closed </p>
+            * @method _handleSocketDisconnection
+            * @param {string} uniqueId The unique Id of the connection
+            */
             _handleSocketDisconnection: function _handleSocketDisconnection(uniqueId) {
                 var guid = this._connections[uniqueId].guid;
                 if(guid && this._sessions[guid]) {
@@ -227,6 +321,14 @@ module.exports = function(R) {
                 }
                 delete this._connections[uniqueId];
             },
+
+            /** 
+            * <p>Link a Session in order to set up subscribing and unsubscribing methods uplink-server-side</p>
+            * @method _linkSession
+            * @param {SimpleUplinkServer.Connection} connection The created connection
+            * @param {string} guid Unique string GUID
+            * @return {object} the object that contains methods subscriptions/unsubscriptions
+            */
             _linkSession: function* _linkSession(connection, guid) {
                 if(!this._sessions[guid]) {
                     this._sessions[guid] = new R.SimpleUplinkServer.Session(guid, this._storeEvents, this._eventsEvents, this._sessionsEvents, this.sessionTimeout);
@@ -234,6 +336,14 @@ module.exports = function(R) {
                 }
                 return this._sessions[guid].attachConnection(connection);
             },
+
+            /** 
+            * <p>Unlink a Session</p>
+            * @method _unlinkSession
+            * @param {SimpleUplinkServer.Connection} connection 
+            * @param {string} guid Unique string GUID
+            * @return {Function} fn
+            */
             _unlinkSession: function _unlinkSession(connection, guid) {
                 return R.scope(function(fn) {
                     try {
@@ -247,6 +357,10 @@ module.exports = function(R) {
                     return fn(null);
                 }, this);
             },
+            /** 
+            * @method _handleSessionExpire
+            * @param {string} guid Unique string GUID
+            */
             _handleSessionExpire: function _handleSessionExpire(guid) {
                 R.Debug.dev(R.scope(function() {
                     assert(_.has(this._sessions, guid), "R.SimpleUplinkServer._handleSessionExpire(...): no such session.");
@@ -257,6 +371,15 @@ module.exports = function(R) {
                 }).call(this, R.Debug.rethrow("R.SimpleUplinkServer._handleSessionExpire(...)"));
             },
         },
+        /** 
+        * <p>Setting up a connection in order to initialies methods and to provides specifics listeners on the socket</p>
+        * @method Connection
+        * @param {object} pid 
+        * @param {object} socket
+        * @param {object} handleSocketDisconnection
+        * @param {object} linkSession 
+        * @param {object} unlinkSession
+        */
         Connection: function Connection(pid, socket, handleSocketDisconnection, linkSession, unlinkSession) {
             this._pid = pid;
             this.uniqueId = _.uniqueId("R.SimpleUplinkServer.Connection");
@@ -279,6 +402,10 @@ module.exports = function(R) {
             _listenTo: null,
             _unlistenFrom: null,
             _disconnected: null,
+            /** 
+            * <p>Setting up the specifics listeners for the socket</p>
+            * @method _bindHandlers
+            */
             _bindHandlers: function _bindHandlers() {
                 this._socket.on("handshake", R.scope(this._handleHandshake, this));
                 this._socket.on("subscribeTo", R.scope(this._handleSubscribeTo, this));
@@ -288,12 +415,24 @@ module.exports = function(R) {
                 this._socket.on("disconnect", R.scope(this._handleDisconnect, this));
                 this._socket.on("unhandshake", R.scope(this._handleUnHandshake, this));
             },
+            /**
+            * <p> Simply emit a specific action on the socket </p>
+            * @method emit
+            * @param {string} name The name of the action to send
+            * @param {object} params The params 
+            */
             emit: function emit(name, params) {
                 R.Debug.dev(function() {
                     console.warn("[C] >>> " + name, params);
                 });
                 this._socket.emit(name, params);
             },
+            /**
+            * <p> Triggered by the recently connected client. <br />
+            * Combines methods of subscriptions that will be triggered by the client via socket listening</p>
+            * @method _handleHandshake
+            * @param {String} params Contains the unique string GUID
+            */
             _handleHandshake: function _handleHandshake(params) {
                 if(!_.has(params, "guid") || !_.isString(params.guid)) {
                     this.emit("err", { err: "handshake.params.guid: expected String."});
@@ -316,6 +455,11 @@ module.exports = function(R) {
                     }).call(this, R.Debug.rethrow("R.SimpleUplinkServer.Connection._handleHandshake(...)"));
                 }
             },
+            /**
+            * <p> Triggered by the recently disconnected client. <br />
+            * Removes methods of subscriptions</p>
+            * @method _handleHandshake
+            */
             _handleUnHandshake: function _handleUnHandshake() {
                 if(!this.guid) {
                     this.emit("err", { err: "unhandshake: no active session."});
@@ -332,6 +476,11 @@ module.exports = function(R) {
                     }).call(this, R.Debug.rethrow("R.SimpleUplinkServer.Connection._handleUnHandshake(...)"));
                 }
             },
+            /** 
+            * <p>Maps the triggered event with the _subscribeTo methods </p>
+            * @method _handleSubscribeTo
+            * @param {object} params Contains the key provided by client
+            */
             _handleSubscribeTo: function _handleSubscribeTo(params) {
                 if(!_.has(params, "key") || !_.isString(params.key)) {
                     this.emit("err", { err: "subscribeTo.params.key: expected String." });
@@ -343,6 +492,11 @@ module.exports = function(R) {
                     this._subscribeTo(params.key);
                 }
             },
+            /** 
+            * <p>Maps the triggered event with the _unsubscribeFrom methods</p>
+            * @method _handleUnsubscribeFrom
+            * @param {object} params Contains the key provided by client
+            */
             _handleUnsubscribeFrom: function _handleUnsubscribeFrom(params) {
                 if(!_.has(params, "key") || !_.isString(params.key)) {
                     this.emit("err", { err: "unsubscribeFrom.params.key: expected String." });
@@ -354,6 +508,11 @@ module.exports = function(R) {
                     this._unsubscribeFrom(params.key);
                 }
             },
+            /** 
+            * <p>Maps the triggered event with the listenTo methods</p>
+            * @method _handleListenTo
+            * @param {object} params Contains the eventName provided by client
+            */
             _handleListenTo: function _handleListenTo(params) {
                 if(!_.has(params, "eventName") || !_.isString(params.eventName)) {
                     this.emit("err", { err: "listenTo.params.eventName: expected String." });
@@ -365,6 +524,11 @@ module.exports = function(R) {
                     this.listenTo(params.eventName);
                 }
             },
+            /** 
+            * <p>Maps the triggered event with the unlistenFrom methods</p>
+            * @method _handleUnlistenFrom
+            * @param {object} params Contains the eventName provided by client
+            */
             _handleUnlistenFrom: function _handleUnlistenFrom(params) {
                 if(!_.has(params, "eventName") || !_.isString(params.eventName)) {
                     this.emit("err", { err: "unlistenFrom.params.eventName: expected String." });
@@ -376,10 +540,23 @@ module.exports = function(R) {
                     this.unlistenFrom(params.eventName);
                 }
             },
+             /** 
+            * <p>Triggered by the recently disconnected client.</p>
+            * @method _handleDisconnect
+            */
             _handleDisconnect: function _handleDisconnect() {
                 this._handleSocketDisconnection(this.uniqueId, false);
             },
         },
+        /** 
+        * <p>Setting up a session</p>
+        * @method Session
+        * @param {object} pid 
+        * @param {object} storeEvents
+        * @param {object} eventsEvents
+        * @param {object} sessionsEvents 
+        * @param {object} timeout
+        */
         Session: function Session(guid, storeEvents, eventsEvents, sessionsEvents, timeout) {
             this._guid = guid;
             this._storeEvents = storeEvents;
@@ -403,6 +580,13 @@ module.exports = function(R) {
             _messageQueue: null,
             _expireTimeout: null,
             _timeoutDuration: null,
+            /**
+            * <p>Bind the subscribing and unsubscribing methods when a connection is established <br />
+            * Methods that trigger on client issues (like emit("subscribeTo"), emit("unsubscribeFrom"))</p>
+            * @method attachConnection
+            * @param {SimpleUplinkServer.Connection} connection the current created connection
+            * @return {object} the binded object with methods
+            */
             attachConnection: function attachConnection(connection) {
                 var recovered = (this._connection !== null);
                 this.detachConnection();
@@ -420,6 +604,10 @@ module.exports = function(R) {
                     unlistenFrom: R.scope(this.unlistenFrom, this),
                 };
             },
+            /**
+            * <p>Remove the previously added connection, and clean the message queue </p>
+            * @method detachConnection
+            */
             detachConnection: function detachConnection() {
                 if(this._connection === null) {
                     return;
@@ -430,9 +618,19 @@ module.exports = function(R) {
                     this._expireTimeout = setTimeout(this._expire, this._timeoutDuration);
                 }
             },
+            /**
+            * @method terminate
+            */
             terminate: function terminate() {
                 this._expire();
             },
+            /** 
+            * <p>Method invoked by client via socket emit <br />
+            * Store the _signalUpdate method in subscription <br />
+            * Add a listener that will call _signalUpdate when triggered </p>
+            * @method subscribeTo
+            * @param {string} key The key to subscribe
+            */
             subscribeTo: function subscribeTo(key) {
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._subscriptions, key), "R.SimpleUplinkServer.Session.subscribeTo(...): already subscribed.");
@@ -440,6 +638,13 @@ module.exports = function(R) {
                 this._subscriptions[key] = this._signalUpdate();
                 this._storeEvents.addListener("set:" + key, this._subscriptions[key]);
             },
+
+            /** 
+            * <p>Method invoked by client via socket emit <br />
+            * Remove a listener according to the key</p>
+            * @method subscribeTo
+            * @param {string} key The key to unsubscribe
+            */
             unsubscribeFrom: function unsubscribeFrom(key) {
                 R.Debug.dev(R.scope(function() {
                     assert(_.has(this._subscriptions, key), "R.SimpleUplinkServer.Session.unsubscribeFrom(...): not subscribed.");
@@ -447,6 +652,12 @@ module.exports = function(R) {
                 this._storeEvents.removeListener("set:" + key, this._subscriptions[key]);
                 delete this._subscriptions[key];
             },
+            /**
+            * <p> Simply emit a specific action on the socket </p>
+            * @method _emit
+            * @param {string} name The name of the action to send
+            * @param {object} params The params 
+            */
             _emit: function _emit(name, params) {
                 R.Debug.dev(function() {
                     console.warn("[S] >>> " + name, params);
@@ -461,21 +672,37 @@ module.exports = function(R) {
                     });
                 }
             },
+            /** <p>Push an update action on the socket. <br />
+            * The client is listening on the action "update" socket </p>
+            * @method _signalUpdate
+            */
             _signalUpdate: function _signalUpdate() {
                 return R.scope(function(patch) {
                     this._emit("update", patch);
                 }, this);
             },
+            /** <p>Push an event action on the socket. <br />
+            * The client is listening on the action "event" socket </p>
+            * @method _signalEvent
+            */
             _signalEvent: function _signalEvent(eventName) {
                 return R.scope(function(params) {
                     this._emit("event", { eventName: eventName, params: params });
                 }, this);
             },
+            /**
+            * @method _expire
+            */
             _expire: function _expire() {
                 _.each(_.keys(this._subscriptions), R.scope(this.unsubscribeFrom, this));
                 _.each(_.keys(this._listeners), R.scope(this.unlistenFrom, this));
                 this._sessionsEvents.emit("expire", this._guid);
             },
+            /**
+            * <p> Create a listener for the events </p>
+            * @method listenTo
+            * @param {string} eventName The name of the event that will be registered
+            */
             listenTo: function listenTo(eventName) {
                 R.Debug.dev(R.scope(function() {
                     assert(!_.has(this._listeners, key), "R.SimpleUplinkServer.Session.listenTo(...): already listening.");
@@ -483,6 +710,11 @@ module.exports = function(R) {
                 this._listeners[eventName] = this._signalEvent(eventName);
                 this._eventsEvents.addListener("emit:" + eventName, this._listeners[eventName]);
             },
+            /**
+            * <p> Remove a listener from the events </p>
+            * @method unlistenFrom
+            * @param {string} eventName The name of the event that will be unregistered
+            */
             unlistenFrom: function unlistenFrom(eventName) {
                 R.Debug.dev(R.scope(function() {
                     assert(_.has(this._listeners, eventName), "R.SimpleUplinkServer.Session.unlistenFrom(...): not listening.");

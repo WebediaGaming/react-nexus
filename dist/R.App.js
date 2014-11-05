@@ -45,7 +45,7 @@ module.exports = function(R) {
             _templateLibs: null,
             _plugins: null,
             renderToStringInServer: regeneratorRuntime.mark(function renderToStringInServer(req) {
-                var guid, flux, rootProps, surrogateRootComponent, rootComponent, rootHtml, serializedFlux;
+                var guid, flux, rootProps, surrogateRootComponent, factoryRootComponent, rootComponent, rootHtml, serializedFlux;
 
                 return regeneratorRuntime.wrap(function renderToStringInServer$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -80,15 +80,17 @@ module.exports = function(R) {
                         return surrogateRootComponent.prefetchFluxStores();
                     case 13:
                         surrogateRootComponent.componentWillUnmount();
-                        rootComponent = this._rootClass(rootProps);
+
+                        factoryRootComponent = React.createFactory(this._rootClass);
+                        rootComponent = factoryRootComponent(rootProps);
                         flux.startInjectingFromStores();
-                        rootHtml = React.renderComponentToString(rootComponent);
+                        rootHtml = React.renderToString(rootComponent);
                         flux.stopInjectingFromStores();
                         serializedFlux = flux.serialize();
                         flux.destroy();
-                        context$2$0.next = 22;
+                        context$2$0.next = 23;
                         return this._bootstrapTemplateVarsInServer(req);
-                    case 22:
+                    case 23:
                         context$2$0.t0 = context$2$0.sent;
 
                         context$2$0.t1 = {
@@ -100,14 +102,14 @@ module.exports = function(R) {
 
                         context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
                         return context$2$0.abrupt("return", this._template(context$2$0.t2, this._templateLibs));
-                    case 26:
+                    case 27:
                     case "end":
                         return context$2$0.stop();
                     }
                 }, renderToStringInServer, this);
             }),
             renderIntoDocumentInClient: regeneratorRuntime.mark(function renderIntoDocumentInClient(window) {
-                var flux, headers, guid, rootProps, rootComponent;
+                var flux, headers, guid, rootProps, factoryRootComponent, rootComponent;
 
                 return regeneratorRuntime.wrap(function renderIntoDocumentInClient$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -140,14 +142,15 @@ module.exports = function(R) {
                         R.Debug.dev(R.scope(function() {
                             _.extend(rootProps, { __ReactOnRailsApp: this });
                         }, this));
-                        rootComponent = this._rootClass(rootProps);
+                        factoryRootComponent = React.createFactory(this._rootClass);
+                        rootComponent = factoryRootComponent(rootProps);
                         R.Debug.dev(function() {
                             window.__ReactOnRails.rootComponent = rootComponent;
                         });
                         flux.startInjectingFromStores();
-                        React.renderComponent(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
+                        React.render(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                         flux.stopInjectingFromStores();
-                    case 16:
+                    case 17:
                     case "end":
                         return context$2$0.stop();
                     }
