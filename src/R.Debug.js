@@ -5,13 +5,16 @@ module.exports = function(R) {
     var util = require("util");
     var Promise = require("bluebird");
     /**
-     * Debugging utilities embedded with R.
-     * Provides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.
+     * <p>Debugging utilities embedded with R.<br />
+     * Provides conditionals for dev/prod mode and associated assertions to avoid lengthy try/catch blocks in prod mode.</p>
      * @memberof R
      * @type {Object}
+     * @class R.Debug
      */
     var Debug = /** @lends R.Debug */{
         /**
+         * @method _mode
+         * @return {String} string The basic string
          * @type {String}
          * @private
          */
@@ -26,8 +29,9 @@ module.exports = function(R) {
             }
         }(),
         /**
-         * Manually override mode to either 'production' or 'development'.
-         * Use this if you don't want to use envify.
+         * <p>Manually override mode to either 'production' or 'development'.<br/>
+         * Use this if you don't want to use envify.</p>
+         * @method setMode
          * @param {String} mode
          * @public
          */
@@ -68,42 +72,47 @@ module.exports = function(R) {
             }
         },
         /**
-         * Returns a boolean describing whether the current mode is dev.
-         * @return {Boolean} Truthy iff the current mode is dev.
+         * <p> Returns a boolean describing whether the current mode is dev. </p>
+         * @method isDev
+         * @return {Boolean} boolean Truthy iff the current mode is dev.
          * @public
          */
         isDev: function isDev() {
             return 'development' === Debug._mode;
         },
         /**
-         * Returns a boolean describing whether the current mode is prod.
-         * @return {Boolean} Truthy iff the current mode is prod.
+         * <p> Returns a boolean describing whether the current mode is prod. </p>
+         * @method isProd
+         * @return {Boolean} boolean Truthy iff the current mode is prod.
          * @public
          */
         isProd: function isProd() {
             return 'production' === Debug._mode;
         },
         /**
-         * Runs a function iff the current mode is dev.
+         * <p>Runs a function iff the current mode is dev.</p>
+         * @method dev
          * @param  {Function} fn The function to invoke iff the current mode is dev.
-         * @return {*} The return value of fn iff the current mode is dev, undefined otherwise.
+         * @return {*} * The return value of fn iff the current mode is dev, undefined otherwise.
          * @public
          */
         dev: function dev(fn) {
             return Debug.isDev() ? fn() : void 0;
         },
         /**
-         * Runs a function iff the current mode is prod.
+         * <p>Runs a function iff the current mode is prod.</p>
+         * @method prod
          * @param  {Function} fn The function to invoke iff the current mode is prod.
-         * @return {*} The return value of fn iff the current mode is prod, undefined otherwise.
+         * @return {*} * The return value of fn iff the current mode is prod, undefined otherwise.
          * @public
          */
         prod: function prod(fn) {
             return Debug.isProd() ? fn(): void 0;
         },
         /**
-         * Returns a function iff the current mode is dev, otherwise returns a noop function.
-         * "dev-only" maybe monad.
+         * <p>Returns a function iff the current mode is dev, otherwise returns a noop function.<br />
+         * "dev-only" maybe monad.</p>
+         * @method maybeDev
          * @param  {Function} fn The function to be returned if the current mode is dev.
          * @return {Function} The original function iff the current mode is dev, no-op function otherwise.
          * @public
@@ -112,8 +121,9 @@ module.exports = function(R) {
             return Debug.isDev() ? fn : _.noop;
         },
         /**
-         * Returns a function iff the current mode is prod, otherwise returns a noop function.
-         * "prod-only" maybe monad.
+         * <p>Returns a function iff the current mode is prod, otherwise returns a noop function.<br />
+         * "prod-only" maybe monad.</p>
+         * @method maybeProd
          * @param  {Function} fn The function to be returned if the current mode is prod.
          * @return {Function} The original function iff the current mode is prod, no-op function otherwise.
          * @public
@@ -122,7 +132,8 @@ module.exports = function(R) {
             return Debug.isProd() ? fn : _.noop;
         },
         /**
-         * Trigger a debugger breakpoint without raising jshint errors.
+         * <p>Trigger a debugger breakpoint without raising jshint errors.</p>
+         * @method breakpoint
          * @public
          */
         breakpoint: function breakpoint() {
@@ -145,10 +156,11 @@ module.exports = function(R) {
             throw err;
         },
         /**
-         * Runs assert from node core with the same arguments.
-         * Throws if the assert fails and the current mode is dev.
-         * console.error if the assert fails and the current mode is prod.
-         * No side effect if the assert doesn't fail.
+         * <p>Runs assert from node core with the same arguments.<br />
+         * Throws if the assert fails and the current mode is dev.<br />
+         * console.error if the assert fails and the current mode is prod.<br />
+         * No side effect if the assert doesn't fail.</p>
+         * @method check
          * @return {Boolean} Truthy only if the assert doesn't fail. False if the assert fails and not in dev mode.
          * @type {Function}
          * @public
@@ -169,8 +181,9 @@ module.exports = function(R) {
             return true;
         },
         /**
-         * Extends an Error to provide additional information while preserving the error stack.
-         * Uses VError under the hood.
+         * <p>Extends an Error to provide additional information while preserving the error stack.<br />
+         * Uses VError under the hood.</p>
+         * @method extendError
          * @param  {Error} originalErr The original error.
          * @param  {Error|String} wrappingErr The error to use as wrapper.
          * @return {Error} The new, extended Error.
@@ -182,6 +195,7 @@ module.exports = function(R) {
         },
         /**
          * Returns a function that will rethrow when passed an error.
+         * @method rethrow
          * @param  {Error|String} [wrappingErr] Optionnal error to use as wrapper.
          * @public
          */

@@ -36,7 +36,7 @@
     "locale": "0.0.17",
     "lodash": "^2.4.1",
     "raf": "^2.0.3",
-    "react": "^0.11.2",
+    "react": "^0.12.0",
     "react-animate": "^0.1.5",
     "react-css": "0.0.2",
     "react-query": "0.0.10",
@@ -52,10 +52,11 @@
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.0.1",
     "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-less": "^0.11.4",
-    "grunt-react": "^0.9.0",
     "grunt-contrib-jst": "^0.6.0",
+    "grunt-contrib-less": "^0.11.4",
+    "grunt-contrib-yuidoc": "^0.5.2",
     "grunt-jstransform": "^0.1.0",
+    "grunt-react": "^0.9.0",
     "grunt-regenerator": "^1.1.0",
     "grunt-smash": "^0.1.0"
   }

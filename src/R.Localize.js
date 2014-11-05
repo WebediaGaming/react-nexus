@@ -38,7 +38,7 @@ module.exports = function(R) {
             return React.createClass({
                 propTypes: {
                     locale: React.propTypes.string.isRequired,
-                    children: React.PropTypes.component.isRequired,
+                    children: React.PropTypes.element.isRequired,
                 },
                 getInitialState: function getInitialState() {
                     return {
