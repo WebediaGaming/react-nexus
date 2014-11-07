@@ -5,7 +5,24 @@ module.exports = function(R) {
     var assert = require("assert");
     var path = require("path");
 
+    /**
+    * <p>Simply create an App class with specifics</p>
+    * <p>Provides methods in order to render the specified App server-side and client-side</p>
+    * <ul>
+    * <li> App.createApp => initializes methods of an application according to the specifications provided </li>
+    * <li> App.renderToStringInServer => compute all React Components with data and render the corresponding HTML for the requesting client </li>
+    * <li> App.renderIntoDocumentInClient => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions</li>
+    * <li> App.createPlugin => initiliaziation method of a plugin for the application </li>
+    * </ul>
+    * @class R.App
+    */
     var App = {
+        /**
+        * <p> Initializes the application according to the specifications provided </p>
+        * @method createApp
+        * @param {object} specs All the specifications of the App
+        * @return {AppInstance} AppInstance The instance of the created App
+        */
         createApp: function createApp(specs) {
             R.Debug.dev(function() {
                 assert(_.isPlainObject(specs), "R.App.createApp(...).specs: expecting Object.");
@@ -44,6 +61,12 @@ module.exports = function(R) {
             _vars: null,
             _templateLibs: null,
             _plugins: null,
+            /**
+            * <p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>
+            * @method renderToStringInServer
+            * @param {object} req The classical request object
+            * @return {object} template : the computed HTML template with data for the requesting client
+            */
             renderToStringInServer: regeneratorRuntime.mark(function renderToStringInServer(req) {
                 var guid, flux, rootProps, surrogateRootComponent, factoryRootComponent, rootComponent, rootHtml, serializedFlux;
 
@@ -58,6 +81,7 @@ module.exports = function(R) {
                         context$2$0.next = 5;
                         return flux.bootstrapInServer(req, req.headers, guid);
                     case 5:
+                        //Initializes plugin and fill all corresponding data for store : Memory
                         _.each(this._plugins, function(Plugin, name) {
                             var plugin = new Plugin();
                             R.Debug.dev(function() {
@@ -69,13 +93,16 @@ module.exports = function(R) {
                         R.Debug.dev(R.scope(function() {
                             _.extend(rootProps, { __ReactOnRailsApp: this });
                         }, this));
+
                         surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, rootProps);
+
                         if(!surrogateRootComponent.componentWillMount) {
                             R.Debug.dev(function() {
                                 console.error("Root component doesn't have componentWillMount. Maybe you forgot R.Root.Mixin? ('" + surrogateRootComponent.displayName + "')");
                             });
                         }
                         surrogateRootComponent.componentWillMount();
+
                         context$2$0.next = 13;
                         return surrogateRootComponent.prefetchFluxStores();
                     case 13:
@@ -86,6 +113,7 @@ module.exports = function(R) {
                         flux.startInjectingFromStores();
                         rootHtml = React.renderToString(rootComponent);
                         flux.stopInjectingFromStores();
+
                         serializedFlux = flux.serialize();
                         flux.destroy();
                         context$2$0.next = 23;
@@ -108,6 +136,12 @@ module.exports = function(R) {
                     }
                 }, renderToStringInServer, this);
             }),
+            /**
+            * <p>Setting all the data for each React Component and Render it into the client. <br />
+            * Connecting to the uplink-server via in order to enable the establishment of subsriptions for each React Component</p>
+            * @method renderIntoDocumentInClient
+            * @param {object} window The classical window object
+            */
             renderIntoDocumentInClient: regeneratorRuntime.mark(function renderIntoDocumentInClient(window) {
                 var flux, headers, guid, rootProps, factoryRootComponent, rootComponent;
 
@@ -130,6 +164,7 @@ module.exports = function(R) {
                         context$2$0.next = 7;
                         return flux.bootstrapInClient(window, headers, guid);
                     case 7:
+                        //Unserialize flux in order to fill all data in store
                         flux.unserialize(window.__ReactOnRails.serializedFlux);
                         _.each(this._plugins, function(Plugin, name) {
                             var plugin = new Plugin();
@@ -148,6 +183,15 @@ module.exports = function(R) {
                             window.__ReactOnRails.rootComponent = rootComponent;
                         });
                         flux.startInjectingFromStores();
+                        /*
+                        * Render root component client-side, for each components:
+                        * 1. getInitialState : return store data computed server-side with R.Flux.prefetchFluxStores
+                        * 2. componentWillMount : initialization 
+                        * 3. Render : compute DOM with store data computed server-side with R.Flux.prefetchFluxStores
+                        * Root Component already has this server-rendered markup, 
+                        * React will preserve it and only attach event handlers.
+                        * 4. Finally componentDidMount (subscribe and fetching data) then rerendering with new potential computed data
+                        */
                         React.render(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
                         flux.stopInjectingFromStores();
                     case 17:
@@ -157,6 +201,12 @@ module.exports = function(R) {
                 }, renderIntoDocumentInClient, this);
             }),
         },
+        /**
+        * <p>Initiliaziation method of a plugin for the application</p>
+        * @method createPlugin
+        * @param {object} specs The specified specs provided by the plugin
+        * @return {object} PluginInstance The instance of the created plugin
+        */
         createPlugin: function createPlugin(specs) {
             R.Debug.dev(function() {
                 assert(specs && _.isPlainObject(specs), "R.App.createPlugin(...).specs: expecting Object.");

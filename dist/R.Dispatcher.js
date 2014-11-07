@@ -2,7 +2,25 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
 
+    /**
+    * <p>R.Dispatcher acts as a layer between Store/EventEmitters and components.
+    * A React component may submit an action to a dispatcher (such as a click event) and perform updates required.</p>
+    * <ul>
+    * <li> Dispatcher.createDispatcher => initialize methods according to the specifications provided</li>
+    * <li> Dispatcher.addActionListener => add an action listener</li>
+    * <li> Dispatcher.removeActionListener => remove an action listener</li>
+    * <li> Dispatcher.dispatch => dispatches an action submitted by a React component</li>
+    * <li> Dispatcher.destroy => remove all listener previously added</li>
+    * </ul>
+    * @class R.Dispatcher
+    */
     var Dispatcher = {
+        /**
+        * Initializes the dispatcher according to the specifications provided
+        * @method createDispatcher
+        * @param {object} specs The specifications
+        * @return {DispatcherInstance} DispatcherInstance The created dispatcher instance
+        */
         createDispatcher: function createDispatcher(specs) {
             R.Debug.dev(function() {
                 assert(_.isObject(specs), "R.Dispatcher.createDispatcher(...).specs: expecting Object.");
@@ -31,6 +49,13 @@ module.exports = function(R) {
             _isDispatcherInstance_: true,
             displayName: null,
             _actionsListeners: null,
+            /**
+            * <p>Register an async action listener</p>
+            * @method addActionListener
+            * @param {object} action The action name
+            * @param {Function} fn The function to execute when the listener will be notified
+            * @return {Dispatcher.ActionListener} actionListener The created actionListener
+            */
             addActionListener: function addActionListener(action, fn) {
                 var actionListener = new R.Dispatcher.ActionListener(action);
                 if(!_.has(this._actionsListeners, action)) {
@@ -39,6 +64,11 @@ module.exports = function(R) {
                 this._actionsListeners[action][actionListener.uniqueId] = fn;
                 return actionListener;
             },
+            /**
+            * <p>Remove the previously added action listener</p>
+            * @method removeActionListener
+            * @param {object} actionListener The action name
+            */
             removeActionListener: function removeActionListener(actionListener) {
                 R.Debug.dev(R.scope(function() {
                     assert(actionListener instanceof R.Dispatcher.ActionListener, "R.Dispatcher.DispatcherInstance.removeActionListener(...): type R.Dispatcher.ActionListener expected.");
@@ -50,6 +80,13 @@ module.exports = function(R) {
                     delete this._actionsListeners[actionListener.action];
                 }
             },
+            /**
+            * <p>Dispatches an action submitted by a React component</p>
+            * @method dispatch
+            * @param {action} action The action name of the listener
+            * @param {object} params The specifics params necessary for an action
+            * @return {*} * the data that may be provided by the listener function
+            */
             dispatch: regeneratorRuntime.mark(function dispatch(action, params) {
                 return regeneratorRuntime.wrap(function dispatch$(context$2$0) {
                     while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -79,6 +116,10 @@ module.exports = function(R) {
                     }
                 }, dispatch, this);
             }),
+            /**
+            * <p>Remove all listener previously added </p>
+            * @method destroy
+            */
             destroy: function destroy() {
                 _.each(this._actionsListeners, this.removeActionListener);
             },
@@ -92,12 +133,14 @@ module.exports = function(R) {
 
     _.extend(Dispatcher.ActionListener.prototype, /** @lends R.Dispatcher.ActionListener */ {
         /**
+         * @property
          * @type {String}
          * @private
          * @readOnly
          */
         uniqueId: null,
         /**
+         * @property
          * @type {String}
          * @private
          * @readOnly
