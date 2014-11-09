@@ -24,13 +24,13 @@
     "gulp-plumber": "^0.6.6",
     "gulp-sourcemaps": "^1.2.8",
     "gulp-util": "^3.0.1",
+    "gulp-6to5": "^1.0.1",
     "jshint-stylish": "^1.0.0"
   },
   "dependencies": {
     "6to5": "^1.11.3",
     "bluebird": "^2.3.11",
     "co": "^3.1.0",
-    "gulp-6to5": "^1.0.1",
     "lodash-next": "^0.1.9",
     "should": "^4.2.1"
   }
