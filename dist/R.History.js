@@ -1,76 +1,75 @@
-module.exports = function(R) {
-    var url = require("url");
-    var co = require("co");
-    var assert = require("assert");
-    var _ = require("lodash");
-    var React = R.React;
+"use strict";
 
-    var History = {
-        createPlugin: function createPlugin(storeName, dispatcherName) {
-            return R.App.createPlugin({
-                displayName: "History",
-                updateStoreToHref: function updateStoreToHref(flux, href) {
-                    flux.getStore(storeName).set("/History/pathname", url.parse(href).pathname);
-                },
-                installInClient: function installInClient(flux, window) {
-                    flux.getDispatcher(dispatcherName).addActionListener("/History/navigate", R.scope(function navigate(params) {
-                        return R.scope(function(fn) {
-                            R.Debug.dev(function() {
-                                assert(params.pathname && _.isString(params.pathname), "/History/navigate: params.pathname: expecting String.");
-                            });
-                            var href = url.format(_.extend(url.parse(window.location.href), { pathname: params.pathname }));
-                            window.history.pushState(null, null, href);
-                            this.updateStoreToHref(flux, href);
-                            _.defer(fn);
-                        }, this);
-                    }, this));
-                    window.addEventListener("popstate", R.scope(function() {
-                        this.updateStoreToHref(flux, window.location.href);
-                    }, this));
-                    this.updateStoreToHref(flux, window.location.href);
-                },
-                installInServer: function installInServer(flux, req) {
-                    this.updateStoreToHref(flux, url.parse(req.url).pathname);
-                },
-            });
-        },
-        createLinkClass: function createLinkClass(specs) {
-            R.Debug.dev(function() {
-                assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.History.createClass(...).specs.dispatcherName: expected String.");
-            });
-            return React.createClass({
-                displayName: "HistoryLink",
-                mixins: [R.Component.Mixin],
-                propTypes: {
-                    children: React.PropTypes.any.isRequired,
-                    pathname: React.PropTypes.string.isRequired,
-                },
-                handleClick: function handleClick(event) {
-                    event.preventDefault();
-                    co(regeneratorRuntime.mark(function callee$3$0() {
-                        return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
-                            while (1) switch (context$4$0.prev = context$4$0.next) {
-                            case 0:
-                                context$4$0.next = 2;
-                                return this.getFluxDispatcher(specs.dispatcherName).dispatch("/History/navigate", { pathname: this.props.pathname });
-                            case 2:
-                            case "end":
-                                return context$4$0.stop();
-                            }
-                        }, callee$3$0, this);
-                    })).call(this);
-                },
-                render: function render() {
-                    return React.DOM.a({
-                        className: "HistoryLink",
-                        href: this.props.pathname,
-                        onClick: this.handleClick,
-                        children: this.props.children,
-                    });
-                },
-            });
-        },
-    };
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var url = require("url");
+  var co = require("co");
+  var assert = require("assert");
+  var _ = require("lodash");
+  var React = R.React;
 
-    return History;
+  var History = {
+    createPlugin: function createPlugin(storeName, dispatcherName) {
+      return R.App.createPlugin({
+        displayName: "History",
+        updateStoreToHref: function updateStoreToHref(flux, href) {
+          flux.getStore(storeName).set("/History/pathname", url.parse(href).pathname);
+        },
+        installInClient: function installInClient(flux, window) {
+          flux.getDispatcher(dispatcherName).addActionListener("/History/navigate", R.scope(function navigate(params) {
+            return R.scope(function (fn) {
+              R.Debug.dev(function () {
+                assert(params.pathname && _.isString(params.pathname), "/History/navigate: params.pathname: expecting String.");
+              });
+              var href = url.format(_.extend(url.parse(window.location.href), { pathname: params.pathname }));
+              window.history.pushState(null, null, href);
+              this.updateStoreToHref(flux, href);
+              _.defer(fn);
+            }, this);
+          }, this));
+          window.addEventListener("popstate", R.scope(function () {
+            this.updateStoreToHref(flux, window.location.href);
+          }, this));
+          this.updateStoreToHref(flux, window.location.href);
+        },
+        installInServer: function installInServer(flux, req) {
+          this.updateStoreToHref(flux, url.parse(req.url).pathname);
+        } });
+    },
+    createLinkClass: function createLinkClass(specs) {
+      R.Debug.dev(function () {
+        assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.History.createClass(...).specs.dispatcherName: expected String.");
+      });
+      return React.createClass({
+        displayName: "HistoryLink",
+        mixins: [R.Component.Mixin],
+        propTypes: {
+          children: React.PropTypes.any.isRequired,
+          pathname: React.PropTypes.string.isRequired },
+        handleClick: function handleClick(event) {
+          event.preventDefault();
+          co(regeneratorRuntime.mark(function callee$3$0() {
+            return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
+              while (1) switch (context$4$0.prev = context$4$0.next) {case 0:
+                  context$4$0.next = 2;
+                  return this.getFluxDispatcher(specs.dispatcherName).dispatch("/History/navigate", { pathname: this.props.pathname });
+
+                case 2:
+                case "end": return context$4$0.stop();
+              }
+            }, callee$3$0, this);
+          })).call(this);
+        },
+        render: function render() {
+          return React.DOM.a({
+            className: "HistoryLink",
+            href: this.props.pathname,
+            onClick: this.handleClick,
+            children: this.props.children });
+        } });
+    } };
+
+  return History;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLkhpc3RvcnkuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSxPQUFPLENBQUMsZUFBZSxDQUFDLENBQUM7QUFDekIsSUFBTSxPQUFPLEdBQUcsT0FBTyxDQUFDLFVBQVUsQ0FBQyxDQUFDO0FBQ3BDLE1BQU0sQ0FBQyxPQUFPLEdBQUcsVUFBUyxDQUFDLEVBQUU7QUFDekIsTUFBSSxHQUFHLEdBQUcsT0FBTyxDQUFDLEtBQUssQ0FBQyxDQUFDO0FBQ3pCLE1BQUksRUFBRSxHQUFHLE9BQU8sQ0FBQyxJQUFJLENBQUMsQ0FBQztBQUN2QixNQUFJLE1BQU0sR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQUM7QUFDL0IsTUFBSSxDQUFDLEdBQUcsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUFDO0FBQzFCLE1BQUksS0FBSyxHQUFHLENBQUMsQ0FBQyxLQUFLLENBQUM7O0FBRXBCLE1BQUksT0FBTyxHQUFHO0FBQ1YsZ0JBQVksRUFBRSxTQUFTLFlBQVksQ0FBQyxTQUFTLEVBQUUsY0FBYyxFQUFFO0FBQzNELGFBQU8sQ0FBQyxDQUFDLEdBQUcsQ0FBQyxZQUFZLENBQUM7QUFDdEIsbUJBQVcsRUFBRSxTQUFTO0FBQ3RCLHlCQUFpQixFQUFFLFNBQVMsaUJBQWlCLENBQUMsSUFBSSxFQUFFLElBQUksRUFBRTtBQUN0RCxjQUFJLENBQUMsUUFBUSxDQUFDLFNBQVMsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxtQkFBbUIsRUFBRSxHQUFHLENBQUMsS0FBSyxDQUFDLElBQUksQ0FBQyxDQUFDLFFBQVEsQ0FBQyxDQUFDO1NBQy9FO0FBQ0QsdUJBQWUsRUFBRSxTQUFTLGVBQWUsQ0FBQyxJQUFJLEVBQUUsTUFBTSxFQUFFO0FBQ3BELGNBQUksQ0FBQyxhQUFhLENBQUMsY0FBYyxDQUFDLENBQUMsaUJBQWlCLENBQUMsbUJBQW1CLEVBQUUsQ0FBQyxDQUFDLEtBQUssQ0FBQyxTQUFTLFFB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LHFCQUFTLEVBQUUsYUFBYTtBQUN4QixnQkFBSSxFQUFFLElBQUksQ0FBQyxLQUFLLENBQUMsUUFBUTtBQUN6QixtQkFBTyxFQUFFLElBQUksQ0FBQyxXQUFXO0FBQ3pCLG9CQUFRLEVBQUUsSUFBSSxDQUFDLEtBQUssQ0FBQyxRQUFRLEVBQ2hDLENBQUMsQ0FBQztTQUNOLEVBQ0osQ0FBQyxDQUFDO0tBQ04sRUFDSixDQUFDOztBQUVGLFNBQU8sT0FBTyxDQUFDO0NBQ2xCLENBQUMiLCJmaWxlIjoiUi5IaXN0b3J5LmpzIiwic291cmNlc0NvbnRlbnQiOlsicmVxdWlyZSgnNnRvNS9wb2x5ZmlsbCcpO1xuY29uc3QgUHJvbWlzZSA9IHJlcXVpcmUoJ2JsdWViaXJkJyk7XG5tb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKFIpIHtcclxuICAgIHZhciB1cmwgPSByZXF1aXJlKFwidXJsXCIpO1xyXG4gICAgdmFyIGNvID0gcmVxdWlyZShcImNvXCIpO1xyXG4gICAgdmFyIGFzc2VydCA9IHJlcXVpcmUoXCJhc3NlcnRcIik7XHJcbiAgICB2YXIgXyA9IHJlcXVpcmUoXCJsb2Rhc2hcIik7XHJcbiAgICB2YXIgUmVhY3QgPSBSLlJlYWN0O1xyXG5cclxuICAgIHZhciBIaXN0b3J5ID0ge1xyXG4gICAgICAgIGNyZWF0ZVBsdWdpbjogZnVuY3Rpb24gY3JlYXRlUGx1Z2luKHN0b3JlTmFtZSwgZGlzcGF0Y2hlck5hbWUpIHtcclxuICAgICAgICAgICAgcmV0dXJuIFIuQXBwLmNyZWF0ZVBsdWdpbih7XHJcbiAgICAgICAgICAgICAgICBkaXNwbGF5TmFtZTogXCJIaXN0b3J5XCIsXHJcbiAgICAgICAgICAgICAgICB1cGRhdGVTdG9yZVRvSHJlZjogZnVuY3Rpb24gdXBkYXRlU3RvcmVUb0hyZWYoZmx1eCwgaHJlZikge1xyXG4gICAgICAgICAgICAgICAgICAgIGZsdXguZ2V0U3RvcmUoc3RvcmVOYW1lKS5zZXQoXCIvSGlzdG9yeS9wYXRobmFtZVwiLCB1cmwucGFyc2UoaHJlZikucGF0aG5hbWUpO1xyXG4gICAgICAgICAgICAgICAgfSxcclxuICAgICAgICAgICAgICAgIGluc3RhbGxJbkNsaWVudDogZnVuY3Rpb24gaW5zdGFsbEluQ2xpZW50KGZsdXgsIHdpbmRvdykge1xyXG4gICAgICAgICAgICAgICAgICAgIGZsdXguZ2V0RGlzcGF0Y2hlcihkaXNwYXRjaGVyTmFtZSkuYWRkQWN0aW9uTGlzdGVuZXIoXCIvSGlzdG9yeS9uYXZpZ2F0ZVwiLCBSLnNjb3BlKGZ1bmN0aW9uIG5hdmlnYXRlKHBhcmFtcykge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gUi5zY29wZShmdW5jdGlvbihmbikge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgUi5EZWJ1Zy5kZXYoZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXNzZXJ0KHBhcmFtcy5wYXRobmFtZSAmJiBfLmlzU3RyaW5nKHBhcmFtcy5wYXRobmFtZSksIFwiL0hpc3RvcnkvbmF2aWdhdGU6IHBhcmFtcy5wYXRobmFtZTogZXhwZWN0aW5nIFN0cmluZy5cIik7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZhciBocmVmID0gdXJsLmZvcm1hdChfLmV4dGVuZCh1cmwucGFyc2Uod2luZG93LmxvY2F0aW9uLmhyZWYpLCB7IHBhdGhuYW1lOiBwYXJhbXMucGF0aG5hbWUgfSkpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgd2luZG93Lmhpc3RvcnkucHVzaFN0YXRlKG51bGwsIG51bGwsIGhyZWYpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgdGhpcy51cGRhdGVTdG9yZVRvSHJlZihmbHV4LCBocmVmKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIF8uZGVmZXIoZm4pO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICB9LCB0aGlzKTtcclxuICAgICAgICAgICAgICAgICAgICB9LCB0aGlzKSk7XHJcbiAgICAgICAgICAgICAgICAgICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoXCJwb3BzdGF0ZVwiLCBSLnNjb3BlKGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICB0aGlzLnVwZGF0ZVN0b3JlVG9IcmVmKGZsdXgsIHdpbmRvdy5sb2NhdGlvbi5ocmVmKTtcclxuICAgICAgICAgICAgICAgICAgICB9LCB0aGlzKSk7XHJcbiAgICAgICAgICAgICAgICAgICAgdGhpcy51cGRhdGVTdG9yZVRvSHJlZihmbHV4LCB3aW5kb3cubG9jYXRpb24uaHJlZik7XHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICAgICAgaW5zdGFsbEluU2VydmVyOiBmdW5jdGlvbiBpbnN0YWxsSW5TZXJ2ZXIoZmx1eCwgcmVxKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgdGhpcy51cGRhdGVTdG9yZVRvSHJlZihmbHV4LCB1cmwucGFyc2UocmVxLnVybCkucGF0aG5hbWUpO1xyXG4gICAgICAgICAgICAgICAgfSxcclxuICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgfSxcclxuICAgICAgICBjcmVhdGVMaW5rQ2xhc3M6IGZ1bmN0aW9uIGNyZWF0ZUxpbmtDbGFzcyhzcGVjcykge1xyXG4gICAgICAgICAgICBSLkRlYnVnLmRldihmdW5jdGlvbigpIHtcclxuICAgICAgICAgICAgICAgIGFzc2VydChzcGVjcy5kaXNwYXRjaGVyTmFtZSAmJiBfLmlzU3RyaW5nKHNwZWNzLmRpc3BhdGNoZXJOYW1lKSwgXCJSLkhpc3RvcnkuY3JlYXRlQ2xhc3MoLi4uKS5zcGVjcy5kaXNwYXRjaGVyTmFtZTogZXhwZWN0ZWQgU3RyaW5nLlwiKTtcclxuICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgIHJldHVybiBSZWFjdC5jcmVhdGVDbGFzcyh7XHJcbiAgICAgICAgICAgICAgICBkaXNwbGF5TmFtZTogXCJIaXN0b3J5TGlua1wiLFxyXG4gICAgICAgICAgICAgICAgbWl4aW5zOiBbUi5Db21wb25lbnQuTWl4aW5dLFxyXG4gICAgICAgICAgICAgICAgcHJvcFR5cGVzOiB7XHJcbiAgICAgICAgICAgICAgICAgICAgY2hpbGRyZW46IFJlYWN0LlByb3BUeXBlcy5hbnkuaXNSZXF1aXJlZCxcclxuICAgICAgICAgICAgICAgICAgICBwYXRobmFtZTogUmVhY3QuUHJvcFR5cGVzLnN0cmluZy5pc1JlcXVpcmVkLFxyXG4gICAgICAgICAgICAgICAgfSxcclxuICAgICAgICAgICAgICAgIGhhbmRsZUNsaWNrOiBmdW5jdGlvbiBoYW5kbGVDbGljayhldmVudCkge1xyXG4gICAgICAgICAgICAgICAgICAgIGV2ZW50LnByZXZlbnREZWZhdWx0KCk7XHJcbiAgICAgICAgICAgICAgICAgICAgY28oZnVuY3Rpb24qKCkge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICB5aWVsZCB0aGlzLmdldEZsdXhEaXNwYXRjaGVyKHNwZWNzLmRpc3BhdGNoZXJOYW1lKS5kaXNwYXRjaChcIi9IaXN0b3J5L25hdmlnYXRlXCIsIHsgcGF0aG5hbWU6IHRoaXMucHJvcHMucGF0aG5hbWUgfSk7XHJcbiAgICAgICAgICAgICAgICAgICAgfSkuY2FsbCh0aGlzKTtcclxuICAgICAgICAgICAgICAgIH0sXHJcbiAgICAgICAgICAgICAgICByZW5kZXI6IGZ1bmN0aW9uIHJlbmRlcigpIHtcclxuICAgICAgICAgICAgICAgICAgICByZXR1cm4gUmVhY3QuRE9NLmEoe1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU6IFwiSGlzdG9yeUxpbmtcIixcclxuICAgICAgICAgICAgICAgICAgICAgICAgaHJlZjogdGhpcy5wcm9wcy5wYXRobmFtZSxcclxuICAgICAgICAgICAgICAgICAgICAgICAgb25DbGljazogdGhpcy5oYW5kbGVDbGljayxcclxuICAgICAgICAgICAgICAgICAgICAgICAgY2hpbGRyZW46IHRoaXMucHJvcHMuY2hpbGRyZW4sXHJcbiAgICAgICAgICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICB9LFxyXG4gICAgfTtcclxuXHJcbiAgICByZXR1cm4gSGlzdG9yeTtcclxufTtcclxuIl0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9

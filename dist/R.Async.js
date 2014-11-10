@@ -1,166 +1,167 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
-    var requestAnimationFrame = require("raf");
-    require("setimmediate");
+"use strict";
 
-    var clearAnimationFrame = function clearAnimationFrame(handle) {
-        requestAnimationFrame.cancel(handle);
-    };
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var _ = require("lodash");
+  var assert = require("assert");
+  var requestAnimationFrame = require("raf");
+  require("setimmediate");
 
+  var clearAnimationFrame = function clearAnimationFrame(handle) {
+    requestAnimationFrame.cancel(handle);
+  };
+
+  /**
+   * Utilities for dealing with asynchronous callbacks in components.
+   * @memberOf R
+   * @public
+   * @class R.Async
+   */
+  var Async = {
     /**
-     * Utilities for dealing with asynchronous callbacks in components.
-     * @memberOf R
+     * React mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.
+     * @type Mixin
+     * @mixin
      * @public
-     * @class R.Async
      */
-    var Async = {
-        /**
-         * React mixin allowing the usage of the R.Async decorators: IfMounted, Deferred, DeferredImmediate and DeferredAnimationFrame.
-         * @type Mixin
-         * @mixin
-         * @public
-         */
-        Mixin: null,
-        /**
-         * Decorates a method so that upon invocation, it is only actually invoked if the component has not unmounted.
-         * @method IfMounted
-         * @param {Function}
-         * @return {Function}
-         * @public
-         */
-        IfMounted: function IfMounted(fn) {
-            return function() {
-                R.Debug.dev(R.scope(function() {
-                    assert(this._AsyncMixinHasAsyncMixin, "R.Async.IfMounted(...): requies R.Async.Mixin.");
-                }, this));
-                if(!this._AsyncMixinHasUnmounted) {
-                    return fn.apply(this, arguments);
-                }
-                else {
-                    return void 0;
-                }
-            };
-        },
-        /**
-         * @method _DeferToNextImmediate
-         * @param {Function}
-         * @return {Function}
-         * @private
-         */
-        _DeferToNextImmediate: function _DeferToNextImmediate(fn) {
-            return function() {
-                var args = arguments;
-                var u = _.uniqueId("setImmediate");
-                var q = setImmediate(R.scope(function() {
-                    delete this._AsyncMixinQueuedImmediates[u];
-                    return fn.apply(this, args);
-                }, this));
-                this._AsyncMixinQueuedImmediates[u] = q;
-            };
-        },
-        /**
-         * @method  _DeferToNextAnimationFrame
-         * @param {Function}
-         * @return {Function}
-         * @private
-         */
-        _DeferToNextAnimationFrame: function _DeferToNextAnimationFrame(fn) {
-            return function() {
-                var args = arguments;
-                var u = _.uniqueId("requestAnimationFrame");
-                var q = requestAnimationFrame(R.scope(function() {
-                    delete this._AsyncMixinQueuedAnimationFrames[u];
-                    return fn.apply(this, args);
-                }, this));
-                this._AsyncMixinQueuedAnimationFrames[u] = q;
-            };
-        },
-        /**
-         * @method _DeferToTimeout
-         * @param {Number}
-         * @return {Function(Function): Function}
-         * @private
-         */
-        _DeferToTimeout: function _DeferToTimeout(delay) {
-            /**
-             * @param {Function}
-             * @return {Function}
-             */
-            return function(fn) {
-                return function() {
-                    var args = arguments;
-                    var u = _.uniqueId("setTimeout");
-                    var q = setTimeout(R.scope(function() {
-                        delete this._AsyncMixinQueuedTimeouts[u];
-                        return fn.apply(this, args);
-                    }, this));
-                    this._AsyncMixinQueuedTimeouts[u] = q;
-                };
-            };
-        },
-        /**
-         * Decorates a method so that upon invocation, it is actually invoked after a timeout and only the component has not unmounted.
-         * If no timeout is provided, then it will defer to setImmediate.
-         * @method Deferred
-         * @param {Function}
-         * @return {Function}
-         * @public
-         */
-        Deferred: function Deferred(fn, delay) {
-            fn = R.Async.IfMounted(fn);
-            if(!delay) {
-                return R.Async.DeferredImmediate(fn);
-            }
-            else {
-                return R.Async._DeferToTimeout(fn, delay);
-            }
-        },
-        /**
-         * Decorates a method so that upon invocation, it is actually invoked after deferral and only the component has not unmounted.
-         * @method DeferredImmediate
-         * @param {Function}
-         * @return {Function}
-         * @public
-         */
-        DeferredImmediate: function Deferred(fn) {
-            fn = R.Async.IfMounted(fn);
-            return R.Async._DeferToNextImmediate(fn);
-        },
-        /**
-         * Decorates a method so that upon invocation, it is actually invoked upon the next animation frame and only the component has not unmounted.
-         * @method DeferredAnimationFrame
-         * @param {Function}
-         * @return {Function}
-         * @public
-         */
-        DeferredAnimationFrame: function DeferredAnimationFrame(fn) {
-            fn = R.Async.IfMounted(fn);
-            return R.Async._DeferToNextAnimationFrame(fn);
-        },
-    };
+    Mixin: null,
+    /**
+     * Decorates a method so that upon invocation, it is only actually invoked if the component has not unmounted.
+     * @method IfMounted
+     * @param {Function}
+     * @return {Function}
+     * @public
+     */
+    IfMounted: function IfMounted(fn) {
+      return function () {
+        R.Debug.dev(R.scope(function () {
+          assert(this._AsyncMixinHasAsyncMixin, "R.Async.IfMounted(...): requies R.Async.Mixin.");
+        }, this));
+        if (!this._AsyncMixinHasUnmounted) {
+          return fn.apply(this, arguments);
+        } else {
+          return void 0;
+        }
+      };
+    },
+    /**
+     * @method _DeferToNextImmediate
+     * @param {Function}
+     * @return {Function}
+     * @private
+     */
+    _DeferToNextImmediate: function _DeferToNextImmediate(fn) {
+      return function () {
+        var args = arguments;
+        var u = _.uniqueId("setImmediate");
+        var q = setImmediate(R.scope(function () {
+          delete this._AsyncMixinQueuedImmediates[u];
+          return fn.apply(this, args);
+        }, this));
+        this._AsyncMixinQueuedImmediates[u] = q;
+      };
+    },
+    /**
+     * @method  _DeferToNextAnimationFrame
+     * @param {Function}
+     * @return {Function}
+     * @private
+     */
+    _DeferToNextAnimationFrame: function _DeferToNextAnimationFrame(fn) {
+      return function () {
+        var args = arguments;
+        var u = _.uniqueId("requestAnimationFrame");
+        var q = requestAnimationFrame(R.scope(function () {
+          delete this._AsyncMixinQueuedAnimationFrames[u];
+          return fn.apply(this, args);
+        }, this));
+        this._AsyncMixinQueuedAnimationFrames[u] = q;
+      };
+    },
+    /**
+     * @method _DeferToTimeout
+     * @param {Number}
+     * @return {Function(Function): Function}
+     * @private
+     */
+    _DeferToTimeout: function _DeferToTimeout(delay) {
+      /**
+       * @param {Function}
+       * @return {Function}
+       */
+      return function (fn) {
+        return function () {
+          var args = arguments;
+          var u = _.uniqueId("setTimeout");
+          var q = setTimeout(R.scope(function () {
+            delete this._AsyncMixinQueuedTimeouts[u];
+            return fn.apply(this, args);
+          }, this));
+          this._AsyncMixinQueuedTimeouts[u] = q;
+        };
+      };
+    },
+    /**
+     * Decorates a method so that upon invocation, it is actually invoked after a timeout and only the component has not unmounted.
+     * If no timeout is provided, then it will defer to setImmediate.
+     * @method Deferred
+     * @param {Function}
+     * @return {Function}
+     * @public
+     */
+    Deferred: function Deferred(fn, delay) {
+      fn = R.Async.IfMounted(fn);
+      if (!delay) {
+        return R.Async.DeferredImmediate(fn);
+      } else {
+        return R.Async._DeferToTimeout(fn, delay);
+      }
+    },
+    /**
+     * Decorates a method so that upon invocation, it is actually invoked after deferral and only the component has not unmounted.
+     * @method DeferredImmediate
+     * @param {Function}
+     * @return {Function}
+     * @public
+     */
+    DeferredImmediate: function Deferred(fn) {
+      fn = R.Async.IfMounted(fn);
+      return R.Async._DeferToNextImmediate(fn);
+    },
+    /**
+     * Decorates a method so that upon invocation, it is actually invoked upon the next animation frame and only the component has not unmounted.
+     * @method DeferredAnimationFrame
+     * @param {Function}
+     * @return {Function}
+     * @public
+     */
+    DeferredAnimationFrame: function DeferredAnimationFrame(fn) {
+      fn = R.Async.IfMounted(fn);
+      return R.Async._DeferToNextAnimationFrame(fn);
+    } };
 
-    Async.Mixin = {
-        _AsyncMixinHasUnmounted: false,
-        _AsyncMixinHasAsyncMixin:  true,
-        _AsyncMixinQueuedTimeouts: null,
-        _AsyncMixinQueuedImmediates: null,
-        _AsyncMixinQueuedAnimationFrames: null,
-        componentWillMount: function componentWillMount() {
-            this._AsyncMixinQueuedTimeouts = {};
-            this._AsyncMixinQueuedImmediates = {};
-            this._AsyncMixinQueuedAnimationFrames = {};
-        },
-        componentWillUnmount: function componentWillUnmount() {
-            _.each(this._AsyncMixinQueuedTimeouts, clearTimeout);
-            _.each(this._AsyncMixinQueuedImmediates, clearImmediate);
-            _.each(this._AsyncMixinQueuedAnimationFrames, clearAnimationFrame);
-            this._AsyncMixinHasUnmounted = true;
-        },
-        setStateIfMounted: Async.IfMounted(function setStateIfMounted(state) {
-            this.setState(state);
-        }),
-    };
+  Async.Mixin = {
+    _AsyncMixinHasUnmounted: false,
+    _AsyncMixinHasAsyncMixin: true,
+    _AsyncMixinQueuedTimeouts: null,
+    _AsyncMixinQueuedImmediates: null,
+    _AsyncMixinQueuedAnimationFrames: null,
+    componentWillMount: function componentWillMount() {
+      this._AsyncMixinQueuedTimeouts = {};
+      this._AsyncMixinQueuedImmediates = {};
+      this._AsyncMixinQueuedAnimationFrames = {};
+    },
+    componentWillUnmount: function componentWillUnmount() {
+      _.each(this._AsyncMixinQueuedTimeouts, clearTimeout);
+      _.each(this._AsyncMixinQueuedImmediates, clearImmediate);
+      _.each(this._AsyncMixinQueuedAnimationFrames, clearAnimationFrame);
+      this._AsyncMixinHasUnmounted = true;
+    },
+    setStateIfMounted: Async.IfMounted(function setStateIfMounted(state) {
+      this.setState(state);
+    }) };
 
-    return Async;
+  return Async;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLkFzeW5jLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsT0FBTyxDQUFDLGVBQWUsQ0FBQyxDQUFDO0FBQ3pCLElBQU0sT0FBTyxHQUFHLE9BQU8sQ0FBQyxVQUFVLENBQUMsQ0FBQztBQUNwQyxNQUFNLENBQUMsT0FBTyxHQUFHLFVBQVMsQ0FBQyxFQUFFO0FBQ3pCLE1BQUksQ0FBQyxHQUFHLE9BQU8sQ0FBQyxRQUFRLENBQUMsQ0FBQztBQUMxQixNQUFJLE1BQU0sR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQUM7QUFDL0IsTUFBSSxxQkFBcUIsR0FBRyxPQUFPLENBQUMsS0FBSyxDQUFDLENBQUM7QUFDM0MsU0FBTyxDQUFDLGNBQWMsQ0FBQyxDQUFDOztBQUV4QixNQUFJLG1CQUFtQixHQUFHLFNBQVMsbUJBQW1CLENBQUMsTUFBTSxFQUFFO0FBQzNELHlCQUFxQixDQUFDLE1BQU0sQ0FBQyxNQUFNLENBQUMsQ0FBQztHQUN4QyxDQUFDOzs7Ozs7OztBQVFGLE1BQUksS0FBSyxHQUFHOzs7Ozs7O0FBT1IsU0FBSyxFQUFFLElBQUk7Ozs7Ozs7O0FBUVgsYUFBUyxFQUFFLFNBQVMsU0FBUyxDQUFDLEVBQUUsRUFBRTtBQUM5QixhQUFPLFlBQVc7QUFDZCxTQUFDLENBQUMsS0FBSyxDQUFDLEdBQUcsQ0FBQyxDQUFDLENBQUMsS0FBSyxDQUFDLFlBQVc7QUFDM0IsZ0JBQU0sQ0FBQyxJQUFJLENBQUMsd0JBQXdCLEVBQUUsZ0RBQWdELENBQUMsQ0FBQztTQUMzRixFQUFFLElBQUksQ0FBQyxDQUFDLENBQUM7QUFDVixZQUFHLENBQUMsSUFBSSxDQUFDLHVCQUF1QixFQUFFO0FBQzlCLGlCQUFPLEVBQUUsQ0FBQyxLQUFLLENBQUMsSUFBSSxFQUFFLFNBQVMsQ0FBQyxDQUFDO1NBQ3BDLE1BQ0k7QUFDRCxpQkFBTyxLQUFLLENBQUMsQ0FBQztTQUNqQjtPQUNKLENBQUM7S0FDTDs7Ozs7OztBQU9ELHlCQUFxQixFQUFFLFNBQVMscUJBQXFCLENBQUMsRUFBRSxFQUFFO0FBQ3RELGFBQU8sWUFBVztBQUNkLFlBQUksSUFBSSxHQUFHLFNBQVMsQ0FBQztBQUNyQixZQUFJLENBQUMsR0FBRyxDQUFDLENBQUMsUUFBUSxDQUFDLGNBQWMsQ0FBQyxDQUFDO0FBQ25DLFlBQUksQ0FBQyxHQUFHLFlBQVksQ0FBQyxDQUFDLENBQUMsS0FBSyxDQUFDLFlBQVc7QUFDcEMsaUJBQU8sSUFBSSxDQUFDLDJCQUEyQixDQUFDLENBQUMsQ0FBQyxDQUFDO0FBQzNDLGlCQUFPLEVBQUUsQ0FBQyxLQUFLLENBQUMsSUFBSSxFQUFFLElBQUksQ0FBQyxDQUFDO1NBQy9CLEVBQUUsSUFBSSxDQUFDLENBQUMsQ0FBQztBQUNWLFlBQUksQ0FBQywyQkFBMkIsQ0FBQyxDQUFDLENBQUMsR0FBRyxDQUFDLENBQUM7T0FDM0MsQ0FBQztLQUNMOzs7Ozs7O0FBT0QsOEJBQTBCLEVBQUUsU0FBUywwQkFBMEIsQ0FBQyxFQUFFLEVBQUU7QUFDaEUsYUFBTyxZQUFXO0FBQ2QsWUFBSSxJQUFJLEdBQUcsU0FBUyxDQUFDO0FBQ3JCLFlBQUksQ0FBQyxHQUFHLENBQUMsQ0FBQyxRQUFRLENBQUMsdUJBQXVCLENBQUMsQ0FBQztBQUM1QyxZQUFJLENBQUMsR0FBRyxxQkFBcUIsQ0FBQyxDQUFDLENBQUMsS0FBSyxDQUFDLFlBQVc7QUFDN0MsaUJBQU8sSUFBSSxDQUFDLGdDQUFnQyxDQUFDLENBQUMsQ0FBQyxDQUFDO0FBQ2hELGlCQUFPLEVBQUUsQ0FBQyxLQUFLLENBQUMsSUFBSSxFQUFFLElBQUksQ0FBQyxDQUFDO1NBQy9CLEVBQUUsSUFBSSxDQUFDLENBQUMsQ0FBQztBQUNWLFlBQUksQ0FBQyxnQ0FBZ0MsQ0FBQyxDQUFDLENBQUMsR0FBRyxDQUFDLENBQUM7T0FDaEQsQ0FBQztLQUNMOzs7Ozs7O0FBT0QsbUJBQWUsRUFBRSxTQUFTLGVBQWUsQ0FBQyxLQUFLLEVBQUU7Ozs7O0FBSzdDLGFBQU8sVUFBUyxFQUFFLEVBQUU7QUFDaEIsZUFBTyxZQUFXO0FBQ2QsY0FBSSxJQUFJLEdBQUcsU0FBUyxDQUFDO0FBQ3JCLGNBQUksQ0FBQyxHQUFHLENBQUMsQ0FBQyxRQUFRLENBQUMsWUFBWSxDQUFDLENBQUM7QUFDakMsY0FBSSxDQUFDLEdBQUcsVUFBVSxDQUFDLENBQUMsQ0FBQyxLQUFLLENBQUMsWUFBVztBQUNsQyxtQkFBTyxJQUFJLENBQUMseUJBQXlCLENBQUMsQ0FBQyxDQUFDLENBQUM7QUFDekMsbUJBQU8sRUFBRSxDQUFDLEtBQUssQ0FBQyxJQUFJLEVBQUUsSUFBSSxDQUFDLENBQUM7V0FDL0IsRUFBRSxJQUFJLENBQUMsQ0FBQyxDQUFDO0FBQ1YsY0FBSSxDQUFDLHlCQUF5QixDQUFDLENBQUMsQ0FBQyxHQUFHLENBQUMsQ0FBQztTQUN6QyxDQUFDO09BQ0wsQ0FBQztLQUNMOzs7Ozs7Ozs7QUFTRCxZQUFRLEVBQUUsU0FBUyxRQUFRLENBQUMsRUFBRSxFQUFFLEtBQUssRUFBRTtBQUNuQyxRQUFFLEdBQUcsQ0FBQyxDQUFDLEtBQUssQ0FBQyxTQUFTLENBQUMsRUFBRSxDQUFDLENBQUM7QUFDM0IsVUFBRyxDQUFDLEtBQUssRUFBRTtBQUNQLGVBQU8sQ0FBQyxDQUFDLEtBQUssQ0FBQyxpQkFBaUIsQ0FBQyxFQUFFLENBQUMsQ0FBQztPQUN4QyxNQUNJO0FBQ0QsZUFBTyxDQUFDLENBQUMsS0FBSyxDQUFDLGVBQWUsQ0FBQyxFQUFFLEVBQUUsS0FBSyxDQUFDLENBQUM7T0FDN0M7S0FDSjs7Ozs7Ozs7QUFRRCxxQkFBaUIsRUFBRSxTQUFTLFFBQVEsQ0FBQyxFQUFFLEVBQUU7QUFDckMsUUFBRSxHQUFHLENBQUMsQ0FBQyxLQUFLLENBQUMsU0FBUyxDQUFDLEVBQUUsQ0FBQyxDQUFDO0FBQzNCLGFBQU8sQ0FBQyxDQUFDLEtBQUssQ0FBQyxxQkFBcUIsQ0FBQyxFQUFFLENBQUMsQ0FBQztLQUM1Qzs7Ozs7Ozs7QUFRRCwwQkFBc0IsRUFBRSxTQUFTLHNCQUFzQixDQUFDLEVBQUUsRUFBRTtBQUN4RCxRQUFFLEdBQUcsQ0FBQyxDQUFDLEtBQUssQ0FBQyxTQUFTLENBQUMsRUFBRSxDQUFDLENBQUM7QUFDM0IsYUFBTyxDQUFDLENBQUMsS0FBSyxDQUFDLDBCQUEwQixDQUFDLEVBQUUsQ0FBQyxDQUFDO0tBQ2pELEVBQ0osQ0FBQzs7QUFFRixPQUFLLENBQUMsS0FBSyxHQUFHO0FBQ1YsMkJBQXVCLEVBQUUsS0FBSztBQUM5Qiw0QkFBd0IsRUFBRyxJQUFJO0FBQy9CLDZCQUF5QixFQUFFLElBQUk7QUFDL0IsK0JBQTJCLEVBQUUsSUFBSTtBQUNqQyxvQ0FBZ0MsRUFBRSxJQUFJO0FBQ3RDLHNCQUFrQixFQUFFLFNBQVMsa0JBQWtCLEdBQUc7QUFDOUMsVUFBSSxDQUFDLHlCQUF5QixHQUFHLEVBQUUsQ0FBQztBQUNwQyxVQUFJLENBQUMsMkJBQTJCLEdBQUcsRUFBRSxDQUFDO0FBQ3RDLFVBQUksQ0FBQyxnQ0FBZ0MsR0FBRyxFQUFFLENBQUM7S0FDOUM7QUFDRCx3QkFBb0IsRUFBRSxTQUFTLG9CQUFvQixHQUFHO0FBQ2xELE9BQUMsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLHlCQUF5QixFQUFFLFlBQVksQ0FBQyxDQUFDO0FBQ3JELE9BQUMsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLDJCQUEyQixFQUFFLGNBQWMsQ0FBQyxDQUFDO0FBQ3pELE9BQUMsQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLGdDQUFnQyxFQUFFLG1CQUFtQixDQUFDLENBQUM7QUFDbkUsVUFBSSxDQUFDLHVCQUF1QixHQUFHLElBQUksQ0FBQztLQUN2QztBQUNELHFCQUFpQixFQUFFLEtBQUssQ0FBQyxTQUFTLENBQUMsU0FBUyxpQkFBaUIsQ0FBQyxLQUFLLEVBQUU7QUFDakUsVUFBSSxDQUFDLFFBQVEsQ0FBQyxLQUFLLENBQUMsQ0FBQztLQUN4QixDQUFDLEVBQ0wsQ0FBQzs7QUFFRixTQUFPLEtBQUssQ0FBQztDQUNoQixDQUFDIiwiZmlsZSI6IlIuQXN5bmMuanMiLCJzb3VyY2VzQ29udGVudCI6WyJyZXF1aXJlKCc2dG81L3BvbHlmaWxsJyk7XG5jb25zdCBQcm9taXNlID0gcmVxdWlyZSgnYmx1ZWJpcmQnKTtcbm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24oUikge1xyXG4gICAgdmFyIF8gPSByZXF1aXJlKFwibG9kYXNoXCIpO1xyXG4gICAgdmFyIGFzc2VydCA9IHJlcXVpcmUoXCJhc3NlcnRcIik7XHJcbiAgICB2YXIgcmVxdWVzdEFuaW1hdGlvbkZyYW1lID0gcmVxdWlyZShcInJhZlwiKTtcclxuICAgIHJlcXVpcmUoXCJzZXRpbW1lZGlhdGVcIik7XHJcblxyXG4gICAgdmFyIGNsZWFyQW5pbWF0aW9uRnJhbWUgPSBmdW5jdGlvbiBjbGVhckFuaW1hdGlvbkZyYW1lKGhhbmRsZSkge1xyXG4gICAgICAgIHJlcXVlc3RBbmltYXRpb25GcmFtZS5jYW5jZWwoaGFuZGxlKTtcclxuICAgIH07XHJcblxyXG4gICAgLyoqXHJcbiAgICAgKiBVdGlsaXRpZXMgZm9yIGRlYWxpbmcgd2l0aCBhc3luY2hyb25vdXMgY2FsbGJhY2tzIGluIGNvbXBvbmVudHMuXHJcbiAgICAgKiBAbWVtYmVyT2YgUlxyXG4gICAgICogQHB1YmxpY1xyXG4gICAgICogQGNsYXNzIFIuQXN5bmNcclxuICAgICAqL1xyXG4gICAgdmFyIEFzeW5jID0ge1xyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICAqIFJlYWN0IG1peGluIGFsbG93aW5nIHRoZSB1c2FnZSBvZiB0aGUgUi5Bc3luYyBkZWNvcmF0b3JzOiBJZk1vdW50ZWQsIERlZmVycmVkLCBEZWZlcnJlZEltbWVkaWF0ZSBhbmQgRGVmZXJyZWRBbmltYXRpb25GcmFtZS5cclxuICAgICAgICAgKiBAdHlwZSBNaXhpblxyXG4gICAgICAgICAqIEBtaXhpblxyXG4gICAgICAgICAqIEBwdWJsaWNcclxuICAgICAgICAgKi9cclxuICAgICAgICBNaXhpbjogbnVsbCxcclxuICAgICAgICAvKipcclxuICAgICAgICAgKiBEZWNvcmF0ZXMgYSBtZXRob2Qgc28gdGhhdCB1cG9uIGludm9jYXRpb24sIGl0IGlzIG9ubHkgYWN0dWFsbHkgaW52b2tlZCBpZiB0aGUgY29tcG9uZW50IGhhcyBub3QgdW5tb3VudGVkLlxyXG4gICAgICAgICAqIEBtZXRob2QgSWZNb3VudGVkXHJcbiAgICAgICAgICogQHBhcmFtIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcmV0dXJuIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcHVibGljXHJcbiAgICAgICAgICovXHJcbiAgICAgICAgSWZNb3VudGVkOiBmdW5jdGlvbiBJZk1vdW50ZWQoZm4pIHtcclxuICAgICAgICAgICAgcmV0dXJuIGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgUi5EZWJ1Zy5kZXYoUi5zY29wZShmdW5jdGlvbigpIHtcclxuICAgICAgICAgICAgICAgICAgICBhc3NlcnQodGhpcy5fQXN5bmNNaXhpbkhhc0FzeW5jTWl4aW4sIFwiUi5Bc3luYy5JZk1vdW50ZWQoLi4uKTogcmVxdWllcyBSLkFzeW5jLk1peGluLlwiKTtcclxuICAgICAgICAgICAgICAgIH0sIHRoaXMpKTtcclxuICAgICAgICAgICAgICAgIGlmKCF0aGlzLl9Bc3luY01peGluSGFzVW5tb3VudGVkKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGZuLmFwcGx5KHRoaXMsIGFyZ3VtZW50cyk7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICBlbHNlIHtcclxuICAgICAgICAgICAgICAgICAgICByZXR1cm4gdm9pZCAwO1xyXG4gICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICB9O1xyXG4gICAgICAgIH0sXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgICogQG1ldGhvZCBfRGVmZXJUb05leHRJbW1lZGlhdGVcclxuICAgICAgICAgKiBAcGFyYW0ge0Z1bmN0aW9ufVxyXG4gICAgICAgICAqIEByZXR1cm4ge0Z1bmN0aW9ufVxyXG4gICAgICAgICAqIEBwcml2YXRlXHJcbiAgICAgICAgICovXHJcbiAgICAgICAgX0RlZmVyVG9OZXh0SW1tZWRpYXRlOiBmdW5jdGlvbiBfRGVmZXJUb05leHRJbW1lZGlhdGUoZm4pIHtcclxuICAgICAgICAgICAgcmV0dXJuIGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgdmFyIGFyZ3MgPSBhcmd1bWVudHM7XHJcbiAgICAgICAgICAgICAgICB2YXIgdSA9IF8udW5pcXVlSWQoXCJzZXRJbW1lZGlhdGVcIik7XHJcbiAgICAgICAgICAgICAgICB2YXIgcSA9IHNldEltbWVkaWF0ZShSLnNjb3BlKGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgICAgIGRlbGV0ZSB0aGlzLl9Bc3luY01peGluUXVldWVkSW1tZWRpYXRlc1t1XTtcclxuICAgICAgICAgICAgICAgICAgICByZXR1cm4gZm4uYXBwbHkodGhpcywgYXJncyk7XHJcbiAgICAgICAgICAgICAgICB9LCB0aGlzKSk7XHJcbiAgICAgICAgICAgICAgICB0aGlzLl9Bc3luY01peGluUXVldWVkSW1tZWRpYXRlc1t1XSA9IHE7XHJcbiAgICAgICAgICAgIH07XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAgKiBAbWV0aG9kICBfRGVmZXJUb05leHRBbmltYXRpb25GcmFtZVxyXG4gICAgICAgICAqIEBwYXJhbSB7RnVuY3Rpb259XHJcbiAgICAgICAgICogQHJldHVybiB7RnVuY3Rpb259XHJcbiAgICAgICAgICogQHByaXZhdGVcclxuICAgICAgICAgKi9cclxuICAgICAgICBfRGVmZXJUb05leHRBbmltYXRpb25GcmFtZTogZnVuY3Rpb24gX0RlZmVyVG9OZXh0QW5pbWF0aW9uRnJhbWUoZm4pIHtcclxuICAgICAgICAgICAgcmV0dXJuIGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgdmFyIGFyZ3MgPSBhcmd1bWVudHM7XHJcbiAgICAgICAgICAgICAgICB2YXIgdSA9IF8udW5pcXVlSWQoXCJyZXF1ZXN0QW5pbWF0aW9uRnJhbWVcIik7XHJcbiAgICAgICAgICAgICAgICB2YXIgcSA9IHJlcXVlc3RBbmltYXRpb25GcmFtZShSLnNjb3BlKGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgICAgIGRlbGV0ZSB0aGlzLl9Bc3luY01peGluUXVldWVkQW5pbWF0aW9uRnJhbWVzW3VdO1xyXG4gICAgICAgICAgICAgICAgICAgIHJldHVybiBmbi5hcHBseSh0aGlzLCBhcmdzKTtcclxuICAgICAgICAgICAgICAgIH0sIHRoaXMpKTtcclxuICAgICAgICAgICAgICAgIHRoaXMuX0FzeW5jTWl4aW5RdWV1ZWRBbmltYXRpb25GcmFtZXNbdV0gPSBxO1xyXG4gICAgICAgICAgICB9O1xyXG4gICAgICAgIH0sXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgICogQG1ldGhvZCBfRGVmZXJUb1RpbWVvdXRcclxuICAgICAgICAgKiBAcGFyYW0ge051bWJlcn1cclxuICAgICAgICAgKiBAcmV0dXJuIHtGdW5jdGlvbihGdW5jdGlvbik6IEZ1bmN0aW9ufVxyXG4gICAgICAgICAqIEBwcml2YXRlXHJcbiAgICAgICAgICovXHJcbiAgICAgICAgX0RlZmVyVG9UaW1lb3V0OiBmdW5jdGlvbiBfRGVmZXJUb1RpbWVvdXQoZGVsYXkpIHtcclxuICAgICAgICAgICAgLyoqXHJcbiAgICAgICAgICAgICAqIEBwYXJhbSB7RnVuY3Rpb259XHJcbiAgICAgICAgICAgICAqIEByZXR1cm4ge0Z1bmN0aW9ufVxyXG4gICAgICAgICAgICAgKi9cclxuICAgICAgICAgICAgcmV0dXJuIGZ1bmN0aW9uKGZuKSB7XHJcbiAgICAgICAgICAgICAgICByZXR1cm4gZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgdmFyIGFyZ3MgPSBhcmd1bWVudHM7XHJcbiAgICAgICAgICAgICAgICAgICAgdmFyIHUgPSBfLnVuaXF1ZUlkKFwic2V0VGltZW91dFwiKTtcclxuICAgICAgICAgICAgICAgICAgICB2YXIgcSA9IHNldFRpbWVvdXQoUi5zY29wZShmdW5jdGlvbigpIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgZGVsZXRlIHRoaXMuX0FzeW5jTWl4aW5RdWV1ZWRUaW1lb3V0c1t1XTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGZuLmFwcGx5KHRoaXMsIGFyZ3MpO1xyXG4gICAgICAgICAgICAgICAgICAgIH0sIHRoaXMpKTtcclxuICAgICAgICAgICAgICAgICAgICB0aGlzLl9Bc3luY01peGluUXVldWVkVGltZW91dHNbdV0gPSBxO1xyXG4gICAgICAgICAgICAgICAgfTtcclxuICAgICAgICAgICAgfTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICAqIERlY29yYXRlcyBhIG1ldGhvZCBzbyB0aGF0IHVwb24gaW52b2NhdGlvbiwgaXQgaXMgYWN0dWFsbHkgaW52b2tlZCBhZnRlciBhIHRpbWVvdXQgYW5kIG9ubHkgdGhlIGNvbXBvbmVudCBoYXMgbm90IHVubW91bnRlZC5cclxuICAgICAgICAgKiBJZiBubyB0aW1lb3V0IGlzIHByb3ZpZGVkLCB0aGVuIGl0IHdpbGwgZGVmZXIgdG8gc2V0SW1tZWRpYXRlLlxyXG4gICAgICAgICAqIEBtZXRob2QgRGVmZXJyZWRcclxuICAgICAgICAgKiBAcGFyYW0ge0Z1bmN0aW9ufVxyXG4gICAgICAgICAqIEByZXR1cm4ge0Z1bmN0aW9ufVxyXG4gICAgICAgICAqIEBwdWJsaWNcclxuICAgICAgICAgKi9cclxuICAgICAgICBEZWZlcnJlZDogZnVuY3Rpb24gRGVmZXJyZWQoZm4sIGRlbGF5KSB7XHJcbiAgICAgICAgICAgIGZuID0gUi5Bc3luYy5JZk1vdW50ZWQoZm4pO1xyXG4gICAgICAgICAgICBpZighZGVsYXkpIHtcclxuICAgICAgICAgICAgICAgIHJldHVybiBSLkFzeW5jLkRlZmVycmVkSW1tZWRpYXRlKGZuKTtcclxuICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICBlbHNlIHtcclxuICAgICAgICAgICAgICAgIHJldHVybiBSLkFzeW5jLl9EZWZlclRvVGltZW91dChmbiwgZGVsYXkpO1xyXG4gICAgICAgICAgICB9XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAgKiBEZWNvcmF0ZXMgYSBtZXRob2Qgc28gdGhhdCB1cG9uIGludm9jYXRpb24sIGl0IGlzIGFjdHVhbGx5IGludm9rZWQgYWZ0ZXIgZGVmZXJyYWwgYW5kIG9ubHkgdGhlIGNvbXBvbmVudCBoYXMgbm90IHVubW91bnRlZC5cclxuICAgICAgICAgKiBAbWV0aG9kIERlZmVycmVkSW1tZWRpYXRlXHJcbiAgICAgICAgICogQHBhcmFtIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcmV0dXJuIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcHVibGljXHJcbiAgICAgICAgICovXHJcbiAgICAgICAgRGVmZXJyZWRJbW1lZGlhdGU6IGZ1bmN0aW9uIERlZmVycmVkKGZuKSB7XHJcbiAgICAgICAgICAgIGZuID0gUi5Bc3luYy5JZk1vdW50ZWQoZm4pO1xyXG4gICAgICAgICAgICByZXR1cm4gUi5Bc3luYy5fRGVmZXJUb05leHRJbW1lZGlhdGUoZm4pO1xyXG4gICAgICAgIH0sXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgICogRGVjb3JhdGVzIGEgbWV0aG9kIHNvIHRoYXQgdXBvbiBpbnZvY2F0aW9uLCBpdCBpcyBhY3R1YWxseSBpbnZva2VkIHVwb24gdGhlIG5leHQgYW5pbWF0aW9uIGZyYW1lIGFuZCBvbmx5IHRoZSBjb21wb25lbnQgaGFzIG5vdCB1bm1vdW50ZWQuXHJcbiAgICAgICAgICogQG1ldGhvZCBEZWZlcnJlZEFuaW1hdGlvbkZyYW1lXHJcbiAgICAgICAgICogQHBhcmFtIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcmV0dXJuIHtGdW5jdGlvbn1cclxuICAgICAgICAgKiBAcHVibGljXHJcbiAgICAgICAgICovXHJcbiAgICAgICAgRGVmZXJyZWRBbmltYXRpb25GcmFtZTogZnVuY3Rpb24gRGVmZXJyZWRBbmltYXRpb25GcmFtZShmbikge1xyXG4gICAgICAgICAgICBmbiA9IFIuQXN5bmMuSWZNb3VudGVkKGZuKTtcclxuICAgICAgICAgICAgcmV0dXJuIFIuQXN5bmMuX0RlZmVyVG9OZXh0QW5pbWF0aW9uRnJhbWUoZm4pO1xyXG4gICAgICAgIH0sXHJcbiAgICB9O1xyXG5cclxuICAgIEFzeW5jLk1peGluID0ge1xyXG4gICAgICAgIF9Bc3luY01peGluSGFzVW5tb3VudGVkOiBmYWxzZSxcclxuICAgICAgICBfQXN5bmNNaXhpbkhhc0FzeW5jTWl4aW46ICB0cnVlLFxyXG4gICAgICAgIF9Bc3luY01peGluUXVldWVkVGltZW91dHM6IG51bGwsXHJcbiAgICAgICAgX0FzeW5jTWl4aW5RdWV1ZWRJbW1lZGlhdGVzOiBudWxsLFxyXG4gICAgICAgIF9Bc3luY01peGluUXVldWVkQW5pbWF0aW9uRnJhbWVzOiBudWxsLFxyXG4gICAgICAgIGNvbXBvbmVudFdpbGxNb3VudDogZnVuY3Rpb24gY29tcG9uZW50V2lsbE1vdW50KCkge1xyXG4gICAgICAgICAgICB0aGlzLl9Bc3luY01peGluUXVldWVkVGltZW91dHMgPSB7fTtcclxuICAgICAgICAgICAgdGhpcy5fQXN5bmNNaXhpblF1ZXVlZEltbWVkaWF0ZXMgPSB7fTtcclxuICAgICAgICAgICAgdGhpcy5fQXN5bmNNaXhpblF1ZXVlZEFuaW1hdGlvbkZyYW1lcyA9IHt9O1xyXG4gICAgICAgIH0sXHJcbiAgICAgICAgY29tcG9uZW50V2lsbFVubW91bnQ6IGZ1bmN0aW9uIGNvbXBvbmVudFdpbGxVbm1vdW50KCkge1xyXG4gICAgICAgICAgICBfLmVhY2godGhpcy5fQXN5bmNNaXhpblF1ZXVlZFRpbWVvdXRzLCBjbGVhclRpbWVvdXQpO1xyXG4gICAgICAgICAgICBfLmVhY2godGhpcy5fQXN5bmNNaXhpblF1ZXVlZEltbWVkaWF0ZXMsIGNsZWFySW1tZWRpYXRlKTtcclxuICAgICAgICAgICAgXy5lYWNoKHRoaXMuX0FzeW5jTWl4aW5RdWV1ZWRBbmltYXRpb25GcmFtZXMsIGNsZWFyQW5pbWF0aW9uRnJhbWUpO1xyXG4gICAgICAgICAgICB0aGlzLl9Bc3luY01peGluSGFzVW5tb3VudGVkID0gdHJ1ZTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIHNldFN0YXRlSWZNb3VudGVkOiBBc3luYy5JZk1vdW50ZWQoZnVuY3Rpb24gc2V0U3RhdGVJZk1vdW50ZWQoc3RhdGUpIHtcclxuICAgICAgICAgICAgdGhpcy5zZXRTdGF0ZShzdGF0ZSk7XHJcbiAgICAgICAgfSksXHJcbiAgICB9O1xyXG5cclxuICAgIHJldHVybiBBc3luYztcclxufTtcclxuIl0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9

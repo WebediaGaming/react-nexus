@@ -1,163 +1,163 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+"use strict";
 
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var _ = require("lodash");
+  var assert = require("assert");
+
+  /**
+  * <p>R.EventEmitter is similar to R.Store. <br />
+  * Event Emitters are event-oriented stores without persistence. <br />
+  * It juste provides a slightly different abstraction, that is sometimes more suited.</p>
+  * @class R.EventEmitter
+  */
+  var EventEmitter = {
     /**
-    * <p>R.EventEmitter is similar to R.Store. <br />
-    * Event Emitters are event-oriented stores without persistence. <br />
-    * It juste provides a slightly different abstraction, that is sometimes more suited.</p>
-    * @class R.EventEmitter
+    * <p> Returns a new EventEmitter constructor
+    * @method createEventEmitter
+    * @param {object} specs The specifications
+    * @return {object} EventEmitterInstance The created EventEmitterInstance
     */
-    var EventEmitter = {
+    createEventEmitter: function createEventEmitter(specs) {
+      R.Debug.dev(function () {
+        assert(_.isObject(specs), "R.EventEmitter.createEventEmitter(...): expecting an Object as specs.");
+        assert(_.has(specs, "displayName") && _.isString(specs.displayName), "R.EventEmitter.createEventEmitter(...): requires displayName(String).");
+        assert(_.has(specs, "addListener") && _.isFunction(specs.addListener), "R.EventEmitter.createEventEmitter(...): requires addListener(String, Function): R.EventEmitter.Listener.");
+        assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)");
+      });
+      /**
+       * @memberOf R.EventEmitter
+       * @public
+       */
+      var EventEmitterInstance = function EventEmitterInstance() {};
+      _.extend(EventEmitterInstance.prototype, specs, {
         /**
-        * <p> Returns a new EventEmitter constructor
-        * @method createEventEmitter
-        * @param {object} specs The specifications
-        * @return {object} EventEmitterInstance The created EventEmitterInstance
-        */
-        createEventEmitter: function createEventEmitter(specs) {
-            R.Debug.dev(function() {
-                assert(_.isObject(specs), "R.EventEmitter.createEventEmitter(...): expecting an Object as specs.");
-                assert(_.has(specs, "displayName") && _.isString(specs.displayName), "R.EventEmitter.createEventEmitter(...): requires displayName(String).");
-                assert(_.has(specs, "addListener") && _.isFunction(specs.addListener), "R.EventEmitter.createEventEmitter(...): requires addListener(String, Function): R.EventEmitter.Listener.");
-                assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)");
-            });
-            /**
-             * @memberOf R.EventEmitter
-             * @public
-             */
-            var EventEmitterInstance = function EventEmitterInstance() {};
-            _.extend(EventEmitterInstance.prototype, specs, {
-                /**
-                 *  Type dirty-checking.
-                 *  @private
-                 *  @readOnly
-                 */
-                _isEventEmitterInstance_: true,
-            });
-            return EventEmitterInstance;
-        },
-        Listener: function Listener(event) {
-            this.uniqueId = _.uniqueId("R.EventEmitter.Listener");
-            this.event = event;
-        },
-        /**
-        * <p> Returns a new MemoryEventEmitter that represents a memory-local store, eg. clicks, window events.</p>
-        * @method createMemoryEventEmitter
-        * @return {object} MemoryEventEmitter The created MemoryEventEmitter instance
-        */
-        createMemoryEventEmitter: function createMemoryEventEmitter() {
-            return function MemoryEventEmitter() {
-                var listeners = {};
-                var addListener = function addListener(event, fn) {
-                    var listener = new R.EventEmitter.Listener(event);
-                    if(!_.has(listeners, event)) {
-                        listeners[event] = {};
-                    }
-                    listeners[event][listener.uniqueId] = fn;
-                    return listener;
-                };
-                var removeListener = function removeListener(listener) {
-                    R.Debug.dev(function() {
-                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.MemoryEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                        assert(_.has(listeners, listener.event), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no listeners for this event.");
-                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
-                    });
-                    delete listeners[listener.event][listener.uniqueId];
-                    if(_.size(listeners[listener.event]) === 0) {
-                        delete listeners[listener.event];
-                    }
-                };
-                var emit = function emit(event, params) {
-                    params = params || {};
-                    if(_.has(listeners, event)) {
-                        _.each(listeners[event], function(fn) {
-                            if(fn) {
-                                fn(params);
-                            }
-                        });
-                    }
-                };
-                return new (R.EventEmitter.createEventEmitter({
-                    displayName: "MemoryEventEmitter",
-                    addListener: addListener,
-                    removeListener: removeListener,
-                    emit: emit,
-                }))();
-            };
-        },
-        /**
-        * <p> Returns a new UplinkEventEmitter that represents a remote event emmiter, eg. global notifications, broadcasts. </p>
-        * @method createUplinkEventEmitter
-        * @return {object} UplinkEventEmitter The created UplinkEventEmitter instance
-        */
-        createUplinkEventEmitter: function createUplinkEventEmitter() {
-            return function UplinkEventEmitter(uplink) {
-                R.Debug.dev(function() {
-                    assert(uplink.listenTo && _.isFunction(uplink.listenTo), "R.EventEmitter.createUplinkEventEmitter(...).uplink.listenTo: expecting Function.");
-                    assert(uplink.unlistenFrom && _.isFunction(uplink.unlistenFrom), "R.EventEmitter.createUplinkEventEmitter(...).uplink.unlistenFrom: expecting Function.");
-                });
-                var listenTo = uplink.listenTo;
-                var unlistenFrom = uplink.unlistenFrom;
-                var listeners = {};
-                var emitters = {};
-                var addListener = function addListener(event, fn) {
-                    var listener = new R.EventEmitter.Listener(event);
-                    if(!_.has(listeners, event)) {
-                        emitters[event] = listenTo(event, _.partial(emit, event));
-                        listeners[event] = {};
-                    }
-                    listeners[event][listener.uniqueId] = fn;
-                    return listener;
-                };
-                var removeListener = function removeListener(listener) {
-                    R.Debug.dev(function() {
-                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.UplinkEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                        assert(_.has(listeners, listener.event), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no listeners for this event.");
-                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
-                    });
-                    delete listeners[listener.event][listener.uniqueId];
-                    if(_.size(listeners[listener.event]) === 0) {
-                        unlistenFrom(listener.event, emitters[event]);
-                        delete listeners[listener.event];
-                        delete emitters[listener.event];
-                    }
-                };
-                var emit = function emit(event, params) {
-                    params = params || {};
-                    if(_.has(listeners, event)) {
-                        _.each(listeners[event], function(fn) {
-                            if(fn) {
-                                fn(params);
-                            }
-                        });
-                    }
-                };
-                return new (R.EventEmitter.createEventEmitter({
-                    displayName: "UplinkEventEmitter",
-                    addListener: addListener,
-                    removeListener: removeListener,
-                }))();
-            };
-        },
-    };
-
-    _.extend(EventEmitter.Listener.prototype, /** @lends R.EventEmitter.Listener.prototype */ {
-        /**
-         * @property uniqueId
-         * @type {String}
-         * @public
-         * @readOnly
+         *  Type dirty-checking.
+         *  @private
+         *  @readOnly
          */
-        uniqueId: null,
-        /**
-         * @property event
-         * @type {String}
-         * @public
-         * @readOnly
-         */
-        event: null,
-    });
+        _isEventEmitterInstance_: true });
+      return EventEmitterInstance;
+    },
+    Listener: function Listener(event) {
+      this.uniqueId = _.uniqueId("R.EventEmitter.Listener");
+      this.event = event;
+    },
+    /**
+    * <p> Returns a new MemoryEventEmitter that represents a memory-local store, eg. clicks, window events.</p>
+    * @method createMemoryEventEmitter
+    * @return {object} MemoryEventEmitter The created MemoryEventEmitter instance
+    */
+    createMemoryEventEmitter: function createMemoryEventEmitter() {
+      return function MemoryEventEmitter() {
+        var listeners = {};
+        var addListener = function addListener(event, fn) {
+          var listener = new R.EventEmitter.Listener(event);
+          if (!_.has(listeners, event)) {
+            listeners[event] = {};
+          }
+          listeners[event][listener.uniqueId] = fn;
+          return listener;
+        };
+        var removeListener = function removeListener(listener) {
+          R.Debug.dev(function () {
+            assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.MemoryEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
+            assert(_.has(listeners, listener.event), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no listeners for this event.");
+            assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
+          });
+          delete listeners[listener.event][listener.uniqueId];
+          if (_.size(listeners[listener.event]) === 0) {
+            delete listeners[listener.event];
+          }
+        };
+        var emit = function emit(event, params) {
+          params = params || {};
+          if (_.has(listeners, event)) {
+            _.each(listeners[event], function (fn) {
+              if (fn) {
+                fn(params);
+              }
+            });
+          }
+        };
+        return new (R.EventEmitter.createEventEmitter({
+          displayName: "MemoryEventEmitter",
+          addListener: addListener,
+          removeListener: removeListener,
+          emit: emit }))();
+      };
+    },
+    /**
+    * <p> Returns a new UplinkEventEmitter that represents a remote event emmiter, eg. global notifications, broadcasts. </p>
+    * @method createUplinkEventEmitter
+    * @return {object} UplinkEventEmitter The created UplinkEventEmitter instance
+    */
+    createUplinkEventEmitter: function createUplinkEventEmitter() {
+      return function UplinkEventEmitter(uplink) {
+        R.Debug.dev(function () {
+          assert(uplink.listenTo && _.isFunction(uplink.listenTo), "R.EventEmitter.createUplinkEventEmitter(...).uplink.listenTo: expecting Function.");
+          assert(uplink.unlistenFrom && _.isFunction(uplink.unlistenFrom), "R.EventEmitter.createUplinkEventEmitter(...).uplink.unlistenFrom: expecting Function.");
+        });
+        var listenTo = uplink.listenTo;
+        var unlistenFrom = uplink.unlistenFrom;
+        var listeners = {};
+        var emitters = {};
+        var addListener = function addListener(event, fn) {
+          var listener = new R.EventEmitter.Listener(event);
+          if (!_.has(listeners, event)) {
+            emitters[event] = listenTo(event, _.partial(emit, event));
+            listeners[event] = {};
+          }
+          listeners[event][listener.uniqueId] = fn;
+          return listener;
+        };
+        var removeListener = function removeListener(listener) {
+          R.Debug.dev(function () {
+            assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.UplinkEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
+            assert(_.has(listeners, listener.event), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no listeners for this event.");
+            assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
+          });
+          delete listeners[listener.event][listener.uniqueId];
+          if (_.size(listeners[listener.event]) === 0) {
+            unlistenFrom(listener.event, emitters[event]);
+            delete listeners[listener.event];
+            delete emitters[listener.event];
+          }
+        };
+        var emit = function emit(event, params) {
+          params = params || {};
+          if (_.has(listeners, event)) {
+            _.each(listeners[event], function (fn) {
+              if (fn) {
+                fn(params);
+              }
+            });
+          }
+        };
+        return new (R.EventEmitter.createEventEmitter({
+          displayName: "UplinkEventEmitter",
+          addListener: addListener,
+          removeListener: removeListener }))();
+      };
+    } };
 
-    return EventEmitter;
+  _.extend(EventEmitter.Listener.prototype, /** @lends R.EventEmitter.Listener.prototype */{
+    /**
+     * @property uniqueId
+     * @type {String}
+     * @public
+     * @readOnly
+     */
+    uniqueId: null,
+    /**
+     * @property event
+     * @type {String}
+     * @public
+     * @readOnly
+     */
+    event: null });
+
+  return EventEmitter;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLkV2ZW50RW1pdHRlci5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLE9BQU8sQ0FBQyxlQUFlLENBQUMsQ0FBQztBQUN6QixJQUFNLE9BQU8sR0FBRyxPQUFPLENBQUMsVUFBVSxDQUFDLENBQUM7QUFDcEMsTUFBTSxDQUFDLE9BQU8sR0FBRyxVQUFTLENBQUMsRUFBRTtBQUN6QixNQUFJLENBQUMsR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQUM7QUFDMUIsTUFBSSxNQUFNLEdBQUcsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUFDOzs7Ozs7OztBQVEvQixNQUFJLFlBQVksR0FBRzs7Ozs7OztBQU9mLHNCQUFrQixFQUFFLFNBQVMsa0JBQWtCLENBQUMsS0FBSyxFQUFFO0FBQ25ELE9BQUMsQ0FBQyxLQUFLLENBQUMsR0FBRyxDQUFDLFlBQVc7QUFDbkIsY0FBTSxDQUFDLENBQUMsQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLEVBQUUsdUVBQXVFLENBQUMsQ0FBQztBQUNuRyxjQUFNLENBQUMsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxLQUFLLEVBQUUsYUFBYSxDQUFDLElBQUksQ0FBQyxDQUFDLFFBQVEsQ0FBQyxLQUFLLENBQUMsV0FBVyxDQUFDLEVBQUUsdUVBQXVFLENBQUMsQ0FBQztBQUM5SSxjQUFNLENBQUMsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxLQUFLLEVBQUUsYUFBYSxDQUFDLElBQUksQ0FBQyxDQUFDLFVBQVUsQ0FBQyxLQUFLLENBQUMsV0FBVyxDQUFDLEVBQUUsMEdBQTBHLENBQUMsQ0FBQztBQUNuTCxjQUFNLENBQUMsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxLQUFLLEVBQUUsZ0JBQWdCLENBQUMsSUFBSSxDQUFDLENBQUMsVUFBVSxDQUFDLEtBQUssQ0FBQyxjQUFjLENBQUMsRUFBRSx3Q0FBd0MsQ0FBQyxDQUFDO09BQzFILENBQUMsQ0FBQzs7Ozs7QUFL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QUN4QixhQUFDLENBQUMsSUFBSSxDQUFDLFNBQVMsQ0FBQyxLQUFLLENBQUMsRUFBRSxVQUFTLEVBQUUsRUFBRTtBQUNsQyxrQkFBRyxFQUFFLEVBQUU7QUFDSCxrQkFBRSxDQUFDLE1BQU0sQ0FBQyxDQUFDO2VBQ2Q7YUFDSixDQUFDLENBQUM7V0FDTjtTQUNKLENBQUM7QUFDRixlQUFPLElBQUksQ0FBQyxDQUFDLENBQUMsWUFBWSxDQUFDLGtCQUFrQixDQUFDO0FBQzFDLHFCQUFXLEVBQUUsb0JBQW9CO0FBQ2pDLHFCQUFXLEVBQUUsV0FBVztBQUN4Qix3QkFBYyxFQUFFLGNBQWMsRUFDakMsQ0FBQyxDQUFDLEVBQUUsQ0FBQztPQUNULENBQUM7S0FDTCxFQUNKLENBQUM7O0FBRUYsR0FBQyxDQUFDLE1BQU0sQ0FBQyxZQUFZLENBQUMsUUFBUSxDQUFDLFNBQVMsaURBQWtEOzs7Ozs7O0FBT3RGLFlBQVEsRUFBRSxJQUFJOzs7Ozs7O0FBT2QsU0FBSyxFQUFFLElBQUksRUFDZCxDQUFDLENBQUM7O0FBRUgsU0FBTyxZQUFZLENBQUM7Q0FDdkIsQ0FBQyIsImZpbGUiOiJSLkV2ZW50RW1pdHRlci5qcyIsInNvdXJjZXNDb250ZW50IjpbInJlcXVpcmUoJzZ0bzUvcG9seWZpbGwnKTtcbmNvbnN0IFByb21pc2UgPSByZXF1aXJlKCdibHVlYmlyZCcpO1xubW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihSKSB7XHJcbiAgICB2YXIgXyA9IHJlcXVpcmUoXCJsb2Rhc2hcIik7XHJcbiAgICB2YXIgYXNzZXJ0ID0gcmVxdWlyZShcImFzc2VydFwiKTtcclxuXHJcbiAgICAvKipcclxuICAgICogPHA+Ui5FdmVudEVtaXR0ZXIgaXMgc2ltaWxhciB0byBSLlN0b3JlLiA8YnIgLz5cclxuICAgICogRXZlbnQgRW1pdHRlcnMgYXJlIGV2ZW50LW9yaWVudGVkIHN0b3JlcyB3aXRob3V0IHBlcnNpc3RlbmNlLiA8YnIgLz5cclxuICAgICogSXQganVzdGUgcHJvdmlkZXMgYSBzbGlnaHRseSBkaWZmZXJlbnQgYWJzdHJhY3Rpb24sIHRoYXQgaXMgc29tZXRpbWVzIG1vcmUgc3VpdGVkLjwvcD5cclxuICAgICogQGNsYXNzIFIuRXZlbnRFbWl0dGVyXHJcbiAgICAqL1xyXG4gICAgdmFyIEV2ZW50RW1pdHRlciA9IHtcclxuICAgICAgICAvKipcclxuICAgICAgICAqIDxwPiBSZXR1cm5zIGEgbmV3IEV2ZW50RW1pdHRlciBjb25zdHJ1Y3RvclxyXG4gICAgICAgICogQG1ldGhvZCBjcmVhdGVFdmVudEVtaXR0ZXJcclxuICAgICAgICAqIEBwYXJhbSB7b2JqZWN0fSBzcGVjcyBUaGUgc3BlY2lmaWNhdGlvbnNcclxuICAgICAgICAqIEByZXR1cm4ge29iamVjdH0gRXZlbnRFbWl0dGVySW5zdGFuY2UgVGhlIGNyZWF0ZWQgRXZlbnRFbWl0dGVySW5zdGFuY2VcclxuICAgICAgICAqL1xyXG4gICAgICAgIGNyZWF0ZUV2ZW50RW1pdHRlcjogZnVuY3Rpb24gY3JlYXRlRXZlbnRFbWl0dGVyKHNwZWNzKSB7XHJcbiAgICAgICAgICAgIFIuRGVidWcuZGV2KGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgYXNzZXJ0KF8uaXNPYmplY3Qoc3BlY3MpLCBcIlIuRXZlbnRFbWl0dGVyLmNyZWF0ZUV2ZW50RW1pdHRlciguLi4pOiBleHBlY3RpbmcgYW4gT2JqZWN0IGFzIHNwZWNzLlwiKTtcclxuICAgICAgICAgICAgICAgIGFzc2VydChfLmhhcyhzcGVjcywgXCJkaXNwbGF5TmFtZVwiKSAmJiBfLmlzU3RyaW5nKHNwZWNzLmRpc3BsYXlOYW1lKSwgXCJSLkV2ZW50RW1pdHRlci5jcmVhdGVFdmVudEVtaXR0ZXIoLi4uKTogcmVxdWlyZXMgZGlzcGxheU5hbWUoU3RyaW5nKS5cIik7XHJcbiAgICAgICAgICAgICAgICBhc3NlcnQoXy5oYXMoc3BlY3MsIFwiYWRkTGlzdGVuZXJcIikgJiYgXy5pc0Z1bmN0aW9uKHNwZWNzLmFkZExpc3RlbmVyKSwgXCJSLkV2ZW50RW1pdHRlci5jcmVhdGVFdmVudEVtaXR0ZXIoLi4uKTogcmVxdWlyZXMgYWRkTGlzdGVuZXIoU3RyaW5nLCBGdW5jdGlvbik6IFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyLlwiKTtcclxuICAgICAgICAgICAgICAgIGFzc2VydChfLmhhcyhzcGVjcywgXCJyZW1vdmVMaXN0ZW5lclwiKSAmJiBfLmlzRnVuY3Rpb24oc3BlY3MucmVtb3ZlTGlzdGVuZXIpLCBcIlIuRXZlbnRFbWl0dGVyLmNyZWF0ZUV2ZW50RW1pdHRlciguLi4pXCIpO1xyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgLyoqXHJcbiAgICAgICAgICAgICAqIEBtZW1iZXJPZiBSLkV2ZW50RW1pdHRlclxyXG4gICAgICAgICAgICAgKiBAcHVibGljXHJcbiAgICAgICAgICAgICAqL1xyXG4gICAgICAgICAgICB2YXIgRXZlbnRFbWl0dGVySW5zdGFuY2UgPSBmdW5jdGlvbiBFdmVudEVtaXR0ZXJJbnN0YW5jZSgpIHt9O1xyXG4gICAgICAgICAgICBfLmV4dGVuZChFdmVudEVtaXR0ZXJJbnN0YW5jZS5wcm90b3R5cGUsIHNwZWNzLCB7XHJcbiAgICAgICAgICAgICAgICAvKipcclxuICAgICAgICAgICAgICAgICAqICBUeXBlIGRpcnR5LWNoZWNraW5nLlxyXG4gICAgICAgICAgICAgICAgICogIEBwcml2YXRlXHJcbiAgICAgICAgICAgICAgICAgKiAgQHJlYWRPbmx5XHJcbiAgICAgICAgICAgICAgICAgKi9cclxuICAgICAgICAgICAgICAgIF9pc0V2ZW50RW1pdHRlckluc3RhbmNlXzogdHJ1ZSxcclxuICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgIHJldHVybiBFdmVudEVtaXR0ZXJJbnN0YW5jZTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIExpc3RlbmVyOiBmdW5jdGlvbiBMaXN0ZW5lcihldmVudCkge1xyXG4gICAgICAgICAgICB0aGlzLnVuaXF1ZUlkID0gXy51bmlxdWVJZChcIlIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyXCIpO1xyXG4gICAgICAgICAgICB0aGlzLmV2ZW50ID0gZXZlbnQ7XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAqIDxwPiBSZXR1cm5zIGEgbmV3IE1lbW9yeUV2ZW50RW1pdHRlciB0aGF0IHJlcHJlc2VudHMgYSBtZW1vcnktbG9jYWwgc3RvcmUsIGVnLiBjbGlja3MsIHdpbmRvdyBldmVudHMuPC9wPlxyXG4gICAgICAgICogQG1ldGhvZCBjcmVhdGVNZW1vcnlFdmVudEVtaXR0ZXJcclxuICAgICAgICAqIEByZXR1cm4ge29iamVjdH0gTWVtb3J5RXZlbnRFbWl0dGVyIFRoZSBjcmVhdGVkIE1lbW9yeUV2ZW50RW1pdHRlciBpbnN0YW5jZVxyXG4gICAgICAgICovXHJcbiAgICAgICAgY3JlYXRlTWVtb3J5RXZlbnRFbWl0dGVyOiBmdW5jdGlvbiBjcmVhdGVNZW1vcnlFdmVudEVtaXR0ZXIoKSB7XHJcbiAgICAgICAgICAgIHJldHVybiBmdW5jdGlvbiBNZW1vcnlFdmVudEVtaXR0ZXIoKSB7XHJcbiAgICAgICAgICAgICAgICB2YXIgbGlzdGVuZXJzID0ge307XHJcbiAgICAgICAgICAgICAgICB2YXIgYWRkTGlzdGVuZXIgPSBmdW5jdGlvbiBhZGRMaXN0ZW5lcihldmVudCwgZm4pIHtcclxuICAgICAgICAgICAgICAgICAgICB2YXIgbGlzdGVuZXIgPSBuZXcgUi5FdmVudEVtaXR0ZXIuTGlzdGVuZXIoZXZlbnQpO1xyXG4gICAgICAgICAgICAgICAgICAgIGlmKCFfLmhhcyhsaXN0ZW5lcnMsIGV2ZW50KSkge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBsaXN0ZW5lcnNbZXZlbnRdID0ge307XHJcbiAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgICAgIGxpc3RlbmVyc1tldmVudF1bbGlzdGVuZXIudW5pcXVlSWRdID0gZm47XHJcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGxpc3RlbmVyO1xyXG4gICAgICAgICAgICAgICAgfTtcclxuICAgICAgICAgICAgICAgIHZhciByZW1vdmVMaXN0ZW5lciA9IGZ1bmN0aW9uIHJlbW92ZUxpc3RlbmVyKGxpc3RlbmVyKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgUi5EZWJ1Zy5kZXYoZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIGFzc2VydChsaXN0ZW5lciBpbnN0YW5jZW9mIFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyLCBcIlIuRXZlbnRFbWl0dGVyLk1lbW9yeUV2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiB0eXBlIFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyIGV4cGVjdGVkLlwiKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgYXNzZXJ0KF8uaGFzKGxpc3RlbmVycywgbGlzdGVuZXIuZXZlbnQpLCBcIlIuRXZlbnRFbWl0dGVyLk1lbW9yeUV2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiBubyBsaXN0ZW5lcnMgZm9yIHRoaXMgZXZlbnQuXCIpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBhc3NlcnQoXy5oYXMobGlzdGVuZXJzW2xpc3RlbmVyLmV2ZW50XSwgbGlzdGVuZXIudW5pcXVlSWQpLCBcIlIuRXZlbnRFbWl0dGVyLk1lbW9yeUV2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiBubyBzdWNoIGxpc3RlbmVyLlwiKTtcclxuICAgICAgICAgICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgICAgICAgICBkZWxldGUgbGlzdGVuZXJzW2xpc3RlbmVyLmV2ZW50XVtsaXN0ZW5lci51bmlxdWVJZF07XHJcbiAgICAgICAgICAgICAgICAgICAgaWYoXy5zaXplKGxpc3RlbmVyc1tsaXN0ZW5lci5ldmVudF0pID09PSAwKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIGRlbGV0ZSBsaXN0ZW5lcnNbbGlzdGVuZXIuZXZlbnRdO1xyXG4gICAgICAgICAgICAgICAgICAgIH1cclxuICAgICAgICAgICAgICAgIH07XHJcbiAgICAgICAgICAgICAgICB2YXIgZW1pdCA9IGZ1bmN0aW9uIGVtaXQoZXZlbnQsIHBhcmFtcykge1xyXG4gICAgICAgICAgICAgICAgICAgIHBhcmFtcyA9IHBhcmFtcyB8fCB7fTtcclxuICAgICAgICAgICAgICAgICAgICBpZihfLmhhcyhsaXN0ZW5lcnMsIGV2ZW50KSkge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBfLmVhY2gobGlzdGVuZXJzW2V2ZW50XSwgZnVuY3Rpb24oZm4pIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmKGZuKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZm4ocGFyYW1zKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIH1cclxuICAgICAgICAgICAgICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgfTtcclxuICAgICAgICAgICAgICAgIHJldHVybiBuZXcgKFIuRXZlbnRFbWl0dGVyLmNyZWF0ZUV2ZW50RW1pdHRlcih7XHJcbiAgICAgICAgICAgICAgICAgICAgZGlzcGxheU5hbWU6IFwiTWVtb3J5RXZlbnRFbWl0dGVyXCIsXHJcbiAgICAgICAgICAgICAgICAgICAgYWRkTGlzdGVuZXI6IGFkZExpc3RlbmVyLFxyXG4gICAgICAgICAgICAgICAgICAgIHJlbW92ZUxpc3RlbmVyOiByZW1vdmVMaXN0ZW5lcixcclxuICAgICAgICAgICAgICAgICAgICBlbWl0OiBlbWl0LFxyXG4gICAgICAgICAgICAgICAgfSkpKCk7XHJcbiAgICAgICAgICAgIH07XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAqIDxwPiBSZXR1cm5zIGEgbmV3IFVwbGlua0V2ZW50RW1pdHRlciB0aGF0IHJlcHJlc2VudHMgYSByZW1vdGUgZXZlbnQgZW1taXRlciwgZWcuIGdsb2JhbCBub3RpZmljYXRpb25zLCBicm9hZGNhc3RzLiA8L3A+XHJcbiAgICAgICAgKiBAbWV0aG9kIGNyZWF0ZVVwbGlua0V2ZW50RW1pdHRlclxyXG4gICAgICAgICogQHJldHVybiB7b2JqZWN0fSBVcGxpbmtFdmVudEVtaXR0ZXIgVGhlIGNyZWF0ZWQgVXBsaW5rRXZlbnRFbWl0dGVyIGluc3RhbmNlXHJcbiAgICAgICAgKi9cclxuICAgICAgICBjcmVhdGVVcGxpbmtFdmVudEVtaXR0ZXI6IGZ1bmN0aW9uIGNyZWF0ZVVwbGlua0V2ZW50RW1pdHRlcigpIHtcclxuICAgICAgICAgICAgcmV0dXJuIGZ1bmN0aW9uIFVwbGlua0V2ZW50RW1pdHRlcih1cGxpbmspIHtcclxuICAgICAgICAgICAgICAgIFIuRGVidWcuZGV2KGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgICAgIGFzc2VydCh1cGxpbmsubGlzdGVuVG8gJiYgXy5pc0Z1bmN0aW9uKHVwbGluay5saXN0ZW5UbyksIFwiUi5FdmVudEVtaXR0ZXIuY3JlYXRlVXBsaW5rRXZlbnRFbWl0dGVyKC4uLikudXBsaW5rLmxpc3RlblRvOiBleHBlY3RpbmcgRnVuY3Rpb24uXCIpO1xyXG4gICAgICAgICAgICAgICAgICAgIGFzc2VydCh1cGxpbmsudW5saXN0ZW5Gcm9tICYmIF8uaXNGdW5jdGlvbih1cGxpbmsudW5saXN0ZW5Gcm9tKSwgXCJSLkV2ZW50RW1pdHRlci5jcmVhdGVVcGxpbmtFdmVudEVtaXR0ZXIoLi4uKS51cGxpbmsudW5saXN0ZW5Gcm9tOiBleHBlY3RpbmcgRnVuY3Rpb24uXCIpO1xyXG4gICAgICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgICAgICB2YXIgbGlzdGVuVG8gPSB1cGxpbmsubGlzdGVuVG87XHJcbiAgICAgICAgICAgICAgICB2YXIgdW5saXN0ZW5Gcm9tID0gdXBsaW5rLnVubGlzdGVuRnJvbTtcclxuICAgICAgICAgICAgICAgIHZhciBsaXN0ZW5lcnMgPSB7fTtcclxuICAgICAgICAgICAgICAgIHZhciBlbWl0dGVycyA9IHt9O1xyXG4gICAgICAgICAgICAgICAgdmFyIGFkZExpc3RlbmVyID0gZnVuY3Rpb24gYWRkTGlzdGVuZXIoZXZlbnQsIGZuKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgdmFyIGxpc3RlbmVyID0gbmV3IFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyKGV2ZW50KTtcclxuICAgICAgICAgICAgICAgICAgICBpZighXy5oYXMobGlzdGVuZXJzLCBldmVudCkpIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgZW1pdHRlcnNbZXZlbnRdID0gbGlzdGVuVG8oZXZlbnQsIF8ucGFydGlhbChlbWl0LCBldmVudCkpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBsaXN0ZW5lcnNbZXZlbnRdID0ge307XHJcbiAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgICAgIGxpc3RlbmVyc1tldmVudF1bbGlzdGVuZXIudW5pcXVlSWRdID0gZm47XHJcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGxpc3RlbmVyO1xyXG4gICAgICAgICAgICAgICAgfTtcclxuICAgICAgICAgICAgICAgIHZhciByZW1vdmVMaXN0ZW5lciA9IGZ1bmN0aW9uIHJlbW92ZUxpc3RlbmVyKGxpc3RlbmVyKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgUi5EZWJ1Zy5kZXYoZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIGFzc2VydChsaXN0ZW5lciBpbnN0YW5jZW9mIFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyLCBcIlIuRXZlbnRFbWl0dGVyLlVwbGlua0V2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiB0eXBlIFIuRXZlbnRFbWl0dGVyLkxpc3RlbmVyIGV4cGVjdGVkLlwiKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgYXNzZXJ0KF8uaGFzKGxpc3RlbmVycywgbGlzdGVuZXIuZXZlbnQpLCBcIlIuRXZlbnRFbWl0dGVyLlVwbGlua0V2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiBubyBsaXN0ZW5lcnMgZm9yIHRoaXMgZXZlbnQuXCIpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBhc3NlcnQoXy5oYXMobGlzdGVuZXJzW2xpc3RlbmVyLmV2ZW50XSwgbGlzdGVuZXIudW5pcXVlSWQpLCBcIlIuRXZlbnRFbWl0dGVyLlVwbGlua0V2ZW50RW1pdHRlci5yZW1vdmVMaXN0ZW5lciguLi4pOiBubyBzdWNoIGxpc3RlbmVyLlwiKTtcclxuICAgICAgICAgICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgICAgICAgICBkZWxldGUgbGlzdGVuZXJzW2xpc3RlbmVyLmV2ZW50XVtsaXN0ZW5lci51bmlxdWVJZF07XHJcbiAgICAgICAgICAgICAgICAgICAgaWYoXy5zaXplKGxpc3RlbmVyc1tsaXN0ZW5lci5ldmVudF0pID09PSAwKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIHVubGlzdGVuRnJvbShsaXN0ZW5lci5ldmVudCwgZW1pdHRlcnNbZXZlbnRdKTtcclxuICAgICAgICAgICAgICAgICAgICAgICAgZGVsZXRlIGxpc3RlbmVyc1tsaXN0ZW5lci5ldmVudF07XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIGRlbGV0ZSBlbWl0dGVyc1tsaXN0ZW5lci5ldmVudF07XHJcbiAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgfTtcclxuICAgICAgICAgICAgICAgIHZhciBlbWl0ID0gZnVuY3Rpb24gZW1pdChldmVudCwgcGFyYW1zKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgcGFyYW1zID0gcGFyYW1zIHx8IHt9O1xyXG4gICAgICAgICAgICAgICAgICAgIGlmKF8uaGFzKGxpc3RlbmVycywgZXZlbnQpKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIF8uZWFjaChsaXN0ZW5lcnNbZXZlbnRdLCBmdW5jdGlvbihmbikge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYoZm4pIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBmbihwYXJhbXMpO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICB9O1xyXG4gICAgICAgICAgICAgICAgcmV0dXJuIG5ldyAoUi5FdmVudEVtaXR0ZXIuY3JlYXRlRXZlbnRFbWl0dGVyKHtcclxuICAgICAgICAgICAgICAgICAgICBkaXNwbGF5TmFtZTogXCJVcGxpbmtFdmVudEVtaXR0ZXJcIixcclxuICAgICAgICAgICAgICAgICAgICBhZGRMaXN0ZW5lcjogYWRkTGlzdGVuZXIsXHJcbiAgICAgICAgICAgICAgICAgICAgcmVtb3ZlTGlzdGVuZXI6IHJlbW92ZUxpc3RlbmVyLFxyXG4gICAgICAgICAgICAgICAgfSkpKCk7XHJcbiAgICAgICAgICAgIH07XHJcbiAgICAgICAgfSxcclxuICAgIH07XHJcblxyXG4gICAgXy5leHRlbmQoRXZlbnRFbWl0dGVyLkxpc3RlbmVyLnByb3RvdHlwZSwgLyoqIEBsZW5kcyBSLkV2ZW50RW1pdHRlci5MaXN0ZW5lci5wcm90b3R5cGUgKi8ge1xyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICAqIEBwcm9wZXJ0eSB1bmlxdWVJZFxyXG4gICAgICAgICAqIEB0eXBlIHtTdHJpbmd9XHJcbiAgICAgICAgICogQHB1YmxpY1xyXG4gICAgICAgICAqIEByZWFkT25seVxyXG4gICAgICAgICAqL1xyXG4gICAgICAgIHVuaXF1ZUlkOiBudWxsLFxyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICAqIEBwcm9wZXJ0eSBldmVudFxyXG4gICAgICAgICAqIEB0eXBlIHtTdHJpbmd9XHJcbiAgICAgICAgICogQHB1YmxpY1xyXG4gICAgICAgICAqIEByZWFkT25seVxyXG4gICAgICAgICAqL1xyXG4gICAgICAgIGV2ZW50OiBudWxsLFxyXG4gICAgfSk7XHJcblxyXG4gICAgcmV0dXJuIEV2ZW50RW1pdHRlcjtcclxufTtcclxuIl0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9

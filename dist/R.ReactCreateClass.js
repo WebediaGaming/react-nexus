@@ -1,73 +1,74 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var React = R.React;
+"use strict";
 
-    var _vanillaCreateClass = R.scope(React.createClass, React);
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var _ = require("lodash");
+  var React = R.React;
 
-    /**
-    * <p>Method definition that complements React.createClass. <br />
-    * Used to compute an instance of a React component</p>
-    * @class R.ReactCreateClass
-    */
-    var _patchedCreateClass = function createClass(specs) {
-        var createdClass;
+  var _vanillaCreateClass = R.scope(React.createClass, React);
 
-        _.defaults(specs, {
-            getFluxStoreSubscriptions: _.constant({}),
-            statics: {},
-        });
+  /**
+  * <p>Method definition that complements React.createClass. <br />
+  * Used to compute an instance of a React component</p>
+  * @class R.ReactCreateClass
+  */
+  var _patchedCreateClass = function createClass(specs) {
+    var createdClass;
 
-        /**
-        * <p> Returns an instance of a component by React context, the property and a defined state </p>
-        * @method __ReactOnRailsSurrogate
-        * @param {object} context The context of the future component
-        * @param {object} props The props of the future component
-        * @param {object} initialState The state of the future component
-        * @return {object} instance The created component instance
-        */
-        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            var instance;
-            React.withContext(context, function() {
-                var args = [createdClass, _.omit(props, "children")];
-                if(props.children) {
-                    args.push(props.children);
-                }
-                var descriptor = React.createElement.apply(React, args);
-                instance = R.instantiateReactComponent(descriptor);
-                instance.context = context;
-                initialState = initialState || {};
-                if(instance.getInitialState) {
-                    initialState = _.extend(initialState, instance.getInitialState() || {});
-                }
-                _.extend(instance, {
-                    state: initialState,
-                    _isReactOnRailsSurrogate_: true,
-                    __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-                });
-            });
-            return instance;
-        };
-
-        _.extend(specs.statics, {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
-
-        createdClass = _.extend(_vanillaCreateClass(specs), {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
-
-        return createdClass;
-    };
+    _.defaults(specs, {
+      getFluxStoreSubscriptions: _.constant({}),
+      statics: {} });
 
     /**
-    * <p> Function to use if you want restore native function of React.createClass </p>
-    * @method restoreVanillaCreateClass
+    * <p> Returns an instance of a component by React context, the property and a defined state </p>
+    * @method __ReactOnRailsSurrogate
+    * @param {object} context The context of the future component
+    * @param {object} props The props of the future component
+    * @param {object} initialState The state of the future component
+    * @return {object} instance The created component instance
     */
-    _patchedCreateClass.restoreVanillaCreateClass = function() {
-        React.createClass = _vanillaCreateClass;
+    var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
+      var instance;
+      React.withContext(context, function () {
+        var args = [createdClass, _.omit(props, "children")];
+        if (props.children) {
+          args.push(props.children);
+        }
+        var descriptor = React.createElement.apply(React, args);
+        instance = R.instantiateReactComponent(descriptor);
+        instance.context = context;
+        initialState = initialState || {};
+        if (instance.getInitialState) {
+          initialState = _.extend(initialState, instance.getInitialState() || {});
+        }
+        _.extend(instance, {
+          state: initialState,
+          _isReactOnRailsSurrogate_: true,
+          __ReactOnRailsSurrogate: __ReactOnRailsSurrogate });
+      });
+      return instance;
     };
 
-    React.createClass = _patchedCreateClass;
+    _.extend(specs.statics, {
+      __ReactOnRailsSurrogate: __ReactOnRailsSurrogate });
 
-    return _patchedCreateClass;
+    createdClass = _.extend(_vanillaCreateClass(specs), {
+      __ReactOnRailsSurrogate: __ReactOnRailsSurrogate });
+
+    return createdClass;
+  };
+
+  /**
+  * <p> Function to use if you want restore native function of React.createClass </p>
+  * @method restoreVanillaCreateClass
+  */
+  _patchedCreateClass.restoreVanillaCreateClass = function () {
+    React.createClass = _vanillaCreateClass;
+  };
+
+  React.createClass = _patchedCreateClass;
+
+  return _patchedCreateClass;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLlJlYWN0Q3JlYXRlQ2xhc3MuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSxPQUFPLENBQUMsZUFBZSxDQUFDLENBQUM7QUFDekIsSUFBTSxPQUFPLEdBQUcsT0FBTyxDQUFDLFVBQVUsQ0FBQyxDQUFDO0FBQ3BDLE1BQU0sQ0FBQyxPQUFPLEdBQUcsVUFBUyxDQUFDLEVBQUU7QUFDekIsTUFBSSxDQUFDLEdBQUcsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUFDO0FBQzFCLE1BQUksS0FBSyxHQUFHLENBQUMsQ0FBQyxLQUFLLENBQUM7O0FBRXBCLE1BQUksbUJBQW1CLEdBQUcsQ0FBQyxDQUFDLEtBQUssQ0FBQyxLQUFLLENBQUMsV0FBVyxFQUFFLEtBQUssQ0FBQyxDQUFDOzs7Ozs7O0FBTzVELE1BQUksbUJBQW1CLEdBQUcsU0FBUyxXQUFXLENBQUMsS0FBSyxFQUFFO0FBQ2xELFFBQUksWUFBWSxDQUFDOztBQUVqQixLQUFDLENBQUMsUUFBUSxDQUFDLEtBQUssRUFBRTtBQUNkLCtCQUF5QixFQUFFLENBQUMsQ0FBQyxRQUFRLENBQUMsRUFBRSxDQUFDO0FBQ3pDLGFBQU8sRUFBRSxFQUFFLEVBQ2QsQ0FBQyxDQUFDOzs7Ozs7Ozs7O0FBVUgsUUFBSSx1QkFBdUIsR0FBRyxTQUFTLHVCQUF1QixDQUFDLE9BQU8sRUFBRSxLQUFLLEVBQUUsWUFBWSxFQUFFO0FBQ3pGLFVBQUksUUFBUSxDQUFDO0FBQ2IsV0FBSyxDQUFDLFdBQVcsQ0FBQyxPQUFPLEVBQUUsWUFBVztBQUNsQyxZQUFJLElBQUksR0FBRyxDQUFDLFlBQVksRUFBRSxDQUFDLENBQUMsSUFBSSxDQUFDLEtBQUssRUFBRSxVQUFVLENBQUMsQ0FBQyxDQUFDO0FBQ3JELFlBQUcsS0FBSyxDQUFDLFFBQVEsRUFBRTtBQUNmLGNBQUksQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLFFBQVEsQ0FBQyxDQUFDO1NBQzdCO0FBQ0QsWUFBSSxVQUFVLEdBQUcsS0FBSyxDQUFDLGFBQWEsQ0FBQyxLQUFLLENBQUMsS0FBSyxFQUFFLElBQUksQ0FBQyxDQUFDO0FBQ3hELGdCQUFRLEdBQUcsQ0FBQyxDQUFDLHlCQUF5QixDQUFDLFVBQVUsQ0FBQyxDQUFDO0FBQ25ELGdCQUFRLENBQUMsT0FBTyxHQUFHLE9BQU8sQ0FBQztBQUMzQixvQkFBWSxHQUFHLFlBQVksSUFBSSxFQUFFLENBQUM7QUFDbEMsWUFBRyxRQUFRLENBQUMsZUFBZSxFQUFFO0FBQ3pCLHNCQUFZLEdBQUcsQ0FBQyxDQUFDLE1BQU0sQ0FBQyxZQUFZLEVBQUUsUUFBUSxDQUFDLGVBQWUsRUFBRSxJQUFJLEVBQUUsQ0FBQyxDQUFDO1NBQzNFO0FBQ0QsU0FBQyxDQUFDLE1BQU0sQ0FBQyxRQUFRLEVBQUU7QUFDZixlQUFLLEVBQUUsWUFBWTtBQUNuQixtQ0FBeUIsRUFBRSxJQUFJO0FBQy9CLGlDQUF1QixFQUFFLHVCQUF1QixFQUNuRCxDQUFDLENBQUM7T0FDTixDQUFDLENBQUM7QUFDSCxhQUFPLFFBQVEsQ0FBQztLQUNuQixDQUFDOztBQUVGLEtBQUMsQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLE9BQU8sRUFBRTtBQUNwQiw2QkFBdUIsRUFBRSx1QkFBdUIsRUFDbkQsQ0FBQyxDQUFDOztBQUVILGdCQUFZLEdBQUcsQ0FBQyxDQUFDLE1BQU0sQ0FBQyxtQkFBbUIsQ0FBQyxLQUFLLENBQUMsRUFBRTtBQUNoRCw2QkFBdUIsRUFBRSx1QkFBdUIsRUFDbkQsQ0FBQyxDQUFDOztBQUVILFdBQU8sWUFBWSxDQUFDO0dBQ3ZCLENBQUM7Ozs7OztBQU1GLHFCQUFtQixDQUFDLHlCQUF5QixHQUFHLFlBQVc7QUFDdkQsU0FBSyxDQUFDLFdBQVcsR0FBRyxtQkFBbUIsQ0FBQztHQUMzQyxDQUFDOztBQUVGLE9BQUssQ0FBQyxXQUFXLEdBQUcsbUJBQW1CLENBQUM7O0FBRXhDLFNBQU8sbUJBQW1CLENBQUM7Q0FDOUIsQ0FBQyIsImZpbGUiOiJSLlJlYWN0Q3JlYXRlQ2xhc3MuanMiLCJzb3VyY2VzQ29udGVudCI6WyJyZXF1aXJlKCc2dG81L3BvbHlmaWxsJyk7XG5jb25zdCBQcm9taXNlID0gcmVxdWlyZSgnYmx1ZWJpcmQnKTtcbm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24oUikge1xyXG4gICAgdmFyIF8gPSByZXF1aXJlKFwibG9kYXNoXCIpO1xyXG4gICAgdmFyIFJlYWN0ID0gUi5SZWFjdDtcclxuXHJcbiAgICB2YXIgX3ZhbmlsbGFDcmVhdGVDbGFzcyA9IFIuc2NvcGUoUmVhY3QuY3JlYXRlQ2xhc3MsIFJlYWN0KTtcclxuXHJcbiAgICAvKipcclxuICAgICogPHA+TWV0aG9kIGRlZmluaXRpb24gdGhhdCBjb21wbGVtZW50cyBSZWFjdC5jcmVhdGVDbGFzcy4gPGJyIC8+XHJcbiAgICAqIFVzZWQgdG8gY29tcHV0ZSBhbiBpbnN0YW5jZSBvZiBhIFJlYWN0IGNvbXBvbmVudDwvcD5cclxuICAgICogQGNsYXNzIFIuUmVhY3RDcmVhdGVDbGFzc1xyXG4gICAgKi9cclxuICAgIHZhciBfcGF0Y2hlZENyZWF0ZUNsYXNzID0gZnVuY3Rpb24gY3JlYXRlQ2xhc3Moc3BlY3MpIHtcclxuICAgICAgICB2YXIgY3JlYXRlZENsYXNzO1xyXG5cclxuICAgICAgICBfLmRlZmF1bHRzKHNwZWNzLCB7XHJcbiAgICAgICAgICAgIGdldEZsdXhTdG9yZVN1YnNjcmlwdGlvbnM6IF8uY29uc3RhbnQoe30pLFxyXG4gICAgICAgICAgICBzdGF0aWNzOiB7fSxcclxuICAgICAgICB9KTtcclxuXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgKiA8cD4gUmV0dXJucyBhbiBpbnN0YW5jZSBvZiBhIGNvbXBvbmVudCBieSBSZWFjdCBjb250ZXh0LCB0aGUgcHJvcGVydHkgYW5kIGEgZGVmaW5lZCBzdGF0ZSA8L3A+XHJcbiAgICAgICAgKiBAbWV0aG9kIF9fUmVhY3RPblJhaWxzU3Vycm9nYXRlXHJcbiAgICAgICAgKiBAcGFyYW0ge29iamVjdH0gY29udGV4dCBUaGUgY29udGV4dCBvZiB0aGUgZnV0dXJlIGNvbXBvbmVudFxyXG4gICAgICAgICogQHBhcmFtIHtvYmplY3R9IHByb3BzIFRoZSBwcm9wcyBvZiB0aGUgZnV0dXJlIGNvbXBvbmVudFxyXG4gICAgICAgICogQHBhcmFtIHtvYmplY3R9IGluaXRpYWxTdGF0ZSBUaGUgc3RhdGUgb2YgdGhlIGZ1dHVyZSBjb21wb25lbnRcclxuICAgICAgICAqIEByZXR1cm4ge29iamVjdH0gaW5zdGFuY2UgVGhlIGNyZWF0ZWQgY29tcG9uZW50IGluc3RhbmNlXHJcbiAgICAgICAgKi9cclxuICAgICAgICB2YXIgX19SZWFjdE9uUmFpbHNTdXJyb2dhdGUgPSBmdW5jdGlvbiBfX1JlYWN0T25SYWlsc1N1cnJvZ2F0ZShjb250ZXh0LCBwcm9wcywgaW5pdGlhbFN0YXRlKSB7XHJcbiAgICAgICAgICAgIHZhciBpbnN0YW5jZTtcclxuICAgICAgICAgICAgUmVhY3Qud2l0aENvbnRleHQoY29udGV4dCwgZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICB2YXIgYXJncyA9IFtjcmVhdGVkQ2xhc3MsIF8ub21pdChwcm9wcywgXCJjaGlsZHJlblwiKV07XHJcbiAgICAgICAgICAgICAgICBpZihwcm9wcy5jaGlsZHJlbikge1xyXG4gICAgICAgICAgICAgICAgICAgIGFyZ3MucHVzaChwcm9wcy5jaGlsZHJlbik7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICB2YXIgZGVzY3JpcHRvciA9IFJlYWN0LmNyZWF0ZUVsZW1lbnQuYXBwbHkoUmVhY3QsIGFyZ3MpO1xyXG4gICAgICAgICAgICAgICAgaW5zdGFuY2UgPSBSLmluc3RhbnRpYXRlUmVhY3RDb21wb25lbnQoZGVzY3JpcHRvcik7XHJcbiAgICAgICAgICAgICAgICBpbnN0YW5jZS5jb250ZXh0ID0gY29udGV4dDtcclxuICAgICAgICAgICAgICAgIGluaXRpYWxTdGF0ZSA9IGluaXRpYWxTdGF0ZSB8fCB7fTtcclxuICAgICAgICAgICAgICAgIGlmKGluc3RhbmNlLmdldEluaXRpYWxTdGF0ZSkge1xyXG4gICAgICAgICAgICAgICAgICAgIGluaXRpYWxTdGF0ZSA9IF8uZXh0ZW5kKGluaXRpYWxTdGF0ZSwgaW5zdGFuY2UuZ2V0SW5pdGlhbFN0YXRlKCkgfHwge30pO1xyXG4gICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgXy5leHRlbmQoaW5zdGFuY2UsIHtcclxuICAgICAgICAgICAgICAgICAgICBzdGF0ZTogaW5pdGlhbFN0YXRlLFxyXG4gICAgICAgICAgICAgICAgICAgIF9pc1JlYWN0T25SYWlsc1N1cnJvZ2F0ZV86IHRydWUsXHJcbiAgICAgICAgICAgICAgICAgICAgX19SZWFjdE9uUmFpbHNTdXJyb2dhdGU6IF9fUmVhY3RPblJhaWxzU3Vycm9nYXRlLFxyXG4gICAgICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgICAgIH0pO1xyXG4gICAgICAgICAgICByZXR1cm4gaW5zdGFuY2U7XHJcbiAgICAgICAgfTtcclxuXHJcbiAgICAgICAgXy5leHRlbmQoc3BlY3Muc3RhdGljcywge1xyXG4gICAgICAgICAgICBfX1JlYWN0T25SYWlsc1N1cnJvZ2F0ZTogX19SZWFjdE9uUmFpbHNTdXJyb2dhdGUsXHJcbiAgICAgICAgfSk7XHJcblxyXG4gICAgICAgIGNyZWF0ZWRDbGFzcyA9IF8uZXh0ZW5kKF92YW5pbGxhQ3JlYXRlQ2xhc3Moc3BlY3MpLCB7XHJcbiAgICAgICAgICAgIF9fUmVhY3RPblJhaWxzU3Vycm9nYXRlOiBfX1JlYWN0T25SYWlsc1N1cnJvZ2F0ZSxcclxuICAgICAgICB9KTtcclxuXHJcbiAgICAgICAgcmV0dXJuIGNyZWF0ZWRDbGFzcztcclxuICAgIH07XHJcblxyXG4gICAgLyoqXHJcbiAgICAqIDxwPiBGdW5jdGlvbiB0byB1c2UgaWYgeW91IHdhbnQgcmVzdG9yZSBuYXRpdmUgZnVuY3Rpb24gb2YgUmVhY3QuY3JlYXRlQ2xhc3MgPC9wPlxyXG4gICAgKiBAbWV0aG9kIHJlc3RvcmVWYW5pbGxhQ3JlYXRlQ2xhc3NcclxuICAgICovXHJcbiAgICBfcGF0Y2hlZENyZWF0ZUNsYXNzLnJlc3RvcmVWYW5pbGxhQ3JlYXRlQ2xhc3MgPSBmdW5jdGlvbigpIHtcclxuICAgICAgICBSZWFjdC5jcmVhdGVDbGFzcyA9IF92YW5pbGxhQ3JlYXRlQ2xhc3M7XHJcbiAgICB9O1xyXG5cclxuICAgIFJlYWN0LmNyZWF0ZUNsYXNzID0gX3BhdGNoZWRDcmVhdGVDbGFzcztcclxuXHJcbiAgICByZXR1cm4gX3BhdGNoZWRDcmVhdGVDbGFzcztcclxufTtcclxuIl0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9

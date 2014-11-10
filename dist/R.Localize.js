@@ -1,74 +1,72 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
-    var Locales = require("locale").Locales;
-    var React = R.React;
+"use strict";
 
-    var Localize = {
-        extractLocale: function extractLocale(headers, supported) {
-            R.Debug.dev(function() {
-                assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
-            });
-            var supportedLocales = new Locales(supported);
-            var acceptedLocales = new Locales(headers["accept-language"]);
-            return acceptedLocales.best(supportedLocales);
-        },
-        createPlugin: function createPlugin(storeName, dispatcherName, supportedLocales) {
-            return R.App.createPlugin({
-                displayName: "Localize",
-                installInClient: function installInClient(flux, window) {
-                    flux.getDispatcher(dispatcherName).addActionListener("/Localize/setLocale", regeneratorRuntime.mark(function setLocale(params) {
-                        return regeneratorRuntime.wrap(function setLocale$(context$4$0) {
-                            while (1) switch (context$4$0.prev = context$4$0.next) {
-                            case 0:
-                                R.Debug.dev(function() {
-                                    assert(params.locale && _.isString(params.locale), dispatcherName + "://Localize/setLocale.params.locale: expected String.");
-                                });
-                                context$4$0.next = 3;
-                                return _.defer;
-                            case 3:
-                                flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(params.locale, supportedLocales));
-                            case 4:
-                            case "end":
-                                return context$4$0.stop();
-                            }
-                        }, setLocale, this);
-                    }));
-                },
-                installInServer: function installInServer(flux, req) {
-                    flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(req.headers, supportedLocales));
-                },
-            });
-        },
-        createLocalizeClass: function createClass(specs) {
-            R.Debug.dev(function() {
-                assert(specs.storeName && _.isString(specs.storeName), "R.Localize.createClass(...).specs.storeName: expected String.");
-                assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.Localize.createClass(...).specs.dispatcherName: expected String.");
-            });
-            return React.createClass({
-                propTypes: {
-                    locale: React.propTypes.string.isRequired,
-                    children: React.PropTypes.element.isRequired,
-                },
-                getInitialState: function getInitialState() {
-                    return {
-                        locale: null,
-                    };
-                },
-                getFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) {
-                    return R.record(specs.storeName + "://Localize/locale", "locale");
-                },
-                render: function render() {
-                    if(this.props.locale === this.state.locale) {
-                        return React.Children.only(this.props.children);
-                    }
-                    else {
-                        return null;
-                    }
-                },
-            });
-        },
-    };
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var _ = require("lodash");
+  var assert = require("assert");
+  var Locales = require("locale").Locales;
+  var React = R.React;
 
-    return Localize;
+  var Localize = {
+    extractLocale: function extractLocale(headers, supported) {
+      R.Debug.dev(function () {
+        assert(_.has(headers, "accept-language") && _.isString(headers["accept-language"]), "R.Localize.extractLocale(...).headers['accept-language']: expected String.");
+      });
+      var supportedLocales = new Locales(supported);
+      var acceptedLocales = new Locales(headers["accept-language"]);
+      return acceptedLocales.best(supportedLocales);
+    },
+    createPlugin: function createPlugin(storeName, dispatcherName, supportedLocales) {
+      return R.App.createPlugin({
+        displayName: "Localize",
+        installInClient: function installInClient(flux, window) {
+          flux.getDispatcher(dispatcherName).addActionListener("/Localize/setLocale", regeneratorRuntime.mark(function setLocale(params) {
+            return regeneratorRuntime.wrap(function setLocale$(context$4$0) {
+              while (1) switch (context$4$0.prev = context$4$0.next) {case 0:
+
+                  R.Debug.dev(function () {
+                    assert(params.locale && _.isString(params.locale), dispatcherName + "://Localize/setLocale.params.locale: expected String.");
+                  });
+                  context$4$0.next = 3;
+                  return _.defer;
+
+                case 3: flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(params.locale, supportedLocales));
+                case 4:
+                case "end": return context$4$0.stop();
+              }
+            }, setLocale, this);
+          }));
+        },
+        installInServer: function installInServer(flux, req) {
+          flux.getStore(storeName).set("/Localize/locale", Localize.extractLocale(req.headers, supportedLocales));
+        } });
+    },
+    createLocalizeClass: function createClass(specs) {
+      R.Debug.dev(function () {
+        assert(specs.storeName && _.isString(specs.storeName), "R.Localize.createClass(...).specs.storeName: expected String.");
+        assert(specs.dispatcherName && _.isString(specs.dispatcherName), "R.Localize.createClass(...).specs.dispatcherName: expected String.");
+      });
+      return React.createClass({
+        propTypes: {
+          locale: React.propTypes.string.isRequired,
+          children: React.PropTypes.element.isRequired },
+        getInitialState: function getInitialState() {
+          return {
+            locale: null };
+        },
+        getFluxStoreSubscriptions: function getFluxStoreSubscriptions(props) {
+          return R.record(specs.storeName + "://Localize/locale", "locale");
+        },
+        render: function render() {
+          if (this.props.locale === this.state.locale) {
+            return React.Children.only(this.props.children);
+          } else {
+            return null;
+          }
+        } });
+    } };
+
+  return Localize;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLkxvY2FsaXplLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7O0FBQUEsT0FBTyxDQUFDLGVBQWUsQ0FBQyxDQUFDO0FBQ3pCLElBQU0sT0FBTyxHQUFHLE9BQU8sQ0FBQyxVQUFVLENBQUMsQ0FBQztBQUNwQyxNQUFNLENBQUMsT0FBTyxHQUFHLFVBQVMsQ0FBQyxFQUFFO0FBQ3pCLE1BQUksQ0FBQyxHQUFHLE9BQU8sQ0FBQyxRQUFRLENBQUMsQ0FBQztBQUMxQixNQUFJLE1BQU0sR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQUM7QUFDL0IsTUFBSSxPQUFPLEdBQUcsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUFDLE9BQU8sQ0FBQztBQUN4QyxNQUFJLEtBQUssR0FBRyxDQUFDLENBQUMsS0FBSyxDQUFDOztBQUVwQixNQUFJLFFBQVEsR0FBRztBQUNYLGlCQUFhLEVBQUUsU0FBUyxhQUFhLENBQUMsT0FBTyxFQUFFLFNBQVMsRUFBRTtBQUN0RCxPQUFDLENBQUMsS0FBSyxDQUFDLEdBQUcsQ0FBQyxZQUFXO0FBQ25CLGNBQU0sQ0FBQyxDQUFDLENBQUMsR0FBRyxDQUFDLE9BQU8sRUFBRSxpQkFBaUIsQ0FBQyxJQUFJLENBQUMsQ0FBQyxRQUFRLENBQUMsT0FBTyxDQUFDLGlCQUFpQixDQUFDLENBQUMsRUFBRSw0RUFBNEUsQ0FBQyxDQUFDO09BQ3JLLENBQUMsQ0FBQztBQUNILFVBQUksZ0JBQWdCLEdBQUcsSUFBSSxPQUFPLENBQUMsU0FBUyxDQUFDLENBQUM7QUFDOUMsVUFBSSxlQUFlLEdBQUcsSUFBSSxPQUFPLENBQUMsT0FBTyxDQUFDLGlCQUFpQixDQUFDLENBQUMsQ0FBQztBQUM5RCxhQUFPLGVBQWUsQ0FBQyxJQUFJLENBQUMsZ0JBQWdCLENBQUMsQ0FBQztLQUNqRDtBQUNELGdCQUFZLEVBQUUsU0FBUyxZQUFZLENBQUMsU0FBUyxFQUFFLGNBQWMsRUFBRSxnQkFBZ0IsRUFBRTtBQUM3RSxhQUFPLENBQUMsQ0FBQyxHQUFHLENBQUMsWUFBWSxDQUFDO0FBQ3RCLG1CQUFXLEVBQUUsVUFBVTtBQUN2Qix1QkFBZSxFQUFFLFNBQVMsZUFBZSxDQUFDLElBQUksRUFBRSxNQUFNLEVBQUU7QUFDcEQsY0FBSSxDQUFDLGFBQWEsQ0FBQyxjQUFjLENBQUMsQ0FBQyxpQkFBaUIsQ0FBQyxxQkFBcUIsMEJBQUUsU0FBVSxTQUFTLENBQUMsTUFBTTs7OztBQUNsRyxtQkFBQyxDQUFDLEtBQUssQ0FBQyxHQUFHLENBQUMsWUFBVztBQUNuQiwwQkFBTSxDQUFDLE1BQU0sQ0FBQyxNQUFNLElBQUksQ0FBQyxDQUFDLFFBQVEsQ0FBQyxNQUFNLENBQUMsTUFBTSxDQUFDLEVBQUUsY0FBYyxHQUFHLHVEQUF1RCxDQUFDLENBQUM7bUJBQ2hJLENBQUMsQ0FBQzs7eUJBQ0csQ0FBQyxDQUFDLEtBQUs7O3dCQUNiLElBQUksQ0FBQyxRQUFRLENBQUMsU0FBUyxDQUFDLENBQUMsR0FBRyxDQUFDLGtCQUFrQixFQUFFLFFBQVEsQ0FBQyxhQUFhLENBQUMsTUFBTSxDQUFDLE1BQU0sRUFBRSxnQkFBZ0IsQ0FBQyxDQUFDLENBQUM7Ozs7ZUFMeEIsU0FBUztXQU05RixFQUFDLENBQUM7U0FDTjtBQUNELHVCQUFlLEVBQUUsU0FBUyxlQUFlLENBQUMsSUFBSSxFQUFFLEdBQUcsRUFBRTtBQUNqRCxjQUFJLENBQUMsUUFBUSxDQUFDLFNBQVMsQ0FBQyxDQUFDLEdBQUcsQ0FBQyxrQkFBa0IsRUFBRSxRQUFRLENBQUMsYUFBYSxDQUFDLEdBQUcsQ0FBQyxPQUFPLEVBQUUsZ0JBQWdCLENBQUMsQ0FBQyxDQUFDO1NBQzNHLEVBQ0osQ0FBQyxDQUFDO0tBQ047QUFDRCx1QkFBbUIsRUFBRSxTQUFTLFdBQVcsQ0FBQyxLQUFLLEVBQUU7QUFDN0MsT0FBQyxDQUFDLEtBQUssQ0FBQyxHQUFHLENBQUMsWUFBVztBQUNuQixjQUFNLENBQUMsS0FBSyxDQUFDLFNBQVMsSUFBSSxDQUFDLENBQUMsUUFBUSxDQUFDLEtBQUssQ0FBQyxTQUFTLENBQUMsRUFBRSwrREFBK0QsQ0FBQyxDQUFDO0FBQ3hILGNBQU0sQ0FBQyxLQUFLLENBQUMsY0FBYyxJQUFJLENBQUMsQ0FBQyxRQUFRLENBQUMsS0FBSyxDQUFDLGNBQWMsQ0FBQyxFQUFFLG9FQUFvRSxDQUFDLENBQUM7T0FDMUksQ0FBQyxDQUFDO0FBQ0gsYUFBTyxLQUFLLENBQUMsV0FBVyxDQUFDO0FBQ3JCLGlCQUFTLEVBQUU7QUFDUCxnQkFBTSxFQUFFLEtBQUssQ0FBQyxTQUFTLENBQUMsTUFBTSxDQUFDLFVBQVU7QUFDekMsa0JBQVEsRUFBRSxLQUFLLENBQUMsU0FBUyxDQUFDLE9BQU8sQ0FBQyxVQUFVLEVBQy9DO0FBQ0QsdUJBQWUsRUFBRSxTQUFTLGVBQWUsR0FBRztBQUN4QyxpQkFBTztBQUNILGtCQUFNLEVBQUUsSUFBSSxFQUNmLENBQUM7U0FDTDtBQUNELGlDQUF5QixFQUFFLFNBQVMseUJBQXlCLENBQUMsS0FBSyxFQUFFO0FBQ2pFLGlCQUFPLENBQUMsQ0FBQyxNQUFNLENBQUMsS0FBSyxDQUFDLFNBQVMsR0FBRyxvQkFBb0IsRUFBRSxRQUFRLENBQUMsQ0FBQztTQUNyRTtBQUNELGNBQU0sRUFBRSxTQUFTLE1BQU0sR0FBRztBQUN0QixjQUFHLElBQUksQ0FBQyxLQUFLLENBQUMsTUFBTSxLQUFLLElBQUksQ0FBQyxLQUFLLENBQUMsTUFBTSxFQUFFO0FBQ3hDLG1CQUFPLEtBQUssQ0FBQyxRQUFRLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxLQUFLLENBQUMsUUFBUSxDQUFDLENBQUM7V0FDbkQsTUFDSTtBQUNELG1CQUFPLElBQUksQ0FBQztXQUNmO1NBQ0osRUFDSixDQUFDLENBQUM7S0FDTixFQUNKLENBQUM7O0FBRUYsU0FBTyxRQUFRLENBQUM7Q0FDbkIsQ0FBQyIsImZpbGUiOiJSLkxvY2FsaXplLmpzIiwic291cmNlc0NvbnRlbnQiOlsicmVxdWlyZSgnNnRvNS9wb2x5ZmlsbCcpO1xuY29uc3QgUHJvbWlzZSA9IHJlcXVpcmUoJ2JsdWViaXJkJyk7XG5tb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKFIpIHtcclxuICAgIHZhciBfID0gcmVxdWlyZShcImxvZGFzaFwiKTtcclxuICAgIHZhciBhc3NlcnQgPSByZXF1aXJlKFwiYXNzZXJ0XCIpO1xyXG4gICAgdmFyIExvY2FsZXMgPSByZXF1aXJlKFwibG9jYWxlXCIpLkxvY2FsZXM7XHJcbiAgICB2YXIgUmVhY3QgPSBSLlJlYWN0O1xyXG5cclxuICAgIHZhciBMb2NhbGl6ZSA9IHtcclxuICAgICAgICBleHRyYWN0TG9jYWxlOiBmdW5jdGlvbiBleHRyYWN0TG9jYWxlKGhlYWRlcnMsIHN1cHBvcnRlZCkge1xyXG4gICAgICAgICAgICBSLkRlYnVnLmRldihmdW5jdGlvbigpIHtcclxuICAgICAgICAgICAgICAgIGFzc2VydChfLmhhcyhoZWFkZXJzLCBcImFjY2VwdC1sYW5ndWFnZVwiKSAmJiBfLmlzU3RyaW5nKGhlYWRlcnNbXCJhY2NlcHQtbGFuZ3VhZ2VcIl0pLCBcIlIuTG9jYWxpemUuZXh0cmFjdExvY2FsZSguLi4pLmhlYWRlcnNbJ2FjY2VwdC1sYW5ndWFnZSddOiBleHBlY3RlZCBTdHJpbmcuXCIpO1xyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgdmFyIHN1cHBvcnRlZExvY2FsZXMgPSBuZXcgTG9jYWxlcyhzdXBwb3J0ZWQpO1xyXG4gICAgICAgICAgICB2YXIgYWNjZXB0ZWRMb2NhbGVzID0gbmV3IExvY2FsZXMoaGVhZGVyc1tcImFjY2VwdC1sYW5ndWFnZVwiXSk7XHJcbiAgICAgICAgICAgIHJldHVybiBhY2NlcHRlZExvY2FsZXMuYmVzdChzdXBwb3J0ZWRMb2NhbGVzKTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIGNyZWF0ZVBsdWdpbjogZnVuY3Rpb24gY3JlYXRlUGx1Z2luKHN0b3JlTmFtZSwgZGlzcGF0Y2hlck5hbWUsIHN1cHBvcnRlZExvY2FsZXMpIHtcclxuICAgICAgICAgICAgcmV0dXJuIFIuQXBwLmNyZWF0ZVBsdWdpbih7XHJcbiAgICAgICAgICAgICAgICBkaXNwbGF5TmFtZTogXCJMb2NhbGl6ZVwiLFxyXG4gICAgICAgICAgICAgICAgaW5zdGFsbEluQ2xpZW50OiBmdW5jdGlvbiBpbnN0YWxsSW5DbGllbnQoZmx1eCwgd2luZG93KSB7XHJcbiAgICAgICAgICAgICAgICAgICAgZmx1eC5nZXREaXNwYXRjaGVyKGRpc3BhdGNoZXJOYW1lKS5hZGRBY3Rpb25MaXN0ZW5lcihcIi9Mb2NhbGl6ZS9zZXRMb2NhbGVcIiwgZnVuY3Rpb24qIHNldExvY2FsZShwYXJhbXMpIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgUi5EZWJ1Zy5kZXYoZnVuY3Rpb24oKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBhc3NlcnQocGFyYW1zLmxvY2FsZSAmJiBfLmlzU3RyaW5nKHBhcmFtcy5sb2NhbGUpLCBkaXNwYXRjaGVyTmFtZSArIFwiOi8vTG9jYWxpemUvc2V0TG9jYWxlLnBhcmFtcy5sb2NhbGU6IGV4cGVjdGVkIFN0cmluZy5cIik7XHJcbiAgICAgICAgICAgICAgICAgICAgICAgIH0pO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICB5aWVsZCBfLmRlZmVyO1xyXG4gICAgICAgICAgICAgICAgICAgICAgICBmbHV4LmdldFN0b3JlKHN0b3JlTmFtZSkuc2V0KFwiL0xvY2FsaXplL2xvY2FsZVwiLCBMb2NhbGl6ZS5leHRyYWN0TG9jYWxlKHBhcmFtcy5sb2NhbGUsIHN1cHBvcnRlZExvY2FsZXMpKTtcclxuICAgICAgICAgICAgICAgICAgICB9KTtcclxuICAgICAgICAgICAgICAgIH0sXHJcbiAgICAgICAgICAgICAgICBpbnN0YWxsSW5TZXJ2ZXI6IGZ1bmN0aW9uIGluc3RhbGxJblNlcnZlcihmbHV4LCByZXEpIHtcclxuICAgICAgICAgICAgICAgICAgICBmbHV4LmdldFN0b3JlKHN0b3JlTmFtZSkuc2V0KFwiL0xvY2FsaXplL2xvY2FsZVwiLCBMb2NhbGl6ZS5leHRyYWN0TG9jYWxlKHJlcS5oZWFkZXJzLCBzdXBwb3J0ZWRMb2NhbGVzKSk7XHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIGNyZWF0ZUxvY2FsaXplQ2xhc3M6IGZ1bmN0aW9uIGNyZWF0ZUNsYXNzKHNwZWNzKSB7XHJcbiAgICAgICAgICAgIFIuRGVidWcuZGV2KGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgYXNzZXJ0KHNwZWNzLnN0b3JlTmFtZSAmJiBfLmlzU3RyaW5nKHNwZWNzLnN0b3JlTmFtZSksIFwiUi5Mb2NhbGl6ZS5jcmVhdGVDbGFzcyguLi4pLnNwZWNzLnN0b3JlTmFtZTogZXhwZWN0ZWQgU3RyaW5nLlwiKTtcclxuICAgICAgICAgICAgICAgIGFzc2VydChzcGVjcy5kaXNwYXRjaGVyTmFtZSAmJiBfLmlzU3RyaW5nKHNwZWNzLmRpc3BhdGNoZXJOYW1lKSwgXCJSLkxvY2FsaXplLmNyZWF0ZUNsYXNzKC4uLikuc3BlY3MuZGlzcGF0Y2hlck5hbWU6IGV4cGVjdGVkIFN0cmluZy5cIik7XHJcbiAgICAgICAgICAgIH0pO1xyXG4gICAgICAgICAgICByZXR1cm4gUmVhY3QuY3JlYXRlQ2xhc3Moe1xyXG4gICAgICAgICAgICAgICAgcHJvcFR5cGVzOiB7XHJcbiAgICAgICAgICAgICAgICAgICAgbG9jYWxlOiBSZWFjdC5wcm9wVHlwZXMuc3RyaW5nLmlzUmVxdWlyZWQsXHJcbiAgICAgICAgICAgICAgICAgICAgY2hpbGRyZW46IFJlYWN0LlByb3BUeXBlcy5lbGVtZW50LmlzUmVxdWlyZWQsXHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICAgICAgZ2V0SW5pdGlhbFN0YXRlOiBmdW5jdGlvbiBnZXRJbml0aWFsU3RhdGUoKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgbG9jYWxlOiBudWxsLFxyXG4gICAgICAgICAgICAgICAgICAgIH07XHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICAgICAgZ2V0Rmx1eFN0b3JlU3Vic2NyaXB0aW9uczogZnVuY3Rpb24gZ2V0Rmx1eFN0b3JlU3Vic2NyaXB0aW9ucyhwcm9wcykge1xyXG4gICAgICAgICAgICAgICAgICAgIHJldHVybiBSLnJlY29yZChzcGVjcy5zdG9yZU5hbWUgKyBcIjovL0xvY2FsaXplL2xvY2FsZVwiLCBcImxvY2FsZVwiKTtcclxuICAgICAgICAgICAgICAgIH0sXHJcbiAgICAgICAgICAgICAgICByZW5kZXI6IGZ1bmN0aW9uIHJlbmRlcigpIHtcclxuICAgICAgICAgICAgICAgICAgICBpZih0aGlzLnByb3BzLmxvY2FsZSA9PT0gdGhpcy5zdGF0ZS5sb2NhbGUpIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIFJlYWN0LkNoaWxkcmVuLm9ubHkodGhpcy5wcm9wcy5jaGlsZHJlbik7XHJcbiAgICAgICAgICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICAgICAgICAgIGVsc2Uge1xyXG4gICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gbnVsbDtcclxuICAgICAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICB9LFxyXG4gICAgICAgICAgICB9KTtcclxuICAgICAgICB9LFxyXG4gICAgfTtcclxuXHJcbiAgICByZXR1cm4gTG9jYWxpemU7XHJcbn07XHJcbiJdLCJzb3VyY2VSb290IjoiL3NvdXJjZS8ifQ==

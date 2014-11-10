@@ -1,124 +1,124 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+"use strict";
 
-    var optionalParam = /\((.*?)\)/g;
-    var namedParam = /(\(\?)?:\w+/g;
-    var splatParam = /\*\w+/g;
-    var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+require("6to5/polyfill");
+var Promise = require("bluebird");
+module.exports = function (R) {
+  var _ = require("lodash");
+  var assert = require("assert");
 
+  var optionalParam = /\((.*?)\)/g;
+  var namedParam = /(\(\?)?:\w+/g;
+  var splatParam = /\*\w+/g;
+  var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+
+  /**
+  * <p>R.Route provides methods in order to define specifics routes for the Router components</p>
+  * @class R.Router
+  */
+  var Router = function Router() {
+    this._routes = {};
+  };
+
+  _.extend(Router.prototype, /** @lends R.Router.prototype */{
+    _routes: null,
+    _default: null,
     /**
-    * <p>R.Route provides methods in order to define specifics routes for the Router components</p>
-    * @class R.Router
+    * <p>Sets a route in a pattern, and combines function returning specific data</p>
+    * @method route
+    * @param {string} pattern The pattern that will be associated with function
+    * @param {string} pattern The pattern that will be associated with function
+    * @return {object} this
     */
-    var Router = function Router() {
-        this._routes = {};
-    };
+    route: function route(pattern, fn) {
+      R.Debug.dev(R.scope(function () {
+        if (_.has(this._routes, pattern)) {
+          console.warn("R.Router.route(...): route already registered.");
+        }
+      }, this));
+      var regexp = this._routeToRegExp(pattern);
+      this._routes[pattern] = {
+        regexp: regexp,
+        fn: fn };
+      return this;
+    },
+    /**
+    * @method routes
+    * @param {string} patterns
+    * @return {object} this
+    */
+    routes: function routes(patterns) {
+      if (_.isUndefined(patterns)) {
+        return this._routes;
+      }
+      _.each(patterns, R.scope(function (fn, pattern) {
+        this.route(pattern, fn);
+      }, this));
+      return this;
+    },
+    /**
+    * <p> Setting up the default fonction to use for the match Function </p>
+    * @method def
+    * @param {string} fn
+    * @return {object} this
+    */
+    def: function def(fn) {
+      this._default = fn;
+      return this;
+    },
+    /**
+    * <p>Determines whether the sentence match with at least one of routes</p>
+    * @method match
+    * @param {string} fragment The sentence to test
+    * @return {object} res The object of the corresponding route
+    */
+    match: function match(fragment) {
+      var res = null;
+      _.each(this._routes, R.scope(function (r) {
+        var regexp = r.regexp;
+        var fn = r.fn;
+        if (res !== null) {
+          return;
+        }
+        if (fragment.match(regexp) !== null) {
+          var params = this._extractParameters(regexp, fragment);
+          params.push(fragment);
+          res = fn.apply(null, params);
+        }
+      }, this));
+      if (!res && this._default) {
+        res = this._default.call(null, fragment);
+      }
+      return res;
+    },
+    /**
+    * @method _routeToRegExp
+    * @param {object} route
+    * @return {object} RegExp
+    * @private
+    */
+    _routeToRegExp: function _routeToRegExp(route) {
+      route = route.replace(escapeRegExp, "\\$&").replace(optionalParam, "(?:$1)?").replace(namedParam, function (match, optional) {
+        return optional ? match : "([^/?]+)";
+      }).replace(splatParam, "([^?]*?)");
+      return new RegExp("^" + route + "(?:\\?([\\s\\S]*))?$");
+    },
+    /**
+    * @method _extractParameters
+    * @param {object} regexp
+    * @param {object} fragment
+    * @return {object} param
+    * @private
+    */
+    _extractParameters: function _extractParameters(regexp, fragment) {
+      var params = regexp.exec(fragment).slice(1);
+      return _.map(params, function (param, i) {
+        if (i === params.length - 1) {
+          return param || null;
+        }
+        return param ? decodeURIComponent(param) : null;
+      });
+    } });
 
-    _.extend(Router.prototype, /** @lends R.Router.prototype */ {
-        _routes: null,
-        _default: null,
-        /**
-        * <p>Sets a route in a pattern, and combines function returning specific data</p>
-        * @method route
-        * @param {string} pattern The pattern that will be associated with function
-        * @param {string} pattern The pattern that will be associated with function
-        * @return {object} this
-        */
-        route: function route(pattern, fn) {
-            R.Debug.dev(R.scope(function() {
-                if(_.has(this._routes, pattern)) {
-                    console.warn("R.Router.route(...): route already registered.");
-                }
-            }, this));
-            var regexp = this._routeToRegExp(pattern);
-            this._routes[pattern] = {
-                regexp: regexp,
-                fn: fn,
-            };
-            return this;
-        },
-        /**
-        * @method routes
-        * @param {string} patterns
-        * @return {object} this
-        */
-        routes: function routes(patterns) {
-            if(_.isUndefined(patterns)) {
-                return this._routes;
-            }
-            _.each(patterns, R.scope(function(fn, pattern) {
-                this.route(pattern, fn);
-            }, this));
-            return this;
-        },
-        /**
-        * <p> Setting up the default fonction to use for the match Function </p>
-        * @method def
-        * @param {string} fn
-        * @return {object} this
-        */
-        def: function def(fn) {
-            this._default = fn;
-            return this;
-        },
-        /**
-        * <p>Determines whether the sentence match with at least one of routes</p>
-        * @method match
-        * @param {string} fragment The sentence to test
-        * @return {object} res The object of the corresponding route
-        */
-        match: function match(fragment) {
-            var res = null;
-            _.each(this._routes, R.scope(function(r) {
-                var regexp = r.regexp;
-                var fn = r.fn;
-                if(res !== null) {
-                    return;
-                }
-                if(fragment.match(regexp) !== null) {
-                    var params = this._extractParameters(regexp, fragment);
-                    params.push(fragment);
-                    res = fn.apply(null, params);
-                }
-            }, this));
-            if(!res && this._default) {
-                res = this._default.call(null, fragment);
-            }
-            return res;
-        },
-        /**
-        * @method _routeToRegExp
-        * @param {object} route
-        * @return {object} RegExp
-        * @private
-        */
-        _routeToRegExp: function _routeToRegExp(route) {
-            route = route.replace(escapeRegExp, '\\$&')
-                         .replace(optionalParam, '(?:$1)?')
-                         .replace(namedParam, function(match, optional) {
-                            return optional ? match : '([^/?]+)';
-                         })
-                         .replace(splatParam, '([^?]*?)');
-            return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
-        },
-        /**
-        * @method _extractParameters
-        * @param {object} regexp
-        * @param {object} fragment
-        * @return {object} param
-        * @private
-        */
-        _extractParameters: function _extractParameters(regexp, fragment) {
-            var params = regexp.exec(fragment).slice(1);
-            return _.map(params, function(param, i) {
-                if(i === params.length - 1) {
-                    return param || null;
-                }
-                return param ? decodeURIComponent(param) : null;
-            });
-        },
-    });
-
-    return Router;
+  return Router;
 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImY6L1VzZXJzL0VsaWUvZ2l0L3JlYWN0L3JlYWN0LXJhaWxzL3NyYy9SLlJvdXRlci5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLE9BQU8sQ0FBQyxlQUFlLENBQUMsQ0FBQztBQUN6QixJQUFNLE9BQU8sR0FBRyxPQUFPLENBQUMsVUFBVSxDQUFDLENBQUM7QUFDcEMsTUFBTSxDQUFDLE9BQU8sR0FBRyxVQUFTLENBQUMsRUFBRTtBQUN6QixNQUFJLENBQUMsR0FBRyxPQUFPLENBQUMsUUFBUSxDQUFDLENBQUM7QUFDMUIsTUFBSSxNQUFNLEdBQUcsT0FBTyxDQUFDLFFBQVEsQ0FBQyxDQUFDOztBQUUvQixNQUFJLGFBQWEsR0FBRyxZQUFZLENBQUM7QUFDakMsTUFBSSxVQUFVLEdBQUcsY0FBYyxDQUFDO0FBQ2hDLE1BQUksVUFBVSxHQUFHLFFBQVEsQ0FBQztBQUMxQixNQUFJLFlBQVksR0FBRywwQkFBMEIsQ0FBQzs7Ozs7O0FBTTlDLE1BQUksTUFBTSxHQUFHLFNBQVMsTUFBTSxHQUFHO0FBQzNCLFFBQUksQ0FBQyxPQUFPLEdBQUcsRUFBRSxDQUFDO0dBQ3JCLENBQUM7O0FBRUYsR0FBQyxDQUFDLE1BQU0sQ0FBQyxNQUFNLENBQUMsU0FBUyxrQ0FBbUM7QUFDeEQsV0FBTyxFQUFFLElBQUk7QUFDYixZQUFRLEVBQUUsSUFBSTs7Ozs7Ozs7QUFRZCxTQUFLLEVBQUUsU0FBUyxLQUFLLENBQUMsT0FBTyxFQUFFLEVBQUUsRUFBRTtBQUMvQixPQUFDLENBQUMsS0FBSyxDQUFDLEdBQUcsQ0FBQyxDQUFDLENBQUMsS0FBSyxDQUFDLFlBQVc7QUFDM0IsWUFBRyxDQUFDLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxPQUFPLEVBQUUsT0FBTyxDQUFDLEVBQUU7QUFDN0IsaUJBQU8sQ0FBQyxJQUFJLENBQUMsZ0RBQWdELENBQUMsQ0FBQztTQUNsRTtPQUNKLEVBQUUsSUFBSSxDQUFDLENBQUMsQ0FBQztBQUNWLFVBQUksTUFBTSxHQUFH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QUFFLFVBQVMsS0FBSyxFQUFFLENBQUMsRUFBRTtBQUNwQyxZQUFHLENBQUMsS0FBSyxNQUFNLENBQUMsTUFBTSxHQUFHLENBQUMsRUFBRTtBQUN4QixpQkFBTyxLQUFLLElBQUksSUFBSSxDQUFDO1NBQ3hCO0FBQ0QsZUFBTyxLQUFLLEdBQUcsa0JBQWtCLENBQUMsS0FBSyxDQUFDLEdBQUcsSUFBSSxDQUFDO09BQ25ELENBQUMsQ0FBQztLQUNOLEVBQ0osQ0FBQyxDQUFDOztBQUVILFNBQU8sTUFBTSxDQUFDO0NBQ2pCLENBQUMiLCJmaWxlIjoiUi5Sb3V0ZXIuanMiLCJzb3VyY2VzQ29udGVudCI6WyJyZXF1aXJlKCc2dG81L3BvbHlmaWxsJyk7XG5jb25zdCBQcm9taXNlID0gcmVxdWlyZSgnYmx1ZWJpcmQnKTtcbm1vZHVsZS5leHBvcnRzID0gZnVuY3Rpb24oUikge1xyXG4gICAgdmFyIF8gPSByZXF1aXJlKFwibG9kYXNoXCIpO1xyXG4gICAgdmFyIGFzc2VydCA9IHJlcXVpcmUoXCJhc3NlcnRcIik7XHJcblxyXG4gICAgdmFyIG9wdGlvbmFsUGFyYW0gPSAvXFwoKC4qPylcXCkvZztcclxuICAgIHZhciBuYW1lZFBhcmFtID0gLyhcXChcXD8pPzpcXHcrL2c7XHJcbiAgICB2YXIgc3BsYXRQYXJhbSA9IC9cXCpcXHcrL2c7XHJcbiAgICB2YXIgZXNjYXBlUmVnRXhwID0gL1tcXC17fVxcW1xcXSs/LixcXFxcXFxeJHwjXFxzXS9nO1xyXG5cclxuICAgIC8qKlxyXG4gICAgKiA8cD5SLlJvdXRlIHByb3ZpZGVzIG1ldGhvZHMgaW4gb3JkZXIgdG8gZGVmaW5lIHNwZWNpZmljcyByb3V0ZXMgZm9yIHRoZSBSb3V0ZXIgY29tcG9uZW50czwvcD5cclxuICAgICogQGNsYXNzIFIuUm91dGVyXHJcbiAgICAqL1xyXG4gICAgdmFyIFJvdXRlciA9IGZ1bmN0aW9uIFJvdXRlcigpIHtcclxuICAgICAgICB0aGlzLl9yb3V0ZXMgPSB7fTtcclxuICAgIH07XHJcblxyXG4gICAgXy5leHRlbmQoUm91dGVyLnByb3RvdHlwZSwgLyoqIEBsZW5kcyBSLlJvdXRlci5wcm90b3R5cGUgKi8ge1xyXG4gICAgICAgIF9yb3V0ZXM6IG51bGwsXHJcbiAgICAgICAgX2RlZmF1bHQ6IG51bGwsXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgKiA8cD5TZXRzIGEgcm91dGUgaW4gYSBwYXR0ZXJuLCBhbmQgY29tYmluZXMgZnVuY3Rpb24gcmV0dXJuaW5nIHNwZWNpZmljIGRhdGE8L3A+XHJcbiAgICAgICAgKiBAbWV0aG9kIHJvdXRlXHJcbiAgICAgICAgKiBAcGFyYW0ge3N0cmluZ30gcGF0dGVybiBUaGUgcGF0dGVybiB0aGF0IHdpbGwgYmUgYXNzb2NpYXRlZCB3aXRoIGZ1bmN0aW9uXHJcbiAgICAgICAgKiBAcGFyYW0ge3N0cmluZ30gcGF0dGVybiBUaGUgcGF0dGVybiB0aGF0IHdpbGwgYmUgYXNzb2NpYXRlZCB3aXRoIGZ1bmN0aW9uXHJcbiAgICAgICAgKiBAcmV0dXJuIHtvYmplY3R9IHRoaXNcclxuICAgICAgICAqL1xyXG4gICAgICAgIHJvdXRlOiBmdW5jdGlvbiByb3V0ZShwYXR0ZXJuLCBmbikge1xyXG4gICAgICAgICAgICBSLkRlYnVnLmRldihSLnNjb3BlKGZ1bmN0aW9uKCkge1xyXG4gICAgICAgICAgICAgICAgaWYoXy5oYXModGhpcy5fcm91dGVzLCBwYXR0ZXJuKSkge1xyXG4gICAgICAgICAgICAgICAgICAgIGNvbnNvbGUud2FybihcIlIuUm91dGVyLnJvdXRlKC4uLik6IHJvdXRlIGFscmVhZHkgcmVnaXN0ZXJlZC5cIik7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgIH0sIHRoaXMpKTtcclxuICAgICAgICAgICAgdmFyIHJlZ2V4cCA9IHRoaXMuX3JvdXRlVG9SZWdFeHAocGF0dGVybik7XHJcbiAgICAgICAgICAgIHRoaXMuX3JvdXRlc1twYXR0ZXJuXSA9IHtcclxuICAgICAgICAgICAgICAgIHJlZ2V4cDogcmVnZXhwLFxyXG4gICAgICAgICAgICAgICAgZm46IGZuLFxyXG4gICAgICAgICAgICB9O1xyXG4gICAgICAgICAgICByZXR1cm4gdGhpcztcclxuICAgICAgICB9LFxyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICogQG1ldGhvZCByb3V0ZXNcclxuICAgICAgICAqIEBwYXJhbSB7c3RyaW5nfSBwYXR0ZXJuc1xyXG4gICAgICAgICogQHJldHVybiB7b2JqZWN0fSB0aGlzXHJcbiAgICAgICAgKi9cclxuICAgICAgICByb3V0ZXM6IGZ1bmN0aW9uIHJvdXRlcyhwYXR0ZXJucykge1xyXG4gICAgICAgICAgICBpZihfLmlzVW5kZWZpbmVkKHBhdHRlcm5zKSkge1xyXG4gICAgICAgICAgICAgICAgcmV0dXJuIHRoaXMuX3JvdXRlcztcclxuICAgICAgICAgICAgfVxyXG4gICAgICAgICAgICBfLmVhY2gocGF0dGVybnMsIFIuc2NvcGUoZnVuY3Rpb24oZm4sIHBhdHRlcm4pIHtcclxuICAgICAgICAgICAgICAgIHRoaXMucm91dGUocGF0dGVybiwgZm4pO1xyXG4gICAgICAgICAgICB9LCB0aGlzKSk7XHJcbiAgICAgICAgICAgIHJldHVybiB0aGlzO1xyXG4gICAgICAgIH0sXHJcbiAgICAgICAgLyoqXHJcbiAgICAgICAgKiA8cD4gU2V0dGluZyB1cCB0aGUgZGVmYXVsdCBmb25jdGlvbiB0byB1c2UgZm9yIHRoZSBtYXRjaCBGdW5jdGlvbiA8L3A+XHJcbiAgICAgICAgKiBAbWV0aG9kIGRlZlxyXG4gICAgICAgICogQHBhcmFtIHtzdHJpbmd9IGZuXHJcbiAgICAgICAgKiBAcmV0dXJuIHtvYmplY3R9IHRoaXNcclxuICAgICAgICAqL1xyXG4gICAgICAgIGRlZjogZnVuY3Rpb24gZGVmKGZuKSB7XHJcbiAgICAgICAgICAgIHRoaXMuX2RlZmF1bHQgPSBmbjtcclxuICAgICAgICAgICAgcmV0dXJuIHRoaXM7XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAqIDxwPkRldGVybWluZXMgd2hldGhlciB0aGUgc2VudGVuY2UgbWF0Y2ggd2l0aCBhdCBsZWFzdCBvbmUgb2Ygcm91dGVzPC9wPlxyXG4gICAgICAgICogQG1ldGhvZCBtYXRjaFxyXG4gICAgICAgICogQHBhcmFtIHtzdHJpbmd9IGZyYWdtZW50IFRoZSBzZW50ZW5jZSB0byB0ZXN0XHJcbiAgICAgICAgKiBAcmV0dXJuIHtvYmplY3R9IHJlcyBUaGUgb2JqZWN0IG9mIHRoZSBjb3JyZXNwb25kaW5nIHJvdXRlXHJcbiAgICAgICAgKi9cclxuICAgICAgICBtYXRjaDogZnVuY3Rpb24gbWF0Y2goZnJhZ21lbnQpIHtcclxuICAgICAgICAgICAgdmFyIHJlcyA9IG51bGw7XHJcbiAgICAgICAgICAgIF8uZWFjaCh0aGlzLl9yb3V0ZXMsIFIuc2NvcGUoZnVuY3Rpb24ocikge1xyXG4gICAgICAgICAgICAgICAgdmFyIHJlZ2V4cCA9IHIucmVnZXhwO1xyXG4gICAgICAgICAgICAgICAgdmFyIGZuID0gci5mbjtcclxuICAgICAgICAgICAgICAgIGlmKHJlcyAhPT0gbnVsbCkge1xyXG4gICAgICAgICAgICAgICAgICAgIHJldHVybjtcclxuICAgICAgICAgICAgICAgIH1cclxuICAgICAgICAgICAgICAgIGlmKGZyYWdtZW50Lm1hdGNoKHJlZ2V4cCkgIT09IG51bGwpIHtcclxuICAgICAgICAgICAgICAgICAgICB2YXIgcGFyYW1zID0gdGhpcy5fZXh0cmFjdFBhcmFtZXRlcnMocmVnZXhwLCBmcmFnbWVudCk7XHJcbiAgICAgICAgICAgICAgICAgICAgcGFyYW1zLnB1c2goZnJhZ21lbnQpO1xyXG4gICAgICAgICAgICAgICAgICAgIHJlcyA9IGZuLmFwcGx5KG51bGwsIHBhcmFtcyk7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgIH0sIHRoaXMpKTtcclxuICAgICAgICAgICAgaWYoIXJlcyAmJiB0aGlzLl9kZWZhdWx0KSB7XHJcbiAgICAgICAgICAgICAgICByZXMgPSB0aGlzLl9kZWZhdWx0LmNhbGwobnVsbCwgZnJhZ21lbnQpO1xyXG4gICAgICAgICAgICB9XHJcbiAgICAgICAgICAgIHJldHVybiByZXM7XHJcbiAgICAgICAgfSxcclxuICAgICAgICAvKipcclxuICAgICAgICAqIEBtZXRob2QgX3JvdXRlVG9SZWdFeHBcclxuICAgICAgICAqIEBwYXJhbSB7b2JqZWN0fSByb3V0ZVxyXG4gICAgICAgICogQHJldHVybiB7b2JqZWN0fSBSZWdFeHBcclxuICAgICAgICAqIEBwcml2YXRlXHJcbiAgICAgICAgKi9cclxuICAgICAgICBfcm91dGVUb1JlZ0V4cDogZnVuY3Rpb24gX3JvdXRlVG9SZWdFeHAocm91dGUpIHtcclxuICAgICAgICAgICAgcm91dGUgPSByb3V0ZS5yZXBsYWNlKGVzY2FwZVJlZ0V4cCwgJ1xcXFwkJicpXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAucmVwbGFjZShvcHRpb25hbFBhcmFtLCAnKD86JDEpPycpXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAucmVwbGFjZShuYW1lZFBhcmFtLCBmdW5jdGlvbihtYXRjaCwgb3B0aW9uYWwpIHtcclxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBvcHRpb25hbCA/IG1hdGNoIDogJyhbXi8/XSspJztcclxuICAgICAgICAgICAgICAgICAgICAgICAgIH0pXHJcbiAgICAgICAgICAgICAgICAgICAgICAgICAucmVwbGFjZShzcGxhdFBhcmFtLCAnKFteP10qPyknKTtcclxuICAgICAgICAgICAgcmV0dXJuIG5ldyBSZWdFeHAoJ14nICsgcm91dGUgKyAnKD86XFxcXD8oW1xcXFxzXFxcXFNdKikpPyQnKTtcclxuICAgICAgICB9LFxyXG4gICAgICAgIC8qKlxyXG4gICAgICAgICogQG1ldGhvZCBfZXh0cmFjdFBhcmFtZXRlcnNcclxuICAgICAgICAqIEBwYXJhbSB7b2JqZWN0fSByZWdleHBcclxuICAgICAgICAqIEBwYXJhbSB7b2JqZWN0fSBmcmFnbWVudFxyXG4gICAgICAgICogQHJldHVybiB7b2JqZWN0fSBwYXJhbVxyXG4gICAgICAgICogQHByaXZhdGVcclxuICAgICAgICAqL1xyXG4gICAgICAgIF9leHRyYWN0UGFyYW1ldGVyczogZnVuY3Rpb24gX2V4dHJhY3RQYXJhbWV0ZXJzKHJlZ2V4cCwgZnJhZ21lbnQpIHtcclxuICAgICAgICAgICAgdmFyIHBhcmFtcyA9IHJlZ2V4cC5leGVjKGZyYWdtZW50KS5zbGljZSgxKTtcclxuICAgICAgICAgICAgcmV0dXJuIF8ubWFwKHBhcmFtcywgZnVuY3Rpb24ocGFyYW0sIGkpIHtcclxuICAgICAgICAgICAgICAgIGlmKGkgPT09IHBhcmFtcy5sZW5ndGggLSAxKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIHBhcmFtIHx8IG51bGw7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICByZXR1cm4gcGFyYW0gPyBkZWNvZGVVUklDb21wb25lbnQocGFyYW0pIDogbnVsbDtcclxuICAgICAgICAgICAgfSk7XHJcbiAgICAgICAgfSxcclxuICAgIH0pO1xyXG5cclxuICAgIHJldHVybiBSb3V0ZXI7XHJcbn07XHJcbiJdLCJzb3VyY2VSb290IjoiL3NvdXJjZS8ifQ==
