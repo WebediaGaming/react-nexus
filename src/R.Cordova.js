@@ -1,18 +1,27 @@
-/**
- * TODO
- */
 module.exports = function(R) {
-    var Cordova = {
-        createPlugin: function createPlugin(storeName, dispatcherName) {
-            return R.App.createPlugin({
-                displayName: "Cordova",
-                installInClient: function installInClient(flux, window) {
-                },
-                installInServer: function installInServer(flux, req) {
-                },
-            });
-        },
-    };
+  return (params) => {
+    class Cordova extends R.App.Plugin {
+      constructor() {
+        super();
+      }
+
+      getDisplayName() {
+        return 'Cordova';
+      }
+
+      installInClient(flux, window) {
+
+      }
+
+      installInServer(flux, req) {
+
+      }
+    }
+
+    _.extend(Cordova.prototype, {
+      displayName: 'Cordova',
+    });
 
     return Cordova;
+  };
 };
