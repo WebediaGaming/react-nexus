@@ -1,195 +1,206 @@
 module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
-    var d3 = require("d3");
-    var raf = require("raf");
-    var Animate = {
-        Mixin: {
-            _AnimateMixinHasAnimateMixin: true,
-            _AnimateMixinInterpolationTickers: null,
-            componentWillMount: function componentWillMount() {
-                this._AnimateMixinInterpolationTickers = {};
-            },
-            componentWillUnmount: function componentWillUnmount() {
-                _.each(this._AnimateMixinInterpolationTickers, function(interpolationTicker) {
-                    interpolationTicker.abort();
-                });
-                this._AnimateMixinInterpolationTickers = null;
-            },
-            isAnimating: function isAnimating(name) {
-                return this._AnimateMixinInterpolationTickers[name];
-            },
-            _AnimateMixinGetStateKey: function _AnimateMixinGetStateKey(name) {
-                return "_AnimateMixinStyle-" + name;
-            },
-            getAnimatedStyle: function getAnimatedStyle(name) {
-                if(this.isAnimating(name)) {
-                    return this.state[this._AnimateMixinGetStateKey(name)];
-                }
-                else {
-                    R.Debug.dev(function() {
-                        console.warn("R.Animate.Mixin.getAnimatedStyle(...): no such animation.");
-                    });
-                    return {};
-                }
-            },
-            abortAnimation: function abortAnimation(name) {
-                R.Debug.dev(R.scope(function() {
-                    assert(this.isAnimating(name), "R.Animate.Mixin.abortAnimation(...): no such animation.");
-                }, this));
-                if(this.isAnimating(name)) {
-                    this._AnimateMixinInterpolationTickers[name].abort();
-                }
-            },
-            animate: function animate(name, params) {
-                if(this.isAnimating(name)) {
-                    this.abortAnimation(name);
-                }
-                params = _.extend({}, params, {
-                    onTick: _.noop,
-                    onComplete: _.noop,
-                    onAbort: _.noop,
-                });
-                var original = {
-                    onTick: params.onTick,
-                    onComplete: params.onComplete,
-                    onAbort: params.onAbort,
-                };
-                params.onTick = R.scope(function(animatedStyle, t) {
-                    original.onTick(animatedStyle, t);
-                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), animatedStyle));
-                }, this);
-                params.onComplete = R.scope(function(animatedStyle, t) {
-                    original.onComplete(animatedStyle, t);
-                    delete this._AnimateMixinInterpolationTickers[name];
-                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
-                }, this);
-                params.onAbort = R.scope(function() {
-                    original.onAbort();
-                    delete this._AnimateMixinInterpolationTickers[name];
-                    this.setStateIfMounted(R.record(this._AnimateMixinGetStateKey(name), void 0));
-                }, this);
-                var interpolationTicker = new R.Animate.InterpolationTicker(params);
-                this._AnimateMixinInterpolationTickers[name] = interpolationTicker;
-                interpolationTicker.start();
-            },
-        },
-        createInterpolator: function createInterpolator(from, to) {
-            return d3.interpolate(from, to);
-        },
-        createEasing: function createEasing(type, params) {
-            if(params) {
-                var args = _.clone(params);
-                args.unshift(type);
-                return d3.ease.apply(d3, args);
-            }
-            else {
-                return d3.ease(type);
-            }
-        },
-        InterpolationTicker: function InterpolationTicker(params) {
-            R.Debug.dev(function() {
-                assert(_.isPlainObject(params), "R.Animate.InterpolationTicker(...).params: expected Object. ('" + params + "')");
-            });
-            _.defaults(params, {
-                easing: "cubic-in-out",
-                onTick: _.noop,
-                onComplete: _.noop,
-                onAbort: _.noop,
-            });
-            R.Debug.dev(function() {
-                assert(params.from && _.isPlainObject(params.from), "R.Animate.InterpolationTicker(...).params.from: expected Object. ('" + params.from + "')");
-                assert(params.to && _.isPlainObject(params.to), "R.Animate.InterpolationTicker(...).params.to: expected Object. ('" + params.to + "')");
-                assert(params.duration && _.isNumber(params.duration), "R.Animate.InterpolationTicker(...).params.duration: expected Number. ('" + params.duration + "')");
-                assert(params.easing && (_.isPlainObject(params.easing) || _.isString(params.easing)), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object } or String. ('" + params.easing + "')");
-                assert(params.onTick && _.isFunction(params.onTick), "R.Animate.InterpolationTicker(...).params.onTick: expected Function. ('" + params.onTick + "')");
-                assert(params.onComplete && _.isFunction(params.onComplete), "R.Animate.InterpolationTicker(...).params.onComplete: expected Function. ('" + params.onComplete + "')");
-                assert(params.onAbort && _.isFunction(params.onAbort), "R.Animate.InterpolationTicker(...).params.onAbort: expected Function. ('" + params.onAbort + "')");
-            });
-            this._from = params.from;
-            this._to = params.to;
-            _.each(this._from, R.scope(function(val, attr) {
-                if(!_.has(this._to, attr)) {
-                    this._to[attr] = val;
-                }
-            }, this));
-            _.each(this._to, R.scope(function(val, attr) {
-                if(!_.has(this._from, attr)) {
-                    this._from[attr] = val;
-                }
-            }, this));
-            if(_.isPlainObject(params.easing)) {
-                R.Debug.dev(function() {
-                    assert(_.has(params.easing, "type") && _.isString(params.easing.type), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object }.");
-                    assert(_.has(params.easing, "params") && _.isString(params.easing.params), "R.Animate.InterpolationTicker(...).params.easing: expected { type: String, params: Object }.");
-                });
-                this._easing = R.Animate.createEasing(params.easing.type, params.easing.params);
-            }
-            else {
-                this._easing = R.Animate.createEasing(params.easing);
-            }
-            this._duration = params.duration;
-            this._onTick = params.onTick;
-            this._onComplete = params.onComplete;
-            this._onAbort = params.onAbort;
-            this._interpolators = _.mapValues(this._from, R.scope(function(fromVal, attr) {
-                var toVal = this._to[attr];
-                return R.Animate.createInterpolator(fromVal, toVal);
-            }, this));
-            this._tick = R.scope(this._tick, this);
-        },
-        shouldEnableHA: function shouldEnableHA() {
-            if(R.isClient()) {
-                var userAgent = navigator.userAgent;
-                var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-                var isGingerbread = /Android 2\.3\.[3-7]/i.test(userAgent);
-                return userAgent && isMobile && !isGingerbread;
-            }
-            else {
-                return true;
-            }
-        },
-    };
+  const _ = R._;
+  const should = R.should;
+  const d3 = require('d3');
+  const raf = require('raf');
 
-    _.extend(Animate.InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */ {
-        _from: null,
-        _to: null,
-        _easing: null,
-        _duration: null,
-        _onTick: null,
-        _onComplete: null,
-        _onAbort: null,
-        _requestAnimationFrameHandle: null,
-        _begin: null,
-        _end: null,
-        _interpolators: null,
-        start: function start() {
-            R.Debug.check(this._begin === null, "R.Animate.InterpolationTicker.start(...): animation already started.");
-            this._begin = Date.now();
-            this._end = this._begin + this._duration;
-            this._requestAnimationFrameHandle = raf(this._tick);
-        },
-        _tick: function _tick() {
-            var now = Date.now();
-            if(now > this._end) {
-                this._onTick(this._to, t);
-                this._onComplete();
-            }
-            else {
-                var t = (now - this._begin)/(this._end - this._begin);
-                this._onTick(_.mapValues(this._interpolators, R.scope(function(interpolator) {
-                    return interpolator(this._easing(t));
-                }, this)), t);
-                this._requestAnimationFrameHandle = raf(this._tick);
-            }
-        },
-        abort: function abort() {
-            if(this._requestAnimationFrameHandle) {
-                raf.cancel(this._requestAnimationFrameHandle);
-                this._requestAnimationFrameHandle = null;
-            }
-        },
-    });
+  class InterpolationTicker {
+    constructor() {
+      _.dev(() => params.should.be.an.Object);
+      _.defaults(params, {
+        easing: 'cubic-in-out',
+        onTick: _.noop,
+        onComplete: _.noop,
+        onAbort: _.noop,
+      });
 
-    return Animate;
+      _.dev(() =>
+        params.from.should.be.an.Object &&
+        params.to.should.be.an.Object &&
+        params.duration.should.be.a.Number &&
+        (_.isPlainObject(params.easing) || _.isString(params.easing)).should.be.ok &&
+        params.onTick.should.be.a.Function &&
+        params.onComplete.should.be.a.Function &&
+        params.onAbort.should.be.a.Function
+        );
+
+      this._from = params.from;
+      this._to = params.to;
+
+      Object.keys(this._from)
+      .forEach((attr) => _.has(this._to, attr) ? this._to[attr] = this._from[attr] : void 0);
+      Object.keys(this._to)
+      .forEach((attr) => _.has(this._from, attr) ? this._from[attr] = this._to[attr] : void 0);
+
+      if(_.isPlainObject(params.easing)) {
+        _.dev(() => params.easing.type.should.be.a.String &&
+          params.easing.params.should.be.an.Object
+        );
+        this._easing = R.Animate.createEasing(params.easing.type, params.easing.params);
+      }
+      else {
+        this._easing = R.Animate.createEasing(params.easing);
+      }
+      this._duration = params.duration;
+      this._onTick = params.onTick;
+      this._onComplete = params.onComplete;
+      this._onAbort = params.onAbort;
+      this._interpolators = _.mapValues(this._from, (fromVal, attr) => R.Animate.createInterpolator(fromVal, this._to[attr]));
+      this._tick = R.scope(this._tick, this);
+    }
+
+    start() {
+      _.dev(() => (this._begin === null).should.be.ok);
+      this._begin = Date.now();
+      this._end = this._begin + this._duration;
+      this._requestAnimationFrameHandle = raf(this._tick);
+    }
+
+    _tick() {
+      let now = Date.now();
+      if(now > this._end) {
+        this._onTick(this._to, t);
+        this._onComplete();
+      }
+      else {
+        let t = (now - this._begin)/(this._end - this._begin);
+        this._onTick(_.mapValues(this._interpolators, (interpolator) => interpolator(this._easing(t)), t));
+        this._requestAnimationFrameHandle = raf(this._tick);
+      }
+    }
+
+    abort() {
+      if(this._requestAnimationFrameHandle) {
+        raf.cancel(this._requestAnimationFrameHandle);
+        this._requestAnimationFrameHandle = null;
+      }
+    }
+  }
+
+
+  _.extend(InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */ {
+    _from: null,
+    _to: null,
+    _easing: null,
+    _duration: null,
+    _onTick: null,
+    _onComplete: null,
+    _onAbort: null,
+    _requestAnimationFrameHandle: null,
+    _begin: null,
+    _end: null,
+    _interpolators: null,
+  });
+
+  const Animate = {
+    Mixin: {
+      _AnimateMixinHasAnimateMixin: true,
+      _AnimateMixinInterpolationTickers: null,
+
+      componentWillMount() {
+        this._AnimateMixinInterpolationTickers = {};
+      },
+
+      componentWillUnmount() {
+        Object.keys(this._AnimateMixinInterpolationTickers)
+        .forEach((name) => this._AnimateMixinInterpolationTickers[name].abort());
+        this._AnimateMixinInterpolationTickers = null;
+      },
+
+      isAnimating(name) {
+        return this._AnimateMixinInterpolationTickers[name];
+      },
+
+      _AnimateMixinGetStateKey(name) {
+        return '_AnimateMixinStyle-' + name;
+      },
+
+      getAnimatedStyle(name) {
+        if(this.isAnimating(name)) {
+          return this.state[this._AnimateMixinGetStateKey(name)];
+        }
+        else {
+          _.dev(() => console.warn('R.Animate.Mixin.getAnimatedStyle(...): no such animation.'));
+          return {};
+        }
+      },
+
+      abortAnimation(name) {
+        _.dev(() => this.isAnimating(name).should.be.ok);
+        if(this.isAnimating(name)) {
+          this._AnimateMixinInterpolationTickers[name].abort();
+        }
+      },
+
+      animate(name, params) {
+        if(this.isAnimating(name)) {
+          this.abortAnimation(name);
+        }
+
+        params = _.extend({}, params, {
+          onTick: _.noop,
+          onComplete: _.noop,
+          onAbort: _.noop,
+        });
+
+        let original = {
+          onTick: params.onTick,
+          onComplete: params.onComplete,
+          onAbort: params.onAbort,
+        };
+
+        params.onTick = (animatedStyle, t) => {
+          original.onTick(animatedStyle, t);
+          this.setStateIfMounted({ [this._AnimateMixinGetStateKey(name)]: animatedStyle });
+        };
+
+        params.onComplete = (animatedStyle, t) => {
+          original.onComplete(animatedStyle, t);
+          delete this._AnimateMixinInterpolationTickers[name];
+          this.setStateIfMounted({ [this._AnimateMixinGetStateKey(name)]: void 0 });
+        };
+
+        params.onAbort = () => {
+          original.onAbort();
+          delete this._AnimateMixinInterpolationTickers[name];
+          this.setStateIfMounted({ [this._AnimateMixinGetStateKey(name)]: void 0 });
+        };
+
+        let interpolationTicker = new R.Animate.InterpolationTicker(params);
+        this._AnimateMixinInterpolationTickers[name] = interpolationTicker;
+        interpolationTicker.start();
+      },
+    },
+
+    createInterpolator(from, to) {
+      return d3.interpolate(from, to);
+    },
+
+    createEasing(type, params) {
+      if(params) {
+        let args = _.clone(params);
+        args.unshift(type);
+        return d3.ease.apply(d3, args);
+      }
+      else {
+        return d3.ease(type);
+      }
+    },
+
+    InterpolationTicker,
+
+    shouldEnableHA() {
+      if(_.isClient()) {
+        let userAgent = navigator.userAgent;
+        let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        let isGingerbread = /Android 2\.3\.[3-7]/i.test(userAgent);
+        return userAgent && isMobile && !isGingerbread;
+      }
+      else {
+        return true;
+      }
+    },
+  };
+
+  return Animate;
 };

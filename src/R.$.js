@@ -118,7 +118,7 @@ module.exports = function(R) {
     }
   }
 
-  _.extend($.prototype, {
+  _.extend($.prototype, /** @lends $.prototype */{
     _subject: null,
   });
 

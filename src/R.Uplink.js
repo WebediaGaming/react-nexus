@@ -2,7 +2,6 @@ module.exports = function(R) {
     var url = require("url");
     var _ = require("lodash");
     var assert = require("assert");
-    var Promise = require("bluebird");
     var request;
     if(R.isClient()) {
         request = require("browser-request");
@@ -51,9 +50,9 @@ module.exports = function(R) {
     /**
     * <p> Initializes the uplink according to the specifications provided </p>
     * @method Uplink
-    * @param {object} httpEndpoint 
-    * @param {object} socketEndpoint 
-    * @param {object} guid 
+    * @param {object} httpEndpoint
+    * @param {object} socketEndpoint
+    * @param {object} guid
     * @param {object} shouldReloadOnServerRestart
     */
     var Uplink = function Uplink(httpEndpoint, socketEndpoint, guid, shouldReloadOnServerRestart) {
@@ -266,7 +265,7 @@ module.exports = function(R) {
                 this._acknowledgeHandshake = resolve;
             }, this));
         },
-        /** 
+        /**
         * <p>Occurs after a connection. When a connection is established, the client sends a signal "handshake".</p>
         * @method _handleDisconnect
         * @private
@@ -297,7 +296,7 @@ module.exports = function(R) {
             this._pid = params.pid;
             this._acknowledgeHandshake(params);
         },
-        /** 
+        /**
         * @method _handleDebug
         * @params {object} params
         * @private
@@ -308,7 +307,7 @@ module.exports = function(R) {
                 console.warn("R.Uplink.debug(...):", params.debug);
             });
         },
-        /** 
+        /**
         * @method _handleLog
         * @params {object} params
         * @private
@@ -317,7 +316,7 @@ module.exports = function(R) {
             this._debugLog("<<< log", params);
             console.log("R.Uplink.log(...):", params.log);
         },
-        /** 
+        /**
         * @method _handleWarn
         * @params {object} params
         * @private
@@ -326,7 +325,7 @@ module.exports = function(R) {
             this._debugLog("<<< warn", params);
             console.warn("R.Uplink.warn(...):", params.warn);
         },
-        /** 
+        /**
         * @method _handleError
         * @params {object} params
         * @private
@@ -336,7 +335,7 @@ module.exports = function(R) {
             console.error("R.Uplink.err(...):", params.err);
         },
 
-        /** 
+        /**
         * <p>Occurs when a client unloads the document</p>
         * @method _handleUnload
         * @params {Function} prevHandler The function to execute when the page will be unloaded
@@ -352,7 +351,7 @@ module.exports = function(R) {
             }, this);
         },
 
-        /** 
+        /**
         * <p>Simply closes the socket</p>
         * @method _destroyInClient
         * @private
@@ -362,7 +361,7 @@ module.exports = function(R) {
                 this._socket.close();
             }
         },
-        /** 
+        /**
         * <p>Does nothing</p>
         * @method _destroyInClient
         * @return {*} void0
@@ -372,7 +371,7 @@ module.exports = function(R) {
             return void 0;
         },
 
-        /** 
+        /**
         * <p>Notifies the uplink-server that a subscription is required by client</p>
         * @method _subscribeTo
         * @return {string} key The key to subscribe
@@ -385,7 +384,7 @@ module.exports = function(R) {
             }).call(this, R.Debug.rethrow("R.Uplink._subscribeTo(...): couldn't subscribe (" + key + ")"));
         },
 
-        /** 
+        /**
         * <p>Notifies the uplink-server that a subscription is over</p>
         * @method _subscribeTo
         * @return {string} key The key to unsubscribe
@@ -496,7 +495,7 @@ module.exports = function(R) {
         },
         /**
         * @method _getFullUrl
-        * @param {string} suffix 
+        * @param {string} suffix
         * @param {object} listener
         * @private
         */
@@ -508,7 +507,7 @@ module.exports = function(R) {
                 return this._httpEndpoint + suffix;
             }
         },
-        /** 
+        /**
         * <p>Fetch data by GET request from the uplink-server</p>
         * @method fetch
         * @param {string} key The key to fetch
@@ -536,7 +535,7 @@ module.exports = function(R) {
             }, this));
         },
 
-        /** 
+        /**
         * <p>Dispatches an action by POST request from the uplink-server</p>
         * @method dispatch
         * @param {object} action The specific action to dispatch
@@ -562,7 +561,7 @@ module.exports = function(R) {
                 });
             }, this));
         },
-        /** 
+        /**
         * <p>Destroy socket client-side</p>
         * @method destroy
         */

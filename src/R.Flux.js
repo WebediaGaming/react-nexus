@@ -2,7 +2,6 @@ module.exports = function(R) {
     var _ = require("lodash");
     var assert = require("assert");
     var co = require("co");
-    var Promise = require("bluebird");
     var React = R.React;
 
     var count = 0;
@@ -42,7 +41,7 @@ module.exports = function(R) {
         /**
         * <p>Check if the flux provided by props is an object and a flux instance</p>
         * @param {object} props The props to check
-        * @return {Boolean} valid The result boolean of the checked flux 
+        * @return {Boolean} valid The result boolean of the checked flux
         */
         PropType: function validateFlux(props, propName, componentName) {
             var flux = props.flux;
@@ -553,7 +552,7 @@ module.exports = function(R) {
         * @method registerStore
         * @param {string} name The name to register
         * @param {object} store The store to register
-        */ 
+        */
         registerStore: function registerStore(name, store) {
             R.Debug.dev(R.scope(function() {
                 assert(store._isStoreInstance_, "R.Flux.FluxInstance.registerStore(...): expecting a R.Store.StoreInstance. (" + name + ")");
@@ -579,7 +578,7 @@ module.exports = function(R) {
         * @method registerEventEmitter
         * @param {string} name The name to register
         * @param {object} eventEmitter The event emitter to register
-        */ 
+        */
         registerEventEmitter: function registerEventEmitter(name, eventEmitter) {
             assert(R.isClient(), "R.Flux.FluxInstance.registerEventEmitter(...): should not be called in the server.");
             R.Debug.dev(R.scope(function() {
@@ -606,7 +605,7 @@ module.exports = function(R) {
         * @method registerDispatcher
         * @param {string} name The name to register
         * @param {object} dispatcher The dispatcher to register
-        */ 
+        */
         registerDispatcher: function registerDispatcher(name, dispatcher) {
             assert(R.isClient(), "R.Flux.FluxInstance.registerDispatcher(...): should not be called in the server. (" + name + ")");
             R.Debug.dev(R.scope(function() {
