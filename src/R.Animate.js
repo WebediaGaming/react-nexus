@@ -22,7 +22,7 @@ module.exports = function(R) {
         params.onTick.should.be.a.Function &&
         params.onComplete.should.be.a.Function &&
         params.onAbort.should.be.a.Function
-        );
+      );
 
       this._from = params.from;
       this._to = params.to;
@@ -76,7 +76,6 @@ module.exports = function(R) {
       }
     }
   }
-
 
   _.extend(InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */ {
     _from: null,
