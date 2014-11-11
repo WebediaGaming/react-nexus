@@ -1,18 +1,21 @@
-/**
- * TODO
- */
 module.exports = function(R) {
-    var Fullscreen = {
-        createPlugin: function createPlugin(storeName, dispatcherName) {
-            return R.App.createPlugin({
-                displayName: "Fullscreen",
-                installInClient: function installInClient(flux, window) {
-                },
-                installInServer: function installInServer(flux, req) {
-                },
-            });
-        },
-    };
+  return (params) => {
+    class Fullscreen extends R.App.Plugin {
+      constructor({ flux, window, req }) {
+        super.apply(this, arguments);
+        if(window) {
+          // Client-only init
+        }
+        else {
+          // Server-only init
+        }
+      }
+
+      getDisplayName() {
+        return 'Fullscreen';
+      }
+    }
 
     return Fullscreen;
+  };
 };

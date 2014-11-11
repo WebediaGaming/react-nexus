@@ -166,6 +166,9 @@ module.exports = function(R) {
         _.dev(() => flux.should.be.an.instanceOf(R.Flux));
         _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
         this.displayName = this.getDisplayName();
+        this.flux = flux;
+        this.window = window;
+        this.req = req;
       }
 
       getDisplayName() { _.abstract(); }
@@ -174,6 +177,9 @@ module.exports = function(R) {
     }
 
     _.extend(Plugin.prototype, /** @lends Plugin.Prototype */ {
+      flux: null,
+      window: null,
+      req: null,
       displayName: null,
     });
 

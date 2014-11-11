@@ -2,11 +2,11 @@ module.exports = function(R) {
   const _ = R._;
   const should = R.should;
 
-  class ActionListener {
+  class ActionHandler {
     constructor(action, handler) {
       this.action = action;
       this.handler = handler;
-      this.id = _.uniqueId('ActionListener');
+      this.id = _.uniqueId('ActionHandler');
       _.scopeAll(this, [
         'pushInto',
         'removeFrom',
@@ -47,7 +47,7 @@ module.exports = function(R) {
     }
   }
 
-  _.extend(ActionListener.prototype, {
+  _.extend(ActionHandler.prototype, {
     id: null,
   });
 
@@ -57,46 +57,46 @@ module.exports = function(R) {
         this.getDisplayName.should.be.a.Function
       );
 
-      this._actionsListeners = {};
+      this._actionsHandlers = {};
       _.scopeAll(this, [
-        'addActionListener',
-        'removeActionListener',
+        'addActionHandler',
+        'removeActionHandler',
         'dispatch',
       ]);
 
       let actions = this.getActions();
-      Object.keys(actions).forEach((action) => this.addActionListener(action, actions[action]));
+      Object.keys(actions).forEach((action) => this.addActionHandler(action, actions[action]));
     }
 
-    addActionListener(action, handler) {
+    addActionHandler(action, handler) {
       let actionListener = new ActionListener(action, handler);
-      actionListener.pushInto(this._actionsListeners);
+      actionListener.pushInto(this._actionsHandlers);
       return actionListener;
     }
 
-    removeActionListener(actionListener) {
+    removeActionHandler(actionListener) {
       _.dev(() => actionListener.should.be.instanceOf(ActionListener) &&
-        actionListener.isInside(this._actionsListeners).should.be.ok
+        actionListener.isInside(this._actionsHandlers).should.be.ok
       );
-      actionListener.removeFrom(this._actionsListeners);
+      actionListener.removeFrom(this._actionsHandlers);
     }
 
     dispatch(action, params = {}) {
       return _.copromise(function*() {
-        _.dev(() => this._actionsListeners[action].should.be.ok);
-        return yield Object.keys(this._actionsListeners[action])
-        .map((key) => this._actionsListeners[action][key].dispatch(params));
+        _.dev(() => this._actionsHandlers[action].should.be.ok);
+        return yield Object.keys(this._actionsHandlers[action])
+        .map((key) => this._actionsHandlers[action][key].dispatch(params));
       }, this);
     }
   }
 
   _.extend(Dispatcher.prototype, {
     displayName: null,
-    _actionsListeners: null,
+    _actionsHandlers: null,
   });
 
   _.extend(Dispatcher, {
-    ActionListener,
+    ActionHandler,
   });
 
   return Dispatcher;

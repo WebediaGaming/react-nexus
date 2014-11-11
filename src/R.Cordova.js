@@ -2,7 +2,7 @@ module.exports = function(R) {
   return (params) => {
     class Cordova extends R.App.Plugin {
       constructor({ flux, window, req }) {
-        super();
+        super.apply(this, arguments);
         if(window) {
           // Client-only init
         }
@@ -15,10 +15,6 @@ module.exports = function(R) {
         return 'Cordova';
       }
     }
-
-    _.extend(Cordova.prototype, {
-      displayName: 'Cordova',
-    });
 
     return Cordova;
   };
