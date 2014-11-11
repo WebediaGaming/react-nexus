@@ -1,5 +1,4 @@
 module.exports = function(R) {
-    const co = require('co');
     const React = R.React;
     const _ = R._;
     const should = R.should;
@@ -24,14 +23,13 @@ module.exports = function(R) {
         this.template = this.getTemplate();
         this.templateLibs = this.getTemplateLibs();
         this.Plugins = this.getPluginsClasses();
-        this.bootstrapTemplateVarsInServer = this.getBootstrapTemplateVarsInServer();
 
-        _.dev(() => this.fluxClass.should.be.a.Function &&
-          this.rootClass.should.be.a.Function &&
+        _.dev(() => this.Flux.should.be.a.Function &&
+          this.Root.should.be.a.Function &&
           this.vars.should.be.an.Object &&
           this.template.should.be.a.Function &&
-          this.plugins.should.be.an.Array &&
-          this.bootstrapTemplateVarsInServer.should.be.a.Function
+          this.templateLibs.should.be.an.Object &&
+          this.Plugins.should.be.an.Array
         );
       }
 
@@ -47,14 +45,19 @@ module.exports = function(R) {
 
       getPluginsClasses() { _.abstract(); }
 
-      getBootstrapTemplateVarsInServer() { _.abstract(); }
+      getTemplateVars({ req }) { _.abstract(); }
+
+      render({ req, window }) {
+        _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
+        return _.isServer() ? this._renderInServer(req) : this._renderInClient(window);
+      }
       /**
       * <p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>
       * @method renderToStringInServer
       * @param {object} req The classical request object
       * @return {object} template : the computed HTML template with data for the requesting client
       */
-      renderToStringInServer(req) {
+      _renderInServer(req) {
         return _.copromise(function*() {
           _.dev(() => _.isServer().should.be.ok &&
             req.headers.should.be.ok
@@ -62,9 +65,10 @@ module.exports = function(R) {
 
           let guid = _.guid();
           let flux = new this.Flux();
+          let headers = req.headers;
           //Register store (R.Store) : UplinkServer and Memory
           //Initializes flux and UplinkServer in order to be able to fetch data from uplink-server
-          yield flux.bootstrapInServer(req, req.headers, guid);
+          yield flux.bootstrap({ req, headers, guid });
 
           //Initializes plugin and fill all corresponding data for store : Memory
           let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req }));
@@ -96,8 +100,8 @@ module.exports = function(R) {
           flux.destroy();
           plugins.forEach((plugin) => plugin.destroy());
 
-          let vars = _.extend({}, yield this.bootstrapTemplateVarsInServer(req), this.vars);
-          let serializedHeaders = _.base64Encode(JSON.stringify(req.headers));
+          let vars = _.extend({}, yield this.getTemplateVars({ req }), this.vars);
+          let serializedHeaders = _.base64Encode(JSON.stringify(headers));
           return this.template({ vars, rootHtml, serializedFlux, serializedHeaders, guid }, this.templateLibs);
 
         }, this);
@@ -109,7 +113,7 @@ module.exports = function(R) {
       * @method renderIntoDocumentInClient
       * @param {object} window The classical window object
       */
-      renderIntoDocumentInClient(window) {
+      _renderInClient(window) {
         return _.copromise(function*() {
           _.dev(() => _.isClient().should.be.ok &&
             window.__ReactNexus.should.be.an.Object &&
@@ -124,7 +128,7 @@ module.exports = function(R) {
           let headers = JSON.parse(_.base64Decode(window.__ReactNexus.serializedHeaders));
           let guid = window.__ReactNexus.guid;
 
-          yield flux.bootstrapInClient({ window, headers, guid });
+          yield flux.bootstrap({ window, headers, guid });
           flux.unserialize(window.__ReactNexus.serializedFlux);
           let plugins = this.Plugins.forEach((Plugin) => new Plugin({ flux, window }));
           _.dev(() => window.__ReactNexus.plugins = plugins);
@@ -162,7 +166,7 @@ module.exports = function(R) {
     class Plugin {
       constructor({ flux, req, window }) {
         _.dev(() => flux.should.be.instanceOf(R.Flux));
-        _.dev(() => _.isSever() ? req.should.be.an.Object : window.should.be.an.Object);
+        _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
         this.displayName = this.getDisplayName();
       }
 
