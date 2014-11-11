@@ -66,26 +66,27 @@ module.exports = function(R) {
           let guid = _.guid();
           let headers = req.headers;
           let flux = new this.Flux({ guid, headers, req });
-          //Register store (R.Store) : UplinkServer and Memory
-          //Initializes flux and UplinkServer in order to be able to fetch data from uplink-server
+          // Register store (R.Store) : UplinkServer and Memory
+          // Initializes flux and UplinkServer in order to be able to fetch data from uplink-server
           yield flux.bootstrap();
 
-          //Initializes plugin and fill all corresponding data for store : Memory
+          // Initializes plugin and fill all corresponding data for store : Memory
           let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req }));
 
           let rootProps = { flux, plugins };
-          //Create the React instance of root component with flux
+          // Create the React instance of root component with flux
           let surrogateRootComponent = new this.Root.__ReactNexusSurrogate({}, rootProps);
           if(!surrogateRootComponent.componentWillMount) {
             _.dev(() => console.error('Root component requires componentWillMount implementation. Maybe you forgot to mixin R.Root.Mixin?'));
           }
+          // Emulate React lifecycle
           surrogateRootComponent.componentWillMount();
           yield surrogateRootComponent.prefetchFluxStores();
           surrogateRootComponent.componentWillUnmount();
 
           let rootComponentFactory = React.createFactory(this.Root);
           let rootComponent = rootComponentFactory(rootProps);
-          flux.startInjectingFromStores();
+          let rootHtml;
 
           /*
           * Render root component server-side, for each components :
@@ -93,9 +94,8 @@ module.exports = function(R) {
           * 2. componentWillMount : simple initialization
           * 3. Render : compute DOM with the component's state
           */
-          let rootHtml = React.renderToString(rootComponent);
-          flux.stopInjectingFromStores();
-          //Serializes flux in order to provides all prefetched stored data to the client
+          flux.injectingFromStores(() => rootHtml = React.renderToString(rootComponent));
+          // Serializes flux in order to provides all prefetched stored data to the client
           let serializedFlux = flux.serialize();
           flux.destroy();
           plugins.forEach((plugin) => plugin.destroy());
@@ -137,7 +137,6 @@ module.exports = function(R) {
           let rootComponentFactory = React.createFactory(this.Root);
           let rootComponent = rootComponentFactory(rootProps);
           _.dev(() => window.__ReactNexus.rootComponent = rootComponent);
-          flux.startInjectingFromStores();
           /*
           * Render root component client-side, for each components:
           * 1. getInitialState : return store data computed server-side with R.Flux.prefetchFluxStores
@@ -147,25 +146,24 @@ module.exports = function(R) {
           * React will preserve it and only attach event handlers.
           * 4. Finally componentDidMount (subscribe and fetching data) then rerendering with new potential computed data
           */
-          React.render(rootComponent, window.__ReactNexus.rootElement);
-          flux.stopInjectingFromStores();
+          flux.injectingFromStores(() => React.render(rootComponent, window.__ReactNexus.rootElement));
         }, this);
       }
 
     }
 
     _.extend(App.prototype, /** @lends App.prototype */{
-      fluxClass: null,
-      rootClass: null,
+      Flux: null,
+      Root: null,
       template: null,
       vars: null,
-      plugins: null,
+      Plugins: null,
       bootstrapTemplateVarsInServer: null,
     });
 
     class Plugin {
       constructor({ flux, req, window }) {
-        _.dev(() => flux.should.be.instanceOf(R.Flux));
+        _.dev(() => flux.should.be.an.instanceOf(R.Flux));
         _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
         this.displayName = this.getDisplayName();
       }

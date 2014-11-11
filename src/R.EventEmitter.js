@@ -2,14 +2,14 @@ module.exports = function(R) {
   const _ = R._;
   const should = R.should;
 
-  class EventListener {
+  class Listener {
     constructor(event, handler) {
       _.dev(() => event.should.be.a.String &&
         handler.should.be.a.Function
       );
       this.event = event;
       this.handler = handler;
-      this.id = _.uniqueId('EventListener');
+      this.id = _.uniqueId('Listener');
     }
 
     addTo(listeners) {
@@ -43,7 +43,7 @@ module.exports = function(R) {
     }
   }
 
-  _.extend(EventListener.prototype, {
+  _.extend(Listener.prototype, {
     event: null,
     id: null,
     handler: null,
@@ -58,7 +58,7 @@ module.exports = function(R) {
     getDisplayName() { _.abstract(); }
 
     addListener(event, handler) {
-      let listener = new EventListener(event, handler);
+      let listener = new Listener(event, handler);
       return {
         listener,
         createdEvent: listener.addTo(this.listeners),
@@ -153,6 +153,7 @@ module.exports = function(R) {
   });
 
   _.extend(EventEmitter, {
+    Listener,
     MemoryEventEmitter,
     UplinkEventEmitter,
   });

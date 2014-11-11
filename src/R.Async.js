@@ -11,8 +11,8 @@ module.exports = function(R) {
 
   const Async = {
     Mixin: {
+      _AsyncMixin: true,
       _AsyncMixinHasUnmounted: false,
-      _AsyncMixinHasAsyncMixin: true,
       _AsyncMixinQueuedTimeouts: null,
       _AsyncMixinQueuedImmediates: null,
       _AsyncMixinQueuedAnimationFrames: null,
@@ -35,7 +35,7 @@ module.exports = function(R) {
 
     ifMounted(fn) {
       return () => {
-        _.dev(() => this._AsyncMixinHasAsyncMixin.should.be.ok);
+        _.dev(() => this._AsyncMixin.should.be.ok);
         if(!this._AsyncMixinHasUnmounted) {
           return fn.apply(this, arguments);
         }
