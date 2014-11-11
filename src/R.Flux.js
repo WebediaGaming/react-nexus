@@ -1,17 +1,93 @@
-// module.exports = function(R) {
-//   const _ = R._;
-//   const should = R.should;
-//   const React = R.React;
+module.exports = function(R) {
+  const _ = R._;
+  const should = R.should;
+  const React = R.React;
 
-//   const abstractLocationRegExp = /^(.*):\/(.*)$/;
+  const abstractLocationRegExp = /^(.*):\/(.*)$/;
 
-//   class Flux {
-//     constructor() {
+  class Flux {
+    constructor({ headers, guid, window, req }) {
+      _.dev(() => headers.should.be.an.Object &&
+        guid.should.be.a.String &&
+        _.isServer() ? req.should.be.an.Object : window.should.be.an.Object
+      );
+      this._headers = headers;
+      this._guid = guid;
+      this._window = window;
+      this._req = req;
+      this._stores = {};
+      this._eventEmitters = {};
+      this._dispatchers = {};
+      this._shouldInjectFromStores = false;
+    }
 
-//     }
+    bootstrap() { _.abstract(); }
 
-//     bootstrap({ headers, guid, window, req }) { _.abstract(); }
-//   }
+    destroy() {
+      Object.keys(this._stores, (storeName) => this.unregisterStore(storeName));
+      Object.keys(this._eventEmitters, (eventEmitterName) => this.unregisterEventEmitter(eventEmitterName));
+      Object.keys(this._dispatchers, (dispatcherName) => this.unregisterDispatcher(dispatcherName));
+      // Nullify references
+      this._headers = null;
+      this._window = null;
+      this._req = null;
+      this._stores = null;
+      this._eventEmitters = null;
+      this._dispatchers = null;
+    }
+
+    startInjectingFromStores() {
+      _.dev(() => this._shouldInjectFromStores.should.not.be.ok);
+      this._shouldInjectFromStores = true;
+    }
+
+    stopInjectingFromStores() {
+      _.dev(() => this._shouldInjectFromStores.should.be.ok);
+      this._shouldInjectFromStores = false;
+    }
+
+    shouldInjectFromStores() {
+      return this._shouldInjectFromStores;
+    }
+
+    serialize({ preventEncoding }) {
+      let serializable = _.mapValues(this._stores, (store) => store.serialize({ preventEncoding: true }));
+      return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
+    }
+
+    unserialize(serialized, { preventDecoding }) {
+      let unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
+      Object.keys(unserializable).forEach((storeName) => {
+        _.dev(() => this._stores[storeName].should.be.ok);
+        this._stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
+      });
+    }
+  }
+
+  _.extend(Flux.prototype, {
+    _headers: null,
+    _guid: null,
+    _window: null,
+    _req: null,
+    _stores: null,
+    _eventEmitters: null,
+    _dispatchers: null,
+    _shouldInjectFromStores: null,
+  });
+
+  const Mixin = {
+
+  };
+
+  function PropType(props, propName, componentName) {
+    return props.flux && props.flux instanceof Flux;
+  }
+
+  _.extend(Flux, { Mixin, PropType });
+
+  return Flux;
+};
+
 
 
 //     /**

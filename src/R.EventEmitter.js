@@ -78,6 +78,8 @@ module.exports = function(R) {
           this.listeners[i][j].removeFrom(this.listeners)
         )
       );
+      // Nullify references
+      this.listeners = null;
     }
   }
 

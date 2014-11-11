@@ -64,11 +64,11 @@ module.exports = function(R) {
           );
 
           let guid = _.guid();
-          let flux = new this.Flux();
           let headers = req.headers;
+          let flux = new this.Flux({ guid, headers, req });
           //Register store (R.Store) : UplinkServer and Memory
           //Initializes flux and UplinkServer in order to be able to fetch data from uplink-server
-          yield flux.bootstrap({ req, headers, guid });
+          yield flux.bootstrap();
 
           //Initializes plugin and fill all corresponding data for store : Memory
           let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req }));
@@ -123,10 +123,10 @@ module.exports = function(R) {
             window.__ReactNexus.rootElement.should.be.ok
           );
           _.dev(() => window.__ReactNexus.app = this);
-          let flux = new this.Flux();
-          _.dev(() => window.__ReactNexus.flux = flux);
           let headers = JSON.parse(_.base64Decode(window.__ReactNexus.serializedHeaders));
           let guid = window.__ReactNexus.guid;
+          let flux = new this.Flux({ headers, guid, window });
+          _.dev(() => window.__ReactNexus.flux = flux);
 
           yield flux.bootstrap({ window, headers, guid });
           flux.unserialize(window.__ReactNexus.serializedFlux);
