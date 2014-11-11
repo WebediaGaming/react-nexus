@@ -71,7 +71,7 @@ module.exports = function(R) {
           yield flux.bootstrap();
 
           // Initializes plugin and fill all corresponding data for store : Memory
-          let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req }));
+          let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req, headers }));
 
           let rootProps = { flux, plugins };
           // Create the React instance of root component with flux
@@ -130,7 +130,7 @@ module.exports = function(R) {
 
           yield flux.bootstrap({ window, headers, guid });
           flux.unserialize(window.__ReactNexus.serializedFlux);
-          let plugins = this.Plugins.forEach((Plugin) => new Plugin({ flux, window }));
+          let plugins = this.Plugins.forEach((Plugin) => new Plugin({ flux, window, headers }));
           _.dev(() => window.__ReactNexus.plugins = plugins);
 
           let rootProps = { flux, plugins };
@@ -162,13 +162,16 @@ module.exports = function(R) {
     });
 
     class Plugin {
-      constructor({ flux, req, window }) {
-        _.dev(() => flux.should.be.an.instanceOf(R.Flux));
+      constructor({ flux, req, window, headers }) {
+        _.dev(() => flux.should.be.an.instanceOf(R.Flux) &&
+          headers.should.be.an.Object
+        );
         _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
         this.displayName = this.getDisplayName();
         this.flux = flux;
         this.window = window;
         this.req = req;
+        this.headers = headers;
       }
 
       getDisplayName() { _.abstract(); }
@@ -180,6 +183,7 @@ module.exports = function(R) {
       flux: null,
       window: null,
       req: null,
+      headers: null,
       displayName: null,
     });
 
