@@ -67,14 +67,9 @@ module.exports = function(R) {
           yield flux.bootstrapInServer(req, req.headers, guid);
 
           //Initializes plugin and fill all corresponding data for store : Memory
-          this.Plugins.forEach((Plugin) => {
-            let plugin = new Plugin();
-            _.dev(() => plugin.installInServer.should.be.a.Function);
-            plugin.installInServer(flux, req);
-          });
+          let plugins = this.Plugins.map((Plugin) => new Plugin({ flux, req }));
 
-          let rootProps = { flux };
-
+          let rootProps = { flux, plugins };
           //Create the React instance of root component with flux
           let surrogateRootComponent = new this.Root.__ReactNexusSurrogate({}, rootProps);
           if(!surrogateRootComponent.componentWillMount) {
@@ -99,6 +94,7 @@ module.exports = function(R) {
           //Serializes flux in order to provides all prefetched stored data to the client
           let serializedFlux = flux.serialize();
           flux.destroy();
+          plugins.forEach((plugin) => plugin.destroy());
 
           let vars = _.extend({}, yield this.bootstrapTemplateVarsInServer(req), this.vars);
           let serializedHeaders = _.base64Encode(JSON.stringify(req.headers));
@@ -130,16 +126,10 @@ module.exports = function(R) {
 
           yield flux.bootstrapInClient({ window, headers, guid });
           flux.unserialize(window.__ReactNexus.serializedFlux);
+          let plugins = this.Plugins.forEach((Plugin) => new Plugin({ flux, window }));
+          _.dev(() => window.__ReactNexus.plugins = plugins);
 
-          _.dev(() => window.__ReactNexus.plugins = []);
-          this.Plugins.forEach((Plugin) => {
-            let plugin = new Plugin();
-            _.dev(() => window.__ReactNexus.plugins.push(plugin));
-            _.dev(() => plugin.installInClient.should.be.a.Function);
-            plugin.installInClient(flux, window);
-          });
-
-          let rootProps = { flux };
+          let rootProps = { flux, plugins };
           let rootComponentFactory = React.createFactory(this.Root);
           let rootComponent = rootComponentFactory(rootProps);
           _.dev(() => window.__ReactNexus.rootComponent = rootComponent);
@@ -170,21 +160,21 @@ module.exports = function(R) {
     });
 
     class Plugin {
-      constructor() {
+      constructor({ flux, req, window }) {
+        _.dev(() => flux.should.be.instanceOf(R.Flux));
+        _.dev(() => _.isSever() ? req.should.be.an.Object : window.should.be.an.Object);
         this.displayName = this.getDisplayName();
       }
 
       getDisplayName() { _.abstract(); }
 
-      installInServer(flux, req) { _.abstract(); }
-
-      installInClient(flux, window) { _.abstract(); }
+      destroy() { _.abstract(); }
     }
 
     _.extend(Plugin.prototype, /** @lends Plugin.Prototype */ {
       displayName: null,
     });
 
-    App.Plugin = Plugin;
+    _.extend(App, { Plugin });
     return App;
 };

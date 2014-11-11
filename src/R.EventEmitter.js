@@ -1,163 +1,159 @@
 module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+  const _ = R._;
+  const should = R.should;
 
-    /**
-    * <p>R.EventEmitter is similar to R.Store. <br />
-    * Event Emitters are event-oriented stores without persistence. <br />
-    * It juste provides a slightly different abstraction, that is sometimes more suited.</p>
-    * @class R.EventEmitter
-    */
-    var EventEmitter = {
-        /**
-        * <p> Returns a new EventEmitter constructor
-        * @method createEventEmitter
-        * @param {object} specs The specifications
-        * @return {object} EventEmitterInstance The created EventEmitterInstance
-        */
-        createEventEmitter: function createEventEmitter(specs) {
-            R.Debug.dev(function() {
-                assert(_.isObject(specs), "R.EventEmitter.createEventEmitter(...): expecting an Object as specs.");
-                assert(_.has(specs, "displayName") && _.isString(specs.displayName), "R.EventEmitter.createEventEmitter(...): requires displayName(String).");
-                assert(_.has(specs, "addListener") && _.isFunction(specs.addListener), "R.EventEmitter.createEventEmitter(...): requires addListener(String, Function): R.EventEmitter.Listener.");
-                assert(_.has(specs, "removeListener") && _.isFunction(specs.removeListener), "R.EventEmitter.createEventEmitter(...)");
-            });
-            /**
-             * @memberOf R.EventEmitter
-             * @public
-             */
-            var EventEmitterInstance = function EventEmitterInstance() {};
-            _.extend(EventEmitterInstance.prototype, specs, {
-                /**
-                 *  Type dirty-checking.
-                 *  @private
-                 *  @readOnly
-                 */
-                _isEventEmitterInstance_: true,
-            });
-            return EventEmitterInstance;
-        },
-        Listener: function Listener(event) {
-            this.uniqueId = _.uniqueId("R.EventEmitter.Listener");
-            this.event = event;
-        },
-        /**
-        * <p> Returns a new MemoryEventEmitter that represents a memory-local store, eg. clicks, window events.</p>
-        * @method createMemoryEventEmitter
-        * @return {object} MemoryEventEmitter The created MemoryEventEmitter instance
-        */
-        createMemoryEventEmitter: function createMemoryEventEmitter() {
-            return function MemoryEventEmitter() {
-                var listeners = {};
-                var addListener = function addListener(event, fn) {
-                    var listener = new R.EventEmitter.Listener(event);
-                    if(!_.has(listeners, event)) {
-                        listeners[event] = {};
-                    }
-                    listeners[event][listener.uniqueId] = fn;
-                    return listener;
-                };
-                var removeListener = function removeListener(listener) {
-                    R.Debug.dev(function() {
-                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.MemoryEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                        assert(_.has(listeners, listener.event), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no listeners for this event.");
-                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.MemoryEventEmitter.removeListener(...): no such listener.");
-                    });
-                    delete listeners[listener.event][listener.uniqueId];
-                    if(_.size(listeners[listener.event]) === 0) {
-                        delete listeners[listener.event];
-                    }
-                };
-                var emit = function emit(event, params) {
-                    params = params || {};
-                    if(_.has(listeners, event)) {
-                        _.each(listeners[event], function(fn) {
-                            if(fn) {
-                                fn(params);
-                            }
-                        });
-                    }
-                };
-                return new (R.EventEmitter.createEventEmitter({
-                    displayName: "MemoryEventEmitter",
-                    addListener: addListener,
-                    removeListener: removeListener,
-                    emit: emit,
-                }))();
-            };
-        },
-        /**
-        * <p> Returns a new UplinkEventEmitter that represents a remote event emmiter, eg. global notifications, broadcasts. </p>
-        * @method createUplinkEventEmitter
-        * @return {object} UplinkEventEmitter The created UplinkEventEmitter instance
-        */
-        createUplinkEventEmitter: function createUplinkEventEmitter() {
-            return function UplinkEventEmitter(uplink) {
-                R.Debug.dev(function() {
-                    assert(uplink.listenTo && _.isFunction(uplink.listenTo), "R.EventEmitter.createUplinkEventEmitter(...).uplink.listenTo: expecting Function.");
-                    assert(uplink.unlistenFrom && _.isFunction(uplink.unlistenFrom), "R.EventEmitter.createUplinkEventEmitter(...).uplink.unlistenFrom: expecting Function.");
-                });
-                var listenTo = uplink.listenTo;
-                var unlistenFrom = uplink.unlistenFrom;
-                var listeners = {};
-                var emitters = {};
-                var addListener = function addListener(event, fn) {
-                    var listener = new R.EventEmitter.Listener(event);
-                    if(!_.has(listeners, event)) {
-                        emitters[event] = listenTo(event, _.partial(emit, event));
-                        listeners[event] = {};
-                    }
-                    listeners[event][listener.uniqueId] = fn;
-                    return listener;
-                };
-                var removeListener = function removeListener(listener) {
-                    R.Debug.dev(function() {
-                        assert(listener instanceof R.EventEmitter.Listener, "R.EventEmitter.UplinkEventEmitter.removeListener(...): type R.EventEmitter.Listener expected.");
-                        assert(_.has(listeners, listener.event), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no listeners for this event.");
-                        assert(_.has(listeners[listener.event], listener.uniqueId), "R.EventEmitter.UplinkEventEmitter.removeListener(...): no such listener.");
-                    });
-                    delete listeners[listener.event][listener.uniqueId];
-                    if(_.size(listeners[listener.event]) === 0) {
-                        unlistenFrom(listener.event, emitters[event]);
-                        delete listeners[listener.event];
-                        delete emitters[listener.event];
-                    }
-                };
-                var emit = function emit(event, params) {
-                    params = params || {};
-                    if(_.has(listeners, event)) {
-                        _.each(listeners[event], function(fn) {
-                            if(fn) {
-                                fn(params);
-                            }
-                        });
-                    }
-                };
-                return new (R.EventEmitter.createEventEmitter({
-                    displayName: "UplinkEventEmitter",
-                    addListener: addListener,
-                    removeListener: removeListener,
-                }))();
-            };
-        },
-    };
+  class EventListener {
+    constructor(event, handler) {
+      _.dev(() => event.should.be.a.String &&
+        handler.should.be.a.Function
+      );
+      this.event = event;
+      this.handler = handler;
+      this.id = _.uniqueId('EventListener');
+    }
 
-    _.extend(EventEmitter.Listener.prototype, /** @lends R.EventEmitter.Listener.prototype */ {
-        /**
-         * @property uniqueId
-         * @type {String}
-         * @public
-         * @readOnly
-         */
-        uniqueId: null,
-        /**
-         * @property event
-         * @type {String}
-         * @public
-         * @readOnly
-         */
-        event: null,
-    });
+    addTo(listeners) {
+      _.dev(() => listeners.should.be.an.Object);
+      if(!listeners[this.action]) {
+        listeners[this.action] = {};
+      }
+      _.dev(() => listeners[this.action].should.be.an.Object &&
+        listeners[this.action][this.id].should.not.be.ok
+      );
+      listeners[this.action][this.id] = this;
+      return Object.keys(listeners[this.action]).length === 1;
+    }
 
-    return EventEmitter;
+    removeFrom(listeners) {
+      _.dev(() => listeners.should.be.an.Object &&
+        listeners[this.action].should.be.an.Object &&
+        listeners[this.action][this.id].should.be.exactly(this)
+      );
+      delete listeners[this.action][this.id];
+      if(Object.keys(listeners[this.action]).length === 0) {
+        delete listeners[this.action];
+        return true;
+      }
+      return false;
+    }
+
+    emit(params = {}) {
+      _.dev(() => params.should.be.an.Object);
+      this.handler.call(null, params);
+    }
+  }
+
+  _.extend(EventListener.prototype, {
+    event: null,
+    id: null,
+    handler: null,
+  });
+
+  class EventEmitter {
+    constructor(params = {}) {
+      this.listeners = {};
+      this.displayName = this.getDisplayName();
+    }
+
+    getDisplayName() { _.abstract(); }
+
+    addListener(event, handler) {
+      let listener = new EventListener(event, handler);
+      return {
+        listener,
+        createdEvent: listener.addTo(this.listeners),
+      };
+    }
+
+    removeListener(listener) {
+      return {
+        listener,
+        deletedEvent: listener.removeFrom(this.listeners),
+      };
+    }
+
+    destroy() {
+      Object.keys(this.listeners).forEach((i) =>
+        Object.keys(this.listeners[i]).forEach((j) =>
+          this.listeners[i][j].removeFrom(this.listeners)
+        )
+      );
+    }
+  }
+
+  _.extend(EventEmitter.prototype, {
+    listeners: null,
+    displayName: null,
+  });
+
+  class MemoryEventEmitter extends EventEmitter {
+    constructor(params = {}) {
+      super();
+    }
+
+    getDisplayName() {
+      return 'MemoryEventEmitter';
+    }
+
+    emit(event, params = {}) {
+      if(this.listeners[event]) {
+        Object.keys(this.listeners[event]).forEach((key) =>
+          this.listeners[event][key].emit(params)
+        );
+      }
+    }
+  }
+
+  class UplinkEventEmitter extends EventEmitter {
+    constructor({ uplink }) {
+      _.dev(() => uplink.should.be.instanceOf(R.Uplink));
+      super();
+      this.uplink = uplink;
+      this.uplinkListeners = {};
+    }
+
+    getDisplayName() {
+      return 'UplinkEventEmitter';
+    }
+
+    addListener(event, handler) {
+      let { listener, createdEvent } = super.addListener(event, handler);
+      if(createdEvent) {
+        _.dev(() => this.uplinkListeners[event].should.not.be.ok);
+        this.uplinkListeners[event] = this.uplink.listenTo(event, (params) => this._emit(event, params));
+      }
+      _.dev(() => this.uplinkListeners[event].should.be.ok);
+      return { listener, createdEvent };
+    }
+
+    removeListener(listener) {
+      let { deletedEvent } = super.removeListener(listener);
+      if(deletedEvent) {
+        _.dev(() => this.uplinkListeners[event].should.be.ok);
+        this.uplink.unlistenFrom(event, this.uplinkListeners[event]);
+        delete this.uplinkListeners[event];
+      }
+      _.dev(() => this.uplinkListeners[event].should.not.be.ok);
+      return { listener, deletedEvent };
+    }
+
+    destroy() {
+      super.destroy();
+      _.dev(() => Object.keys(this.uplinkListeners).length.should.be.exactly(0));
+      this.uplinkListeners = null;
+      this.uplink = null;
+    }
+  }
+
+  _.extend(UplinkEventEmitter.prototype, {
+    uplink: null,
+    uplinkListeners: null,
+  });
+
+  _.extend(EventEmitter, {
+    MemoryEventEmitter,
+    UplinkEventEmitter,
+  });
+
+  return EventEmitter;
 };
