@@ -1,73 +1,50 @@
 module.exports = function(R) {
-    var _ = require("lodash");
-    var React = R.React;
+  const _ = R._;
+  const should = R.should;
+  const React = R.React;
 
-    var _vanillaCreateClass = R.scope(React.createClass, React);
+  const _vanillaCreateClass = _.scope(React.createClass, React);
 
-    /**
-    * <p>Method definition that complements React.createClass. <br />
-    * Used to compute an instance of a React component</p>
-    * @class R.ReactCreateClass
-    */
-    var _patchedCreateClass = function createClass(specs) {
-        var createdClass;
+  const _patchedCreateClass = function createClass(specs) {
+    _.defaults(specs, {
+      getFluxStoreSubscriptions() { return {}; },
+      statics: {},
+    });
 
-        _.defaults(specs, {
-            getFluxStoreSubscriptions: _.constant({}),
-            statics: {},
-        });
+    function __ReactNexusSurrogate({ context, props, state }) {
+      let instance;
+      React.withContext(context, () => {
+        state = state || {};
+        let args = [createdClass, _.omit(props, 'children')];
+        if(props.children) {
+          args.push(props.children);
+        }
+        let element = React.createElement(args);
+        instance = R.instantiateReactComponent(element);
+        _.extend(instance, { context });
+        if(instance.getInitialState) {
+          state = _.extend({}, state, instance.getInitialState() || {});
+        }
+        _.extend(instance, { state, __ReactNexusSurrogate });
+      });
+      return instance;
+    }
 
-        /**
-        * <p> Returns an instance of a component by React context, the property and a defined state </p>
-        * @method __ReactOnRailsSurrogate
-        * @param {object} context The context of the future component
-        * @param {object} props The props of the future component
-        * @param {object} initialState The state of the future component
-        * @return {object} instance The created component instance
-        */
-        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            var instance;
-            React.withContext(context, function() {
-                var args = [createdClass, _.omit(props, "children")];
-                if(props.children) {
-                    args.push(props.children);
-                }
-                var descriptor = React.createElement.apply(React, args);
-                instance = R.instantiateReactComponent(descriptor);
-                instance.context = context;
-                initialState = initialState || {};
-                if(instance.getInitialState) {
-                    initialState = _.extend(initialState, instance.getInitialState() || {});
-                }
-                _.extend(instance, {
-                    state: initialState,
-                    _isReactOnRailsSurrogate_: true,
-                    __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-                });
-            });
-            return instance;
-        };
+    _.extend(specs.statics, { __ReactNexusSurrogate });
+    return _.extend(_vanillaCreateClass(specs), { __ReactNexusSurrogate });
+  };
 
-        _.extend(specs.statics, {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
+  _.extend(_patchedCreateClass, {
+    patchCreateClass() {
+      _.extend(React, { createClass: _patchedCreateClass });
+      return _patchedCreateClass;
+    },
 
-        createdClass = _.extend(_vanillaCreateClass(specs), {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
+    restoreCreateClass() {
+      _.extend(React, { createClass: _vanillaCreateClass });
+      return _vanillaCreateClass;
+    },
+  });
 
-        return createdClass;
-    };
-
-    /**
-    * <p> Function to use if you want restore native function of React.createClass </p>
-    * @method restoreVanillaCreateClass
-    */
-    _patchedCreateClass.restoreVanillaCreateClass = function() {
-        React.createClass = _vanillaCreateClass;
-    };
-
-    React.createClass = _patchedCreateClass;
-
-    return _patchedCreateClass;
+  return _patchedCreateClass.patchCreateClass();
 };
