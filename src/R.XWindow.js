@@ -1,18 +1,21 @@
-/**
- * TODO
- */
 module.exports = function(R) {
-    var XWindow = {
-        createPlugin: function createPlugin(storeName, dispatcherName) {
-            return R.App.createPlugin({
-                displayName: "XWindow",
-                installInClient: function installInClient(flux, window) {
-                },
-                installInServer: function installInServer(flux, req) {
-                },
-            });
-        },
-    };
+  return (params) => {
+    class XWindow extends R.App.Plugin {
+      constructor({ flux, window, req, headers }) {
+        super(...arguments);
+        if(window) {
+          // Client-only init
+        }
+        else {
+          // Server-only init
+        }
+      }
+
+      getDisplayName() {
+        return 'XWindow';
+      }
+    }
 
     return XWindow;
+  };
 };
