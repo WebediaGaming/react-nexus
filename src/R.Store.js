@@ -1,53 +1,7 @@
 module.exports = function(R) {
   const _ = R._;
   const should = R.should;
-  const co = _.co;
-
-  class Subscription {
-    constructor({ path, handler }) {
-      _.dev(() => path.should.be.a.String &&
-        handler.should.be.a.Function
-      );
-      let id = _.uniqueId(path);
-      _.extend(this, { path, handler, id });
-    }
-
-    addTo(subscriptions) {
-      _.dev(() => subscriptions.should.be.an.Object);
-      if(!subscriptions[this.path]) {
-        subscriptions[this.path] = {};
-      }
-      _.dev(() => subscriptions[this.path].should.be.an.Object &&
-        subscriptions[this.path][this.id].should.not.be.ok
-      );
-      subscriptions[this.path][this.id] = this;
-      return Object.keys(subscriptions[this.path]).length === 1;
-    }
-
-    removeFrom(subscriptions) {
-      _.dev(() => subscriptions.should.be.an.Object &&
-        subscriptions[this.path].shoulbe.be.an.Object &&
-        subscriptions[this.path][this.id].should.be.exactly(this)
-      );
-      delete subscriptions[this.path][this.id];
-      if(Object.keys(subscriptions[this.path]).length === 0) {
-        delete subscriptions[this.path];
-        return true;
-      }
-      return false;
-    }
-
-    update(value) {
-      _.dev(() => (value === null || _.isObject(value)).should.be.ok);
-      this.handler.call(null, value);
-    }
-  }
-
-  _.extend(Subscription.prototype, {
-    path: null,
-    handler: null,
-    id: null,
-  });
+  const Subscription = require('./R.Store.Subscription')(R);
 
   class Store {
     constructor() {
@@ -131,79 +85,10 @@ module.exports = function(R) {
     subscriptions: null,
   });
 
-  class MemoryStore extends Store {
-    constructor() {
-      super(...arguments);
-      this._data = {};
-    }
-
-    destroy() {
-      super.destroy();
-      // Explicitly nullify data
-      Object.keys(this._data)
-      .forEach((path) => this._data[path] = null);
-      // Nullify references
-      this._data = null;
-    }
-
-    getDisplayName() {
-      return 'MemoryStore';
-    }
-
-    fetch(path) {
-      return Promise.try(() => {
-        _.dev(() => _.has(this._data, path).should.be.ok);
-        return this._data[path];
-      });
-    }
-
-    set(path, value) {
-      this._shouldNotBeDestroyed();
-      this._data[path] = value;
-      if(this.subscriptions[path]) {
-        Object.keys(this.subscriptions[path])
-        .forEach((key) => this.subscriptions[path].update(value));
-      }
-    }
-  }
-
-  _.extend(MemoryStore.prototype, {
-    _data: null,
-  });
-
-  class HTTPStore extends Store {
-    constructor({ http }) {
-      _.dev(() => http.shoud.be.an.Object &&
-        http.fetch.should.be.a.Function
-      );
-      super(...arguments);
-      this._http = http;
-    }
-
-    getDisplayName() {
-      return 'HTTPStore';
-    }
-  }
-
-  _.extend(HTTPStore.prototype, {
-    _http: null,
-  });
-
-  class UplinkStore extends Store {
-    constructor({ uplink }) {
-      _.dev(() => uplink.should.be.an.instanceOf(R.Uplink));
-      super(...arguments);
-      this._uplink = uplink;
-    }
-
-    getDisplayName() {
-      return 'UplinkStore';
-    }
-  }
-
-  _.extend(UplinkStore.prototype, {
-    _uplink: null,
-  });
+  _.extend(Store, { Subscription });
+  const MemoryStore = require('./R.Store.MemoryStore')(R, Store);
+  const HTTPStore = require('./R.Store.HTTPStore')(R, Store);
+  const UplinkStore = require('./R.Store.UplinkStore')(R, Store);
 
   _.extend(Store, { MemoryStore, HTTPStore, UplinkStore });
 
