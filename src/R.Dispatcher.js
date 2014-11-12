@@ -21,13 +21,13 @@ module.exports = function(R) {
     }
 
     addActionHandler(action, handler) {
-      let actionListener = new ActionListener(action, handler);
+      let actionListener = new ActionHandler(action, handler);
       actionListener.pushInto(this._actionsHandlers);
       return actionListener;
     }
 
     removeActionHandler(actionListener) {
-      _.dev(() => actionListener.should.be.instanceOf(ActionListener) &&
+      _.dev(() => actionListener.should.be.instanceOf(ActionHandler) &&
         actionListener.isInside(this._actionsHandlers).should.be.ok
       );
       actionListener.removeFrom(this._actionsHandlers);
