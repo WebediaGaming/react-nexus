@@ -3,7 +3,7 @@ module.exports = function(R) {
     const _ = R._;
     const should = R.should;
     const path = require('path');
-    const Plugin = require('./R.App.Plugin');
+    const Plugin = require('./R.App.Plugin')(R);
 
     /**
     * <p>Simply create an App class with specifics</p>
