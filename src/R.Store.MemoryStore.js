@@ -23,18 +23,20 @@ module.exports = function(R, Store) {
 
     fetch(path) {
       return Promise.try(() => {
+        _.dev(() => path.should.be.a.String);
+        this._shouldNotBeDestroyed();
         _.dev(() => _.has(this._data, path).should.be.ok);
         return this._data[path];
       });
     }
 
     set(path, value) {
+      _.dev(() => path.should.be.a.String &&
+        (null === value || _.isObject(value)).should.be.ok
+      );
       this._shouldNotBeDestroyed();
       this._data[path] = value;
-      if(this.subscriptions[path]) {
-        Object.keys(this.subscriptions[path])
-        .forEach((key) => this.subscriptions[path].update(value));
-      }
+      this.pull(path, { bypassCache: true }).then((fetched) => _.dev(() => _.isEqual(value, fetch).should.be.ok));
     }
   }
 

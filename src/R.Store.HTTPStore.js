@@ -31,8 +31,9 @@ module.exports = function(R, Store) {
 
     fetch(path) {
       this._shouldNotBeDestroyed();
+      _.dev(() => path.should.be.a.String);
       if(!this._pending[path]) {
-        this._pending[path] = http.fetch(path).cancellable();
+        this._pending[path] = this._http.fetch(path).cancellable();
         _.dev(() => this._pending[path].then.should.be.a.Function);
       }
       return this._pending[path];

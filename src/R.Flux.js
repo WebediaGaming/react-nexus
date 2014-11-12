@@ -428,7 +428,7 @@ module.exports = function(R) {
           let location = subscriptions[stateKey];
           let { name, key } = FluxMixinStatics.parseFluxLocation(location);
           let [storeName, path] = [name, key];
-          state[stateKey] = yield flux.getStore(storeName).fetch(path);
+          state[stateKey] = yield flux.getStore(storeName).pull(path);
         }, this));
 
         // Create a new component, surrogate for this one, but this time inject from the prefetched stores.
