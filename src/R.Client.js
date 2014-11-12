@@ -3,11 +3,10 @@ module.exports = function(R) {
   const should = R.should;
   const React = R.React;
 
-  _.dev(() => _.isClient().should.be.ok);
-
   class Client {
     constructor({ app }) {
-      _.dev(() => window.React.should.be.ok &&
+      _.dev(() => _.isClient().should.be.ok &&
+        window.React.should.be.ok &&
         app.should.be.an.instanceOf(R.App)
       );
       this.app = app;
