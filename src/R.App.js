@@ -47,6 +47,16 @@ module.exports = function(R) {
 
       getTemplateVars({ req }) { _.abstract(); }
 
+      prerender(req, res) {
+        this.render({ req })
+        .then((html) => res.status(200).send(html))
+        .catch((err) => {
+          let json = { err: err.toString() };
+          _.dev(() => _.extend(json, { stack: err.stack }));
+          return res.status(500).json(json);
+        });
+      }
+
       render({ req, window }) {
         _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
         return _.isServer() ? this._renderInServer(req) : this._renderInClient(window);
