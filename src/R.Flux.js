@@ -24,9 +24,9 @@ module.exports = function(R) {
     bootstrap() { _.abstract(); }
 
     destroy() {
-      Object.keys(this._stores, (storeName) => this.unregisterStore(storeName));
-      Object.keys(this._eventEmitters, (eventEmitterName) => this.unregisterEventEmitter(eventEmitterName));
-      Object.keys(this._dispatchers, (dispatcherName) => this.unregisterDispatcher(dispatcherName));
+      Object.keys(this._stores).forEach((storeName) => this.unregisterStore(storeName));
+      Object.keys(this._eventEmitters).forEach((eventEmitterName) => this.unregisterEventEmitter(eventEmitterName));
+      Object.keys(this._dispatchers).forEach((dispatcherName) => this.unregisterDispatcher(dispatcherName));
       // Nullify references
       this._headers = null;
       this._window = null;
