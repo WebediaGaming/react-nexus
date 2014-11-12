@@ -1,6 +1,7 @@
 module.exports = function(R) {
   const _ = R._;
   const should = R.should;
+  const React = R.React;
 
   class $ {
     constructor(component) {

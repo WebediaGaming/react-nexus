@@ -11,7 +11,7 @@ module.exports = function(R) {
 
     class History extends R.App.Plugin {
       constructor({ flux, window, req, headers }) {
-        super.apply(this, arguments);
+        super(...arguments);
         let store = flux.getStore(storeName);
         if(window) {
           let dispatcher = flux.getDispatcher(dispatcherName);
