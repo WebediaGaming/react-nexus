@@ -4,29 +4,24 @@ module.exports = function(R) {
   const React = R.React;
 
   _.dev(() => _.isClient().should.be.ok);
-  window.React = React;
-
-  /**
-  * <p>Simply provides an specified App for the client</p>
-  * <p>Provides instance of App </p>
-  * <ul>
-  * <li> Client.mount => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions </li>
-  * </ul>
-  * @class R.Client
-  */
 
   class Client {
-    constructor(App) {
-      _.dev(() => window.React.should.be.ok);
-      this.app = new App();
+    constructor({ app }) {
+      _.dev(() => window.React.should.be.ok &&
+        app.should.be.an.instanceOf(R.App)
+      );
+      this.app = app;
       this.rendered = false;
     }
 
-    mount() {
+    mount({ window }) {
       return _.copromise(function*() {
-        _.dev(() => this.rendered.should.not.be.ok);
+        _.dev(() => window.should.be.an.Object &&
+          this.rendered.should.not.be.ok
+        );
+        window.React = React;
         this.rendered = true;
-        yield this.app.renderIntoDocumentInClient(window);
+        yield this.app.render({ window });
       }, this);
     }
   }
