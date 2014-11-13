@@ -4,7 +4,11 @@ module.exports = function(R, Store) {
 
   class UplinkStore extends Store {
     constructor({ uplink }) {
-      _.dev(() => uplink.should.be.an.instanceOf(R.Uplink));
+      // Ducktype-check uplink (since we dont have access to the constructor)
+      _.dev(() => uplink.subscribeTo.should.be.a.Function &&
+        uplink.unsubscribeFrom.should.be.a.Function &&
+        uplink.pull.should.be.a.Function
+      );
       super(...arguments);
       this._uplink = uplink;
       this._uplinkSubscriptions = {};

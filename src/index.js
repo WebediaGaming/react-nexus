@@ -19,19 +19,18 @@ const React = require('react');
 const ReactChildren = require('./R.ReactChildren');
 const ReactCreateClass = require('./R.ReactCreateClass');
 const Root = require('./R.Root');
-const Router = require('./R.Router');
+const Router = require('nexus-router');
 const should = _.should;
 const Store = require('./R.Store');
 const Style = require('./R.Style');
 const Stylesheet = require('./R.Stylesheet');
-const Uplink = require('./R.Uplink');
 const Window = require('./R.Window');
 const XWindow = require('./R.XWindow');
 
 const R = {};
 
 // Top level dependencies
-_.extend(R, { _, should, React, instantiateReactComponent, Lock });
+_.extend(R, { _, should, React, instantiateReactComponent, Lock, Router });
 
 // React monkey patches
 _.extend(R, {
@@ -50,7 +49,6 @@ _.extend(R, {
   EventEmitter: EventEmitter(R),
   Flux: Flux(R),
   Pure: Pure(R),
-  Router: Router(R),
   Store: Store(R),
 });
 
@@ -58,11 +56,6 @@ _.extend(R, {
 _.extend(R, {
   Component: Component(R),
   Root: Root(R),
-});
-
-// React Nexus extensions
-_.extend(R, {
-  Uplink: Uplink(R),
 });
 
 // React Nexus standard app plugins

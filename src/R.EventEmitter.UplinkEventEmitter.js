@@ -4,7 +4,10 @@ module.exports = function(R, EventEmitter) {
 
   class UplinkEventEmitter extends EventEmitter {
     constructor({ uplink }) {
-      _.dev(() => uplink.should.be.instanceOf(R.Uplink));
+      // Ducktype-check uplink (since we dont have access to the constructor)
+      _.dev(() => uplink.listenTo.should.be.a.Function &&
+        uplink.unlistenFrom.should.be.a.Function
+      );
       super();
       this.uplink = uplink;
       this.uplinkListeners = {};
