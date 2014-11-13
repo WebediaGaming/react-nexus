@@ -46,14 +46,18 @@ _.extend(R, {
   App: App(R),
   Aysnc: Async(R),
   Client: Client(R),
-  Component: Component(R),
   Dispatcher: Dispatcher(R),
   EventEmitter: EventEmitter(R),
   Flux: Flux(R),
   Pure: Pure(R),
-  Root: Root(R),
   Router: Router(R),
   Store: Store(R),
+});
+
+// React Nexus components
+_.extend(R, {
+  Component: Component(R),
+  Root: Root(R),
 });
 
 // React Nexus extensions
