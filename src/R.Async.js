@@ -10,29 +10,6 @@ module.exports = function(R) {
   }
 
   const Async = {
-    Mixin: {
-      _AsyncMixin: true,
-      _AsyncMixinHasUnmounted: false,
-      _AsyncMixinQueuedTimeouts: null,
-      _AsyncMixinQueuedImmediates: null,
-      _AsyncMixinQueuedAnimationFrames: null,
-
-      componentWillMountcomponentWillMount() {
-        this._AsyncMixinQueuedTimeouts = {};
-        this._AsyncMixinQueuedImmediates = {};
-        this._AsyncMixinQueuedAnimationFrames = {};
-      },
-
-      componentWillUnmount() {
-        _.each(this._AsyncMixinQueuedTimeouts, clearTimeout);
-        _.each(this._AsyncMixinQueuedImmediates, clearImmediate);
-        _.each(this._AsyncMixinQueuedAnimationFrames, clearAnimationFrame);
-        this._AsyncMixinHasUnmounted = true;
-      },
-
-      setStateIfMounted: Async.ifMounted(function() { this.setState(state); }),
-    },
-
     ifMounted(fn) {
       return () => {
         _.dev(() => this._AsyncMixin.should.be.ok);
@@ -96,6 +73,31 @@ module.exports = function(R) {
       return R.Async._deferredAnimationFrame(ifn);
     },
   };
+
+  _.extend(Async, {
+    Mixin: {
+      _AsyncMixin: true,
+      _AsyncMixinHasUnmounted: false,
+      _AsyncMixinQueuedTimeouts: null,
+      _AsyncMixinQueuedImmediates: null,
+      _AsyncMixinQueuedAnimationFrames: null,
+
+      componentWillMountcomponentWillMount() {
+        this._AsyncMixinQueuedTimeouts = {};
+        this._AsyncMixinQueuedImmediates = {};
+        this._AsyncMixinQueuedAnimationFrames = {};
+      },
+
+      componentWillUnmount() {
+        _.each(this._AsyncMixinQueuedTimeouts, clearTimeout);
+        _.each(this._AsyncMixinQueuedImmediates, clearImmediate);
+        _.each(this._AsyncMixinQueuedAnimationFrames, clearAnimationFrame);
+        this._AsyncMixinHasUnmounted = true;
+      },
+
+      setStateIfMounted: Async.ifMounted(function() { this.setState(state); }),
+    },
+  });
 
   return Async;
 };
