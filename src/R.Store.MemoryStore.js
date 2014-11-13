@@ -36,7 +36,7 @@ module.exports = function(R, Store) {
       );
       this._shouldNotBeDestroyed();
       this._data[path] = value;
-      this.pull(path, { bypassCache: true }).then((fetched) => _.dev(() => _.isEqual(value, fetch).should.be.ok));
+      this.propagateUpdate(path, value);
     }
   }
 

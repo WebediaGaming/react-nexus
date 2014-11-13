@@ -37,9 +37,13 @@ module.exports = function(R, Store) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);
       if(!this._pending[path]) {
-        this._pending[path] = this._uplink.fetch(path).cancellable();
-        _.dev(() => this._pending[path].then.should.be.a.Function);
+        this._pending[path] = this._uplink.pull(path).cancellable().then((value) => {
+          // As soon as the result is received, remove it from the pending list.
+          delete this._pending[path];
+          return value;
+        });
       }
+      _.dev(() => this._pending[path].then.should.be.a.Function);
       return this._pending[path];
     }
 

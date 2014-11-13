@@ -25,12 +25,10 @@ module.exports = function(R) {
       let { bypassCache } = opts;
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.an.Object);
-      if(!bypassCache && this.hasCachedValue(path)) {
-        return Promise.resolve(this.getCachedValue(path));
+      if(bypassCache || !this._cache[path]) {
+        this._cache[path] = this.fetch(path);
       }
-      else {
-        return this.fetch(path).then((value) => this.propagateUpdate(path, value));
-      }
+      return this._cache[path];
     }
 
     fetch(path) { _.abstract(); }
@@ -70,7 +68,6 @@ module.exports = function(R) {
 
     propagateUpdate(path, value) {
       this._shouldNotBeDestroyed();
-      this._cache[path] = value;
       if(this.subscriptions[path]) {
         Object.keys(this.subscriptions[path])
         .forEach((key) => this.subscriptions[path][key].update(value));
