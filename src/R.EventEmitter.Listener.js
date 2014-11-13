@@ -7,9 +7,7 @@ module.exports = function(R) {
       _.dev(() => room.should.be.a.String &&
         handler.should.be.a.Function
       );
-      this.room = room;
-      this.handler = handler;
-      this.id = _.uniqueId('Listener');
+      _.extend(this, { room, handler, id: _.uniqueId(room)});
     }
 
     addTo(listeners) {

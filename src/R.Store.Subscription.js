@@ -8,8 +8,7 @@ module.exports = function(R) {
       _.dev(() => path.should.be.a.String &&
         handler.should.be.a.Function
       );
-      let id = _.uniqueId(path);
-      _.extend(this, { path, handler, id });
+      _.extend(this, { path, handler, id: _.uniqueId(path)});
     }
 
     addTo(subscriptions) {

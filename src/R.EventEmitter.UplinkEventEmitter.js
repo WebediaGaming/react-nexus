@@ -15,24 +15,24 @@ module.exports = function(R, EventEmitter) {
     }
 
     addListener(room, handler) {
-      let { listener, createdEvent } = super.addListener(room, handler);
-      if(createdEvent) {
-        _.dev(() => this.uplinkListeners[room].should.not.be.ok);
-        this.uplinkListeners[room] = this.uplink.listenTo(room, (params) => this._emit(room, params));
+      let { listener, createdRoom } = super.addListener(room, handler);
+      if(createdRoom) {
+        _.dev(() => this.uplinkListeners[listener.id].should.not.be.ok);
+        this.uplinkListeners[listener.id] = this.uplink.listenTo(room, (params) => this._emit(room, params));
       }
-      _.dev(() => this.uplinkListeners[room].should.be.ok);
-      return { listener, createdEvent };
+      _.dev(() => this.uplinkListeners[listener.id].should.be.ok);
+      return { listener, createdRoom };
     }
 
     removeListener(listener) {
-      let { deletedEvent } = super.removeListener(listener);
-      if(deletedEvent) {
-        _.dev(() => this.uplinkListeners[room].should.be.ok);
-        this.uplink.unlistenFrom(room, this.uplinkListeners[room]);
-        delete this.uplinkListeners[room];
+      let { deletedRoom } = super.removeListener(listener);
+      if(deletedRoom) {
+        _.dev(() => this.uplinkListeners[listener.id].should.be.ok);
+        this.uplink.unlistenFrom(this.uplinkListeners[listener.id]);
+        delete this.uplinkListeners[listener.id];
       }
-      _.dev(() => this.uplinkListeners[room].should.not.be.ok);
-      return { listener, deletedEvent };
+      _.dev(() => this.uplinkListeners[listener.id].should.not.be.ok);
+      return { listener, deletedRoom };
     }
 
     destroy() {

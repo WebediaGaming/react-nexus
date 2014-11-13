@@ -18,7 +18,7 @@ module.exports = function(R) {
       let listener = new Listener({ room, handler });
       return {
         listener,
-        createdEvent: listener.addTo(this.listeners),
+        createdRoom: listener.addTo(this.listeners),
       };
     }
 
@@ -26,7 +26,7 @@ module.exports = function(R) {
       _.dev(() => listener.should.be.an.instanceOf(Listener));
       return {
         listener,
-        deletedEvent: listener.removeFrom(this.listeners),
+        deletedRoom: listener.removeFrom(this.listeners),
       };
     }
 
