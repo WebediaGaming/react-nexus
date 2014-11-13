@@ -103,6 +103,7 @@ module.exports = function(R) {
         eventEmitterName.should.be.a.String &&
         this._eventEmitters[eventEmitterName].should.not.be.ok
       );
+      this._eventEmitters[eventEmitterName] = eventEmitter;
       return this;
     }
 
@@ -110,7 +111,7 @@ module.exports = function(R) {
       _.dev(() => eventEmitterName.should.be.a.String &&
         this._eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
       );
-      delete this._stores[storeName];
+      delete this._eventEmitters[eventEmitterName];
       return this;
     }
 
