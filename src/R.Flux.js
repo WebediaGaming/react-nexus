@@ -173,7 +173,7 @@ module.exports = function(R) {
         handler.should.be.a.Function
       );
       let eventEmitter = this.getEventEmitter(eventEmitterName);
-      let listener = eventEmitter.listenTo(room, handler);
+      let listener = eventEmitter.addListener(room, handler);
       return listener;
     }
 
@@ -183,7 +183,7 @@ module.exports = function(R) {
         listener.should.be.an.instanceOf(R.EventEmitter.Listener)
       );
       let eventEmitter = this.getEventEmitter(eventEmitterName);
-      return eventEmitter.unlistenFrom(listener);
+      return eventEmitter.removeListener(listener);
     }
 
     dispatch(dispatcherName, action, params) {
