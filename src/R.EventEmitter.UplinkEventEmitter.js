@@ -17,8 +17,8 @@ module.exports = function(R, EventEmitter) {
       return 'UplinkEventEmitter';
     }
 
-    addListener(room, handler) {
-      let { listener, createdRoom } = super.addListener(room, handler);
+    listenTo(room, handler) {
+      let { listener, createdRoom } = super.listenTo(room, handler);
       if(createdRoom) {
         _.dev(() => this.uplinkListeners[listener.id].should.not.be.ok);
         this.uplinkListeners[listener.id] = this.uplink.listenTo(room, (params) => this._emit(room, params));
@@ -27,8 +27,8 @@ module.exports = function(R, EventEmitter) {
       return { listener, createdRoom };
     }
 
-    removeListener(listener) {
-      let { deletedRoom } = super.removeListener(listener);
+    unlistenFrom(listener) {
+      let { deletedRoom } = super.unlistenFrom(listener);
       if(deletedRoom) {
         _.dev(() => this.uplinkListeners[listener.id].should.be.ok);
         this.uplink.unlistenFrom(this.uplinkListeners[listener.id]);

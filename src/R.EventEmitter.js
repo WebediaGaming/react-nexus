@@ -11,7 +11,7 @@ module.exports = function(R) {
 
     getDisplayName() { _.abstract(); }
 
-    addListener(room, handler) {
+    listenTo(room, handler) {
       _.dev(() => room.should.be.a.String &&
         handler.should.be.a.Function
       );
@@ -22,7 +22,7 @@ module.exports = function(R) {
       };
     }
 
-    removeListener(listener) {
+    unlistenFrom(listener) {
       _.dev(() => listener.should.be.an.instanceOf(Listener));
       return {
         listener,
