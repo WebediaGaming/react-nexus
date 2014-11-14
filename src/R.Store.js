@@ -78,9 +78,10 @@ module.exports = function(R) {
     getCachedValue(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String &&
-        _.has(this._cache, path).should.be.ok
+        _.has(this._cache, path).should.be.ok &&
+        this._cache[path].isFulfilled().should.be.ok
       );
-      return this._cache[path];
+      return this._cache[path].value();
     }
 
     hasCachedValue(path) {
