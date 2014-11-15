@@ -4,7 +4,13 @@ module.exports = function(R) {
   const React = R.React;
   const Locales = require('locale').Locales;
 
-  return ({ storeName, dispatcherName, supportedLocales }) => {
+  function bestLocale(acceptedLocales, supportedLocales) {
+    let accepted = new Locales(accepted);
+    let supported = new Locales(supported);
+    return accepted.best(supported);
+  }
+
+  return _.extend(({ storeName, dispatcherName, supportedLocales }) => {
     _.dev(() => storeName.should.be.a.String &&
       dispatcherName.should.be.a.String &&
       supportedLocales.should.be.an.Array
@@ -16,8 +22,8 @@ module.exports = function(R) {
       constructor({ flux, window, req, headers }) {
         super.apply(this, arguments);
 
-        _.dev(() => this.headers['accept-language'].should.be.a.String);
-        let defaultLocale = this.extractLocale();
+        _.dev(() => headers['accept-language'].should.be.a.String);
+        let defaultLocale = bestLocale(headers['accept-language'], supportedLocales);
 
         let store = this.flux.getStore(storeName);
         _.dev(() => store.set.should.be.a.Function);
@@ -26,8 +32,7 @@ module.exports = function(R) {
           let dispatcher = this.flux.getDispatcher(dispatcherName);
           dispatcher.addActionHandler('/Localize/setLocale', ({ locale }) => Promise.try(() => {
             _.dev(() => locale.should.be.a.String);
-            let bestLocale = this.bestLocale(locale);
-            store.set('/Localize/locale', bestLocale);
+            store.set('/Localize/locale', bestLocale(locale, supportedLocales));
           }));
         }
           // Only set if nothings' previously filled this
@@ -36,14 +41,11 @@ module.exports = function(R) {
         }
       }
 
-      bestLocale(accepted) {
-        let acceptedLocales = new Locales(accepted);
-        return acceptedLocales.best(parsedLocales);
-      }
-
       getDisplayName() {
         return 'Localize';
       }
     }
-  };
+
+    return Localize;
+  }, { bestLocale });
 };
