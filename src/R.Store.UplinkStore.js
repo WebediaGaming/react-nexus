@@ -9,7 +9,7 @@ module.exports = function(R, Store) {
         uplink.unsubscribeFrom.should.be.a.Function &&
         uplink.pull.should.be.a.Function
       );
-      super(...arguments);
+      super();
       this._uplink = uplink;
       this._uplinkSubscriptions = {};
       this._pending = null;

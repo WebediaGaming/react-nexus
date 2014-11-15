@@ -22,8 +22,6 @@ const Root = require('./R.Root');
 const Router = require('nexus-router');
 const should = _.should;
 const Store = require('./R.Store');
-const Style = require('./R.Style');
-const Stylesheet = require('./R.Stylesheet');
 const Window = require('./R.Window');
 const XWindow = require('./R.XWindow');
 

@@ -4,7 +4,7 @@ module.exports = function(R, Store) {
 
   class MemoryStore extends Store {
     constructor() {
-      super(...arguments);
+      super();
       this._data = {};
     }
 

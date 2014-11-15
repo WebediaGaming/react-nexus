@@ -3,12 +3,10 @@ module.exports = function(R, Store) {
   const should = R.should;
 
   class HTTPStore extends Store {
-    constructor({ http }) {
-      _.dev(() => http.shoud.be.an.Object &&
-        http.fetch.should.be.a.Function
-      );
-      super(...arguments);
-      this._http = http;
+    constructor(fetch) {
+      _.dev(() => fetch.should.be.a.Function);
+      super();
+      this._fetch = fetch;
       this._pending = {};
     }
 
@@ -26,14 +24,14 @@ module.exports = function(R, Store) {
       });
       // Nullify references
       this._pending = null;
-      this._http = null;
+      this._fetch = null;
     }
 
     fetch(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);
       if(!this._pending[path]) {
-        this._pending[path] = this._http.fetch(path).cancellable();
+        this._pending[path] = this._fetch.fetch(path).cancellable();
         _.dev(() => this._pending[path].then.should.be.a.Function);
       }
       return this._pending[path];
@@ -41,7 +39,7 @@ module.exports = function(R, Store) {
   }
 
   _.extend(HTTPStore.prototype, {
-    _http: null,
+    _fetch: null,
     _pending: null,
   });
 
