@@ -20,16 +20,14 @@ module.exports = function(R) {
       constructor() {
         this.Flux = this.getFluxClass();
         this.Root = this.getRootClass();
-        this.vars = this.getDefaultVars();
+        this.RootFactory = React.createFactory(this.Root);
         this.template = this.getTemplate();
-        this.templateLibs = this.getTemplateLibs();
         this.Plugins = this.getPluginsClasses();
 
         _.dev(() => this.Flux.should.be.a.Function &&
           this.Root.should.be.a.Function &&
           this.vars.should.be.an.Object &&
           this.template.should.be.a.Function &&
-          this.templateLibs.should.be.an.Object &&
           this.Plugins.should.be.an.Array
         );
       }
@@ -38,14 +36,12 @@ module.exports = function(R) {
 
       getRootClass() { _.abstract(); }
 
-      getDefaultVars() { _.abstract(); }
-
       getTemplate() { _.abstract(); }
-
-      getTemplateLibs() { _.abstract(); }
 
       getPluginsClasses() { _.abstract(); }
 
+      // Future-proof: might do something with { req, window } at some point
+      // of the future.
       getTemplateVars({ req }) { _.abstract(); }
 
       prerender(req, res) {
@@ -95,25 +91,22 @@ module.exports = function(R) {
           yield surrogateRootComponent.prefetchFluxStores();
           surrogateRootComponent.componentWillUnmount();
 
-          let rootComponentFactory = React.createFactory(this.Root);
-          let rootComponent = rootComponentFactory(rootProps);
-          let rootHtml;
-
           /*
           * Render root component server-side, for each components :
           * 1. getInitialState : return prefetched stored data and fill the component's state
           * 2. componentWillMount : simple initialization
           * 3. Render : compute DOM with the component's state
           */
+          let rootComponent = this.RootFactory(rootProps);
+          let rootHtml;
           flux.injectingFromStores(() => rootHtml = React.renderToString(rootComponent));
           // Serializes flux in order to provides all prefetched stored data to the client
           let serializedFlux = flux.serialize();
           flux.destroy();
           plugins.forEach((plugin) => plugin.destroy());
 
-          let vars = _.extend({}, yield this.getTemplateVars({ req }), this.vars);
           let serializedHeaders = _.base64Encode(JSON.stringify(headers));
-          return this.template({ vars, rootHtml, serializedFlux, serializedHeaders, guid }, this.templateLibs);
+          return this.template(_.extend({}, yield this.getTemplateVars({ req }), { rootHtml, serializedFlux, serializedHeaders, guid }));
 
         }, this);
       }
@@ -145,8 +138,7 @@ module.exports = function(R) {
           _.dev(() => window.__ReactNexus.plugins = plugins);
 
           let rootProps = { flux, plugins };
-          let rootComponentFactory = React.createFactory(this.Root);
-          let rootComponent = rootComponentFactory(rootProps);
+          let rootComponent = this.RootFactory(rootProps);
           _.dev(() => window.__ReactNexus.rootComponent = rootComponent);
           /*
           * Render root component client-side, for each components:
@@ -166,10 +158,9 @@ module.exports = function(R) {
     _.extend(App.prototype, /** @lends App.prototype */{
       Flux: null,
       Root: null,
+      RootFactory: null,
       template: null,
-      vars: null,
       Plugins: null,
-      bootstrapTemplateVarsInServer: null,
     });
 
     _.extend(App, { Plugin });
