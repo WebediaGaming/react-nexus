@@ -28,6 +28,8 @@ module.exports = function(R) {
           this.template.should.be.a.Function &&
           this.Plugins.should.be.an.Array
         );
+
+        this.prerender = _.scope(this.prerender, this);
       }
 
       getFluxClass() { _.abstract(); }
