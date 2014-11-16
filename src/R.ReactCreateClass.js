@@ -27,6 +27,7 @@ module.exports = function(R) {
       return instance;
     }
     _.extend(specs.statics, { __ReactNexusSurrogate });
+
     createdClass = _vanillaCreateClass(specs);
     return createdClass;
   };
