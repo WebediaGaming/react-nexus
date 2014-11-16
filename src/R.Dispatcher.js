@@ -3,47 +3,37 @@ module.exports = function(R) {
   const ActionHandler = require('./R.Dispatcher.ActionHandler')(R);
 
   class Dispatcher {
-    constructor() {
-      _.dev(() => this.getActions.should.be.a.Function &&
-        this.getDisplayName.should.be.a.Function
+    constructor(actionHandlers = {}) {
+      _.dev(() => actionHandlers.should.be.an.Object &&
+        Object.keys(actionHandlers).map((action) => action.should.be.a.String &&
+          actionHandlers[action].should.be.a.Function
+        )
       );
-
-      this._actionsHandlers = {};
-      _.scopeAll(this, [
-        'addActionHandler',
-        'removeActionHandler',
-        'dispatch',
-      ]);
-
-      let actions = this.getActions();
-      Object.keys(actions).forEach((action) => this.addActionHandler(action, actions[action]));
+      _.extend(this, { actionHandlers });
     }
 
     addActionHandler(action, handler) {
       let actionListener = new ActionHandler(action, handler);
-      actionListener.pushInto(this._actionsHandlers);
+      actionListener.pushInto(this.actionsHandlers);
       return actionListener;
     }
 
     removeActionHandler(actionListener) {
       _.dev(() => actionListener.should.be.instanceOf(ActionHandler) &&
-        actionListener.isInside(this._actionsHandlers).should.be.ok
+        actionListener.isInside(this.actionsHandlers).should.be.ok
       );
-      actionListener.removeFrom(this._actionsHandlers);
+      actionListener.removeFrom(this.actionsHandlers);
     }
 
-    dispatch(action, params = {}) {
-      return _.copromise(function*() {
-        _.dev(() => this._actionsHandlers[action].should.be.ok);
-        return yield Object.keys(this._actionsHandlers[action])
-        .map((key) => this._actionsHandlers[action][key].dispatch(params));
-      }, this);
+    *dispatch(action, params = {}) { // jshint ignore:line
+      _.dev(() => this.actionsHandlers[action].should.be.ok);
+      return yield Object.keys(this.actionsHandlers[action]) // jshint ignore:line
+      .map((key) => this.actionsHandlers[action][key].dispatch(params));
     }
   }
 
   _.extend(Dispatcher.prototype, {
-    displayName: null,
-    _actionsHandlers: null,
+    actionHandlers: null,
   });
 
   _.extend(Dispatcher, {

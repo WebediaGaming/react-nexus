@@ -5,7 +5,6 @@ module.exports = function(R) {
   class EventEmitter {
     constructor() {
       this.listeners = {};
-      this.displayName = this.getDisplayName();
     }
 
     getDisplayName() { _.abstract(); }
@@ -42,7 +41,6 @@ module.exports = function(R) {
 
   _.extend(EventEmitter.prototype, {
     listeners: null,
-    displayName: null,
   });
 
   _.extend(EventEmitter, { Listener });
