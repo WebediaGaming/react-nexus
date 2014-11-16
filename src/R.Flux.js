@@ -10,29 +10,29 @@ module.exports = function(R) {
         guid.should.be.a.String &&
         _.isServer() ? req.should.be.an.Object : window.should.be.an.Object
       );
-      this._headers = headers;
-      this._guid = guid;
-      this._window = window;
-      this._req = req;
-      this._stores = {};
-      this._eventEmitters = {};
-      this._dispatchers = {};
+      this.headers = headers;
+      this.guid = guid;
+      this.window = window;
+      this.req = req;
+      this.stores = {};
+      this.eventEmitters = {};
+      this.dispatchers = {};
       this._shouldInjectFromStores = false;
     }
 
-    bootstrap() { _.abstract(); }
+    *bootstrap() { _.abstract(); } // jshint ignore:line
 
     destroy() {
-      Object.keys(this._stores).forEach((storeName) => this.unregisterStore(storeName));
-      Object.keys(this._eventEmitters).forEach((eventEmitterName) => this.unregisterEventEmitter(eventEmitterName));
-      Object.keys(this._dispatchers).forEach((dispatcherName) => this.unregisterDispatcher(dispatcherName));
+      Object.keys(this.stores).forEach((storeName) => this.unregisterStore(storeName));
+      Object.keys(this.eventEmitters).forEach((eventEmitterName) => this.unregisterEventEmitter(eventEmitterName));
+      Object.keys(this.dispatchers).forEach((dispatcherName) => this.unregisterDispatcher(dispatcherName));
       // Nullify references
-      this._headers = null;
-      this._window = null;
-      this._req = null;
-      this._stores = null;
-      this._eventEmitters = null;
-      this._dispatchers = null;
+      this.headers = null;
+      this.window = null;
+      this.req = null;
+      this.stores = null;
+      this.eventEmitters = null;
+      this.dispatchers = null;
       return this;
     }
 
@@ -60,15 +60,15 @@ module.exports = function(R) {
     }
 
     serialize({ preventEncoding }) {
-      let serializable = _.mapValues(this._stores, (store) => store.serialize({ preventEncoding: true }));
+      let serializable = _.mapValues(this.stores, (store) => store.serialize({ preventEncoding: true }));
       return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
     }
 
     unserialize(serialized, { preventDecoding }) {
       let unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
       Object.keys(unserializable).forEach((storeName) => {
-        _.dev(() => this._stores[storeName].should.be.ok);
-        this._stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
+        _.dev(() => this.stores[storeName].should.be.ok);
+        this.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
       });
       return this;
     }
@@ -76,78 +76,78 @@ module.exports = function(R) {
     registerStore(storeName, store) {
       _.dev(() => store.should.be.an.instanceOf(R.Store) &&
         storeName.should.be.a.String() &&
-        this._stores[storeName].should.not.be.ok
+        this.stores[storeName].should.not.be.ok
       );
-      this._stores[storeName] = store;
+      this.stores[storeName] = store;
       return this;
     }
 
     unregisterStore(storeName) {
       _.dev(() => storeName.should.be.a.String &&
-        this._stores[storeName].should.be.an.instanceOf(R.Store)
+        this.stores[storeName].should.be.an.instanceOf(R.Store)
       );
-      delete this._stores[storeName];
+      delete this.stores[storeName];
       return this;
     }
 
     getStore(storeName) {
       _.dev(() => storeName.should.be.a.String &&
-        this._stores[storeName].should.be.an.instanceOf(R.Store)
+        this.stores[storeName].should.be.an.instanceOf(R.Store)
       );
-      return this._stores[storeName];
+      return this.stores[storeName];
     }
 
     registerEventEmitter(eventEmitterName, eventEmitter) {
       _.dev(() => eventEmitter.should.be.an.instanceOf(R.EventEmitter) &&
         eventEmitterName.should.be.a.String &&
-        this._eventEmitters[eventEmitterName].should.not.be.ok
+        this.eventEmitters[eventEmitterName].should.not.be.ok
       );
-      this._eventEmitters[eventEmitterName] = eventEmitter;
+      this.eventEmitters[eventEmitterName] = eventEmitter;
       return this;
     }
 
     unregisterEventEmitter(eventEmitterName) {
       _.dev(() => eventEmitterName.should.be.a.String &&
-        this._eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
+        this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
       );
-      delete this._eventEmitters[eventEmitterName];
+      delete this.eventEmitters[eventEmitterName];
       return this;
     }
 
     getEventEmitter(eventEmitterName) {
       _.dev(() => eventEmitterName.should.be.a.String &&
-        this._eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
+        this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
       );
-      return this._eventEmitters[eventEmitterName];
+      return this.eventEmitters[eventEmitterName];
     }
 
     registerDispatcher(dispatcherName, dispatcher) {
       _.dev(() => dispatcher.should.be.an.instanceOf(R.Dispatcher) &&
         dispatcherName.should.be.a.String &&
-        this._dispatchers[dispatcherName].should.not.be.ok
+        this.dispatchers[dispatcherName].should.not.be.ok
       );
-      this._dispatchers[dispatcherName] = dispatcher;
+      this.dispatchers[dispatcherName] = dispatcher;
       return this;
     }
 
     unregisterDispatcher(dispatcherName) {
       _.dev(() => dispatcherName.should.be.a.String &&
-        this._dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
+        this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
       );
-      delete this._dispatchers[dispatcherName];
+      delete this.dispatchers[dispatcherName];
       return this;
     }
 
     getDispatcher(dispatcherName) {
       _.dev(() => dispatcherName.should.be.a.String &&
-        this._dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
+        this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
       );
-      return this._dispatchers[dispatcherName];
+      return this.dispatchers[dispatcherName];
     }
 
     subscribeTo(storeName, path, handler) {
       _.dev(() => storeName.should.be.a.String &&
-        this._stores[storeName].should.be.an.instanceOf(R.Store) &&
+        this.stores[storeName].should.be.an.instanceOf(R.Store) &&
         path.should.be.a.String &&
         handler.should.be.a.Function
       );
@@ -158,7 +158,7 @@ module.exports = function(R) {
 
     unsubscribeFrom(storeName, subscription) {
       _.dev(() => storeName.should.be.a.String &&
-        this._stores[storeName].should.be.an.instanceOf(R.Store) &&
+        this.stores[storeName].should.be.an.instanceOf(R.Store) &&
         subscription.should.be.an.instanceOf(R.Store.Subscription)
       );
       let store = this.getStore(storeName);
@@ -167,7 +167,7 @@ module.exports = function(R) {
 
     listenTo(eventEmitterName, room, handler) {
       _.dev(() => eventEmitterName.should.be.a.String &&
-        this._eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
+        this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
         room.should.be.a.String &&
         handler.should.be.a.Function
       );
@@ -178,7 +178,7 @@ module.exports = function(R) {
 
     unlistenFrom(eventEmitterName, listener) {
       _.dev(() => eventEmitterName.should.be.a.String &&
-        this._eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
+        this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
         listener.should.be.an.instanceOf(R.EventEmitter.Listener)
       );
       let eventEmitter = this.getEventEmitter(eventEmitterName);
@@ -188,7 +188,7 @@ module.exports = function(R) {
     dispatch(dispatcherName, action, params) {
       params = params || {};
       _.dev(() => dispatcherName.should.be.a.String &&
-        this._dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) &&
+        this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) &&
         action.should.be.a.String &&
         params.should.be.an.Object
       );
@@ -198,13 +198,13 @@ module.exports = function(R) {
   }
 
   _.extend(Flux.prototype, {
-    _headers: null,
-    _guid: null,
-    _window: null,
-    _req: null,
-    _stores: null,
-    _eventEmitters: null,
-    _dispatchers: null,
+    headers: null,
+    guid: null,
+    window: null,
+    req: null,
+    stores: null,
+    eventEmitters: null,
+    dispatchers: null,
     _shouldInjectFromStores: null,
   });
 
