@@ -1,12 +1,10 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
-  const React = R.React;
   const Locales = require('locale').Locales;
 
   function bestLocale(acceptedLocales, supportedLocales) {
-    let accepted = new Locales(accepted);
-    let supported = new Locales(supported);
+    let accepted = new Locales(acceptedLocales);
+    let supported = new Locales(supportedLocales);
     return accepted.best(supported);
   }
 
@@ -15,8 +13,6 @@ module.exports = function(R) {
       dispatcherName.should.be.a.String &&
       supportedLocales.should.be.an.Array
     );
-
-    let parsedLocales = new Locales(supportedLocales);
 
     class Localize extends R.App.Plugin {
       constructor({ flux, window, req, headers }) {

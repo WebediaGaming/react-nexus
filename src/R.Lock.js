@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
 
   class Lock {
     constructor() {
@@ -12,10 +11,10 @@ module.exports = function(R) {
       return new Promise((resolve, reject) => {
         if(!this._acquired) {
           this._acquired = true;
-          resolve();
+          return resolve();
         }
         else {
-          this._queue.push(resolve);
+          return this._queue.push({ resolve, reject });
         }
       });
     }
@@ -23,7 +22,7 @@ module.exports = function(R) {
     release() {
       _.dev(() => this._acquired.should.be.ok);
       if(this._queue.length > 0) {
-        let resolve = this._queue[0];
+        let { resolve } = this._queue[0];
         this._queue.shift();
         resolve();
       }

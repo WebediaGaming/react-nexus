@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const React = R.React;
 
   const _vanillaCreateClass = _.scope(React.createClass, React);
@@ -11,15 +10,13 @@ module.exports = function(R) {
       statics: {},
     });
 
+    let createdClass;
+
     function __ReactNexusSurrogate({ context, props, state }) {
       let instance;
       React.withContext(context, () => {
         state = state || {};
-        let args = [createdClass, _.omit(props, 'children')];
-        if(props.children) {
-          args.push(props.children);
-        }
-        let element = React.createElement(args);
+        let element = React.createElement(createdClass, _.omit(props, 'children'), props.children);
         instance = R.instantiateReactComponent(element);
         _.extend(instance, { context });
         if(instance.getInitialState) {
@@ -29,9 +26,9 @@ module.exports = function(R) {
       });
       return instance;
     }
-
     _.extend(specs.statics, { __ReactNexusSurrogate });
-    return _.extend(_vanillaCreateClass(specs), { __ReactNexusSurrogate });
+    createdClass = _vanillaCreateClass(specs);
+    return createdClass;
   };
 
   _.extend(_patchedCreateClass, {

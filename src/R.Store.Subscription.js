@@ -1,7 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
-
 
   class Subscription {
     constructor({ path, handler }) {

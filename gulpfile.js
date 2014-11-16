@@ -14,13 +14,7 @@ var yuidoc = require('gulp-yuidoc');
 function lint() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
-  .pipe(jshint({
-    globals: {
-      Promise: true,
-    },
-    esnext: true,
-    sub: true,
-  }))
+  .pipe(jshint())
   .pipe(jshint.reporter(stylish));
 }
 

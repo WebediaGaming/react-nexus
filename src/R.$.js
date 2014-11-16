@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const React = R.React;
 
   class $ {
@@ -85,19 +84,19 @@ module.exports = function(R) {
     }
 
     append(component) {
-      let children = ReactChildren.getChildrenList(this._subject);
+      let children = React.Children.getChildrenList(this._subject);
       children.push(component);
       return this.prop('children', children);
     }
 
     prepend(component) {
-      let children = ReactChildren.getChildrenList(this._subject);
+      let children = React.Children.getChildrenList(this._subject);
       children.unshift(component);
       return this.prop('children', children);
     }
 
     transformTree(fn) {
-      this._subject = ReactChildren.transformTree(this._subject, fn);
+      this._subject = React.Children.transformTree(this._subject, fn);
       return this;
     }
 
@@ -107,7 +106,7 @@ module.exports = function(R) {
     }
 
     walkTree(fn) {
-      let tree = ReactChildren.mapTree(this._subject, _.identity);
+      let tree = React.Children.mapTree(this._subject, _.identity);
       tree.forEach(fn);
       return this;
     }

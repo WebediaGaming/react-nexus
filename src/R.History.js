@@ -1,7 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
-  const React = R.React;
   const url = require('url');
 
   return ({ storeName, dispatcherName }) => {
@@ -10,9 +8,8 @@ module.exports = function(R) {
     );
 
     class History extends R.App.Plugin {
-      constructor({ flux, window, req, headers }) {
+      constructor({ flux, window, req }) {
         super(...arguments);
-        let store = flux.getStore(storeName);
         if(window) {
           let dispatcher = flux.getDispatcher(dispatcherName);
           dispatcher.addActionHandler('/History/navigate', ({ pathname }) => Promise.try(() => {

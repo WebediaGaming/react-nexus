@@ -1,6 +1,5 @@
 module.exports = function(R, EventEmitter) {
   const _ = R._;
-  const should = R.should;
 
   class UplinkEventEmitter extends EventEmitter {
     constructor({ uplink }) {

@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const React = R.React;
 
   const fluxLocationRegExp = /^(.*):\/(.*)$/;
@@ -236,7 +235,6 @@ module.exports = function(R) {
 
     _getInitialStateWillNullValues() {
       _.dev(() => this._FluxMixin.should.be.ok);
-      let flux = this.getFlux();
       let subscriptions = this.getFluxStoreSubscriptions(this.props);
       return _.object(Object.keys(subscriptions)
         .map((location) => {
@@ -369,16 +367,16 @@ module.exports = function(R) {
     },
 
     defaultImplementations: {
-      getFluxStoreSubscriptions(props) { return {}; },
-      getFluxEventEmittersListeners(props) { return {}; },
-      fluxStoreWillUpdate(storeName, path, value, stateKey) {},
-      fluxStoreDidUpdate(storeName, path, value, stateKey) {},
-      fluxEventEmitterWillEmit(eventEmitterName, room, params, handler) {},
-      fluxEventEmitterDidEmit(eventEmitterName, room, params, handler) {},
-    }
+      getFluxStoreSubscriptions(props) { return {}; }, // jshint ignore:line
+      getFluxEventEmittersListeners(props) { return {}; }, // jshint ignore:line
+      fluxStoreWillUpdate(storeName, path, value, stateKey) { return void 0; }, // jshint ignore:line
+      fluxStoreDidUpdate(storeName, path, value, stateKey) { return void 0; }, // jshint ignore:line
+      fluxEventEmitterWillEmit(eventEmitterName, room, params, handler) { return void 0; }, // jshint ignore:line
+      fluxEventEmitterDidEmit(eventEmitterName, room, params, handler) { return void 0; }, // jshint ignore:line
+    },
   };
 
-  const FluxMixin = {
+  const Mixin = {
     _FluxMixin: true,
     _FluxMixinSubscriptions: null,
     _FluxMixinListeners: null,
@@ -472,7 +470,7 @@ module.exports = function(R) {
 
   };
 
-  function PropType(props, propName, componentName) {
+  function PropType(props) {
     return props.flux && props.flux instanceof Flux;
   }
 

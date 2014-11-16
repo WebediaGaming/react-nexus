@@ -1,49 +1,45 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const raf = require('raf');
 
   class InterpolationTicker {
-    constructor() {
-      _.dev(() => params.should.be.an.Object);
-      _.defaults(params, {
-        easing: 'cubic-in-out',
-        onTick: _.noop,
-        onComplete: _.noop,
-        onAbort: _.noop,
-      });
+    constructor({ from, to, duration, easing, onTick, onComplete, onAbort }) {
+      easing = easing || 'cubic-in-out';
+      onTick = onTick || _.noop;
+      onComplete = onComplete || _.noop;
+      onAbort = onAbort || _.noop;
 
       _.dev(() =>
-        params.from.should.be.an.Object &&
-        params.to.should.be.an.Object &&
-        params.duration.should.be.a.Number &&
-        (_.isPlainObject(params.easing) || _.isString(params.easing)).should.be.ok &&
-        params.onTick.should.be.a.Function &&
-        params.onComplete.should.be.a.Function &&
-        params.onAbort.should.be.a.Function
+        from.should.be.an.Object &&
+        to.should.be.an.Object &&
+        duration.should.be.a.Number &&
+        (_.isPlainObject(easing) || _.isString(easing)).should.be.ok &&
+        onTick.should.be.a.Function &&
+        onComplete.should.be.a.Function &&
+        onAbort.should.be.a.Function
       );
 
-      this._from = params.from;
-      this._to = params.to;
+      this._from = from;
+      this._to = to;
 
       Object.keys(this._from)
       .forEach((attr) => _.has(this._to, attr) ? this._to[attr] = this._from[attr] : void 0);
       Object.keys(this._to)
       .forEach((attr) => _.has(this._from, attr) ? this._from[attr] = this._to[attr] : void 0);
 
-      if(_.isPlainObject(params.easing)) {
-        _.dev(() => params.easing.type.should.be.a.String &&
-          params.easing.params.should.be.an.Object
+      if(_.isPlainObject(easing)) {
+        _.dev(() => easing.type.should.be.a.String &&
+          easing.params.should.be.an.Object
         );
-        this._easing = R.Animate.createEasing(params.easing.type, params.easing.params);
+        this._easing = R.Animate.createEasing(easing.type, easing.params);
       }
       else {
-        this._easing = R.Animate.createEasing(params.easing);
+        this._easing = R.Animate.createEasing(easing);
       }
-      this._duration = params.duration;
-      this._onTick = params.onTick;
-      this._onComplete = params.onComplete;
-      this._onAbort = params.onAbort;
+      this._duration = duration;
+      this._onTick = onTick;
+      this._onComplete = onComplete;
+      this._onAbort = onAbort;
       this._interpolators = _.mapValues(this._from, (fromVal, attr) => R.Animate.createInterpolator(fromVal, this._to[attr]));
       this._tick = R.scope(this._tick, this);
     }
@@ -58,7 +54,7 @@ module.exports = function(R) {
     _tick() {
       let now = Date.now();
       if(now > this._end) {
-        this._onTick(this._to, t);
+        this._onTick(this._to, 1);
         this._onComplete();
       }
       else {

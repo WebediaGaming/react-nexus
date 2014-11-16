@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
 
   class Plugin {
     constructor({ flux, req, window, headers }) {

@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const ActionHandler = require('./R.Dispatcher.ActionHandler')(R);
 
   class Dispatcher {

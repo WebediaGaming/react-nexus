@@ -1,10 +1,9 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const Listener = require('./R.EventEmitter.Listener')(R);
 
   class EventEmitter {
-    constructor(params = {}) {
+    constructor() {
       this.listeners = {};
       this.displayName = this.getDisplayName();
     }

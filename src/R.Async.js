@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const requestAnimationFrame = require('raf');
 
   require('setimmediate');
@@ -38,7 +37,7 @@ module.exports = function(R) {
         let id = _.uniqueId('setImmediate');
         let q = requestAnimationFrame(() => {
           delete this._AsyncMixinQueuedAnimationFrames[id];
-          return fn.apply(this, arguments);
+          return fn.apply(this, args);
         });
         this._AsyncMixinQueuedAnimationFrames[id] = q;
         return id;
@@ -51,7 +50,7 @@ module.exports = function(R) {
         let id = _.uniqueId('setTimeout');
         let q = setTimeout(() => {
           delete this._AsyncMixinQueuedTimeouts[id];
-          return fn.apply(this, arguments);
+          return fn.apply(this, args);
         }, delay);
         this._AsyncMixinQueuedTimeouts[id] = q;
         return q;
@@ -95,7 +94,7 @@ module.exports = function(R) {
         this._AsyncMixinHasUnmounted = true;
       },
 
-      setStateIfMounted: Async.ifMounted(function() { this.setState(state); }),
+      setStateIfMounted: Async.ifMounted(function(state) { this.setState(state); }),
     },
   });
 

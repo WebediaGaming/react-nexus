@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const Subscription = require('./R.Store.Subscription')(R);
 
   class Store {
@@ -31,7 +30,7 @@ module.exports = function(R) {
       return this._cache[path];
     }
 
-    fetch(path) { _.abstract(); }
+    fetch(path) { _.abstract(); } // jshint ignore:line
 
     subscribeTo(path, handler) {
       this._shouldNotBeDestroyed();
@@ -48,8 +47,8 @@ module.exports = function(R) {
       this._shouldNotBeDestroyed();
       _.dev(() => subscription.should.be.an.instanceOf(Subscription));
       return {
-        subscriptions,
-        deletedPath: subscriptions.removeFrom(this.subscriptions),
+        subscription,
+        deletedPath: subscription.removeFrom(this.subscriptions),
       };
     }
 

@@ -1,6 +1,5 @@
 module.exports = function(R) {
   const _ = R._;
-  const should = R.should;
   const d3 = require('d3');
   const InterpolationTicker = require('./R.Animate.InterpolationTicker')(R);
 
