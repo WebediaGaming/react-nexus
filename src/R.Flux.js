@@ -376,7 +376,7 @@ module.exports = function(R) {
     },
   };
 
-  const Mixin = {
+  Flux.Mixin = {
     _FluxMixin: true,
     _FluxMixinSubscriptions: null,
     _FluxMixinListeners: null,
@@ -470,11 +470,9 @@ module.exports = function(R) {
 
   };
 
-  function PropType(props) {
+  Flux.PropType = function(props) {
     return props.flux && props.flux instanceof Flux;
-  }
-
-  _.extend(Flux, { Mixin, PropType });
+  };
 
   return Flux;
 };
