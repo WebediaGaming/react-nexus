@@ -2,7 +2,7 @@ module.exports = function(R) {
   const _ = R._;
   const React = R.React;
 
-  const _vanillaCreateClass = _.scope(React.createClass, React);
+  const _vanillaCreateClass = React.createClass;
 
   const _patchedCreateClass = function createClass(specs) {
     _.defaults(specs, {
@@ -34,12 +34,12 @@ module.exports = function(R) {
 
   _.extend(_patchedCreateClass, {
     patchCreateClass() {
-      _.extend(React, { createClass: _patchedCreateClass });
+      React.createClass = _patchedCreateClass;
       return _patchedCreateClass;
     },
 
     restoreCreateClass() {
-      _.extend(React, { createClass: _vanillaCreateClass });
+      React.createdClass = _vanillaCreateClass;
       return _vanillaCreateClass;
     },
   });
