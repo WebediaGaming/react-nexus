@@ -32,10 +32,6 @@ module.exports = function(R, Store) {
       this._pending = null;
     }
 
-    getDisplayName() {
-      return 'UplinkStore';
-    }
-
     fetch(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);

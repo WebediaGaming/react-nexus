@@ -5,10 +5,6 @@ module.exports = function(R, EventEmitter) {
       super();
     }
 
-    getDisplayName() {
-      return 'MemoryEventEmitter';
-    }
-
     emit(room, params = {}) {
       if(this.listeners[room]) {
         Object.keys(this.listeners[room]).forEach((key) =>

@@ -12,10 +12,6 @@ module.exports = function(R, EventEmitter) {
       this.uplinkListeners = {};
     }
 
-    getDisplayName() {
-      return 'UplinkEventEmitter';
-    }
-
     listenTo(room, handler) {
       let { listener, createdRoom } = super.listenTo(room, handler);
       if(createdRoom) {

@@ -18,8 +18,6 @@ module.exports = function(R) {
       this._destroyed = true;
     }
 
-    getDisplayName() { _.abstract(); }
-
     pull(path, opts = {}) {
       let { bypassCache } = opts;
       this._shouldNotBeDestroyed();

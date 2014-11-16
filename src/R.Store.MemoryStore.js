@@ -16,10 +16,6 @@ module.exports = function(R, Store) {
       this._data = null;
     }
 
-    getDisplayName() {
-      return 'MemoryStore';
-    }
-
     fetch(path) {
       return Promise.try(() => {
         _.dev(() => path.should.be.a.String);

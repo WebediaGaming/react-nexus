@@ -9,7 +9,17 @@ module.exports = function(R) {
           actionHandlers[action].should.be.a.Function
         )
       );
-      _.extend(this, { actionHandlers });
+      this.actionHandlers = {};
+      Object.keys(actionHandlers)
+      .forEach((action) => this.addActionHandler(action, actionHandlers[action]));
+    }
+
+    destroy() {
+      // Explicitly remove all action handlers
+      Object.keys(this.actionHandlers)
+      .forEach((action) => this.removeActionHandler(this.actionHandlers[action]));
+      // Nullify references
+      this.actionHandlers = null;
     }
 
     addActionHandler(action, handler) {
