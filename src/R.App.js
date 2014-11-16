@@ -50,9 +50,8 @@ module.exports = function(R) {
             return res.status(200).send(yield this.render({ req }));
           }
           catch(err) {
-            let json = { err: err.toString() };
-            _.dev(() => json.stack = err.stack );
-            return res.status(500).json(json);
+            let { message, stack } = err;
+            return res.status(500).json({ message, stack });
           }
         }, this);
       }
