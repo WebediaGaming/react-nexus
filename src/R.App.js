@@ -49,9 +49,12 @@ module.exports = function(R) {
           try {
             return res.status(200).send(yield this.render({ req }));
           }
-          catch(err) {
-            _.dev(() => console.error(err.toString(), err.stack));
-            return res.status(500).json({ err: err.toString() });
+          catch(e) {
+            let err = e.toString();
+            let stack;
+            _.dev(() => stack = e.stack);
+            _.prod(() => stack = null);
+            return res.status(500).json({ err, stack });
           }
         }, this);
       }
