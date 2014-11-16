@@ -12,15 +12,13 @@ module.exports = function(R) {
       this.rendered = false;
     }
 
-    mount({ window }) {
-      return _.copromise(function*() {
-        _.dev(() => window.should.be.an.Object &&
-          this.rendered.should.not.be.ok
-        );
-        window.React = React;
-        this.rendered = true;
-        yield this.app.render({ window });
-      }, this);
+    *mount({ window }) { // jshint ignore:line
+      _.dev(() => window.should.be.an.Object &&
+        this.rendered.should.not.be.ok
+      );
+      window.React = React;
+      this.rendered = true;
+      return yield this.app.render({ window }); // jshint ignore:line
     }
   }
 

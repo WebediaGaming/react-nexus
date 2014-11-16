@@ -415,50 +415,48 @@ module.exports = function(R) {
       FluxMixinStatics._clearFlux.call(this);
     },
 
-    prefetchFluxStores() {
-      return _.copromise(function*() {
-        let props = this.props;
-        let subscriptions = this.getFluxStoreSubscriptions(props);
-        let context = this.context;
-        let state = _.extend({}, this.state || {});
-        let flux = this.getFlux();
-        yield Object.keys(subscriptions)
-        .map((stateKey) => _.copromise(function*() {
-          let location = subscriptions[stateKey];
-          let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-          let [storeName, path] = [name, key];
-          state[stateKey] = yield flux.getStore(storeName).pull(path);
-        }, this));
+    *prefetchFluxStores() { // jshint ignore:line
+      let props = this.props;
+      let subscriptions = this.getFluxStoreSubscriptions(props);
+      let context = this.context;
+      let state = _.extend({}, this.state || {});
+      let flux = this.getFlux();
+      yield Object.keys(subscriptions) // jshint ignore:line
+      .map((stateKey) => _.copromise(function*() {
+        let location = subscriptions[stateKey];
+        let { name, key } = FluxMixinStatics.parseFluxLocation(location);
+        let [storeName, path] = [name, key];
+        state[stateKey] = yield flux.getStore(storeName).pull(path);
+      }, this));
 
-        // Create a new component, surrogate for this one, but this time inject from the prefetched stores.
-        let surrogateComponent;
-        flux.injectingFromStores(() => {
-          surrogateComponent = new this.__ReactNexusSurrogate({ context, props, state });
-          surrogateComponent.componentWillMount();
-        });
+      // Create a new component, surrogate for this one, but this time inject from the prefetched stores.
+      let surrogateComponent;
+      flux.injectingFromStores(() => {
+        surrogateComponent = new this.__ReactNexusSurrogate({ context, props, state });
+        surrogateComponent.componentWillMount();
+      });
 
-        let renderedComponent = surrogateComponent.render();
-        let childContext = surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : context;
-        surrogateComponent.componentWillUnmount();
+      let renderedComponent = surrogateComponent.render();
+      let childContext = surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : context;
+      surrogateComponent.componentWillUnmount();
 
-        yield React.Children.mapTree(renderedComponent, (childComponent) => _.copromise(function*() {
-          if(!_.isObject(childComponent)) {
-            return;
-          }
-          let childType = childComponent.type;
-          if(!_.isObject(childType) || !childType.__ReactNexusSurrogate) {
-            return;
-          }
-          // Create a new component, surrogate for this child (without injecting from the prefetched stores).
-          let surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props });
-          if(!surrogateChildComponent.componentWillMount) {
-            _.dev(() => { throw new Error(`Component ${surrogateChildComponent.displayName} doesn't implement componentWillMount. Maybe you forgot R.Component.mixin ?`); });
-          }
-          surrogateChildComponent.componentWillMount();
-          yield surrogateChildComponent.prefetchFluxStores();
-          surrogateChildComponent.componentWillUnmount();
-        }, this));
-      }, this);
+      yield React.Children.mapTree(renderedComponent, (childComponent) => _.copromise(function*() { // jshint ignore:line
+        if(!_.isObject(childComponent)) {
+          return;
+        }
+        let childType = childComponent.type;
+        if(!_.isObject(childType) || !childType.__ReactNexusSurrogate) {
+          return;
+        }
+        // Create a new component, surrogate for this child (without injecting from the prefetched stores).
+        let surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props });
+        if(!surrogateChildComponent.componentWillMount) {
+          _.dev(() => { throw new Error(`Component ${surrogateChildComponent.displayName} doesn't implement componentWillMount. Maybe you forgot R.Component.mixin ?`); });
+        }
+        surrogateChildComponent.componentWillMount();
+        yield surrogateChildComponent.prefetchFluxStores();
+        surrogateChildComponent.componentWillUnmount();
+      }, this));
     },
 
     dispatch(location, params) {

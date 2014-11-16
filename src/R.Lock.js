@@ -31,13 +31,11 @@ module.exports = function(R) {
       }
     }
 
-    perform(fn) {
-      return _.copromise(function*() {
-        yield this.acquire();
-        let res = yield fn();
-        this.release();
-        return res;
-      }, this);
+    *perform(fn) { // jshint ignore:line
+      yield this.acquire(); // jshint ignore:line
+      let res = yield fn(); // jshint ignore:line
+      this.release();
+      return res;
     }
   }
 

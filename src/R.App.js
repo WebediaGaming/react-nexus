@@ -45,13 +45,16 @@ module.exports = function(R) {
       *getTemplateVars({ req }) { _.abstract(); } // jshint ignore:line
 
       prerender(req, res) {
-        this.render({ req })
-        .then((html) => res.status(200).send(html))
-        .catch((err) => {
-          let json = { err: err.toString() };
-          _.dev(() => _.extend(json, { stack: err.stack }));
-          return res.status(500).json(json);
-        });
+        return _.copromise(function*() {
+          try {
+            return res.status(200).send(yield this.render({ req }));
+          }
+          catch(err) {
+            let json = { err: err.toString() };
+            _.dev(() => json.stack = err.stack );
+            return res.status(500).json(json);
+          }
+        }, this);
       }
 
       *render({ req, window }) { // jshint ignore:line
