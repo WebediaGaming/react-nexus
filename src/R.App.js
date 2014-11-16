@@ -50,15 +50,15 @@ module.exports = function(R) {
             return res.status(200).send(yield this.render({ req }));
           }
           catch(err) {
-            let { message, stack } = err;
-            return res.status(500).json({ message, stack });
+            _.dev(() => console.error(err.toString(), err.stack));
+            return res.status(500).json({ err: err.toString() });
           }
         }, this);
       }
 
       *render({ req, window }) { // jshint ignore:line
         _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
-        return _.isServer() ? this._renderInServer(req) : this._renderInClient(window);
+        return _.isServer() ? yield this._renderInServer(req) : yield this._renderInClient(window); // jshint ignore:line
       }
       /**
       * <p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>
