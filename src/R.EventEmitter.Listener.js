@@ -11,24 +11,24 @@ module.exports = function(R) {
 
     addTo(listeners) {
       _.dev(() => listeners.should.be.an.Object);
-      if(!listeners[this.action]) {
-        listeners[this.action] = {};
+      if(!listeners[this.room]) {
+        listeners[this.room] = {};
       }
-      _.dev(() => listeners[this.action].should.be.an.Object &&
-        listeners[this.action][this.id].should.not.be.ok
+      _.dev(() => listeners[this.room].should.be.an.Object &&
+        listeners[this.room][this.id].should.not.be.ok
       );
-      listeners[this.action][this.id] = this;
-      return Object.keys(listeners[this.action]).length === 1;
+      listeners[this.room][this.id] = this;
+      return Object.keys(listeners[this.room]).length === 1;
     }
 
     removeFrom(listeners) {
       _.dev(() => listeners.should.be.an.Object &&
-        listeners[this.action].should.be.an.Object &&
-        listeners[this.action][this.id].should.be.exactly(this)
+        listeners[this.room].should.be.an.Object &&
+        listeners[this.room][this.id].should.be.exactly(this)
       );
-      delete listeners[this.action][this.id];
-      if(Object.keys(listeners[this.action]).length === 0) {
-        delete listeners[this.action];
+      delete listeners[this.room][this.id];
+      if(Object.keys(listeners[this.room]).length === 0) {
+        delete listeners[this.room];
         return true;
       }
       return false;

@@ -24,21 +24,21 @@ module.exports = function(R) {
 
     addActionHandler(action, handler) {
       let actionListener = new ActionHandler(action, handler);
-      actionListener.pushInto(this.actionsHandlers);
+      actionListener.pushInto(this.actionHandlers);
       return actionListener;
     }
 
     removeActionHandler(actionListener) {
       _.dev(() => actionListener.should.be.instanceOf(ActionHandler) &&
-        actionListener.isInside(this.actionsHandlers).should.be.ok
+        actionListener.isInside(this.actionHandlers).should.be.ok
       );
-      actionListener.removeFrom(this.actionsHandlers);
+      actionListener.removeFrom(this.actionHandlers);
     }
 
     *dispatch(action, params = {}) { // jshint ignore:line
-      _.dev(() => this.actionsHandlers[action].should.be.ok);
-      return yield Object.keys(this.actionsHandlers[action]) // jshint ignore:line
-      .map((key) => this.actionsHandlers[action][key].dispatch(params));
+      _.dev(() => this.actionHandlers[action].should.be.ok);
+      return yield Object.keys(this.actionHandlers[action]) // jshint ignore:line
+      .map((key) => this.actionHandlers[action][key].dispatch(params));
     }
   }
 
