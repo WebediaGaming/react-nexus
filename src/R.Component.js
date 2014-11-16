@@ -4,7 +4,12 @@ module.exports = function(R) {
     Mixin: {
       _ComponentMixin: true,
 
-      mixins: [R.Pure.Mixin, R.Async.Mixin, R.Animate.Mixin, R.Flux.Mixin],
+      mixins: [
+        R.Pure.Mixin,
+        R.Async.Mixin,
+        R.Animate.Mixin,
+        R.Flux.Mixin,
+      ],
 
       contextTypes: {
         flux: R.Flux.PropType,
