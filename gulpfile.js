@@ -21,7 +21,7 @@ function build() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
   .pipe(sourcemaps.init())
-  .pipe(insert.prepend('require(\'6to5/polyfill\');\nvar Promise = require(\'bluebird\');\n'))
+  .pipe(insert.prepend('require(\'6to5/polyfill\'); const Promise = require(\'bluebird\'); const __DEV__ = (process.env.NODE_ENV !== \'production\');\n'))
   .pipe(es6to5())
   .pipe(sourcemaps.write())
   .pipe(gulp.dest('dist'));
