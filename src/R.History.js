@@ -11,25 +11,27 @@ module.exports = function(R) {
       constructor({ flux, window, req }) {
         super(...arguments);
         if(window) {
-          let dispatcher = flux.getDispatcher(dispatcherName);
+          const dispatcher = flux.getDispatcher(dispatcherName);
           dispatcher.addActionHandler('/History/navigate', ({ pathname }) => Promise.try(() => {
             _.dev(() => pathname.should.be.a.String);
-            let href = url.format(_.extend(url.parse(window.location.href)), { pathname });
-            window.history.pushState(null, null, href);
-            this.navigate(href);
+            const urlObj = _.extend(url.parse(window.location.href), { pathname });
+            window.history.pushState(null, null, url.format(urlObj));
+            this.navigate(urlObj);
           }));
           window.addEventListener('popstate', () => this.navigate(window.location.href));
-          this.navigate(window.location.href);
+          this.navigate(url.parse(window.location.href));
         }
         else {
-          this.navigate(url.parse(req.url).pathname);
+          this.navigate(url.parse(req.url));
         }
       }
 
-      navigate(href) {
-        let store = this.flux.getStore(storeName);
-        _.dev(() => store.set.should.be.a.Function);
-        return store.set('/History/pathname', url.parse(href).pathname);
+      navigate(urlObj) {
+        const store = this.flux.getStore(storeName);
+        _.dev(() => store.set.should.be.a.Function &&
+          urlObj.should.be.an.Object
+        );
+        return store.set('/History/location', urlObj);
       }
 
       getDisplayName() {
