@@ -36,6 +36,11 @@ module.exports = function(R) {
         this.updateSize({ window });
       }
 
+      destroy() {
+        // No-op.
+        // TODO: improve in the browser.
+      }
+
       getDisplayName() {
           return 'Window';
       }

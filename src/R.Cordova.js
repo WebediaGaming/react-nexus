@@ -13,6 +13,10 @@ module.exports = function(R) {
         }
       }
 
+      destroy() {
+        // No-op.
+      }
+
       getDisplayName() {
         return 'Cordova';
       }

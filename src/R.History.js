@@ -10,7 +10,7 @@ module.exports = function(R) {
     class History extends R.App.Plugin {
       constructor({ flux, window, req }) {
         super(...arguments);
-        if(window) {
+        if(_.isClient()) {
           const dispatcher = flux.getDispatcher(dispatcherName);
           dispatcher.addActionHandler('/History/navigate', ({ pathname }) => Promise.try(() => {
             _.dev(() => pathname.should.be.a.String);
@@ -24,6 +24,11 @@ module.exports = function(R) {
         else {
           this.navigate(url.parse(req.url));
         }
+      }
+
+      destroy() {
+        // No-op.
+        // TODO: Improve in the browser.
       }
 
       navigate(urlObj) {

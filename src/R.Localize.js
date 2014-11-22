@@ -37,6 +37,11 @@ module.exports = function(R) {
         }
       }
 
+      destroy() {
+        // No-op.
+        // TODO: improve in the browser.
+      }
+
       getDisplayName() {
         return 'Localize';
       }
