@@ -16,7 +16,7 @@ module.exports = function(R) {
 
     class Localize extends R.App.Plugin {
       constructor({ flux, window, req, headers }) {
-        super.apply(this, arguments);
+        super(...arguments);
 
         _.dev(() => headers['accept-language'].should.be.a.String);
         let defaultLocale = bestLocale(headers['accept-language'], supportedLocales);

@@ -17,8 +17,8 @@ module.exports = function(R) {
     _.defaults(params, defaultParams);
 
     class Window extends R.App.Plugin {
-      constructor({ flux, window, req, headers }) {
-        super({ flux, window, req, headers });
+      constructor({ flux, window, req, headers }) { // jshint unused:false
+        super(...arguments);                        // Actually used in super(...arguments)
         this.store = flux.getStore(storeName);
 
         if(window) {
