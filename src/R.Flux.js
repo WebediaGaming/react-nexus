@@ -460,7 +460,7 @@ module.exports = function(R) {
           return;
         }
         // Create a new component, surrogate for this child (without injecting from the prefetched stores).
-        let surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props });
+        let surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props, state: {} });
         if(!surrogateChildComponent.componentWillMount) {
           _.dev(() => { throw new Error(`Component ${surrogateChildComponent.displayName} doesn't implement componentWillMount. Maybe you forgot R.Component.mixin ?`); });
         }

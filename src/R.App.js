@@ -90,7 +90,7 @@ module.exports = function(R) {
 
         let rootProps = { flux, plugins };
         // Create the React instance of root component with flux
-        let surrogateRootComponent = new this.Root.__ReactNexusSurrogate({}, rootProps);
+        let surrogateRootComponent = new this.Root.__ReactNexusSurrogate({ context: {}, props: rootProps, state: {} });
         if(!surrogateRootComponent.componentWillMount) {
           _.dev(() => console.error('Root component requires componentWillMount implementation. Maybe you forgot to mixin R.Root.Mixin?'));
         }
