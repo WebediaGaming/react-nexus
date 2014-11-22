@@ -18,16 +18,15 @@ module.exports = function(R) {
       constructor() {
         this.Flux = this.getFluxClass();
         this.Root = this.getRootClass();
-        this.RootFactory = React.createFactory(this.Root);
         this.template = this.getTemplate();
         this.Plugins = this.getPluginsClasses();
 
         _.dev(() => this.Flux.should.be.a.Function &&
           this.Root.should.be.a.Function &&
-          this.vars.should.be.an.Object &&
           this.template.should.be.a.Function &&
           this.Plugins.should.be.an.Array
         );
+        this.RootFactory = React.createFactory(this.Root);
 
         this.prerender = _.scope(this.prerender, this);
       }
