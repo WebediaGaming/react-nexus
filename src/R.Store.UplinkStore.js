@@ -11,7 +11,7 @@ module.exports = function(R, Store) {
       super();
       this._uplink = uplink;
       this._uplinkSubscriptions = {};
-      this._pending = null;
+      this._pending = {};
     }
 
     destroy() {
@@ -69,6 +69,7 @@ module.exports = function(R, Store) {
   _.extend(UplinkStore.prototype, {
     _uplink: null,
     _uplinkSubscriptions: null,
+    _pending: null,
   });
 
   return UplinkStore;
