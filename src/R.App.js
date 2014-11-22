@@ -44,7 +44,7 @@ module.exports = function(R) {
       *getTemplateVars({ req }) { _.abstract(); } // jshint ignore:line
 
       prerender(req, res) {
-        return _.copromise(function*() {
+        return _.co(_.scope(function*() {
           try {
             return res.status(200).send(yield this.render({ req }));
           }
@@ -55,7 +55,7 @@ module.exports = function(R) {
             _.prod(() => stack = null);
             return res.status(500).json({ err, stack });
           }
-        }, this);
+        }, this));
       }
 
       *render({ req, window }) { // jshint ignore:line

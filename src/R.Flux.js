@@ -433,12 +433,12 @@ module.exports = function(R) {
       let state = _.extend({}, this.state || {});
       let flux = this.getFlux();
       yield Object.keys(subscriptions) // jshint ignore:line
-      .map((stateKey) => _.copromise(function*() {
+      .map((stateKey) => _.co(_.scope(function*() {
         let location = subscriptions[stateKey];
         let { name, key } = FluxMixinStatics.parseFluxLocation(location);
         let [storeName, path] = [name, key];
         state[stateKey] = yield flux.getStore(storeName).pull(path);
-      }, this));
+      }, this)));
 
       // Create a new component, surrogate for this one, but this time inject from the prefetched stores.
       let surrogateComponent;
