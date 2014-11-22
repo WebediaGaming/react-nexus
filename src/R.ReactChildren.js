@@ -9,7 +9,9 @@ module.exports = function(R) {
       if(null === component || !component.props || !component.props.children) {
         return [];
       }
-      return React.Children.map(component.props.children, (child) => child);
+      const children = [];
+      React.Children.forEach(component.props.children, (child) => children.push(child));
+      return children;
     },
 
     getDescendantsList(component) {
