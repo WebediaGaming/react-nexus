@@ -50,7 +50,7 @@ module.exports = function(R) {
 
     injectingFromStores(fn) {
       this._startInjectingFromStores();
-      let r = fn();
+      const r = fn();
       this._stopInjectingFromStores();
       return r;
     }
@@ -60,12 +60,12 @@ module.exports = function(R) {
     }
 
     serialize({ preventEncoding }) {
-      let serializable = _.mapValues(this.stores, (store) => store.serialize({ preventEncoding: true }));
+      const serializable = _.mapValues(this.stores, (store) => store.serialize({ preventEncoding: true }));
       return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
     }
 
     unserialize(serialized, { preventDecoding }) {
-      let unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
+      const unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
       Object.keys(unserializable).forEach((storeName) => {
         _.dev(() => this.stores.should.have.property(storeName));
         this.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
@@ -158,8 +158,8 @@ module.exports = function(R) {
         path.should.be.a.String &&
         handler.should.be.a.Function
       );
-      let store = this.getStore(storeName);
-      let subscription = store.subscribeTo(path, handler);
+      const store = this.getStore(storeName);
+      const subscription = store.subscribeTo(path, handler);
       return subscription;
     }
 
@@ -169,7 +169,7 @@ module.exports = function(R) {
         this.stores[storeName].should.be.an.instanceOf(R.Store) &&
         subscription.should.be.an.instanceOf(R.Store.Subscription)
       );
-      let store = this.getStore(storeName);
+      const store = this.getStore(storeName);
       return store.unsubscribeFrom(subscription);
     }
 
@@ -180,8 +180,8 @@ module.exports = function(R) {
         room.should.be.a.String &&
         handler.should.be.a.Function
       );
-      let eventEmitter = this.getEventEmitter(eventEmitterName);
-      let listener = eventEmitter.listenTo(room, handler);
+      const eventEmitter = this.getEventEmitter(eventEmitterName);
+      const listener = eventEmitter.listenTo(room, handler);
       return listener;
     }
 
@@ -191,7 +191,7 @@ module.exports = function(R) {
         this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
         listener.should.be.an.instanceOf(R.EventEmitter.Listener)
       );
-      let eventEmitter = this.getEventEmitter(eventEmitterName);
+      const eventEmitter = this.getEventEmitter(eventEmitterName);
       return eventEmitter.unlistenFrom(listener);
     }
 
@@ -203,7 +203,7 @@ module.exports = function(R) {
         action.should.be.a.String &&
         params.should.be.an.Object
       );
-      let dispatcher = this.getDispatcher(dispatcherName);
+      const dispatcher = this.getDispatcher(dispatcherName);
       return dispatcher.dispatch(action, params);
     }
   }
@@ -222,23 +222,23 @@ module.exports = function(R) {
   const FluxMixinStatics = {
     parseFluxLocation(location) {
       _.dev(() => location.should.be.a.String);
-      let r = fluxLocationRegExp.exec(location);
+      const r = fluxLocationRegExp.exec(location);
       _.dev(() => (r !== null).should.be.ok);
       return { name: r[0], key: r[1] };
     },
 
     _getInitialStateFromFluxStores() {
       _.dev(() => this._FluxMixin.should.be.ok);
-      let flux = this.getFlux();
-      let subscriptions = this.getFluxStoreSubscriptions(this.props);
+      const flux = this.getFlux();
+      const subscriptions = this.getFluxStoreSubscriptions(this.props);
       return _.object(Object.keys(subscriptions)
         .map((location) => {
-          let stateKey = subscriptions[location];
-          let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-          let [storeName, path] = [name, key];
-          let store = flux.getStore(storeName);
+          const stateKey = subscriptions[location];
+          const { name, key } = FluxMixinStatics.parseFluxLocation(location);
+          const [storeName, path] = [name, key];
+          const store = flux.getStore(storeName);
           _.dev(() => store.hasCachedValue(path).should.be.ok);
-          let value = store.getCachedValue(path);
+          const value = store.getCachedValue(path);
           return [stateKey, value];
         })
       );
@@ -246,10 +246,10 @@ module.exports = function(R) {
 
     _getInitialStateWillNullValues() {
       _.dev(() => this._FluxMixin.should.be.ok);
-      let subscriptions = this.getFluxStoreSubscriptions(this.props);
+      const subscriptions = this.getFluxStoreSubscriptions(this.props);
       return _.object(Object.keys(subscriptions)
         .map((location) => {
-          let stateKey = subscriptions[location];
+          const stateKey = subscriptions[location];
           return [stateKey, null];
         })
       );
@@ -260,27 +260,27 @@ module.exports = function(R) {
       _.dev(() => this._FluxMixin.should.be.ok &&
         props.should.be.an.Object
       );
-      let currentSubscriptions = Object.keys(this._FluxMixinSubscriptions)
+      const currentSubscriptions = Object.keys(this._FluxMixinSubscriptions)
       .map((key) => this._FluxMixinSubscriptions[key]);
-      let currentListeners = Object.keys(this._FluxMixinListeners)
+      const currentListeners = Object.keys(this._FluxMixinListeners)
       .map((key) => this._FluxMixinListeners[key]);
 
-      let nextSubscriptions = this.getFluxStoreSubscriptions(props);
-      let nextListeners = this.getFluxEventEmittersListeners(props);
+      const nextSubscriptions = this.getFluxStoreSubscriptions(props);
+      const nextListeners = this.getFluxEventEmittersListeners(props);
 
       Object.keys(nextSubscriptions)
       .forEach((location) => {
-        let stateKey = nextSubscriptions[location];
-        let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-        let [storeName, path] = [name, key];
+        const stateKey = nextSubscriptions[location];
+        const { name, key } = FluxMixinStatics.parseFluxLocation(location);
+        const [storeName, path] = [name, key];
         FluxMixinStatics._subscribeTo(storeName, path, stateKey);
       });
 
       Object.keys(nextListeners)
       .forEach((location) => {
-        let handler = nextListeners[location];
-        let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-        let [eventEmitterName, room] = [name, key];
+        const handler = nextListeners[location];
+        const { name, key } = FluxMixinStatics.parseFluxLocation(location);
+        const [eventEmitterName, room] = [name, key];
         FluxMixinStatics._listenTo(eventEmitterName, room, handler);
       });
 
@@ -316,10 +316,10 @@ module.exports = function(R) {
         this._FluxMixin.should.be.ok &&
         this._FluxMixinSubscriptions.should.be.an.Object
       );
-      let flux = this.getFlux();
-      let propagateUpdate = (value) => FluxMixinStatics._propagateStoreUpdate(storeName, path, value, stateKey);
-      let subscription = flux.subscribeTo(storeName, path, propagateUpdate);
-      let id = _.uniqueId(stateKey);
+      const flux = this.getFlux();
+      const propagateUpdate = (value) => FluxMixinStatics._propagateStoreUpdate(storeName, path, value, stateKey);
+      const subscription = flux.subscribeTo(storeName, path, propagateUpdate);
+      const id = _.uniqueId(stateKey);
       this._FluxMixinSubscriptions[id] = { subscription, id, storeName };
       return this;
     },
@@ -330,7 +330,7 @@ module.exports = function(R) {
         this._FluxMixin.should.be.ok &&
         this._FluxMixinSubscriptions[id].should.be.exactly(subscription)
       );
-      let flux = this.getFlux();
+      const flux = this.getFlux();
       flux.unsubscribeFrom(storeName, subscription);
       delete this._FluxMixinSubscriptions[id];
       return this;
@@ -357,10 +357,10 @@ module.exports = function(R) {
         this._FluxMixin.should.be.ok &&
         this._FluxMixinListeners.should.be.an.Object
       );
-      let flux = this.getFlux();
-      let propagateEvent = (params) => FluxMixinStatics._propagateEvent(eventEmitterName, room, params, handler);
-      let listener = flux.listenTo(eventEmitterName, room, propagateEvent);
-      let id = _.uniqueId(room);
+      const flux = this.getFlux();
+      const propagateEvent = (params) => FluxMixinStatics._propagateEvent(eventEmitterName, room, params, handler);
+      const listener = flux.listenTo(eventEmitterName, room, propagateEvent);
+      const id = _.uniqueId(room);
       this._FluxMixinListeners[id] = { listener, id, eventEmitterName };
       return this;
     },
@@ -371,7 +371,7 @@ module.exports = function(R) {
         this._FluxMixin.should.be.ok &&
         this._FluxMixinListeners[id].should.be.exactly(listener)
       );
-      let flux = this.getFlux();
+      const flux = this.getFlux();
       flux.unlistenFrom(eventEmitterName, listener);
       delete this._FluxMixinListeners[id];
       return this;
@@ -427,16 +427,16 @@ module.exports = function(R) {
     },
 
     *prefetchFluxStores() { // jshint ignore:line
-      let props = this.props;
-      let subscriptions = this.getFluxStoreSubscriptions(props);
-      let context = this.context;
-      let state = _.extend({}, this.state || {});
-      let flux = this.getFlux();
+      const props = this.props;
+      const subscriptions = this.getFluxStoreSubscriptions(props);
+      const context = this.context;
+      const state = _.extend({}, this.state || {});
+      const flux = this.getFlux();
       yield Object.keys(subscriptions) // jshint ignore:line
       .map((stateKey) => _.co(_.scope(function*() {
-        let location = subscriptions[stateKey];
-        let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-        let [storeName, path] = [name, key];
+        const location = subscriptions[stateKey];
+        const { name, key } = FluxMixinStatics.parseFluxLocation(location);
+        const [storeName, path] = [name, key];
         state[stateKey] = yield flux.getStore(storeName).pull(path);
       }, this)));
 
@@ -447,33 +447,33 @@ module.exports = function(R) {
         surrogateComponent.componentWillMount();
       });
 
-      let renderedComponent = surrogateComponent.render();
-      let childContext = surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : context;
+      const renderedComponent = surrogateComponent.render();
+      const childContext = surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : context;
       surrogateComponent.componentWillUnmount();
 
-      yield React.Children.mapTree(renderedComponent, (childComponent) => _.copromise(function*() { // jshint ignore:line
+      yield React.Children.mapTree(renderedComponent, (childComponent) => _.co(_.scope(function*() { // jshint ignore:line
         if(!_.isObject(childComponent)) {
           return;
         }
-        let childType = childComponent.type;
+        const childType = childComponent.type;
         if(!_.isObject(childType) || !childType.__ReactNexusSurrogate) {
           return;
         }
         // Create a new component, surrogate for this child (without injecting from the prefetched stores).
-        let surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props, state: {} });
+        const surrogateChildComponent = new childType.__ReactNexusSurrogate({ context: childContext, props: childComponent.props, state: {} });
         if(!surrogateChildComponent.componentWillMount) {
           _.dev(() => { throw new Error(`Component ${surrogateChildComponent.displayName} doesn't implement componentWillMount. Maybe you forgot R.Component.mixin ?`); });
         }
         surrogateChildComponent.componentWillMount();
         yield surrogateChildComponent.prefetchFluxStores();
         surrogateChildComponent.componentWillUnmount();
-      }, this));
+      }, this)));
     },
 
     dispatch(location, params) {
-      let { name, key } = FluxMixinStatics.parseFluxLocation(location);
-      let [dispatcherName, action] = [name, key];
-      let flux = this.getFlux();
+      const { name, key } = FluxMixinStatics.parseFluxLocation(location);
+      const [dispatcherName, action] = [name, key];
+      const flux = this.getFlux();
       return flux.dispatch(dispatcherName, action, params);
     },
 
