@@ -15,7 +15,7 @@ module.exports = function(R, EventEmitter) {
     listenTo(room, handler) {
       let { listener, createdRoom } = super.listenTo(room, handler);
       if(createdRoom) {
-        _.dev(() => this.uplinkListeners[listener.id].should.not.be.ok);
+        _.dev(() => this.uplinkListeners.should.not.have.property(listener.id));
         this.uplinkListeners[listener.id] = this.uplink.listenTo(room, (params) => this._emit(room, params));
       }
       _.dev(() => this.uplinkListeners[listener.id].should.be.ok);
@@ -25,11 +25,11 @@ module.exports = function(R, EventEmitter) {
     unlistenFrom(listener) {
       let { deletedRoom } = super.unlistenFrom(listener);
       if(deletedRoom) {
-        _.dev(() => this.uplinkListeners[listener.id].should.be.ok);
+        _.dev(() => this.uplinkListeners.should.have.property(listener.id));
         this.uplink.unlistenFrom(this.uplinkListeners[listener.id]);
         delete this.uplinkListeners[listener.id];
       }
-      _.dev(() => this.uplinkListeners[listener.id].should.not.be.ok);
+      _.dev(() => this.uplinkListeners.should.not.have.property(listener.id));
       return { listener, deletedRoom };
     }
 

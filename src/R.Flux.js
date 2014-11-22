@@ -67,7 +67,7 @@ module.exports = function(R) {
     unserialize(serialized, { preventDecoding }) {
       let unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
       Object.keys(unserializable).forEach((storeName) => {
-        _.dev(() => this.stores[storeName].should.be.ok);
+        _.dev(() => this.stores.should.have.property(storeName));
         this.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
       });
       return this;
@@ -76,7 +76,7 @@ module.exports = function(R) {
     registerStore(storeName, store) {
       _.dev(() => store.should.be.an.instanceOf(R.Store) &&
         storeName.should.be.a.String &&
-        this.stores[storeName].should.not.be.ok
+        this.stores.should.not.have.property(storeName)
       );
       this.stores[storeName] = store;
       return this;
@@ -84,6 +84,7 @@ module.exports = function(R) {
 
     unregisterStore(storeName) {
       _.dev(() => storeName.should.be.a.String &&
+        this.stores.should.have.property(storeName) &&
         this.stores[storeName].should.be.an.instanceOf(R.Store)
       );
       delete this.stores[storeName];
@@ -92,6 +93,7 @@ module.exports = function(R) {
 
     getStore(storeName) {
       _.dev(() => storeName.should.be.a.String &&
+        this.stores.should.have.property(storeName) &&
         this.stores[storeName].should.be.an.instanceOf(R.Store)
       );
       return this.stores[storeName];
@@ -100,7 +102,7 @@ module.exports = function(R) {
     registerEventEmitter(eventEmitterName, eventEmitter) {
       _.dev(() => eventEmitter.should.be.an.instanceOf(R.EventEmitter) &&
         eventEmitterName.should.be.a.String &&
-        this.eventEmitters[eventEmitterName].should.not.be.ok
+        this.eventEmitters.should.not.have.property(eventEmitterName)
       );
       this.eventEmitters[eventEmitterName] = eventEmitter;
       return this;
@@ -108,6 +110,7 @@ module.exports = function(R) {
 
     unregisterEventEmitter(eventEmitterName) {
       _.dev(() => eventEmitterName.should.be.a.String &&
+        this.eventEmitters.should.have.property(eventEmitterName) &&
         this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
       );
       delete this.eventEmitters[eventEmitterName];
@@ -116,6 +119,7 @@ module.exports = function(R) {
 
     getEventEmitter(eventEmitterName) {
       _.dev(() => eventEmitterName.should.be.a.String &&
+        this.eventEmitters.should.have.property(eventEmitterName) &&
         this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter)
       );
       return this.eventEmitters[eventEmitterName];
@@ -124,7 +128,7 @@ module.exports = function(R) {
     registerDispatcher(dispatcherName, dispatcher) {
       _.dev(() => dispatcher.should.be.an.instanceOf(R.Dispatcher) &&
         dispatcherName.should.be.a.String &&
-        this.dispatchers[dispatcherName].should.not.be.ok
+        this.dispatchers.should.not.have.property(dispatcherName)
       );
       this.dispatchers[dispatcherName] = dispatcher;
       return this;
@@ -132,6 +136,7 @@ module.exports = function(R) {
 
     unregisterDispatcher(dispatcherName) {
       _.dev(() => dispatcherName.should.be.a.String &&
+        this.dispatchers.should.have.property(dispatcherName) &&
         this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
       );
       delete this.dispatchers[dispatcherName];
@@ -140,6 +145,7 @@ module.exports = function(R) {
 
     getDispatcher(dispatcherName) {
       _.dev(() => dispatcherName.should.be.a.String &&
+        this.dispatchers.should.have.property(dispatcherName) &&
         this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher)
       );
       return this.dispatchers[dispatcherName];
@@ -147,6 +153,7 @@ module.exports = function(R) {
 
     subscribeTo(storeName, path, handler) {
       _.dev(() => storeName.should.be.a.String &&
+        this.stores.should.have.property(storeName) &&
         this.stores[storeName].should.be.an.instanceOf(R.Store) &&
         path.should.be.a.String &&
         handler.should.be.a.Function
@@ -158,6 +165,7 @@ module.exports = function(R) {
 
     unsubscribeFrom(storeName, subscription) {
       _.dev(() => storeName.should.be.a.String &&
+        this.stores.should.have.property(storeName) &&
         this.stores[storeName].should.be.an.instanceOf(R.Store) &&
         subscription.should.be.an.instanceOf(R.Store.Subscription)
       );
@@ -167,6 +175,7 @@ module.exports = function(R) {
 
     listenTo(eventEmitterName, room, handler) {
       _.dev(() => eventEmitterName.should.be.a.String &&
+        this.eventEmitters.should.have.property(eventEmitterName) &&
         this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
         room.should.be.a.String &&
         handler.should.be.a.Function
@@ -178,6 +187,7 @@ module.exports = function(R) {
 
     unlistenFrom(eventEmitterName, listener) {
       _.dev(() => eventEmitterName.should.be.a.String &&
+        this.eventEmitters.should.have.property(eventEmitterName) &&
         this.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) &&
         listener.should.be.an.instanceOf(R.EventEmitter.Listener)
       );
@@ -188,6 +198,7 @@ module.exports = function(R) {
     dispatch(dispatcherName, action, params) {
       params = params || {};
       _.dev(() => dispatcherName.should.be.a.String &&
+        this.dispatchers.should.have.property(dispatcherName) &&
         this.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) &&
         action.should.be.a.String &&
         params.should.be.an.Object
