@@ -44,18 +44,23 @@ module.exports = function(R) {
       *getTemplateVars({ req }) { _.abstract(); } // jshint ignore:line
 
       prerender(req, res) {
-        return _.co(_.scope(function*() {
-          try {
-            return res.status(200).send(yield this.render({ req }));
-          }
-          catch(e) {
-            let err = e.toString();
-            let stack;
-            _.dev(() => stack = e.stack);
-            _.prod(() => stack = null);
-            return res.status(500).json({ err, stack });
-          }
-        }, this));
+        return _.co.wrap(this._prerender)
+        .call(this, req, res);
+      }
+
+      *_prerender(req, res) { // jshint ignore:line
+        let html;
+        try {
+          html = yield this.render({ req }); // jshint ignore:line
+        }
+        catch(e) {
+          let err = e.toString();
+          let stack;
+          _.dev(() => stack = e.stack);
+          _.prod(() => stack = null);
+          return res.status(500).json({ err, stack });
+        }
+        return res.status(200).send(html);
       }
 
       *render({ req, window }) { // jshint ignore:line
