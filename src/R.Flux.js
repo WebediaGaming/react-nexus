@@ -59,12 +59,14 @@ module.exports = function(R) {
       return this._shouldInjectFromStores;
     }
 
-    serialize({ preventEncoding }) {
+    serialize(p = {}) {
+      const preventEncoding = !!p.preventEncoding;
       const serializable = _.mapValues(this.stores, (store) => store.serialize({ preventEncoding: true }));
       return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
     }
 
-    unserialize(serialized, { preventDecoding }) {
+    unserialize(serialized, p = {}) {
+      const preventDecoding = !!p.preventDecoding;
       const unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
       Object.keys(unserializable).forEach((storeName) => {
         _.dev(() => this.stores.should.have.property(storeName));
