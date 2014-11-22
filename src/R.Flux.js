@@ -75,7 +75,7 @@ module.exports = function(R) {
 
     registerStore(storeName, store) {
       _.dev(() => store.should.be.an.instanceOf(R.Store) &&
-        storeName.should.be.a.String() &&
+        storeName.should.be.a.String &&
         this.stores[storeName].should.not.be.ok
       );
       this.stores[storeName] = store;
