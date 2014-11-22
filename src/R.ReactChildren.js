@@ -13,8 +13,8 @@ module.exports = function(R) {
     },
 
     getDescendantsList(component) {
-      let children = React.getChildrenList(component);
-      let descendants = [];
+      const children = React.Children.getChildrenList(component);
+      const descendants = [];
       children.forEach((child) => {
         descendants.push(child);
         React.Children.getDescendantsList(child).forEach((childDescendant) => descendants.push(childDescendant));
@@ -27,28 +27,28 @@ module.exports = function(R) {
     },
 
     mapTree(component, fn) {
-      let tree = React.Children.getDescendantsList(component, fn);
+      const tree = React.Children.getDescendantsList(component, fn);
       tree.unshift(component);
       return tree.map(fn);
     },
 
     restoreChildren() {
-      _.extend(React, { Children: _vanillaReactChildren });
+      React.Children = _vanillaReactChildren;
       return _vanillaReactChildren;
     },
 
     patchChildren() {
-      _.extend(React, { Children: _patchedReactChildren });
+      React.Children = _patchedReactChildren;
       return _patchedReactChildren;
     },
 
     transformDescendants(component, fn) {
-      let children = React.Children.getDescendantsList(component);
+      const children = React.Children.getDescendantsList(component);
       if(children.length === 0) {
         return component;
       }
       if(component.props) {
-        let transformChild = (child) => React.Children.transformTree(child, fn);
+        const transformChild = (child) => React.Children.transformTree(child, fn);
         component.props.children = React.Children.mapDescendants(component, transformChild);
       }
       return component;
