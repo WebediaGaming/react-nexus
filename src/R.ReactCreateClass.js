@@ -13,6 +13,10 @@ module.exports = function(R) {
     let createdClass;
 
     function __ReactNexusSurrogate({ context, props, state }) {
+      _.dev(() => context.should.be.an.Object &&
+        props.should.be.an.Object &&
+        state.should.be.an.Object
+      );
       let instance;
       React.withContext(context, () => {
         state = state || {};
