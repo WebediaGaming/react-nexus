@@ -29,6 +29,6 @@
   },
   "dependencies": {
     "6to5": "^1.13.10",
-    "lodash-next": "^1.8.0"
+    "lodash-next": "^1.8.3"
   }
 }
