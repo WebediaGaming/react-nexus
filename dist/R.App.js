@@ -128,9 +128,9 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
                 window = _ref2.window;
                 // jshint ignore:line
                 _.dev(function () {
-                  return _.isServer() ? req.should.be.an.Object : window.should.be.an.Object;
+                  return __NODE__ ? req.should.be.an.Object : window.should.be.an.Object;
                 });
-                if (!_.isServer()) {
+                if (!__NODE__) {
                   _context3.next = 9;
                   break;
                 }
@@ -164,7 +164,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
             while (true) switch (_context4.prev = _context4.next) {
               case 0: // jshint ignore:line
                 _.dev(function () {
-                  return _.isServer().should.be.ok && req.headers.should.be.ok;
+                  return (__NODE__).should.be.ok && req.headers.should.be.ok;
                 });
 
                 guid = _.guid();
@@ -228,7 +228,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
             while (true) switch (_context5.prev = _context5.next) {
               case 0: // jshint ignore:line
                 _.dev(function () {
-                  return _.isClient().should.be.ok && window.__ReactNexus.should.be.an.Object && window.__ReactNexus.guid.should.be.a.String && window.__ReactNexus.serializedFlux.should.be.a.String && window.__ReactNexus.serializedHeaders.should.be.a.String && window.__ReactNexus.rootElement.should.be.ok;
+                  return (__BROWSER__).should.be.ok && window.__ReactNexus.should.be.an.Object && window.__ReactNexus.guid.should.be.a.String && window.__ReactNexus.serializedFlux.should.be.a.String && window.__ReactNexus.serializedHeaders.should.be.a.String && window.__ReactNexus.rootElement.should.be.ok;
                 });
                 _.dev(function () {
                   return window.__ReactNexus.app = _this5;

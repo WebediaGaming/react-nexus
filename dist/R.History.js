@@ -44,7 +44,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         var window = _ref2.window;
         var req = _ref2.req;
         R.App.Plugin.call.apply(R.App.Plugin, [this].concat(_argumentsToArray(arguments)));
-        if (_.isClient()) {
+        if ((__BROWSER__)) {
           (function () {
             var dispatcher = flux.getDispatcher(dispatcherName);
             dispatcher.addActionHandler("/History/navigate", function (_ref3) {

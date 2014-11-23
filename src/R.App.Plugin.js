@@ -6,7 +6,7 @@ module.exports = function(R) {
       _.dev(() => flux.should.be.an.instanceOf(R.Flux) &&
         headers.should.be.an.Object
       );
-      _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
+      _.dev(() => (__NODE__) ? req.should.be.an.Object : window.should.be.an.Object);
       this.displayName = this.getDisplayName();
       this.flux = flux;
       this.window = window;

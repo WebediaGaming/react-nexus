@@ -22,7 +22,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
       var window = _ref2.window;
       var req = _ref2.req;
       _.dev(function () {
-        return headers.should.be.an.Object && guid.should.be.a.String && _.isServer() ? req.should.be.an.Object : window.should.be.an.Object;
+        return headers.should.be.an.Object && guid.should.be.a.String && (__NODE__) ? req.should.be.an.Object : window.should.be.an.Object;
       });
       this.headers = headers;
       this.guid = guid;

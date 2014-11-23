@@ -101,7 +101,7 @@ module.exports = function(R) {
     InterpolationTicker,
 
     shouldEnableHA() {
-      if(_.isClient()) {
+      if((__BROWSER__)) {
         let userAgent = navigator.userAgent;
         let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
         let isGingerbread = /Android 2\.3\.[3-7]/i.test(userAgent);

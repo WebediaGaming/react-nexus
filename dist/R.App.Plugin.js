@@ -18,7 +18,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         return flux.should.be.an.instanceOf(R.Flux) && headers.should.be.an.Object;
       });
       _.dev(function () {
-        return _.isServer() ? req.should.be.an.Object : window.should.be.an.Object;
+        return (__NODE__) ? req.should.be.an.Object : window.should.be.an.Object;
       });
       this.displayName = this.getDisplayName();
       this.flux = flux;

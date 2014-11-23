@@ -64,8 +64,8 @@ module.exports = function(R) {
       }
 
       *render({ req, window }) { // jshint ignore:line
-        _.dev(() => _.isServer() ? req.should.be.an.Object : window.should.be.an.Object);
-        return _.isServer() ? yield this._renderInServer(req) : yield this._renderInClient(window); // jshint ignore:line
+        _.dev(() => __NODE__ ? req.should.be.an.Object : window.should.be.an.Object);
+        return __NODE__ ? yield this._renderInServer(req) : yield this._renderInClient(window); // jshint ignore:line
       }
       /**
       * <p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>
@@ -74,7 +74,7 @@ module.exports = function(R) {
       * @return {object} template : the computed HTML template with data for the requesting client
       */
       *_renderInServer(req) { // jshint ignore:line
-        _.dev(() => _.isServer().should.be.ok &&
+        _.dev(() => (__NODE__).should.be.ok &&
           req.headers.should.be.ok
         );
 
@@ -124,7 +124,7 @@ module.exports = function(R) {
       * @param {object} window The classical window object
       */
       *_renderInClient(window) { // jshint ignore:line
-        _.dev(() => _.isClient().should.be.ok &&
+        _.dev(() => (__BROWSER__).should.be.ok &&
           window.__ReactNexus.should.be.an.Object &&
           window.__ReactNexus.guid.should.be.a.String &&
           window.__ReactNexus.serializedFlux.should.be.a.String &&

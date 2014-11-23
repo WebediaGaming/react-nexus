@@ -8,7 +8,7 @@ module.exports = function(R) {
     constructor({ headers, guid, window, req }) {
       _.dev(() => headers.should.be.an.Object &&
         guid.should.be.a.String &&
-        _.isServer() ? req.should.be.an.Object : window.should.be.an.Object
+        (__NODE__) ? req.should.be.an.Object : window.should.be.an.Object
       );
       this.headers = headers;
       this.guid = guid;

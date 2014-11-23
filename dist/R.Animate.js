@@ -115,7 +115,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
     InterpolationTicker: InterpolationTicker,
 
     shouldEnableHA: function () {
-      if (_.isClient()) {
+      if ((__BROWSER__)) {
         var userAgent = navigator.userAgent;
         var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
         var isGingerbread = /Android 2\.3\.[3-7]/i.test(userAgent);
