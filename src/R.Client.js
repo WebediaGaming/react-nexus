@@ -5,7 +5,6 @@ module.exports = function(R) {
   class Client {
     constructor({ app }) {
       _.dev(() => (__BROWSER__).should.be.ok &&
-        window.React.should.be.ok &&
         app.should.be.an.instanceOf(R.App)
       );
       this.app = app;
