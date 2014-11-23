@@ -5,8 +5,10 @@ module.exports = function(R) {
   class Client {
     constructor({ app }) {
       _.dev(() => (__BROWSER__).should.be.ok &&
-        app.should.be.an.instanceOf(R.App)
+        app.should.be.an.instanceOf(R.App) &&
+        window.should.not.have.property('React')
       );
+      window.React = React;
       this.app = app;
       this.rendered = false;
     }

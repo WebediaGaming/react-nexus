@@ -13,8 +13,9 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
     var _Client = function _Client(_ref) {
       var app = _ref.app;
       _.dev(function () {
-        return (__BROWSER__).should.be.ok && app.should.be.an.instanceOf(R.App);
+        return (__BROWSER__).should.be.ok && app.should.be.an.instanceOf(R.App) && window.should.not.have.property("React");
       });
+      window.React = React;
       this.app = app;
       this.rendered = false;
     };
