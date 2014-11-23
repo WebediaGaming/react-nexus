@@ -1,5 +1,5 @@
 require('6to5/polyfill');
-var Promise = require('bluebird');
+var Promise = require('lodash-next').Promise;
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var plumber = require('gulp-plumber');
@@ -9,7 +9,6 @@ var es6to5 = require('gulp-6to5');
 var del = require('del');
 var insert = require('gulp-insert');
 var sourcemaps = require('gulp-sourcemaps');
-var yuidoc = require('gulp-yuidoc');
 
 function lint() {
   return gulp.src('src/**/*.js')
@@ -21,10 +20,13 @@ function lint() {
 function build() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
-  .pipe(sourcemaps.init())
-  .pipe(insert.prepend('require(\'6to5/polyfill\');\nconst Promise = require(\'bluebird\');\n'))
+  .pipe(insert.prepend('require(\'6to5/polyfill\'); '))
+  .pipe(insert.prepend('const Promise = require(\'lodash-next\').Promise; '))
+  .pipe(insert.prepend('const __DEV__ = (process.env.NODE_ENV !== \'production\'); '))
+  .pipe(insert.prepend('const __PROD__ = !__DEV__; '))
+  .pipe(insert.prepend('const __BROWSER__ = (typeof window === \'object\'); '))
+  .pipe(insert.prepend('const __NODE__ = !__BROWSER__; '))
   .pipe(es6to5())
-  .pipe(sourcemaps.write())
   .pipe(gulp.dest('dist'));
 }
 
@@ -32,18 +34,16 @@ function clean() {
   del(['dist']);
 }
 
-function doc() {
-    gulp.src('src/**/*.js')
-    .pipe(yuidoc())
-    .pipe(gulp.dest('doc'));
-}
+gulp.task('lint', function() {
+  return lint();
+});
 
-gulp.task('lint', lint);
+gulp.task('clean', function() {
+  return clean();
+});
 
-gulp.task('clean', clean);
-
-gulp.task('build', ['lint', 'clean'], build);
-
-gulp.task('doc', ['lint'], doc)
+gulp.task('build', ['lint', 'clean'], function() {
+  return build();
+});
 
 gulp.task('default', ['build']);

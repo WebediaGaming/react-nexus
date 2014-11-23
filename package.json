@@ -22,12 +22,11 @@
   "author": "Elie Rotenberg <elie@rotenberg.io>",
   "license": "MIT",
   "dependencies": {
-    "6to5": "^1.13.4",
-    "bluebird": "^2.3.11",
+    "6to5": "^1.13.10",
     "d3": "^3.4.13",
     "locale": "0.0.20",
-    "lodash-next": "^1.7.0",
-    "nexus-router": "^0.3.0",
+    "lodash-next": "^1.8.0",
+    "nexus-router": "^0.3.1",
     "raf": "^2.0.4",
     "react": "^0.12.1",
     "setimmediate": "^1.0.2"
