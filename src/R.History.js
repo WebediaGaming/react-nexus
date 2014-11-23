@@ -2,7 +2,7 @@ module.exports = function(R) {
   const _ = R._;
   const url = require('url');
 
-  return ({ storeName, dispatcherName }) => {
+  function Plugin({ storeName, dispatcherName }) {
     _.dev(() => storeName.should.be.a.String &&
       dispatcherName.should.be.a.String
     );
@@ -45,5 +45,7 @@ module.exports = function(R) {
     }
 
     return History;
-  };
+  }
+
+  return Plugin;
 };

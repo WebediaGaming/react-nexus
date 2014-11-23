@@ -8,7 +8,7 @@ module.exports = function(R) {
       scrollLeft: 0,
   };
 
-  return ({ storeName, dispatcherName, params }) => {
+  function Plugin({ storeName, dispatcherName, params }) {
     params = params || {};
     _.dev(() => storeName.should.be.a.String &&
       dispatcherName.should.be.a.String &&
@@ -65,5 +65,7 @@ module.exports = function(R) {
     });
 
     return Window;
-  };
+  }
+
+  return Plugin;
 };

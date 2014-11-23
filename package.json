@@ -6,7 +6,7 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git://git@bitbucket.org:elierotenberg/react-nexus.git"
+    "url": "git://git@github.com:elierotenberg/react-rails.git#1.0-rc"
   },
   "keywords": [
     "react",

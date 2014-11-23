@@ -8,7 +8,7 @@ module.exports = function(R) {
     return accepted.best(supported);
   }
 
-  return _.extend(({ storeName, dispatcherName, supportedLocales }) => {
+  function Plugin({ storeName, dispatcherName, supportedLocales }) {
     _.dev(() => storeName.should.be.a.String &&
       dispatcherName.should.be.a.String &&
       supportedLocales.should.be.an.Array
@@ -48,5 +48,9 @@ module.exports = function(R) {
     }
 
     return Localize;
-  }, { bestLocale });
+  }
+
+  Plugin.bestLocale = bestLocale;
+
+  return Plugin;
 };
