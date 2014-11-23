@@ -58,7 +58,7 @@ R.Plugins.Localize = Localize(R);
 R.Plugins.Window = Window(R);
 R.Plugins.XWindow = XWindow(R);
 
-if(typeof window === 'object') { window.R = window.R || R; }
-if(typeof global === 'object') { global.R = global.R || R; }
+if(typeof window === 'object' && typeof window.R === 'undefined') { window.R = R; }
+if(typeof global === 'object' && typeof global.R === 'undefined') { global.R = R; }
 
 module.exports = R;
