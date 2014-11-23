@@ -1,6 +1,6 @@
 "use strict";
 
-var __NODE__ = !__BROWSER__;var __BROWSER__ = (typeof window === "object");var __PROD__ = !__DEV__;var __DEV__ = (process.env.NODE_ENV !== "production");var Promise = require("lodash-next").Promise;require("6to5/polyfill");var $ = require("./R.$");
+require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;var $ = require("./R.$");
 var _ = require("lodash-next");
 var Animate = require("./R.Animate");
 var App = require("./R.App");
