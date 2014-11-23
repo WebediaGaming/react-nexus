@@ -20,12 +20,13 @@ function lint() {
 function build() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
-  .pipe(insert.prepend('require(\'6to5/polyfill\'); '))
-  .pipe(insert.prepend('const Promise = require(\'lodash-next\').Promise; '))
-  .pipe(insert.prepend('const __DEV__ = (process.env.NODE_ENV !== \'production\'); '))
-  .pipe(insert.prepend('const __PROD__ = !__DEV__; '))
-  .pipe(insert.prepend('const __BROWSER__ = (typeof window === \'object\'); '))
-  .pipe(insert.prepend('const __NODE__ = !__BROWSER__; '))
+  .pipe(insert.prepend(
+    'require(\'6to5/polyfill\'); ' +
+    'const Promise = require(\'lodash-next\').Promise; ' +
+    'const __DEV__ = (process.env.NODE_ENV !== \'production\'); ' +
+    'const __PROD__ = !__DEV__; ' +
+    'const __BROWSER__ = (typeof window === \'object\'); ' +
+    'const __NODE__ = !__BROWSER__; '))
   .pipe(es6to5())
   .pipe(gulp.dest('dist'));
 }
