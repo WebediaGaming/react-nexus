@@ -58,4 +58,11 @@ R.Plugins.Localize = Localize(R);
 R.Plugins.Window = Window(R);
 R.Plugins.XWindow = XWindow(R);
 
+if(window && !window.R) {
+  window.R = R;
+}
+if(global && !global.R) {
+  global.R = R;
+}
+
 module.exports = R;
