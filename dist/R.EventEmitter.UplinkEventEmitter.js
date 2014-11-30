@@ -17,7 +17,7 @@ var _extends = function (child, parent) {
   child.__proto__ = parent;
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R, EventEmitter) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R, EventEmitter) {
   var _ = R._;
 
   var _UplinkEventEmitter = (function (EventEmitter) {
@@ -45,7 +45,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
           var createdRoom = _ref2.createdRoom;
           if (createdRoom) {
             _.dev(function () {
-              return _this.uplinkListeners.should.not.have.property(listener.id);
+              return (_this.uplinkListeners[listener.id] === void 0).should.be.ok;
             });
             this.uplinkListeners[listener.id] = this.uplink.listenTo(room, function (params) {
               return _this._emit(room, params);
@@ -66,13 +66,13 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
           var deletedRoom = _ref3.deletedRoom;
           if (deletedRoom) {
             _.dev(function () {
-              return _this2.uplinkListeners.should.have.property(listener.id);
+              return (_this2.uplinkListeners[listener.id] !== void 0).should.be.ok;
             });
             this.uplink.unlistenFrom(this.uplinkListeners[listener.id]);
             delete this.uplinkListeners[listener.id];
           }
           _.dev(function () {
-            return _this2.uplinkListeners.should.not.have.property(listener.id);
+            return (_this2.uplinkListeners[listener.id] === void 0).should.be.ok;
           });
           return { listener: listener, deletedRoom: deletedRoom };
         }

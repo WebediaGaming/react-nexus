@@ -17,7 +17,7 @@ var _extends = function (child, parent) {
   child.__proto__ = parent;
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R, Store) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R, Store) {
   var _ = R._;
 
   var _UplinkStore = (function (Store) {
@@ -89,7 +89,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
           var createdPath = _ref2.createdPath;
           if (createdPath) {
             _.dev(function () {
-              return _this3._uplinkSubscriptions.should.not.have.property(subscription.id);
+              return (_this3._uplinkSubscriptions[subscription.id] === void 0).should.be.ok;
             });
             this._uplinkSubscriptions[subscription.id] = this._uplink.subscribeTo(path, function (value) {
               return _this3.propagateUpdate(path, value);

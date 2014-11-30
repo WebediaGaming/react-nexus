@@ -5,11 +5,22 @@ var _classProps = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var React = R.React;
   var _ = R._;
   var Plugin = require("./R.App.Plugin")(R);
 
+  /**
+  * <p>Simply create an App class with specifics</p>
+  * <p>Provides methods in order to render the specified App server-side and client-side</p>
+  * <ul>
+  * <li> App.createApp => initializes methods of an application according to the specifications provided </li>
+  * <li> App.renderToStringInServer => compute all React Components with data and render the corresponding HTML for the requesting client </li>
+  * <li> App.renderIntoDocumentInClient => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions</li>
+  * <li> App.createPlugin => initiliaziation method of a plugin for the application </li>
+  * </ul>
+  * @class R.App
+  */
   var _App = (function () {
     var _App = function _App() {
       var _this = this;

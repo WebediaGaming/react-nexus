@@ -1,14 +1,6 @@
 "use strict";
 
-var _argumentsToArray = function (args) {
-  var target = new Array(args.length);
-  for (var i = 0; i < args.length; i++) {
-    target[i] = args[i];
-  }
-
-  return target;
-};
-
+var _slice = Array.prototype.slice;
 var _classProps = function (child, staticProps, instanceProps) {
   if (staticProps) Object.defineProperties(child, staticProps);
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
@@ -26,7 +18,7 @@ var _extends = function (child, parent) {
   child.__proto__ = parent;
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
   var url = require("url");
 
@@ -43,7 +35,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         var flux = _ref2.flux;
         var window = _ref2.window;
         var req = _ref2.req;
-        R.App.Plugin.call.apply(R.App.Plugin, [this].concat(_argumentsToArray(arguments)));
+        R.App.Plugin.call.apply(R.App.Plugin, [this].concat(_slice.call(arguments)));
         if ((__BROWSER__)) {
           (function () {
             var dispatcher = flux.getDispatcher(dispatcherName);

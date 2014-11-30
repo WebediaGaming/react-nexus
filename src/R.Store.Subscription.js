@@ -15,7 +15,7 @@ module.exports = function(R) {
         subscriptions[this.path] = {};
       }
       _.dev(() => subscriptions[this.path].should.be.an.Object &&
-        subscriptions[this.path].should.not.have.property(this.id)
+        (subscriptions[this.path][this.id] !== void 0).should.be.ok
       );
       subscriptions[this.path][this.id] = this;
       return Object.keys(subscriptions[this.path]).length === 1;
@@ -23,9 +23,10 @@ module.exports = function(R) {
 
     removeFrom(subscriptions) {
       _.dev(() => subscriptions.should.be.an.Object &&
-        subscriptions.should.have.property(this.path) &&
+        (subscriptions[this.path] !== void 0).should.be.ok &&
         subscriptions[this.path].shoulbe.be.an.Object &&
-        subscriptions[this.path].should.have.property(this.id, this)
+        (subscriptions[this.path][this.id] !== void 0).should.be.ok &&
+        subscriptions[this.path][this.id].should.be.exactly(this)
       );
       delete subscriptions[this.path][this.id];
       if(Object.keys(subscriptions[this.path]).length === 0) {

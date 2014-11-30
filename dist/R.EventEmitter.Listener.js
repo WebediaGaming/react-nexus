@@ -5,7 +5,7 @@ var _classProps = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
 
   var _Listener = (function () {
@@ -30,7 +30,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
             listeners[this.room] = {};
           }
           _.dev(function () {
-            return listeners[_this.room].should.be.an.Object && listeners[_this.room].should.not.have.property(_this.id);
+            return listeners[_this.room].should.be.an.Object && (listeners[_this.room][_this.id] === void 0).should.be.ok;
           });
           listeners[this.room][this.id] = this;
           return Object.keys(listeners[this.room]).length === 1;
@@ -41,7 +41,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (listeners) {
           var _this2 = this;
           _.dev(function () {
-            return listeners.should.be.an.Object && listeners.should.have.property(_this2.room) && listeners[_this2.room].should.be.an.Object && listeners[_this2.room].should.have.propery(_this2.id, _this2);
+            return listeners.should.be.an.Object && (listeners[_this2.room] !== void 0).should.be.ok && listeners[_this2.room].should.be.an.Object && (listeners[_this2.room][_this2.id] !== void 0).should.be.ok && listeners[_this2.room][_this2.id].should.be.exactly(_this2);
           });
           delete listeners[this.room][this.id];
           if (Object.keys(listeners[this.room]).length === 0) {

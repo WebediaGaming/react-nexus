@@ -4,15 +4,7 @@ var _toArray = function (arr) {
   return Array.isArray(arr) ? arr : Array.from(arr);
 };
 
-var _argumentsToArray = function (args) {
-  var target = new Array(args.length);
-  for (var i = 0; i < args.length; i++) {
-    target[i] = args[i];
-  }
-
-  return target;
-};
-
+var _slice = Array.prototype.slice;
 var _classProps = function (child, staticProps, instanceProps) {
   if (staticProps) Object.defineProperties(child, staticProps);
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
@@ -30,7 +22,7 @@ var _extends = function (child, parent) {
   child.__proto__ = parent;
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
 
   var defaultParams = {
@@ -57,7 +49,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         var req = _ref2.req;
         var headers = _ref2.headers;
         // jshint unused:false
-        R.App.Plugin.call.apply(R.App.Plugin, [this].concat(_argumentsToArray(arguments))); // Actually used in super(...arguments)
+        R.App.Plugin.call.apply(R.App.Plugin, [this].concat(_slice.call(arguments))); // Actually used in super(...arguments)
         this.store = flux.getStore(storeName);
 
         if (window) {

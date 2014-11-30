@@ -22,7 +22,7 @@ function build() {
   .pipe(plumber())
   .pipe(insert.prepend(
     'require(\'6to5/polyfill\'); ' +
-    'const Promise = require(\'lodash-next\').Promise; ' +
+    'const Promise = (global || window).Promise = require(\'lodash-next\').Promise; ' +
     'const __DEV__ = (process.env.NODE_ENV !== \'production\'); ' +
     'const __PROD__ = !__DEV__; ' +
     'const __BROWSER__ = (typeof window === \'object\'); ' +

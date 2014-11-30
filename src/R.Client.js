@@ -6,7 +6,7 @@ module.exports = function(R) {
     constructor({ app }) {
       _.dev(() => (__BROWSER__).should.be.ok &&
         app.should.be.an.instanceOf(R.App) &&
-        window.should.not.have.property('React')
+        (window.React === void 0).should.be.ok
       );
       window.React = React;
       this.app = app;

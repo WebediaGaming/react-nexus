@@ -18,15 +18,16 @@ module.exports = function(R) {
       if(!collection[this.action]) {
         collection[this.action] = {};
       }
-      _.dev(() => collection[this.action].should.not.have.property(this.id));
+      _.dev(() => (collection[this.action][this.id] === void 0).should.be.ok);
       collection[this.action][this.id] = this;
     }
 
     removeFrom(collection) {
       _.dev(() => collection.should.be.an.Object &&
-        collection.should.have.property(this.action) &&
+        (collection[this.action] !== void 0).should.be.ok &&
         collection[this.action].should.be.an.Object &&
-        collection[this.action].should.have.property(this.id, this)
+        (collection[this.action][this.id] !== void 0).should.be.ok &&
+        collection[this.action][this.id].should.be.exactly(this)
       );
       delete collection[this.action][this.id];
       if(Object.keys(collection[this.action]).length === 0) {

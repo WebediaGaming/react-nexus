@@ -15,7 +15,7 @@ module.exports = function(R) {
         listeners[this.room] = {};
       }
       _.dev(() => listeners[this.room].should.be.an.Object &&
-        listeners[this.room].should.not.have.property(this.id)
+        (listeners[this.room][this.id] === void 0).should.be.ok
       );
       listeners[this.room][this.id] = this;
       return Object.keys(listeners[this.room]).length === 1;
@@ -23,9 +23,10 @@ module.exports = function(R) {
 
     removeFrom(listeners) {
       _.dev(() => listeners.should.be.an.Object &&
-        listeners.should.have.property(this.room) &&
+        (listeners[this.room] !== void 0).should.be.ok &&
         listeners[this.room].should.be.an.Object &&
-        listeners[this.room].should.have.propery(this.id, this)
+        (listeners[this.room][this.id] !== void 0).should.be.ok &&
+        listeners[this.room][this.id].should.be.exactly(this)
       );
       delete listeners[this.room][this.id];
       if(Object.keys(listeners[this.room]).length === 0) {

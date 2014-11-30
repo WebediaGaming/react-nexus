@@ -5,7 +5,7 @@ var _classProps = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
   var React = R.React;
 
@@ -13,7 +13,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
     var _Client = function _Client(_ref) {
       var app = _ref.app;
       _.dev(function () {
-        return (__BROWSER__).should.be.ok && app.should.be.an.instanceOf(R.App) && window.should.not.have.property("React");
+        return (__BROWSER__).should.be.ok && app.should.be.an.instanceOf(R.App) && (window.React === void 0).should.be.ok;
       });
       window.React = React;
       this.app = app;

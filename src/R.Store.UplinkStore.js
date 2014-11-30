@@ -49,7 +49,7 @@ module.exports = function(R, Store) {
     subscribeTo(path, handler) {
       let { subscription, createdPath } = super.subscribeTo(path, handler);
       if(createdPath) {
-        _.dev(() => this._uplinkSubscriptions.should.not.have.property(subscription.id));
+        _.dev(() => (this._uplinkSubscriptions[subscription.id] === void 0).should.be.ok);
         this._uplinkSubscriptions[subscription.id] = this._uplink.subscribeTo(path, (value) => this.propagateUpdate(path, value));
       }
       return { subscription, createdPath };

@@ -9,7 +9,7 @@ var _classProps = function (child, staticProps, instanceProps) {
   if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
 };
 
-require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
   var React = R.React;
 
@@ -129,7 +129,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
           var unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
           Object.keys(unserializable).forEach(function (storeName) {
             _.dev(function () {
-              return _this4.stores.should.have.property(storeName);
+              return (_this4.stores[storeName] !== void 0).should.be.ok;
             });
             _this4.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
           });
@@ -141,7 +141,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (storeName, store) {
           var _this5 = this;
           _.dev(function () {
-            return store.should.be.an.instanceOf(R.Store) && storeName.should.be.a.String && _this5.stores.should.not.have.property(storeName);
+            return store.should.be.an.instanceOf(R.Store) && storeName.should.be.a.String && (_this5.stores[storeName] === void 0).should.be.ok;
           });
           this.stores[storeName] = store;
           return this;
@@ -152,7 +152,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (storeName) {
           var _this6 = this;
           _.dev(function () {
-            return storeName.should.be.a.String && _this6.stores.should.have.property(storeName) && _this6.stores[storeName].should.be.an.instanceOf(R.Store);
+            return storeName.should.be.a.String && (_this6.stores[storeName] !== void 0).should.be.ok && _this6.stores[storeName].should.be.an.instanceOf(R.Store);
           });
           delete this.stores[storeName];
           return this;
@@ -163,7 +163,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (storeName) {
           var _this7 = this;
           _.dev(function () {
-            return storeName.should.be.a.String && _this7.stores.should.have.property(storeName) && _this7.stores[storeName].should.be.an.instanceOf(R.Store);
+            return storeName.should.be.a.String && (_this7.stores[storeName] !== void 0).should.be.ok && _this7.stores[storeName].should.be.an.instanceOf(R.Store);
           });
           return this.stores[storeName];
         }
@@ -173,7 +173,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (eventEmitterName, eventEmitter) {
           var _this8 = this;
           _.dev(function () {
-            return eventEmitter.should.be.an.instanceOf(R.EventEmitter) && eventEmitterName.should.be.a.String && _this8.eventEmitters.should.not.have.property(eventEmitterName);
+            return eventEmitter.should.be.an.instanceOf(R.EventEmitter) && eventEmitterName.should.be.a.String && (_this8.eventEmitters[eventEmitterName] === void 0).should.be.ok;
           });
           this.eventEmitters[eventEmitterName] = eventEmitter;
           return this;
@@ -184,7 +184,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (eventEmitterName) {
           var _this9 = this;
           _.dev(function () {
-            return eventEmitterName.should.be.a.String && _this9.eventEmitters.should.have.property(eventEmitterName) && _this9.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
+            return eventEmitterName.should.be.a.String && (_this9.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this9.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
           });
           delete this.eventEmitters[eventEmitterName];
           return this;
@@ -195,7 +195,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (eventEmitterName) {
           var _this10 = this;
           _.dev(function () {
-            return eventEmitterName.should.be.a.String && _this10.eventEmitters.should.have.property(eventEmitterName) && _this10.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
+            return eventEmitterName.should.be.a.String && (_this10.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this10.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
           });
           return this.eventEmitters[eventEmitterName];
         }
@@ -205,7 +205,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (dispatcherName, dispatcher) {
           var _this11 = this;
           _.dev(function () {
-            return dispatcher.should.be.an.instanceOf(R.Dispatcher) && dispatcherName.should.be.a.String && _this11.dispatchers.should.not.have.property(dispatcherName);
+            return dispatcher.should.be.an.instanceOf(R.Dispatcher) && dispatcherName.should.be.a.String && (_this11.dispatchers[dispatcherName] === void 0).should.be.ok;
           });
           this.dispatchers[dispatcherName] = dispatcher;
           return this;
@@ -216,7 +216,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (dispatcherName) {
           var _this12 = this;
           _.dev(function () {
-            return dispatcherName.should.be.a.String && _this12.dispatchers.should.have.property(dispatcherName) && _this12.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
+            return dispatcherName.should.be.a.String && (_this12.dispatchers[dispatcherName] !== void 0).should.be.ok && _this12.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
           });
           delete this.dispatchers[dispatcherName];
           return this;
@@ -227,7 +227,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (dispatcherName) {
           var _this13 = this;
           _.dev(function () {
-            return dispatcherName.should.be.a.String && _this13.dispatchers.should.have.property(dispatcherName) && _this13.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
+            return dispatcherName.should.be.a.String && (_this13.dispatchers[dispatcherName] !== void 0).should.be.ok && _this13.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
           });
           return this.dispatchers[dispatcherName];
         }
@@ -237,7 +237,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (storeName, path, handler) {
           var _this14 = this;
           _.dev(function () {
-            return storeName.should.be.a.String && _this14.stores.should.have.property(storeName) && _this14.stores[storeName].should.be.an.instanceOf(R.Store) && path.should.be.a.String && handler.should.be.a.Function;
+            return storeName.should.be.a.String && (_this14.stores[storeName] !== void 0).should.be.ok && _this14.stores[storeName].should.be.an.instanceOf(R.Store) && path.should.be.a.String && handler.should.be.a.Function;
           });
           var store = this.getStore(storeName);
           var subscription = store.subscribeTo(path, handler);
@@ -249,7 +249,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (storeName, subscription) {
           var _this15 = this;
           _.dev(function () {
-            return storeName.should.be.a.String && _this15.stores.should.have.property(storeName) && _this15.stores[storeName].should.be.an.instanceOf(R.Store) && subscription.should.be.an.instanceOf(R.Store.Subscription);
+            return storeName.should.be.a.String && (_this15.stores[storeName] !== void 0).should.be.ok && _this15.stores[storeName].should.be.an.instanceOf(R.Store) && subscription.should.be.an.instanceOf(R.Store.Subscription);
           });
           var store = this.getStore(storeName);
           return store.unsubscribeFrom(subscription);
@@ -260,7 +260,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (eventEmitterName, room, handler) {
           var _this16 = this;
           _.dev(function () {
-            return eventEmitterName.should.be.a.String && _this16.eventEmitters.should.have.property(eventEmitterName) && _this16.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && room.should.be.a.String && handler.should.be.a.Function;
+            return eventEmitterName.should.be.a.String && (_this16.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this16.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && room.should.be.a.String && handler.should.be.a.Function;
           });
           var eventEmitter = this.getEventEmitter(eventEmitterName);
           var listener = eventEmitter.listenTo(room, handler);
@@ -272,7 +272,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
         value: function (eventEmitterName, listener) {
           var _this17 = this;
           _.dev(function () {
-            return eventEmitterName.should.be.a.String && _this17.eventEmitters.should.have.property(eventEmitterName) && _this17.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && listener.should.be.an.instanceOf(R.EventEmitter.Listener);
+            return eventEmitterName.should.be.a.String && (_this17.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this17.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && listener.should.be.an.instanceOf(R.EventEmitter.Listener);
           });
           var eventEmitter = this.getEventEmitter(eventEmitterName);
           return eventEmitter.unlistenFrom(listener);
@@ -284,7 +284,7 @@ require("6to5/polyfill");var Promise = require("lodash-next").Promise;var __DEV_
           var _this18 = this;
           params = params || {};
           _.dev(function () {
-            return dispatcherName.should.be.a.String && _this18.dispatchers.should.have.property(dispatcherName) && _this18.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) && action.should.be.a.String && params.should.be.an.Object;
+            return dispatcherName.should.be.a.String && (_this18.dispatchers[dispatcherName] !== void 0).should.be.ok && _this18.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) && action.should.be.a.String && params.should.be.an.Object;
           });
           var dispatcher = this.getDispatcher(dispatcherName);
           return dispatcher.dispatch(action, params);
