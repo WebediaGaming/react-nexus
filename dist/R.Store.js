@@ -38,7 +38,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           var bypassCache = opts.bypassCache;
           this._shouldNotBeDestroyed();
           _.dev(function () {
-            return path.should.be.an.Object;
+            return path.should.be.a.String;
           });
           if (bypassCache || !this._cache[path]) {
             this._cache[path] = this.fetch(path);

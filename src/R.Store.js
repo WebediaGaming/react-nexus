@@ -21,7 +21,7 @@ module.exports = function(R) {
     pull(path, opts = {}) {
       let { bypassCache } = opts;
       this._shouldNotBeDestroyed();
-      _.dev(() => path.should.be.an.Object);
+      _.dev(() => path.should.be.a.String);
       if(bypassCache || !this._cache[path]) {
         this._cache[path] = this.fetch(path);
       }
