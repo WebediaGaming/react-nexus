@@ -574,7 +574,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
     prefetchFluxStores: regeneratorRuntime.mark(function _callee3() {
       var _this30 = this;
-      var props, subscriptions, context, state, flux, fetchSusbscription, surrogateComponent, renderedComponent, childContext;
+      var props, subscriptions, context, state, flux, surrogateComponent, renderedComponent, childContext;
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (true) switch (_context3.prev = _context3.next) {
           case 0: props = _this30.props;
@@ -582,31 +582,25 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
             context = _this30.context;
             state = _.extend({}, _this30.state || {});
             flux = _this30.getFlux();
-            fetchSusbscription = function (stateKey) {
-              return _.co(_.scope(regeneratorRuntime.mark(function _callee2() {
-                var location, _ref14, name, key, _ref15, _ref16, storeName, path;
+            _context3.next = 7;
+            return Object.keys(subscriptions).map(function (stateKey) {
+              return _.co(regeneratorRuntime.mark(function _callee2() {
+                var _ref14, name, key;
                 return regeneratorRuntime.wrap(function _callee2$(_context2) {
                   while (true) switch (_context2.prev = _context2.next) {
-                    case 0: location = subscriptions[stateKey];
-                      _ref14 = FluxMixinStatics.parseFluxLocation(location);
+                    case 0: _ref14 = FluxMixinStatics.parseFluxLocation(subscriptions[stateKey]);
                       name = _ref14.name;
                       key = _ref14.key;
-                      _ref15 = [name, key];
-                      _ref16 = _toArray(_ref15);
-                      storeName = _ref16[0];
-                      path = _ref16[1];
-                      _context2.next = 10;
-                      return flux.getStore(storeName).pull(path);
-                    case 10: state[stateKey] = _context2.sent;
-                    case 11:
+                      _context2.next = 5;
+                      return flux.getStore(name).pull(key);
+                    case 5: state[stateKey] = _context2.sent;
+                    case 6:
                     case "end": return _context2.stop();
                   }
                 }, _callee2, this);
-              })), _this30);
-            };
-            _context3.next = 8;
-            return Object.keys(subscriptions).map(fetchSusbscription);
-          case 8:
+              }));
+            });
+          case 7:
             flux.injectingFromStores(function () {
               surrogateComponent = new _this30.__ReactNexusSurrogate({ context: context, props: props, state: state });
               surrogateComponent.componentWillMount();
@@ -616,11 +610,11 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
             childContext = surrogateComponent.getChildContext ? surrogateComponent.getChildContext() : context;
             surrogateComponent.componentWillUnmount();
 
-            _context3.next = 14;
+            _context3.next = 13;
             return React.Children.mapTree(renderedComponent, function (childComponent) {
               return _.co.wrap(_this30._prefetchChildComponent).call(_this30, childComponent, childContext);
             });
-          case 14:
+          case 13:
           case "end": return _context3.stop();
         }
       }, _callee3, this);
@@ -661,15 +655,15 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     }),
 
     dispatch: function (location, params) {
-      var _ref17 = FluxMixinStatics.parseFluxLocation(location);
+      var _ref15 = FluxMixinStatics.parseFluxLocation(location);
 
-      var name = _ref17.name;
-      var key = _ref17.key;
-      var _ref18 = [name, key];
-      var _ref19 = _toArray(_ref18);
+      var name = _ref15.name;
+      var key = _ref15.key;
+      var _ref16 = [name, key];
+      var _ref17 = _toArray(_ref16);
 
-      var dispatcherName = _ref19[0];
-      var action = _ref19[1];
+      var dispatcherName = _ref17[0];
+      var action = _ref17[1];
       var flux = this.getFlux();
       return flux.dispatch(dispatcherName, action, params);
     } };

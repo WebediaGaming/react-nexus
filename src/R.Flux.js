@@ -434,13 +434,10 @@ module.exports = function(R) {
       const context = this.context;
       const state = _.extend({}, this.state || {});
       const flux = this.getFlux();
-      const fetchSusbscription = (stateKey) => _.co(_.scope(function*() {
-        const location = subscriptions[stateKey];
-        const { name, key } = FluxMixinStatics.parseFluxLocation(location);
-        const [storeName, path] = [name, key];
-        state[stateKey] = yield flux.getStore(storeName).pull(path);
-      }), this);
-      yield Object.keys(subscriptions).map(fetchSusbscription);
+      yield Object.keys(subscriptions).map((stateKey) => _.co(function*() {
+        const { name, key } = FluxMixinStatics.parseFluxLocation(subscriptions[stateKey]);
+        state[stateKey] = yield flux.getStore(name).pull(key);
+      }));
 
       // Create a new component, surrogate for this one, but this time inject from the prefetched stores.
       let surrogateComponent;
