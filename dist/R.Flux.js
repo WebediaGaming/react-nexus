@@ -15,6 +15,12 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
   var fluxLocationRegExp = /^(.*):\/(.*)$/;
 
+  var valuesOf = function (obj) {
+    return Object.keys(obj).map(function (key) {
+      return obj[key];
+    });
+  };
+
   var _Flux = (function () {
     var _Flux = function _Flux(_ref2) {
       var headers = _ref2.headers;
@@ -314,7 +320,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       _.dev(function () {
         return (r !== null).should.be.ok;
       });
-      return { name: r[1], key: r[2] };
+      return [r[1], r[2]];
     },
 
     _getInitialStateFromFluxStores: function () {
@@ -324,17 +330,14 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       });
       var flux = this.getFlux();
       var subscriptions = this.getFluxStoreSubscriptions(this.props);
-      return _.object(Object.keys(subscriptions).map(function (location) {
-        var stateKey = subscriptions[location];
+      return _.object(Object.keys(subscriptions).map(function (stateKey) {
+        var location = subscriptions[stateKey];
         var _ref3 = FluxMixinStatics.parseFluxLocation(location);
 
-        var name = _ref3.name;
-        var key = _ref3.key;
-        var _ref4 = [name, key];
-        var _ref5 = _toArray(_ref4);
+        var _ref4 = _toArray(_ref3);
 
-        var storeName = _ref5[0];
-        var path = _ref5[1];
+        var storeName = _ref4[0];
+        var path = _ref4[1];
         var store = flux.getStore(storeName);
         _.dev(function () {
           return store.hasCachedValue(path).should.be.ok;
@@ -350,8 +353,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         return _this20._FluxMixin.should.be.ok;
       });
       var subscriptions = this.getFluxStoreSubscriptions(this.props);
-      return _.object(Object.keys(subscriptions).map(function (location) {
-        var stateKey = subscriptions[location];
+      return _.object(Object.keys(subscriptions).map(function (stateKey) {
         return [stateKey, null];
       }));
     },
@@ -362,42 +364,38 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       _.dev(function () {
         return _this21._FluxMixin.should.be.ok && props.should.be.an.Object;
       });
-      var currentSubscriptions = Object.keys(this._FluxMixinSubscriptions).map(function (key) {
-        return _this21._FluxMixinSubscriptions[key];
-      });
-      var currentListeners = Object.keys(this._FluxMixinListeners).map(function (key) {
-        return _this21._FluxMixinListeners[key];
-      });
+      var currentSubscriptions = valuesOf(this._FluxMixinSubscriptions);
+      var currentListeners = valuesOf(this._FluxMixinListeners);
 
       var nextSubscriptions = this.getFluxStoreSubscriptions(props);
       var nextListeners = this.getFluxEventEmittersListeners(props);
 
-      Object.keys(nextSubscriptions).forEach(function (location) {
-        var stateKey = nextSubscriptions[location];
-        var _ref6 = FluxMixinStatics.parseFluxLocation(location);
+      Object.keys(nextSubscriptions).forEach(function (stateKey) {
+        var location = nextSubscriptions[stateKey];
+        var _ref5 = FluxMixinStatics.parseFluxLocation(location);
 
-        var name = _ref6.name;
-        var key = _ref6.key;
-        var _ref7 = [name, key];
-        var _ref8 = _toArray(_ref7);
+        var _ref6 = _toArray(_ref5);
 
-        var storeName = _ref8[0];
-        var path = _ref8[1];
+        var storeName = _ref6[0];
+        var path = _ref6[1];
         FluxMixinStatics._subscribeTo(storeName, path, stateKey);
       });
 
       Object.keys(nextListeners).forEach(function (location) {
-        var handler = nextListeners[location];
-        var _ref9 = FluxMixinStatics.parseFluxLocation(location);
+        var handlerName = nextListeners[location];
+        _.dev(function () {
+          return (_this21[handlerName] !== void 0).should.be.ok && _this21[handlerName].should.be.a.Function;
+        });
+        var handlerFn = function (params) {
+          return _this21[handlerName](params);
+        };
+        var _ref7 = FluxMixinStatics.parseFluxLocation(location);
 
-        var name = _ref9.name;
-        var key = _ref9.key;
-        var _ref10 = [name, key];
-        var _ref11 = _toArray(_ref10);
+        var _ref8 = _toArray(_ref7);
 
-        var eventEmitterName = _ref11[0];
-        var room = _ref11[1];
-        FluxMixinStatics._listenTo(eventEmitterName, room, handler);
+        var eventEmitterName = _ref8[0];
+        var room = _ref8[1];
+        FluxMixinStatics._listenTo(eventEmitterName, room, handlerFn);
       });
 
       currentSubscriptions.forEach(function (subscription) {
@@ -413,18 +411,18 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       _.dev(function () {
         return _this22._FluxMixin.should.be.ok;
       });
-      Object.keys(this._FluxMixinSubscriptions).forEach(function (key) {
-        return _this22._unsubscribeFrom(_this22._FluxMixinSubscriptions[key]);
+      valuesOf(this._FluxMixinSubscriptions).forEach(function (subscription) {
+        return _this22._unsubscribeFrom(subscription);
       });
-      Object.keys(this._FluxMixinListeners).forEach(function (key) {
-        return _this22._unlistenFrom(_this22._FluxMixinListeners[key]);
+      valuesOf(this._FluxMixinListeners).forEach(function (listener) {
+        return _this22._unlistenFrom(listener);
       });
     },
 
     _propagateStoreUpdate: function (storeName, path, value, stateKey) {
       var _this23 = this;
       _.dev(function () {
-        return stateKey.should.be.a.String && value.should.be.an.Object;
+        return storeName.should.be.a.String && path.should.be.a.String && (value === null || _.isObject(value)).should.be.ok && stateKey.should.be.a.String;
       });
       return R.Async.ifMounted(function () {
         _.dev(function () {
@@ -454,13 +452,13 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       return this;
     },
 
-    _unsubscribeFrom: function (_ref12) {
+    _unsubscribeFrom: function (_ref9) {
       var _this25 = this;
-      var subscription = _ref12.subscription;
-      var id = _ref12.id;
-      var storeName = _ref12.storeName;
+      var subscription = _ref9.subscription;
+      var id = _ref9.id;
+      var storeName = _ref9.storeName;
       _.dev(function () {
-        return subscription.should.be.an.instanceOf(R.Store.Subscription) && id.should.be.a.String && _this25._FluxMixin.should.be.ok && _this25._FluxMixinSubscriptions[id].should.be.exactly(subscription);
+        return subscription.should.be.an.instanceOf(R.Store.Subscription) && id.should.be.a.String && _this25._FluxMixin.should.be.ok && (_this25._FluxMixinSubscriptions[id] !== void 0).should.be.ok && _this25._FluxMixinSubscriptions[id].should.be.exactly(subscription);
       });
       var flux = this.getFlux();
       flux.unsubscribeFrom(storeName, subscription);
@@ -471,7 +469,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     _propagateEvent: function (eventEmitterName, room, params, handler) {
       var _this26 = this;
       _.dev(function () {
-        return handler.should.be.a.Function && params.should.be.an.Object;
+        return eventEmitterName.should.be.a.String && room.should.be.a.String && params.should.be.an.Object && handler.should.be.a.Function;
       });
 
       return R.Async.ifMounted(function () {
@@ -479,7 +477,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           return _this26._FluxMixin.should.be.ok;
         });
         _this26.fluxEventEmitterWillEmit(eventEmitterName, room, params, handler);
-        handler.call(null, params);
+        handler(params);
         _this26.fluxEventEmitterDidEmit(eventEmitterName, room, params, handler);
       }).call(this);
     },
@@ -499,13 +497,13 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       return this;
     },
 
-    _unlistenFrom: function (_ref13) {
+    _unlistenFrom: function (_ref10) {
       var _this28 = this;
-      var listener = _ref13.listener;
-      var id = _ref13.id;
-      var eventEmitterName = _ref13.eventEmitterName;
+      var listener = _ref10.listener;
+      var id = _ref10.id;
+      var eventEmitterName = _ref10.eventEmitterName;
       _.dev(function () {
-        return listener.should.be.an.instanceOf(R.EventEmitter.Listener) && id.should.be.a.String && _this28._FluxMixin.should.be.ok && _this28._FluxMixinListeners[id].should.be.exactly(listener);
+        return listener.should.be.an.instanceOf(R.EventEmitter.Listener) && id.should.be.a.String && _this28._FluxMixin.should.be.ok && (_this28._FluxMixinListeners[id] !== void 0).should.be.ok && _this28._FluxMixinListeners[id].should.be.exactly(listener);
       });
       var flux = this.getFlux();
       flux.unlistenFrom(eventEmitterName, listener);
@@ -585,16 +583,17 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
             _context3.next = 7;
             return Object.keys(subscriptions).map(function (stateKey) {
               return _.co(regeneratorRuntime.mark(function _callee2() {
-                var _ref14, name, key;
+                var _ref11, _ref12, storeName, path;
                 return regeneratorRuntime.wrap(function _callee2$(_context2) {
                   while (true) switch (_context2.prev = _context2.next) {
-                    case 0: _ref14 = FluxMixinStatics.parseFluxLocation(subscriptions[stateKey]);
-                      name = _ref14.name;
-                      key = _ref14.key;
-                      _context2.next = 5;
-                      return flux.getStore(name).pull(key);
-                    case 5: state[stateKey] = _context2.sent;
-                    case 6:
+                    case 0: _ref11 = FluxMixinStatics.parseFluxLocation(subscriptions[stateKey]);
+                      _ref12 = _toArray(_ref11);
+                      storeName = _ref12[0];
+                      path = _ref12[1];
+                      _context2.next = 6;
+                      return flux.getStore(storeName).pull(path);
+                    case 6: state[stateKey] = _context2.sent;
+                    case 7:
                     case "end": return _context2.stop();
                   }
                 }, _callee2, this);
@@ -655,15 +654,12 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     }),
 
     dispatch: function (location, params) {
-      var _ref15 = FluxMixinStatics.parseFluxLocation(location);
+      var _ref13 = FluxMixinStatics.parseFluxLocation(location);
 
-      var name = _ref15.name;
-      var key = _ref15.key;
-      var _ref16 = [name, key];
-      var _ref17 = _toArray(_ref16);
+      var _ref14 = _toArray(_ref13);
 
-      var dispatcherName = _ref17[0];
-      var action = _ref17[1];
+      var dispatcherName = _ref14[0];
+      var action = _ref14[1];
       var flux = this.getFlux();
       return flux.dispatch(dispatcherName, action, params);
     } };
