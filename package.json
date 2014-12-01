@@ -1,6 +1,6 @@
 {
   "name": "react-nexus",
-  "version": "0.15.7",
+  "version": "0.15.8",
   "description": "Opinionated React extensions for Real-World Production-Level Applications.",
   "main": "dist/index.js",
   "scripts": {},
