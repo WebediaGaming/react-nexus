@@ -314,7 +314,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       _.dev(function () {
         return (r !== null).should.be.ok;
       });
-      return { name: r[0], key: r[1] };
+      return { name: r[1], key: r[2] };
     },
 
     _getInitialStateFromFluxStores: function () {

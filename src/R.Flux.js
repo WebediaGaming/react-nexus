@@ -226,7 +226,7 @@ module.exports = function(R) {
       _.dev(() => location.should.be.a.String);
       const r = fluxLocationRegExp.exec(location);
       _.dev(() => (r !== null).should.be.ok);
-      return { name: r[0], key: r[1] };
+      return { name: r[1], key: r[2] };
     },
 
     _getInitialStateFromFluxStores() {
