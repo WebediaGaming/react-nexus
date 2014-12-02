@@ -11,7 +11,6 @@ module.exports = function(R, Store) {
       super();
       this._uplink = uplink;
       this._uplinkSubscriptions = {};
-      this._pending = {};
     }
 
     destroy() {
@@ -21,33 +20,19 @@ module.exports = function(R, Store) {
       // Unsubscriptions are made in each unsubscribeFrom in super.destory
       // (the last one calls this._uplink.unsubscribeFrom automatically).
       .forEach((id) => this._uplinkSubscriptions[id] = null);
-      Object.keys(this._pending)
-      .forEach((path) => {
-        this._pending[path].cancel(new Error('UplinkStore destroy'));
-        this._pending[path] = null;
-      });
       // Nullify references
       this._uplink = null;
       this._uplinkSubscriptions = null;
-      this._pending = null;
     }
 
     fetch(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);
-      if(!this._pending[path]) {
-        this._pending[path] = this._uplink.pull(path).cancellable().then((value) => {
-          // As soon as the result is received, remove it from the pending list.
-          delete this._pending[path];
-          return value;
-        });
-      }
-      _.dev(() => this._pending[path].then.should.be.a.Function);
-      return this._pending[path];
+      return this._uplink.pull(path);
     }
 
     subscribeTo(path, handler) {
-      let { subscription, createdPath } = super.subscribeTo(path, handler);
+      const { subscription, createdPath } = super.subscribeTo(path, handler);
       if(createdPath) {
         _.dev(() => (this._uplinkSubscriptions[subscription.id] === void 0).should.be.ok);
         this._uplinkSubscriptions[subscription.id] = this._uplink.subscribeTo(path, (value) => this.propagateUpdate(path, value));
@@ -56,7 +41,7 @@ module.exports = function(R, Store) {
     }
 
     unsubscribeFrom({ subscription }) {
-      let { deletedPath } = super.unsubscribeFrom({ subscription });
+      const { deletedPath } = super.unsubscribeFrom({ subscription });
       if(deletedPath) {
         _.dev(() => this._uplinkSubscriptions[subscription.id].should.be.an.instanceOf(R.Uplink.Subscription));
         this._uplink.unsubscribeFrom(this._uplinkSubscriptions[subscription.id]);
@@ -69,7 +54,6 @@ module.exports = function(R, Store) {
   _.extend(UplinkStore.prototype, {
     _uplink: null,
     _uplinkSubscriptions: null,
-    _pending: null,
   });
 
   return UplinkStore;

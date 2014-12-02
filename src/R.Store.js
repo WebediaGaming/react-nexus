@@ -6,6 +6,7 @@ module.exports = function(R) {
     constructor() {
       this._destroyed = false;
       this._cache = {};
+      this._pending = {};
       this.subscriptions = {};
     }
 
@@ -13,19 +14,30 @@ module.exports = function(R) {
       this._shouldNotBeDestroyed();
       // Explicitly nullify the cache
       Object.keys(this._cache).forEach((path) => this._cache[path] = null);
+      Object.keys(this._pending).forEach((path) => {
+        this._pending[path].cancel(new Error('R.Store destroy'));
+        this._pending[path] = null;
+      });
       // Nullify references
       this._cache = null;
+      this._pending = null;
       this._destroyed = true;
     }
 
     pull(path, opts = {}) {
-      let { bypassCache } = opts;
+      const { bypassCache } = opts;
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);
-      if(bypassCache || !this._cache[path]) {
-        this._cache[path] = this.fetch(path);
+      if(bypassCache || !this._pending[path]) {
+        this._pending[path] = this.fetch(path)
+        .then((value) => {
+          _.dev(() => (value === null || _.isObject(value)).should.be.ok);
+          this._cache[path] = value;
+          return value;
+        })
+        .cancellable();
       }
-      return this._cache[path];
+      return this._pending[path];
     }
 
     fetch(path) { _.abstract(); } // jshint ignore:line
@@ -35,8 +47,8 @@ module.exports = function(R) {
       _.dev(() => path.should.be.a.String &&
         handler.should.be.a.Function
       );
-      let subscription = new Subscription({ path, handler });
-      let createdPath = subscription.addTo(this.subscriptions);
+      const subscription = new Subscription({ path, handler });
+      const createdPath = subscription.addTo(this.subscriptions);
       this.pull(path).then(handler);
       return { subscription, createdPath };
     }
@@ -52,14 +64,19 @@ module.exports = function(R) {
 
     serialize({ preventEncoding }) {
       this._shouldNotBeDestroyed();
-      let serializable = _.extend({}, this._cache);
+      const serializable = _.extend({}, this._cache);
       return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
     }
 
     unserialize(serialized, { preventDecoding }) {
       this._shouldNotBeDestroyed();
-      let unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
-      _.extend(this, { _cache: unserializable });
+      const unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
+      this._cache = {};
+      this._pending = {};
+      Object.keys(unserializable).forEach((path) => {
+        this._cache[path] = unserializable[path];
+        this._pending[path] = Promise.resolve(unserializable[path]).cancellable();
+      });
       return this;
     }
 
@@ -75,16 +92,15 @@ module.exports = function(R) {
     getCachedValue(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String &&
-        _.has(this._cache, path).should.be.ok &&
-        this._cache[path].isFulfilled().should.be.ok
+        (this._cache[path] !== void 0).should.be.ok
       );
-      return this._cache[path].value();
+      return this._cache[path];
     }
 
     hasCachedValue(path) {
       this._shouldNotBeDestroyed();
       _.dev(() => path.should.be.a.String);
-      return _.has(this._cache, path);
+      return (this._cache[path] !== void 0);
     }
 
     _shouldNotBeDestroyed() {
@@ -94,6 +110,7 @@ module.exports = function(R) {
 
   _.extend(Store.prototype, {
     _cache: null,
+    _pending: null,
     _destroyed: null,
     subscriptions: null,
   });

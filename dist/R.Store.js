@@ -13,6 +13,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     var _Store = function _Store() {
       this._destroyed = false;
       this._cache = {};
+      this._pending = {};
       this.subscriptions = {};
     };
 
@@ -26,24 +27,36 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           Object.keys(this._cache).forEach(function (path) {
             return _this._cache[path] = null;
           });
+          Object.keys(this._pending).forEach(function (path) {
+            _this._pending[path].cancel(new Error("R.Store destroy"));
+            _this._pending[path] = null;
+          });
           // Nullify references
           this._cache = null;
+          this._pending = null;
           this._destroyed = true;
         }
       },
       pull: {
         writable: true,
         value: function (path, opts) {
+          var _this2 = this;
           if (opts === undefined) opts = {};
           var bypassCache = opts.bypassCache;
           this._shouldNotBeDestroyed();
           _.dev(function () {
             return path.should.be.a.String;
           });
-          if (bypassCache || !this._cache[path]) {
-            this._cache[path] = this.fetch(path);
+          if (bypassCache || !this._pending[path]) {
+            this._pending[path] = this.fetch(path).then(function (value) {
+              _.dev(function () {
+                return (value === null || _.isObject(value)).should.be.ok;
+              });
+              _this2._cache[path] = value;
+              return value;
+            }).cancellable();
           }
-          return this._cache[path];
+          return this._pending[path];
         }
       },
       fetch: {
@@ -92,21 +105,27 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       unserialize: {
         writable: true,
         value: function (serialized, _ref3) {
+          var _this3 = this;
           var preventDecoding = _ref3.preventDecoding;
           this._shouldNotBeDestroyed();
           var unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
-          _.extend(this, { _cache: unserializable });
+          this._cache = {};
+          this._pending = {};
+          Object.keys(unserializable).forEach(function (path) {
+            _this3._cache[path] = unserializable[path];
+            _this3._pending[path] = Promise.resolve(unserializable[path]).cancellable();
+          });
           return this;
         }
       },
       propagateUpdate: {
         writable: true,
         value: function (path, value) {
-          var _this2 = this;
+          var _this4 = this;
           this._shouldNotBeDestroyed();
           if (this.subscriptions[path]) {
             Object.keys(this.subscriptions[path]).forEach(function (key) {
-              return _this2.subscriptions[path][key].update(value);
+              return _this4.subscriptions[path][key].update(value);
             });
           }
           return value;
@@ -115,12 +134,12 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       getCachedValue: {
         writable: true,
         value: function (path) {
-          var _this3 = this;
+          var _this5 = this;
           this._shouldNotBeDestroyed();
           _.dev(function () {
-            return path.should.be.a.String && _.has(_this3._cache, path).should.be.ok && _this3._cache[path].isFulfilled().should.be.ok;
+            return path.should.be.a.String && (_this5._cache[path] !== void 0).should.be.ok;
           });
-          return this._cache[path].value();
+          return this._cache[path];
         }
       },
       hasCachedValue: {
@@ -130,15 +149,15 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           _.dev(function () {
             return path.should.be.a.String;
           });
-          return _.has(this._cache, path);
+          return (this._cache[path] !== void 0);
         }
       },
       _shouldNotBeDestroyed: {
         writable: true,
         value: function () {
-          var _this4 = this;
+          var _this6 = this;
           _.dev(function () {
-            return _this4._destroyed.should.not.be.ok;
+            return _this6._destroyed.should.not.be.ok;
           });
         }
       }
@@ -149,6 +168,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
   _.extend(_Store.prototype, {
     _cache: null,
+    _pending: null,
     _destroyed: null,
     subscriptions: null });
 

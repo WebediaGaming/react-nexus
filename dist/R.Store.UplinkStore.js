@@ -30,7 +30,6 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       Store.call(this);
       this._uplink = uplink;
       this._uplinkSubscriptions = {};
-      this._pending = {};
     };
 
     _extends(_UplinkStore, Store);
@@ -48,51 +47,35 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           .forEach(function (id) {
             return _this._uplinkSubscriptions[id] = null;
           });
-          Object.keys(this._pending).forEach(function (path) {
-            _this._pending[path].cancel(new Error("UplinkStore destroy"));
-            _this._pending[path] = null;
-          });
           // Nullify references
           this._uplink = null;
           this._uplinkSubscriptions = null;
-          this._pending = null;
         }
       },
       fetch: {
         writable: true,
         value: function (path) {
-          var _this2 = this;
           this._shouldNotBeDestroyed();
           _.dev(function () {
             return path.should.be.a.String;
           });
-          if (!this._pending[path]) {
-            this._pending[path] = this._uplink.pull(path).cancellable().then(function (value) {
-              // As soon as the result is received, remove it from the pending list.
-              delete _this2._pending[path];
-              return value;
-            });
-          }
-          _.dev(function () {
-            return _this2._pending[path].then.should.be.a.Function;
-          });
-          return this._pending[path];
+          return this._uplink.pull(path);
         }
       },
       subscribeTo: {
         writable: true,
         value: function (path, handler) {
-          var _this3 = this;
+          var _this2 = this;
           var _ref2 = Store.prototype.subscribeTo.call(this, path, handler);
 
           var subscription = _ref2.subscription;
           var createdPath = _ref2.createdPath;
           if (createdPath) {
             _.dev(function () {
-              return (_this3._uplinkSubscriptions[subscription.id] === void 0).should.be.ok;
+              return (_this2._uplinkSubscriptions[subscription.id] === void 0).should.be.ok;
             });
             this._uplinkSubscriptions[subscription.id] = this._uplink.subscribeTo(path, function (value) {
-              return _this3.propagateUpdate(path, value);
+              return _this2.propagateUpdate(path, value);
             });
           }
           return { subscription: subscription, createdPath: createdPath };
@@ -101,14 +84,14 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       unsubscribeFrom: {
         writable: true,
         value: function (_ref3) {
-          var _this4 = this;
+          var _this3 = this;
           var subscription = _ref3.subscription;
           var _ref4 = Store.prototype.unsubscribeFrom.call(this, { subscription: subscription });
 
           var deletedPath = _ref4.deletedPath;
           if (deletedPath) {
             _.dev(function () {
-              return _this4._uplinkSubscriptions[subscription.id].should.be.an.instanceOf(R.Uplink.Subscription);
+              return _this3._uplinkSubscriptions[subscription.id].should.be.an.instanceOf(R.Uplink.Subscription);
             });
             this._uplink.unsubscribeFrom(this._uplinkSubscriptions[subscription.id]);
             delete this._uplinkSubscriptions[subscription.id];
@@ -123,8 +106,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
   _.extend(_UplinkStore.prototype, {
     _uplink: null,
-    _uplinkSubscriptions: null,
-    _pending: null });
+    _uplinkSubscriptions: null });
 
   return _UplinkStore;
 };
