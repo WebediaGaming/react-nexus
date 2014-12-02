@@ -71,9 +71,10 @@ module.exports = function(R) {
     unserialize(serialized, { preventDecoding }) {
       this._shouldNotBeDestroyed();
       const unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
-      this._cache = {};
-      this._pending = {};
       Object.keys(unserializable).forEach((path) => {
+        _.dev(() => path.should.be.a.String &&
+          (unserializable[path] === null || _.isObject(unserializable[path])).should.be.ok
+        );
         this._cache[path] = unserializable[path];
         this._pending[path] = Promise.resolve(unserializable[path]).cancellable();
       });

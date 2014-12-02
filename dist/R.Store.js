@@ -109,9 +109,10 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           var preventDecoding = _ref3.preventDecoding;
           this._shouldNotBeDestroyed();
           var unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
-          this._cache = {};
-          this._pending = {};
           Object.keys(unserializable).forEach(function (path) {
+            _.dev(function () {
+              return path.should.be.a.String && (unserializable[path] === null || _.isObject(unserializable[path])).should.be.ok;
+            });
             _this3._cache[path] = unserializable[path];
             _this3._pending[path] = Promise.resolve(unserializable[path]).cancellable();
           });
