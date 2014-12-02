@@ -378,7 +378,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
         var storeName = _ref6[0];
         var path = _ref6[1];
-        FluxMixinStatics._subscribeTo(storeName, path, stateKey);
+        FluxMixinStatics._subscribeTo.call(_this21, storeName, path, stateKey);
       });
 
       Object.keys(nextListeners).forEach(function (location) {
@@ -395,7 +395,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
         var eventEmitterName = _ref8[0];
         var room = _ref8[1];
-        FluxMixinStatics._listenTo(eventEmitterName, room, handlerFn);
+        FluxMixinStatics._listenTo.call(_this21, eventEmitterName, room, handlerFn);
       });
 
       currentSubscriptions.forEach(function (subscription) {
@@ -444,7 +444,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       });
       var flux = this.getFlux();
       var propagateUpdate = function (value) {
-        return FluxMixinStatics._propagateStoreUpdate(storeName, path, value, stateKey);
+        return FluxMixinStatics._propagateStoreUpdate.call(_this24, storeName, path, value, stateKey);
       };
       var subscription = flux.subscribeTo(storeName, path, propagateUpdate);
       var id = _.uniqueId(stateKey);
@@ -489,7 +489,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       });
       var flux = this.getFlux();
       var propagateEvent = function (params) {
-        return FluxMixinStatics._propagateEvent(eventEmitterName, room, params, handler);
+        return FluxMixinStatics._propagateEvent.call(_this27, eventEmitterName, room, params, handler);
       };
       var listener = flux.listenTo(eventEmitterName, room, propagateEvent);
       var id = _.uniqueId(room);

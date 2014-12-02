@@ -268,7 +268,7 @@ module.exports = function(R) {
       .forEach((stateKey) => {
         const location = nextSubscriptions[stateKey];
         const [storeName, path] = FluxMixinStatics.parseFluxLocation(location);
-        FluxMixinStatics._subscribeTo(storeName, path, stateKey);
+        FluxMixinStatics._subscribeTo.call(this, storeName, path, stateKey);
       });
 
       Object.keys(nextListeners)
@@ -279,7 +279,7 @@ module.exports = function(R) {
         );
         const handlerFn = (params) => this[handlerName](params);
         const [eventEmitterName, room] = FluxMixinStatics.parseFluxLocation(location);
-        FluxMixinStatics._listenTo(eventEmitterName, room, handlerFn);
+        FluxMixinStatics._listenTo.call(this, eventEmitterName, room, handlerFn);
       });
 
       currentSubscriptions.forEach((subscription) => this._unsubscribeFrom(subscription));
@@ -315,7 +315,7 @@ module.exports = function(R) {
         this._FluxMixinSubscriptions.should.be.an.Object
       );
       const flux = this.getFlux();
-      const propagateUpdate = (value) => FluxMixinStatics._propagateStoreUpdate(storeName, path, value, stateKey);
+      const propagateUpdate = (value) => FluxMixinStatics._propagateStoreUpdate.call(this, storeName, path, value, stateKey);
       const subscription = flux.subscribeTo(storeName, path, propagateUpdate);
       const id = _.uniqueId(stateKey);
       this._FluxMixinSubscriptions[id] = { subscription, id, storeName };
@@ -359,7 +359,7 @@ module.exports = function(R) {
         this._FluxMixinListeners.should.be.an.Object
       );
       const flux = this.getFlux();
-      const propagateEvent = (params) => FluxMixinStatics._propagateEvent(eventEmitterName, room, params, handler);
+      const propagateEvent = (params) => FluxMixinStatics._propagateEvent.call(this, eventEmitterName, room, params, handler);
       const listener = flux.listenTo(eventEmitterName, room, propagateEvent);
       const id = _.uniqueId(room);
       this._FluxMixinListeners[id] = { listener, id, eventEmitterName };
