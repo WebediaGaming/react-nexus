@@ -22,7 +22,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         subscriptions[this.path] = {};
       }
       _.dev(function () {
-        return subscriptions[_this.path].should.be.an.Object && (subscriptions[_this.path][_this.id] !== void 0).should.be.ok;
+        return subscriptions[_this.path].should.be.an.Object && (subscriptions[_this.path][_this.id] === void 0).should.be.ok;
       });
       subscriptions[this.path][this.id] = this;
       return Object.keys(subscriptions[this.path]).length === 1;
