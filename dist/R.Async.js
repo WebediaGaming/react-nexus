@@ -17,22 +17,22 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
   var Async = {
     ifMounted: function (fn) {
-      var _this = this;
       return function () {
+        var _this = this;
         var args = _slice.call(arguments);
 
         _.dev(function () {
           return (_this._AsyncMixin !== void 0).should.be.ok && _this._AsyncMixin.should.be.ok;
         });
-        if (!_this._AsyncMixinHasUnmounted) {
-          return fn.call.apply(fn, [_this].concat(_toArray(args)));
+        if (!this._AsyncMixinHasUnmounted) {
+          return fn.call.apply(fn, [this].concat(_toArray(args)));
         }
       };
     },
 
     _deferredImmediate: function (fn) {
-      var _this2 = this;
       return function () {
+        var _this2 = this;
         var args = _slice.call(arguments);
 
         var id = _.uniqueId("setImmediate");
@@ -40,14 +40,14 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           delete _this2._AsyncMixinQueuedImmediates[id];
           return fn.call.apply(fn, [_this2].concat(_toArray(args)));
         });
-        _this2._AsyncMixinQueuedImmediates[id] = q;
+        this._AsyncMixinQueuedImmediates[id] = q;
         return id;
       };
     },
 
     _deferredAnimationFrame: function (fn) {
-      var _this3 = this;
       return function () {
+        var _this3 = this;
         var args = _slice.call(arguments);
 
         var id = _.uniqueId("setImmediate");
@@ -55,15 +55,15 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
           delete _this3._AsyncMixinQueuedAnimationFrames[id];
           return fn.call.apply(fn, [_this3].concat(_toArray(args)));
         });
-        _this3._AsyncMixinQueuedAnimationFrames[id] = q;
+        this._AsyncMixinQueuedAnimationFrames[id] = q;
         return id;
       };
     },
 
     _deferredTimeout: function (delay) {
-      var _this4 = this;
       return function (fn) {
         return function () {
+          var _this4 = this;
           var args = _slice.call(arguments);
 
           var id = _.uniqueId("setTimeout");
@@ -71,7 +71,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
             delete _this4._AsyncMixinQueuedTimeouts[id];
             return fn.call.apply(fn, [_this4].concat(_toArray(args)));
           }, delay);
-          _this4._AsyncMixinQueuedTimeouts[id] = q;
+          this._AsyncMixinQueuedTimeouts[id] = q;
           return q;
         };
       };

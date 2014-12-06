@@ -10,7 +10,7 @@ module.exports = function(R) {
 
   const Async = {
     ifMounted(fn) {
-      return (...args) => {
+      return function(...args) {
         _.dev(() => (this._AsyncMixin !== void 0).should.be.ok &&
           this._AsyncMixin.should.be.ok
         );
@@ -21,7 +21,7 @@ module.exports = function(R) {
     },
 
     _deferredImmediate(fn) {
-      return (...args) => {
+      return function(...args) {
         const id = _.uniqueId('setImmediate');
         const q = setImmediate(() => {
           delete this._AsyncMixinQueuedImmediates[id];
@@ -33,7 +33,7 @@ module.exports = function(R) {
     },
 
     _deferredAnimationFrame(fn) {
-      return (...args) => {
+      return function(...args) {
         const id = _.uniqueId('setImmediate');
         const q = requestAnimationFrame(() => {
           delete this._AsyncMixinQueuedAnimationFrames[id];
@@ -45,7 +45,7 @@ module.exports = function(R) {
     },
 
     _deferredTimeout(delay) {
-      return (fn) => (...args) => {
+      return (fn) => function(...args) {
         const id = _.uniqueId('setTimeout');
         const q = setTimeout(() => {
           delete this._AsyncMixinQueuedTimeouts[id];
