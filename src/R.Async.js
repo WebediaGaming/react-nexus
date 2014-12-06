@@ -10,21 +10,22 @@ module.exports = function(R) {
 
   const Async = {
     ifMounted(fn) {
-      return () => {
-        _.dev(() => this._AsyncMixin.should.be.ok);
+      return (...args) => {
+        _.dev(() => (this._AsyncMixin !== void 0).should.be.ok &&
+          this._AsyncMixin.should.be.ok
+        );
         if(!this._AsyncMixinHasUnmounted) {
-          return fn.apply(this, arguments);
+          return fn.call(this, ...args);
         }
       };
     },
 
     _deferredImmediate(fn) {
-      return () => {
-        let args = arguments;
-        let id = _.uniqueId('setImmediate');
-        let q = setImmediate(() => {
+      return (...args) => {
+        const id = _.uniqueId('setImmediate');
+        const q = setImmediate(() => {
           delete this._AsyncMixinQueuedImmediates[id];
-          return fn.apply(this, args);
+          return fn.call(this, ...args);
         });
         this._AsyncMixinQueuedImmediates[id] = q;
         return id;
@@ -32,12 +33,11 @@ module.exports = function(R) {
     },
 
     _deferredAnimationFrame(fn) {
-      return () => {
-        let args = arguments;
-        let id = _.uniqueId('setImmediate');
-        let q = requestAnimationFrame(() => {
+      return (...args) => {
+        const id = _.uniqueId('setImmediate');
+        const q = requestAnimationFrame(() => {
           delete this._AsyncMixinQueuedAnimationFrames[id];
-          return fn.apply(this, args);
+          return fn.call(this, ...args);
         });
         this._AsyncMixinQueuedAnimationFrames[id] = q;
         return id;
@@ -45,12 +45,11 @@ module.exports = function(R) {
     },
 
     _deferredTimeout(delay) {
-      return (fn) => () => {
-        let args = arguments;
-        let id = _.uniqueId('setTimeout');
-        let q = setTimeout(() => {
+      return (fn) => (...args) => {
+        const id = _.uniqueId('setTimeout');
+        const q = setTimeout(() => {
           delete this._AsyncMixinQueuedTimeouts[id];
-          return fn.apply(this, args);
+          return fn.call(this, ...args);
         }, delay);
         this._AsyncMixinQueuedTimeouts[id] = q;
         return q;
@@ -58,7 +57,7 @@ module.exports = function(R) {
     },
 
     deferred(fn, delay) {
-      let ifn = R.Async.ifMounted(fn);
+      const ifn = R.Async.ifMounted(fn);
       if(!delay) {
         return R.Async._deferredImmediate(ifn);
       }
@@ -68,7 +67,7 @@ module.exports = function(R) {
     },
 
     deferredAnimationFrame(fn) {
-      let ifn = R.Async.ifMounted(fn);
+      const ifn = R.Async.ifMounted(fn);
       return R.Async._deferredAnimationFrame(ifn);
     },
   };
@@ -93,7 +92,9 @@ module.exports = function(R) {
       this._AsyncMixinHasUnmounted = true;
     },
 
-    setStateIfMounted: Async.ifMounted(function(state) { this.setState(state); }),
+    setStateIfMounted: Async.ifMounted(function(state) {
+      this.setState(state);
+    }),
   };
 
   return Async;
