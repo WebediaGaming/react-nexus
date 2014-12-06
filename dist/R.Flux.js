@@ -4,11 +4,6 @@ var _toArray = function (arr) {
   return Array.isArray(arr) ? arr : Array.from(arr);
 };
 
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
   var React = R.React;
@@ -21,8 +16,8 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     });
   };
 
-  var _Flux = (function () {
-    var _Flux = function _Flux(_ref2) {
+  var Flux = (function () {
+    var Flux = function Flux(_ref2) {
       var headers = _ref2.headers;
       var guid = _ref2.guid;
       var window = _ref2.window;
@@ -40,268 +35,218 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       this._shouldInjectFromStores = false;
     };
 
-    _classProps(_Flux, null, {
-      bootstrap: {
-        writable: true,
-        value: regeneratorRuntime.mark(function _callee() {
-          return regeneratorRuntime.wrap(function _callee$(_context) {
-            while (true) switch (_context.prev = _context.next) {
-              case 0: _.abstract();
-              case 1:
-              case "end": return _context.stop();
-            }
-          }, _callee, this);
-        })
-      },
-      destroy: {
-        writable: true,
-        // jshint ignore:line
-
-        value: function () {
-          var _this = this;
-          Object.keys(this.stores).forEach(function (storeName) {
-            return _this.unregisterStore(storeName);
-          });
-          Object.keys(this.eventEmitters).forEach(function (eventEmitterName) {
-            return _this.unregisterEventEmitter(eventEmitterName);
-          });
-          Object.keys(this.dispatchers).forEach(function (dispatcherName) {
-            return _this.unregisterDispatcher(dispatcherName);
-          });
-          // Nullify references
-          this.headers = null;
-          this.window = null;
-          this.req = null;
-          this.stores = null;
-          this.eventEmitters = null;
-          this.dispatchers = null;
-          return this;
+    Flux.prototype.bootstrap = regeneratorRuntime.mark(function _callee() {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (true) switch (_context.prev = _context.next) {
+          case 0: _.abstract();
+          case 1:
+          case "end": return _context.stop();
         }
-      },
-      _startInjectingFromStores: {
-        writable: true,
-        value: function () {
-          var _this2 = this;
-          _.dev(function () {
-            return _this2._shouldInjectFromStores.should.not.be.ok;
-          });
-          this._shouldInjectFromStores = true;
-          return this;
-        }
-      },
-      _stopInjectingFromStores: {
-        writable: true,
-        value: function () {
-          var _this3 = this;
-          _.dev(function () {
-            return _this3._shouldInjectFromStores.should.be.ok;
-          });
-          this._shouldInjectFromStores = false;
-          return this;
-        }
-      },
-      injectingFromStores: {
-        writable: true,
-        value: function (fn) {
-          this._startInjectingFromStores();
-          var r = fn();
-          this._stopInjectingFromStores();
-          return r;
-        }
-      },
-      shouldInjectFromStores: {
-        writable: true,
-        value: function () {
-          return this._shouldInjectFromStores;
-        }
-      },
-      serialize: {
-        writable: true,
-        value: function (p) {
-          if (p === undefined) p = {};
-          var preventEncoding = !!p.preventEncoding;
-          var serializable = _.mapValues(this.stores, function (store) {
-            return store.serialize({ preventEncoding: true });
-          });
-          return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
-        }
-      },
-      unserialize: {
-        writable: true,
-        value: function (serialized, p) {
-          var _this4 = this;
-          if (p === undefined) p = {};
-          var preventDecoding = !!p.preventDecoding;
-          var unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
-          Object.keys(unserializable).forEach(function (storeName) {
-            _.dev(function () {
-              return (_this4.stores[storeName] !== void 0).should.be.ok;
-            });
-            _this4.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
-          });
-          return this;
-        }
-      },
-      registerStore: {
-        writable: true,
-        value: function (storeName, store) {
-          var _this5 = this;
-          _.dev(function () {
-            return store.should.be.an.instanceOf(R.Store) && storeName.should.be.a.String && (_this5.stores[storeName] === void 0).should.be.ok;
-          });
-          this.stores[storeName] = store;
-          return this;
-        }
-      },
-      unregisterStore: {
-        writable: true,
-        value: function (storeName) {
-          var _this6 = this;
-          _.dev(function () {
-            return storeName.should.be.a.String && (_this6.stores[storeName] !== void 0).should.be.ok && _this6.stores[storeName].should.be.an.instanceOf(R.Store);
-          });
-          delete this.stores[storeName];
-          return this;
-        }
-      },
-      getStore: {
-        writable: true,
-        value: function (storeName) {
-          var _this7 = this;
-          _.dev(function () {
-            return storeName.should.be.a.String && (_this7.stores[storeName] !== void 0).should.be.ok && _this7.stores[storeName].should.be.an.instanceOf(R.Store);
-          });
-          return this.stores[storeName];
-        }
-      },
-      registerEventEmitter: {
-        writable: true,
-        value: function (eventEmitterName, eventEmitter) {
-          var _this8 = this;
-          _.dev(function () {
-            return eventEmitter.should.be.an.instanceOf(R.EventEmitter) && eventEmitterName.should.be.a.String && (_this8.eventEmitters[eventEmitterName] === void 0).should.be.ok;
-          });
-          this.eventEmitters[eventEmitterName] = eventEmitter;
-          return this;
-        }
-      },
-      unregisterEventEmitter: {
-        writable: true,
-        value: function (eventEmitterName) {
-          var _this9 = this;
-          _.dev(function () {
-            return eventEmitterName.should.be.a.String && (_this9.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this9.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
-          });
-          delete this.eventEmitters[eventEmitterName];
-          return this;
-        }
-      },
-      getEventEmitter: {
-        writable: true,
-        value: function (eventEmitterName) {
-          var _this10 = this;
-          _.dev(function () {
-            return eventEmitterName.should.be.a.String && (_this10.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this10.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
-          });
-          return this.eventEmitters[eventEmitterName];
-        }
-      },
-      registerDispatcher: {
-        writable: true,
-        value: function (dispatcherName, dispatcher) {
-          var _this11 = this;
-          _.dev(function () {
-            return dispatcher.should.be.an.instanceOf(R.Dispatcher) && dispatcherName.should.be.a.String && (_this11.dispatchers[dispatcherName] === void 0).should.be.ok;
-          });
-          this.dispatchers[dispatcherName] = dispatcher;
-          return this;
-        }
-      },
-      unregisterDispatcher: {
-        writable: true,
-        value: function (dispatcherName) {
-          var _this12 = this;
-          _.dev(function () {
-            return dispatcherName.should.be.a.String && (_this12.dispatchers[dispatcherName] !== void 0).should.be.ok && _this12.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
-          });
-          delete this.dispatchers[dispatcherName];
-          return this;
-        }
-      },
-      getDispatcher: {
-        writable: true,
-        value: function (dispatcherName) {
-          var _this13 = this;
-          _.dev(function () {
-            return dispatcherName.should.be.a.String && (_this13.dispatchers[dispatcherName] !== void 0).should.be.ok && _this13.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
-          });
-          return this.dispatchers[dispatcherName];
-        }
-      },
-      subscribeTo: {
-        writable: true,
-        value: function (storeName, path, handler) {
-          var _this14 = this;
-          _.dev(function () {
-            return storeName.should.be.a.String && (_this14.stores[storeName] !== void 0).should.be.ok && _this14.stores[storeName].should.be.an.instanceOf(R.Store) && path.should.be.a.String && handler.should.be.a.Function;
-          });
-          var store = this.getStore(storeName);
-          var subscription = store.subscribeTo(path, handler);
-          return subscription;
-        }
-      },
-      unsubscribeFrom: {
-        writable: true,
-        value: function (storeName, subscription) {
-          var _this15 = this;
-          _.dev(function () {
-            return storeName.should.be.a.String && (_this15.stores[storeName] !== void 0).should.be.ok && _this15.stores[storeName].should.be.an.instanceOf(R.Store) && subscription.should.be.an.instanceOf(R.Store.Subscription);
-          });
-          var store = this.getStore(storeName);
-          return store.unsubscribeFrom(subscription);
-        }
-      },
-      listenTo: {
-        writable: true,
-        value: function (eventEmitterName, room, handler) {
-          var _this16 = this;
-          _.dev(function () {
-            return eventEmitterName.should.be.a.String && (_this16.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this16.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && room.should.be.a.String && handler.should.be.a.Function;
-          });
-          var eventEmitter = this.getEventEmitter(eventEmitterName);
-          var listener = eventEmitter.listenTo(room, handler);
-          return listener;
-        }
-      },
-      unlistenFrom: {
-        writable: true,
-        value: function (eventEmitterName, listener) {
-          var _this17 = this;
-          _.dev(function () {
-            return eventEmitterName.should.be.a.String && (_this17.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this17.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && listener.should.be.an.instanceOf(R.EventEmitter.Listener);
-          });
-          var eventEmitter = this.getEventEmitter(eventEmitterName);
-          return eventEmitter.unlistenFrom(listener);
-        }
-      },
-      dispatch: {
-        writable: true,
-        value: function (dispatcherName, action, params) {
-          var _this18 = this;
-          params = params || {};
-          _.dev(function () {
-            return dispatcherName.should.be.a.String && (_this18.dispatchers[dispatcherName] !== void 0).should.be.ok && _this18.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) && action.should.be.a.String && params.should.be.an.Object;
-          });
-          var dispatcher = this.getDispatcher(dispatcherName);
-          return dispatcher.dispatch(action, params);
-        }
-      }
+      }, _callee, this);
     });
+    Flux.prototype.destroy = function () {
+      var _this = this;
+      Object.keys(this.stores).forEach(function (storeName) {
+        return _this.unregisterStore(storeName);
+      });
+      Object.keys(this.eventEmitters).forEach(function (eventEmitterName) {
+        return _this.unregisterEventEmitter(eventEmitterName);
+      });
+      Object.keys(this.dispatchers).forEach(function (dispatcherName) {
+        return _this.unregisterDispatcher(dispatcherName);
+      });
+      // Nullify references
+      this.headers = null;
+      this.window = null;
+      this.req = null;
+      this.stores = null;
+      this.eventEmitters = null;
+      this.dispatchers = null;
+      return this;
+    };
 
-    return _Flux;
+    Flux.prototype._startInjectingFromStores = function () {
+      var _this2 = this;
+      _.dev(function () {
+        return _this2._shouldInjectFromStores.should.not.be.ok;
+      });
+      this._shouldInjectFromStores = true;
+      return this;
+    };
+
+    Flux.prototype._stopInjectingFromStores = function () {
+      var _this3 = this;
+      _.dev(function () {
+        return _this3._shouldInjectFromStores.should.be.ok;
+      });
+      this._shouldInjectFromStores = false;
+      return this;
+    };
+
+    Flux.prototype.injectingFromStores = function (fn) {
+      this._startInjectingFromStores();
+      var r = fn();
+      this._stopInjectingFromStores();
+      return r;
+    };
+
+    Flux.prototype.shouldInjectFromStores = function () {
+      return this._shouldInjectFromStores;
+    };
+
+    Flux.prototype.serialize = function (p) {
+      if (p === undefined) p = {};
+      var preventEncoding = !!p.preventEncoding;
+      var serializable = _.mapValues(this.stores, function (store) {
+        return store.serialize({ preventEncoding: true });
+      });
+      return preventEncoding ? serializable : _.base64Encode(JSON.stringify(serializable));
+    };
+
+    Flux.prototype.unserialize = function (serialized, p) {
+      var _this4 = this;
+      if (p === undefined) p = {};
+      var preventDecoding = !!p.preventDecoding;
+      var unserializable = preventDecoding ? serialized : JSON.parse(_.base64Decode(serialized));
+      Object.keys(unserializable).forEach(function (storeName) {
+        _.dev(function () {
+          return (_this4.stores[storeName] !== void 0).should.be.ok;
+        });
+        _this4.stores[storeName].unserialize(unserializable[storeName], { preventDecoding: true });
+      });
+      return this;
+    };
+
+    Flux.prototype.registerStore = function (storeName, store) {
+      var _this5 = this;
+      _.dev(function () {
+        return store.should.be.an.instanceOf(R.Store) && storeName.should.be.a.String && (_this5.stores[storeName] === void 0).should.be.ok;
+      });
+      this.stores[storeName] = store;
+      return this;
+    };
+
+    Flux.prototype.unregisterStore = function (storeName) {
+      var _this6 = this;
+      _.dev(function () {
+        return storeName.should.be.a.String && (_this6.stores[storeName] !== void 0).should.be.ok && _this6.stores[storeName].should.be.an.instanceOf(R.Store);
+      });
+      delete this.stores[storeName];
+      return this;
+    };
+
+    Flux.prototype.getStore = function (storeName) {
+      var _this7 = this;
+      _.dev(function () {
+        return storeName.should.be.a.String && (_this7.stores[storeName] !== void 0).should.be.ok && _this7.stores[storeName].should.be.an.instanceOf(R.Store);
+      });
+      return this.stores[storeName];
+    };
+
+    Flux.prototype.registerEventEmitter = function (eventEmitterName, eventEmitter) {
+      var _this8 = this;
+      _.dev(function () {
+        return eventEmitter.should.be.an.instanceOf(R.EventEmitter) && eventEmitterName.should.be.a.String && (_this8.eventEmitters[eventEmitterName] === void 0).should.be.ok;
+      });
+      this.eventEmitters[eventEmitterName] = eventEmitter;
+      return this;
+    };
+
+    Flux.prototype.unregisterEventEmitter = function (eventEmitterName) {
+      var _this9 = this;
+      _.dev(function () {
+        return eventEmitterName.should.be.a.String && (_this9.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this9.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
+      });
+      delete this.eventEmitters[eventEmitterName];
+      return this;
+    };
+
+    Flux.prototype.getEventEmitter = function (eventEmitterName) {
+      var _this10 = this;
+      _.dev(function () {
+        return eventEmitterName.should.be.a.String && (_this10.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this10.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter);
+      });
+      return this.eventEmitters[eventEmitterName];
+    };
+
+    Flux.prototype.registerDispatcher = function (dispatcherName, dispatcher) {
+      var _this11 = this;
+      _.dev(function () {
+        return dispatcher.should.be.an.instanceOf(R.Dispatcher) && dispatcherName.should.be.a.String && (_this11.dispatchers[dispatcherName] === void 0).should.be.ok;
+      });
+      this.dispatchers[dispatcherName] = dispatcher;
+      return this;
+    };
+
+    Flux.prototype.unregisterDispatcher = function (dispatcherName) {
+      var _this12 = this;
+      _.dev(function () {
+        return dispatcherName.should.be.a.String && (_this12.dispatchers[dispatcherName] !== void 0).should.be.ok && _this12.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
+      });
+      delete this.dispatchers[dispatcherName];
+      return this;
+    };
+
+    Flux.prototype.getDispatcher = function (dispatcherName) {
+      var _this13 = this;
+      _.dev(function () {
+        return dispatcherName.should.be.a.String && (_this13.dispatchers[dispatcherName] !== void 0).should.be.ok && _this13.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher);
+      });
+      return this.dispatchers[dispatcherName];
+    };
+
+    Flux.prototype.subscribeTo = function (storeName, path, handler) {
+      var _this14 = this;
+      _.dev(function () {
+        return storeName.should.be.a.String && (_this14.stores[storeName] !== void 0).should.be.ok && _this14.stores[storeName].should.be.an.instanceOf(R.Store) && path.should.be.a.String && handler.should.be.a.Function;
+      });
+      var store = this.getStore(storeName);
+      var subscription = store.subscribeTo(path, handler);
+      return subscription;
+    };
+
+    Flux.prototype.unsubscribeFrom = function (storeName, subscription) {
+      var _this15 = this;
+      _.dev(function () {
+        return storeName.should.be.a.String && (_this15.stores[storeName] !== void 0).should.be.ok && _this15.stores[storeName].should.be.an.instanceOf(R.Store) && subscription.should.be.an.instanceOf(R.Store.Subscription);
+      });
+      var store = this.getStore(storeName);
+      return store.unsubscribeFrom(subscription);
+    };
+
+    Flux.prototype.listenTo = function (eventEmitterName, room, handler) {
+      var _this16 = this;
+      _.dev(function () {
+        return eventEmitterName.should.be.a.String && (_this16.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this16.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && room.should.be.a.String && handler.should.be.a.Function;
+      });
+      var eventEmitter = this.getEventEmitter(eventEmitterName);
+      var listener = eventEmitter.listenTo(room, handler);
+      return listener;
+    };
+
+    Flux.prototype.unlistenFrom = function (eventEmitterName, listener) {
+      var _this17 = this;
+      _.dev(function () {
+        return eventEmitterName.should.be.a.String && (_this17.eventEmitters[eventEmitterName] !== void 0).should.be.ok && _this17.eventEmitters[eventEmitterName].should.be.an.instanceOf(R.EventEmitter) && listener.should.be.an.instanceOf(R.EventEmitter.Listener);
+      });
+      var eventEmitter = this.getEventEmitter(eventEmitterName);
+      return eventEmitter.unlistenFrom(listener);
+    };
+
+    Flux.prototype.dispatch = function (dispatcherName, action, params) {
+      var _this18 = this;
+      params = params || {};
+      _.dev(function () {
+        return dispatcherName.should.be.a.String && (_this18.dispatchers[dispatcherName] !== void 0).should.be.ok && _this18.dispatchers[dispatcherName].should.be.an.instanceOf(R.Dispatcher) && action.should.be.a.String && params.should.be.an.Object;
+      });
+      var dispatcher = this.getDispatcher(dispatcherName);
+      return dispatcher.dispatch(action, params);
+    };
+
+    return Flux;
   })();
 
-  _.extend(_Flux.prototype, {
+  _.extend(Flux.prototype, {
     headers: null,
     guid: null,
     window: null,
@@ -531,7 +476,7 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         return void 0;
       } } };
 
-  _Flux.Mixin = {
+  Flux.Mixin = {
     _FluxMixin: true,
     _FluxMixinSubscriptions: null,
     _FluxMixinListeners: null,
@@ -664,9 +609,9 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       return flux.dispatch(dispatcherName, action, params);
     } };
 
-  _Flux.PropType = function (props) {
-    return props.flux && props.flux instanceof _Flux;
+  Flux.PropType = function (props) {
+    return props.flux && props.flux instanceof Flux;
   };
 
-  return _Flux;
+  return Flux;
 };

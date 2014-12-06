@@ -16,17 +16,17 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
   function Plugin(opts) {
     if (opts === undefined) opts = {};
     // jshint ignore:line
-    var _Fullscreen = (function (R) {
-      var _Fullscreen = function _Fullscreen() {
+    var Fullscreen = (function (R) {
+      var Fullscreen = function Fullscreen() {
         R.App.Plugin.apply(this, arguments);
       };
 
-      _extends(_Fullscreen, R.App.Plugin);
+      _extends(Fullscreen, R.App.Plugin);
 
-      return _Fullscreen;
+      return Fullscreen;
     })(R);
 
-    return _Fullscreen;
+    return Fullscreen;
   }
 
   return Plugin;

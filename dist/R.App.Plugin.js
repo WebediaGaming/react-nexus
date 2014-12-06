@@ -1,15 +1,10 @@
 "use strict";
 
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
 
-  var _Plugin = (function () {
-    var _Plugin = function _Plugin(_ref) {
+  var Plugin = (function () {
+    var Plugin = function Plugin(_ref) {
       var flux = _ref.flux;
       var req = _ref.req;
       var window = _ref.window;
@@ -27,30 +22,23 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       this.headers = headers;
     };
 
-    _classProps(_Plugin, null, {
-      getDisplayName: {
-        writable: true,
-        value: function () {
-          _.abstract();
-        }
-      },
-      destroy: {
-        writable: true,
-        value: function () {
-          _.abstract();
-        }
-      }
-    });
+    Plugin.prototype.getDisplayName = function () {
+      _.abstract();
+    };
 
-    return _Plugin;
+    Plugin.prototype.destroy = function () {
+      _.abstract();
+    };
+
+    return Plugin;
   })();
 
-  _.extend(_Plugin.prototype, /** @lends Plugin.Prototype */{
+  _.extend(Plugin.prototype, /** @lends Plugin.Prototype */{
     flux: null,
     window: null,
     req: null,
     headers: null,
     displayName: null });
 
-  return _Plugin;
+  return Plugin;
 };

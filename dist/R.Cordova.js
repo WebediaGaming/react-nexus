@@ -16,17 +16,17 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
   function Plugin(opts) {
     if (opts === undefined) opts = {};
     // jshint ignore:line
-    var _Cordova = (function (R) {
-      var _Cordova = function _Cordova() {
+    var Cordova = (function (R) {
+      var Cordova = function Cordova() {
         R.App.Plugin.apply(this, arguments);
       };
 
-      _extends(_Cordova, R.App.Plugin);
+      _extends(Cordova, R.App.Plugin);
 
-      return _Cordova;
+      return Cordova;
     })(R);
 
-    return _Cordova;
+    return Cordova;
   }
 
   return Plugin;

@@ -16,17 +16,17 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
   function Plugin(opts) {
     if (opts === undefined) opts = {};
     // jshint ignore:line
-    var _XWindow = (function (R) {
-      var _XWindow = function _XWindow() {
+    var XWindow = (function (R) {
+      var XWindow = function XWindow() {
         R.App.Plugin.apply(this, arguments);
       };
 
-      _extends(_XWindow, R.App.Plugin);
+      _extends(XWindow, R.App.Plugin);
 
-      return _XWindow;
+      return XWindow;
     })(R);
 
-    return _XWindow;
+    return XWindow;
   }
 
   return Plugin;

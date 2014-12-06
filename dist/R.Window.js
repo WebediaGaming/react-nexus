@@ -5,11 +5,6 @@ var _toArray = function (arr) {
 };
 
 var _slice = Array.prototype.slice;
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 var _extends = function (child, parent) {
   child.prototype = Object.create(parent.prototype, {
     constructor: {
@@ -41,8 +36,8 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     });
     _.defaults(params, defaultParams);
 
-    var _Window = (function (R) {
-      var _Window = function _Window(_ref2) {
+    var Window = (function (R) {
+      var Window = function Window(_ref2) {
         var _this = this;
         var flux = _ref2.flux;
         var window = _ref2.window;
@@ -79,56 +74,45 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         this.updateSize({ window: window });
       };
 
-      _extends(_Window, R.App.Plugin);
+      _extends(Window, R.App.Plugin);
 
-      _classProps(_Window, null, {
-        destroy: {
-          writable: true,
-          value: function () {}
-        },
-        getDisplayName: {
-          writable: true,
-          value: function () {
-            return "Window";
-          }
-        },
-        updateScroll: {
-          writable: true,
-          value: function (_ref4) {
-            var window = _ref4.window;
-            var _ref5 = window || params;
-            var scrollTop = _ref5.scrollTop;
-            var scrollLeft = _ref5.scrollLeft;
-            this.store.set("/Window/scroll", { scrollTop: scrollTop, scrollLeft: scrollLeft });
-          }
-        },
-        updateSize: {
-          writable: true,
-          value: function (_ref6) {
-            var window = _ref6.window;
-            var height = params.height;
-            var width = params.width;
-            if (window) {
-              var innerHeight = window.innerHeight;
-              var innerWidth = window.innerWidth;
-              var _ref7 = [innerHeight, innerWidth];
-              var _ref8 = _toArray(_ref7);
+      Window.prototype.destroy = function () {};
 
-              height = _ref8[0];
-              width = _ref8[1];
-            }
-            this.store.set("/Window/size", { height: height, width: width });
-          }
+      Window.prototype.getDisplayName = function () {
+        return "Window";
+      };
+
+      Window.prototype.updateScroll = function (_ref4) {
+        var window = _ref4.window;
+        var _ref5 = window || params;
+        var scrollTop = _ref5.scrollTop;
+        var scrollLeft = _ref5.scrollLeft;
+        this.store.set("/Window/scroll", { scrollTop: scrollTop, scrollLeft: scrollLeft });
+      };
+
+      Window.prototype.updateSize = function (_ref6) {
+        var window = _ref6.window;
+        var height = params.height;
+        var width = params.width;
+        if (window) {
+          var innerHeight = window.innerHeight;
+          var innerWidth = window.innerWidth;
+          var _ref7 = [innerHeight, innerWidth];
+          var _ref8 = _toArray(_ref7);
+
+          height = _ref8[0];
+          width = _ref8[1];
         }
-      });
+        this.store.set("/Window/size", { height: height, width: width });
+      };
 
-      return _Window;
+      return Window;
     })(R);
 
-    _.extend(_Window.prototype, {
+    _.extend(Window.prototype, {
       store: null });
 
-    return _Window;
+    return Window;
   }
 
   return Plugin;

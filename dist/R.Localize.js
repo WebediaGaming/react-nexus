@@ -1,11 +1,6 @@
 "use strict";
 
 var _slice = Array.prototype.slice;
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 var _extends = function (child, parent) {
   child.prototype = Object.create(parent.prototype, {
     constructor: {
@@ -36,8 +31,8 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       return storeName.should.be.a.String && dispatcherName.should.be.a.String && supportedLocales.should.be.an.Array;
     });
 
-    var _Localize = (function (R) {
-      var _Localize = function _Localize(_ref2) {
+    var Localize = (function (R) {
+      var Localize = function Localize(_ref2) {
         var _this = this;
         var flux = _ref2.flux;
         var window = _ref2.window;
@@ -75,25 +70,18 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         }
       };
 
-      _extends(_Localize, R.App.Plugin);
+      _extends(Localize, R.App.Plugin);
 
-      _classProps(_Localize, null, {
-        destroy: {
-          writable: true,
-          value: function () {}
-        },
-        getDisplayName: {
-          writable: true,
-          value: function () {
-            return "Localize";
-          }
-        }
-      });
+      Localize.prototype.destroy = function () {};
 
-      return _Localize;
+      Localize.prototype.getDisplayName = function () {
+        return "Localize";
+      };
+
+      return Localize;
     })(R);
 
-    return _Localize;
+    return Localize;
   }
 
   Plugin.bestLocale = bestLocale;

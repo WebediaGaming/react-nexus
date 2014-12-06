@@ -1,16 +1,11 @@
 "use strict";
 
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
   var _ = R._;
   var raf = require("raf");
 
-  var _InterpolationTicker = (function () {
-    var _InterpolationTicker = function _InterpolationTicker(_ref) {
+  var InterpolationTicker = (function () {
+    var InterpolationTicker = function InterpolationTicker(_ref) {
       var _this = this;
       var from = _ref.from;
       var to = _ref.to;
@@ -56,53 +51,44 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       this._tick = R.scope(this._tick, this);
     };
 
-    _classProps(_InterpolationTicker, null, {
-      start: {
-        writable: true,
-        value: function () {
-          var _this2 = this;
-          _.dev(function () {
-            return (_this2._begin === null).should.be.ok;
-          });
-          this._begin = Date.now();
-          this._end = this._begin + this._duration;
-          this._requestAnimationFrameHandle = raf(this._tick);
-        }
-      },
-      _tick: {
-        writable: true,
-        value: function () {
-          var _this3 = this;
-          var now = Date.now();
-          if (now > this._end) {
-            this._onTick(this._to, 1);
-            this._onComplete();
-          } else {
-            (function () {
-              var t = (now - _this3._begin) / (_this3._end - _this3._begin);
-              _this3._onTick(_.mapValues(_this3._interpolators, function (interpolator) {
-                return interpolator(_this3._easing(t));
-              }, t));
-              _this3._requestAnimationFrameHandle = raf(_this3._tick);
-            })();
-          }
-        }
-      },
-      abort: {
-        writable: true,
-        value: function () {
-          if (this._requestAnimationFrameHandle) {
-            raf.cancel(this._requestAnimationFrameHandle);
-            this._requestAnimationFrameHandle = null;
-          }
-        }
-      }
-    });
+    InterpolationTicker.prototype.start = function () {
+      var _this2 = this;
+      _.dev(function () {
+        return (_this2._begin === null).should.be.ok;
+      });
+      this._begin = Date.now();
+      this._end = this._begin + this._duration;
+      this._requestAnimationFrameHandle = raf(this._tick);
+    };
 
-    return _InterpolationTicker;
+    InterpolationTicker.prototype._tick = function () {
+      var _this3 = this;
+      var now = Date.now();
+      if (now > this._end) {
+        this._onTick(this._to, 1);
+        this._onComplete();
+      } else {
+        (function () {
+          var t = (now - _this3._begin) / (_this3._end - _this3._begin);
+          _this3._onTick(_.mapValues(_this3._interpolators, function (interpolator) {
+            return interpolator(_this3._easing(t));
+          }, t));
+          _this3._requestAnimationFrameHandle = raf(_this3._tick);
+        })();
+      }
+    };
+
+    InterpolationTicker.prototype.abort = function () {
+      if (this._requestAnimationFrameHandle) {
+        raf.cancel(this._requestAnimationFrameHandle);
+        this._requestAnimationFrameHandle = null;
+      }
+    };
+
+    return InterpolationTicker;
   })();
 
-  _.extend(_InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */{
+  _.extend(InterpolationTicker.prototype, /** @lends R.Animate.InterpolationTicker.prototype */{
     _from: null,
     _to: null,
     _easing: null,
@@ -115,5 +101,5 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
     _end: null,
     _interpolators: null });
 
-  return _InterpolationTicker;
+  return InterpolationTicker;
 };

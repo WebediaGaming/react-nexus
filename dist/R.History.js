@@ -1,11 +1,6 @@
 "use strict";
 
 var _slice = Array.prototype.slice;
-var _classProps = function (child, staticProps, instanceProps) {
-  if (staticProps) Object.defineProperties(child, staticProps);
-  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
-};
-
 var _extends = function (child, parent) {
   child.prototype = Object.create(parent.prototype, {
     constructor: {
@@ -29,8 +24,8 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       return storeName.should.be.a.String && dispatcherName.should.be.a.String;
     });
 
-    var _History = (function (R) {
-      var _History = function _History(_ref2) {
+    var History = (function (R) {
+      var History = function History(_ref2) {
         var _this = this;
         var flux = _ref2.flux;
         var window = _ref2.window;
@@ -60,35 +55,26 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
         }
       };
 
-      _extends(_History, R.App.Plugin);
+      _extends(History, R.App.Plugin);
 
-      _classProps(_History, null, {
-        destroy: {
-          writable: true,
-          value: function () {}
-        },
-        navigate: {
-          writable: true,
-          value: function (urlObj) {
-            var store = this.flux.getStore(storeName);
-            _.dev(function () {
-              return store.set.should.be.a.Function && urlObj.should.be.an.Object;
-            });
-            return store.set("/History/location", urlObj);
-          }
-        },
-        getDisplayName: {
-          writable: true,
-          value: function () {
-            return "History";
-          }
-        }
-      });
+      History.prototype.destroy = function () {};
 
-      return _History;
+      History.prototype.navigate = function (urlObj) {
+        var store = this.flux.getStore(storeName);
+        _.dev(function () {
+          return store.set.should.be.a.Function && urlObj.should.be.an.Object;
+        });
+        return store.set("/History/location", urlObj);
+      };
+
+      History.prototype.getDisplayName = function () {
+        return "History";
+      };
+
+      return History;
     })(R);
 
-    return _History;
+    return History;
   }
 
   return Plugin;
