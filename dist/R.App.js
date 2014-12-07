@@ -229,7 +229,10 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
             flux.injectingFromStores(function () {
               return React.render(rootComponent, window.__ReactNexus.rootElement);
             });
-          case 15:
+            window.addEventListener("beforeunload", function () {
+              return flux.destroy();
+            });
+          case 16:
           case "end": return _context5.stop();
         }
       }, _callee5, this);

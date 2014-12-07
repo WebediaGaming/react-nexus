@@ -155,6 +155,7 @@ module.exports = function(R) {
         * 4. Finally componentDidMount (subscribe and fetching data) then rerendering with new potential computed data
         */
         flux.injectingFromStores(() => React.render(rootComponent, window.__ReactNexus.rootElement));
+        window.addEventListener('beforeunload', () => flux.destroy());
       }
     }
 
