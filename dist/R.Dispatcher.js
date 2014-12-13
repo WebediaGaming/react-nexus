@@ -23,7 +23,9 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
       var _this2 = this;
       // Explicitly remove all action handlers
       Object.keys(this.actionHandlers).forEach(function (action) {
-        return _this2.removeActionHandler(_this2.actionHandlers[action]);
+        return Object.keys(_this2.actionHandlers[action]).forEach(function (k) {
+          return _this2.removeActionHandler(_this2.actionHandlers[action][k]);
+        });
       });
       // Nullify references
       this.actionHandlers = null;

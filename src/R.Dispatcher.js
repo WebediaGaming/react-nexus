@@ -16,8 +16,11 @@ module.exports = function(R) {
 
     destroy() {
       // Explicitly remove all action handlers
-      Object.keys(this.actionHandlers)
-      .forEach((action) => this.removeActionHandler(this.actionHandlers[action]));
+      Object.keys(this.actionHandlers).forEach((action) =>
+        Object.keys(this.actionHandlers[action]).forEach((k) =>
+          this.removeActionHandler(this.actionHandlers[action][k])
+        )
+      );
       // Nullify references
       this.actionHandlers = null;
     }
