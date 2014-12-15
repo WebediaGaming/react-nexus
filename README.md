@@ -1,134 +1,34 @@
-React Nexus - The Ultimate React Framework
-=============================================
+React Nexus
+===========
 
-React Nexus is your way into production-ready React apps.
-Embracing the core principles of React, React Nexus provides you with all you need
-to start making you React-powered, full stack JS WebApp, that actually does actual things
-in actual browsers of actual visitors, served by actual servers crawled by actual spiders.
-Not your grandma's WebApp.
+The ultimate isomorphic React framework.
 
-Installation & Usage
-====================
-`npm install react-nexus` and start hacking.
-Clone/fork [`react-nexus-starterkit`](https://github.com/elierotenberg/react-nexus-starterkit) if you want an opinionated file structure & toolkip.
+React is the future, we all know about this. How about we make it the present?
+React Nexus adresses several common pitfalls when building real world React-powered websites/webapps.
 
-Check out the [Introduction](https://github.com/elierotenberg/react-nexus/blob/master/INTRO.md) and the [Full API Docs](https://github.com/elierotenberg/react-nexus/blob/master/API.md) for more info.
+1) Flux done right (because design and maintanability)
+2) Server-side rendering done right (because SEO and Mobile)
+3) Async tasks management done right (because animations)
+4) Plugins (because everyone loves plugins)
 
-Core principles
-===============
-- First-class server-side pre-rendering, even with complex, async data dependencies.
-- Fully-integrated flux implementation, including flux over the wire.
-- Real-time full-duplex data propagation by default.
-- Idiomatic React implementation of all you need for you WebApp: animations, routing,
-tree transformation, HTTP backend communication, session management, etc, the React Way.
+Core means of doing this:
 
-Release notes/news
-==================
-- 30/9/2014: Should be ready for use, but expect some bugs, still very early release.
-Feel free to post and issue. Check out [`react-nexus-starterkit`](https://github.com/elierotenberg/react-nexus-starterkit).
+- Streamlined implementation of the Flux architecture
+- All component code is isomorphic (it can run on the server, in the browser main thread, and even in a WebWorker)
+- Everything that is not isomorphic (global state, current URL, etc) is injected into a serializable, context-based app state
 
-SHOW ME THE CODE
-================
+Hence:
 
-#### Animating
-
-Toggles the rotation of an image upon click a button.
-
-```js
-var R = require('react-nexus');
-var styles = { // Styles are automatically processed (vendor-prefixing, etc)
-    'left': new R.Style({ transform: 'rotate(0deg)' }),
-    'right': new R.Style({ transform: 'rotate(180deg)' }),
-};
-
-module.exports = React.createClass({
-    mixins: [R.Component.Mixin],
-    propTypes: {
-        src: React.PropTypes.string.isRequired,
-    },
-    getInitialState: function() { return { orientation: 'left' }; },
-    rotate: function(from, to) {
-        this.animate('rotate', { // starts an animation.
-            from: styles[from],  // the component can be safely unmounted
-            to: styles[to],      // during the animation,
-            duration: 1000,      // R.Animate handles everything properly.
-            easing: 'cubic-in-out',
-        });
-        this.setState({ orientation: to });
-    },
-    handleClick: function() {
-        if(this.state.orientation === 'left') {
-            this.rotate('left', 'right');
-        }
-        else {
-            this.rotate('right', 'left');
-        }
-    },
-    render: function() {
-        var style = this.isAnimating('rotate') ? this.getAnimatedStyle('rotate') : styles[this.state.orientation];
-        return (<div>
-            <button onClick={this.handleClick}>Click to rotate</button>
-            <img src={this.props.src} style={style} />
-        </div>);
-    },
-});
-```
-
-#### Basic Flux - Component
-
-Tells a memory dispatcher to roll a die, and continuously update state to reflect its status.
-
-```js
-var R = require('react-nexus');
-
-module.exports = React.createClass({
-    mixins: [R.Component.Mixin],
-    getFluxStoreSubscriptions: _.constant({ // subscribe to a stored resources and auto-injects
-        'memory://diceValue': 'diceValue',  // the up-to-date value in state.
-    }),
-    handleClick: function() {
-        this.dispatch('dispatcher://rollTheDice', { from: 0, to: 6 })(this.handleDispatched);
-    },
-    handleDispatched: R.Async.IfMounted(function(err) { // Will only execute if the component
-        R.Debug.dev(function() {                        // is still mounted when invoked
-            if(err) { throw err; }
-        });
-    }),
-    render: function() {
-        return (<div>
-            <span>Current dice value: {this.state.diceValue}</span>
-            <button onClick={this.handleClick}>Roll the dice</button>
-        </div>);
-    },
-});
-```
-
-#### Basic Flux - Backend (with generators)
-
-Dispatches a '/rollTheDice' action.
-
-```js
-
-flux.getDispatcher('dispatcher').addActionListener('/rollTheDice', function*(params) {
-    R.Debug.dev(function() { // Ignored in production
-        assert(params.from && _.isNumber(params.from));
-        assert(params.to && _.isNumber(params.to));
-    });
-    // asynchronously udpate the memory store
-    var diceValue = _.random(params.from, params.to);
-    yield flux.getStore('memory').set('/diceValue', diceValue);
-});
-```
+- All components can be pure, yay! (debugging heaven)
+- Everything can be fully rendered on the server, without PhantomJS/Selenium black magic (SEO & Mobile paradise)
 
 
+API
+===
 
-Roadmap
-=======
+TODO.
 
-- Release v0.1.0
-    - Stabilize the API
-    - Document the API
-    - Add more tests
+Staterkit
+=========
 
-- Release v0.2.0
-    - Lightweight builds/move plugins out of core
+See the (official react-nexus-starterkit)[https://github.com/elierotenberg/react-nexus-starterkit.git] for a good starting point.
