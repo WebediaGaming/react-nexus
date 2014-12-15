@@ -1,18 +1,11 @@
-/**
- * TODO
- */
 module.exports = function(R) {
-    var Cordova = {
-        createPlugin: function createPlugin(storeName, dispatcherName) {
-            return R.App.createPlugin({
-                displayName: "Cordova",
-                installInClient: function installInClient(flux, window) {
-                },
-                installInServer: function installInServer(flux, req) {
-                },
-            });
-        },
-    };
+  function Plugin(opts = {}) { // jshint ignore:line
+    class Cordova extends R.App.Plugin {
+      // TODO
+    }
 
     return Cordova;
+  }
+
+  return Plugin;
 };

@@ -1,58 +1,46 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
-    var React = R.React;
+"use strict";
 
-    assert(R.isClient(), "R.Client: should only be loaded in the client.");
-    window.React = React;
-    /**
-    * <p>Simply provides an specified App for the client</p>
-    * <p>Provides instance of App </p>
-    * <ul>
-    * <li> Client.mount => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions </li>
-    * </ul>
-    * @class R.Client
-    */
-    var Client = function Client(App) {
-        R.Debug.dev(function() {
-            if(!window.React) {
-                console.warn("Warning: React is not attached to window.");
-            }
-        });
-        window.React = React;
-        R.Debug.dev(R.scope(function() {
-            if(!window.__ReactOnRails) {
-                window.__ReactOnRails = {};
-            }
-            if(!window.__ReactOnRails.apps) {
-                window.__ReactOnRails.apps = [];
-            }
-            window.__ReactOnRails.apps.push(this);
-        }, this));
-        this._app = new App();
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
+  var React = R.React;
+
+  var Client = (function () {
+    var Client = function Client(_ref) {
+      var app = _ref.app;
+      _.dev(function () {
+        return (__BROWSER__).should.be.ok && app.should.be.an.instanceOf(R.App) && (window.React === void 0).should.be.ok;
+      });
+      window.React = React;
+      this.app = app;
+      this.rendered = false;
     };
 
-    _.extend(Client.prototype, /** @lends R.Client.prototype */ {
-        _app: null,
-        _rendered: false,
-        /**
-        * <p> Call the renderIntoDocumentInClient from R.App function </p>
-        * @method mount
-        */
-        mount: regeneratorRuntime.mark(function mount() {
-            return regeneratorRuntime.wrap(function mount$(context$2$0) {
-                while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    assert(!this._rendered, "R.Client.render(...): should only call mount() once.");
-                    context$2$0.next = 3;
-                    return this._app.renderIntoDocumentInClient(window);
-                case 3:
-                case "end":
-                    return context$2$0.stop();
-                }
-            }, mount, this);
-        }),
+    Client.prototype.mount = regeneratorRuntime.mark(function _callee(_ref2) {
+      var _this = this;
+      var window;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (true) switch (_context.prev = _context.next) {
+          case 0: window = _ref2.window;
+            // jshint ignore:line
+            _.dev(function () {
+              return window.should.be.an.Object && _this.rendered.should.not.be.ok;
+            });
+            window.React = React;
+            _this.rendered = true;
+            _context.next = 6;
+            return _this.app.render({ window: window });
+          case 6: return _context.abrupt("return", _context.sent);
+          case 7:
+          case "end": return _context.stop();
+        }
+      }, _callee, this);
     });
-
     return Client;
+  })();
+
+  _.extend(Client.prototype, /** @lends Client */{
+    app: null,
+    rendered: null });
+
+  return Client;
 };

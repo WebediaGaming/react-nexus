@@ -1,33 +1,18 @@
-module.exports = function(R) {
-    var _ = require("lodash");
+"use strict";
 
-    var shouldComponentUpdate = function shouldComponentUpdate(props, state) {
-        return !(_.isEqual(this.props, props) && _.isEqual(this.state, state));
-    };
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
 
-    /**
-     * @memberof R
-     * @type {Object}
-     * @public
-     */
-    var Pure = /** @lends Pure */{
-        /**
-         * Implements React shouldComponentUpdate for pure components,
-         * ie. update iff props or state has changed.
-         * @type {Function}
-         * @public
-         */
-        shouldComponentUpdate: shouldComponentUpdate,
-        /**
-         * Mixin for Pure components implementing the pure shouldComponentUpdate.
-         * @type {Object}
-         * @public
-         */
-        Mixin: {
-            _PureMixinIsPure: true,
-            shouldComponentUpdate: shouldComponentUpdate,
-        },
-    };
+  function shouldComponentUpdate(props, state) {
+    return !(_.isEqual(this.props, props) && _.isEqual(this.state, state));
+  }
 
-    return Pure;
+  var Pure = {
+    shouldComponentUpdate: shouldComponentUpdate,
+
+    Mixin: {
+      _PureMixin: true,
+      shouldComponentUpdate: shouldComponentUpdate } };
+
+  return Pure;
 };

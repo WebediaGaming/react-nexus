@@ -1,73 +1,56 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var React = R.React;
+"use strict";
 
-    var _vanillaCreateClass = R.scope(React.createClass, React);
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
+  var React = R.React;
 
-    /**
-    * <p>Method definition that complements React.createClass. <br />
-    * Used to compute an instance of a React component</p>
-    * @class R.ReactCreateClass
-    */
-    var _patchedCreateClass = function createClass(specs) {
-        var createdClass;
+  var _vanillaCreateClass = React.createClass;
 
-        _.defaults(specs, {
-            getFluxStoreSubscriptions: _.constant({}),
-            statics: {},
-        });
+  var _patchedCreateClass = function createClass(specs) {
+    _.defaults(specs, {
+      getFluxStoreSubscriptions: function () {
+        return {};
+      },
+      statics: {} });
 
-        /**
-        * <p> Returns an instance of a component by React context, the property and a defined state </p>
-        * @method __ReactOnRailsSurrogate
-        * @param {object} context The context of the future component
-        * @param {object} props The props of the future component
-        * @param {object} initialState The state of the future component
-        * @return {object} instance The created component instance
-        */
-        var __ReactOnRailsSurrogate = function __ReactOnRailsSurrogate(context, props, initialState) {
-            var instance;
-            React.withContext(context, function() {
-                var args = [createdClass, _.omit(props, "children")];
-                if(props.children) {
-                    args.push(props.children);
-                }
-                var descriptor = React.createElement.apply(React, args);
-                instance = R.instantiateReactComponent(descriptor);
-                instance.context = context;
-                initialState = initialState || {};
-                if(instance.getInitialState) {
-                    initialState = _.extend(initialState, instance.getInitialState() || {});
-                }
-                _.extend(instance, {
-                    state: initialState,
-                    _isReactOnRailsSurrogate_: true,
-                    __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-                });
-            });
-            return instance;
-        };
+    var createdClass;
 
-        _.extend(specs.statics, {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
+    function __ReactNexusSurrogate(_ref) {
+      var context = _ref.context;
+      var props = _ref.props;
+      var state = _ref.state;
+      _.dev(function () {
+        return context.should.be.an.Object && props.should.be.an.Object && state.should.be.an.Object;
+      });
+      var instance;
+      React.withContext(context, function () {
+        state = state || {};
+        var element = React.createElement(createdClass, _.omit(props, "children"), props.children);
+        instance = R.instantiateReactComponent(element);
+        _.extend(instance, { context: context });
+        if (instance.getInitialState) {
+          state = _.extend({}, state, instance.getInitialState() || {});
+        }
+        _.extend(instance, { state: state, __ReactNexusSurrogate: __ReactNexusSurrogate });
+      });
+      return instance;
+    }
+    _.extend(specs.statics, { __ReactNexusSurrogate: __ReactNexusSurrogate });
 
-        createdClass = _.extend(_vanillaCreateClass(specs), {
-            __ReactOnRailsSurrogate: __ReactOnRailsSurrogate,
-        });
+    createdClass = _vanillaCreateClass(specs);
+    return createdClass;
+  };
 
-        return createdClass;
-    };
+  _.extend(_patchedCreateClass, {
+    patchCreateClass: function () {
+      React.createClass = _patchedCreateClass;
+      return _patchedCreateClass;
+    },
 
-    /**
-    * <p> Function to use if you want restore native function of React.createClass </p>
-    * @method restoreVanillaCreateClass
-    */
-    _patchedCreateClass.restoreVanillaCreateClass = function() {
-        React.createClass = _vanillaCreateClass;
-    };
+    restoreCreateClass: function () {
+      React.createdClass = _vanillaCreateClass;
+      return _vanillaCreateClass;
+    } });
 
-    React.createClass = _patchedCreateClass;
-
-    return _patchedCreateClass;
+  return _patchedCreateClass.patchCreateClass();
 };

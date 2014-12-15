@@ -1,252 +1,252 @@
-module.exports = function(R) {
-    var co = require("co");
-    var React = R.React;
-    var _ = require("lodash");
-    var assert = require("assert");
-    var path = require("path");
+"use strict";
 
-    /**
-    * <p>Simply create an App class with specifics</p>
-    * <p>Provides methods in order to render the specified App server-side and client-side</p>
-    * <ul>
-    * <li> App.createApp => initializes methods of an application according to the specifications provided </li>
-    * <li> App.renderToStringInServer => compute all React Components with data and render the corresponding HTML for the requesting client </li>
-    * <li> App.renderIntoDocumentInClient => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions</li>
-    * <li> App.createPlugin => initiliaziation method of a plugin for the application </li>
-    * </ul>
-    * @class R.App
-    */
-    var App = {
-        /**
-        * <p> Initializes the application according to the specifications provided </p>
-        * @method createApp
-        * @param {object} specs All the specifications of the App
-        * @return {AppInstance} AppInstance The instance of the created App
-        */
-        createApp: function createApp(specs) {
-            R.Debug.dev(function() {
-                assert(_.isPlainObject(specs), "R.App.createApp(...).specs: expecting Object.");
-                assert(specs.fluxClass && _.isFunction(specs.fluxClass), "R.App.createApp(...).specs.fluxClass: expecting Function.");
-                assert(specs.rootClass && _.isFunction(specs.rootClass), "R.App.createApp(...).specs.rootClass: expecting Function.");
-                assert(specs.bootstrapTemplateVarsInServer && _.isFunction(specs.bootstrapTemplateVarsInServer, "R.App.createApp(...).specs.bootstrapTemplateVarsInServer: expecting Function."));
-            });
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var React = R.React;
+  var _ = R._;
+  var Plugin = require("./R.App.Plugin")(R);
 
-            var AppInstance = function AppInstance() {
-                _.extend(this, {
-                    _fluxClass: specs.fluxClass,
-                    _rootClass: specs.rootClass,
-                    _template: specs.template || App.defaultTemplate,
-                    _bootstrapTemplateVarsInServer: specs.bootstrapTemplateVarsInServer,
-                    _vars: specs.vars || {},
-                    _plugins: specs.plugins || {},
-                    _templateLibs: _.extend(specs.templateLibs || {}, {
-                        _: _,
-                    }),
-                });
-                _.extend(this, specs);
-                _.each(specs, R.scope(function(val, attr) {
-                    if(_.isFunction(val)) {
-                        this[attr] = R.scope(val, this);
-                    }
-                }, this));
-            };
-            _.extend(AppInstance.prototype, R.App._AppInstancePrototype);
-            return AppInstance;
-        },
-        _AppInstancePrototype: {
-            _fluxClass: null,
-            _rootClass: null,
-            _template: null,
-            _bootstrapTemplateVarsInServer: null,
-            _vars: null,
-            _templateLibs: null,
-            _plugins: null,
-            /**
-            * <p>Compute all React Components with data server-side and render the corresponding HTML for the requesting client</p>
-            * @method renderToStringInServer
-            * @param {object} req The classical request object
-            * @return {object} template : the computed HTML template with data for the requesting client
-            */
-            renderToStringInServer: regeneratorRuntime.mark(function renderToStringInServer(req) {
-                var guid, flux, rootProps, surrogateRootComponent, factoryRootComponent, rootComponent, rootHtml, serializedFlux;
+  /**
+  * <p>Simply create an App class with specifics</p>
+  * <p>Provides methods in order to render the specified App server-side and client-side</p>
+  * <ul>
+  * <li> App.createApp => initializes methods of an application according to the specifications provided </li>
+  * <li> App.renderToStringInServer => compute all React Components with data and render the corresponding HTML for the requesting client </li>
+  * <li> App.renderIntoDocumentInClient => compute all React Components client-side and establishes a connection via socket in order to make data subscriptions</li>
+  * <li> App.createPlugin => initiliaziation method of a plugin for the application </li>
+  * </ul>
+  * @class R.App
+  */
+  var App = (function () {
+    var App = function App() {
+      var _this = this;
+      this.Flux = this.getFluxClass();
+      this.Root = this.getRootClass();
+      this.template = this.getTemplate();
+      this.Plugins = this.getPluginsClasses();
 
-                return regeneratorRuntime.wrap(function renderToStringInServer$(context$2$0) {
-                    while (1) switch (context$2$0.prev = context$2$0.next) {
-                    case 0:
-                        R.Debug.dev(function() {
-                            assert(R.isServer(), "R.App.AppInstance.renderAppToStringInServer(...): should be in server.");
-                        });
-                        guid = R.guid();
-                        flux = new this._fluxClass();
-                        context$2$0.next = 5;
-                        return flux.bootstrapInServer(req, req.headers, guid);
-                    case 5:
-                        //Initializes plugin and fill all corresponding data for store : Memory
-                        _.each(this._plugins, function(Plugin, name) {
-                            var plugin = new Plugin();
-                            R.Debug.dev(function() {
-                                assert(plugin.installInServer && _.isFunction(plugin.installInServer), "R.App.renderToStringInServer(...).plugins[...].installInServer: expecting Function. ('" + name + "')");
-                            });
-                            plugin.installInServer(flux, req);
-                        });
-                        rootProps = { flux: flux };
-                        R.Debug.dev(R.scope(function() {
-                            _.extend(rootProps, { __ReactOnRailsApp: this });
-                        }, this));
+      _.dev(function () {
+        return _this.Flux.should.be.a.Function && _this.Root.should.be.a.Function && _this.template.should.be.a.Function && _this.Plugins.should.be.an.Array;
+      });
+      this.RootFactory = React.createFactory(this.Root);
 
-                        surrogateRootComponent = new this._rootClass.__ReactOnRailsSurrogate({}, rootProps);
-
-                        if(!surrogateRootComponent.componentWillMount) {
-                            R.Debug.dev(function() {
-                                console.error("Root component doesn't have componentWillMount. Maybe you forgot R.Root.Mixin? ('" + surrogateRootComponent.displayName + "')");
-                            });
-                        }
-                        surrogateRootComponent.componentWillMount();
-
-                        context$2$0.next = 13;
-                        return surrogateRootComponent.prefetchFluxStores();
-                    case 13:
-                        surrogateRootComponent.componentWillUnmount();
-
-                        factoryRootComponent = React.createFactory(this._rootClass);
-                        rootComponent = factoryRootComponent(rootProps);
-                        flux.startInjectingFromStores();
-                        rootHtml = React.renderToString(rootComponent);
-                        flux.stopInjectingFromStores();
-
-                        serializedFlux = flux.serialize();
-                        flux.destroy();
-                        context$2$0.next = 23;
-                        return this._bootstrapTemplateVarsInServer(req);
-                    case 23:
-                        context$2$0.t0 = context$2$0.sent;
-
-                        context$2$0.t1 = {
-                            rootHtml: rootHtml,
-                            serializedFlux: serializedFlux,
-                            serializedHeaders: R.Base64.encode(JSON.stringify(req.headers)),
-                            guid: guid,
-                        };
-
-                        context$2$0.t2 = _.extend({}, context$2$0.t0, this._vars, context$2$0.t1);
-                        return context$2$0.abrupt("return", this._template(context$2$0.t2, this._templateLibs));
-                    case 27:
-                    case "end":
-                        return context$2$0.stop();
-                    }
-                }, renderToStringInServer, this);
-            }),
-            /**
-            * <p>Setting all the data for each React Component and Render it into the client. <br />
-            * Connecting to the uplink-server via in order to enable the establishment of subsriptions for each React Component</p>
-            * @method renderIntoDocumentInClient
-            * @param {object} window The classical window object
-            */
-            renderIntoDocumentInClient: regeneratorRuntime.mark(function renderIntoDocumentInClient(window) {
-                var flux, headers, guid, rootProps, factoryRootComponent, rootComponent;
-
-                return regeneratorRuntime.wrap(function renderIntoDocumentInClient$(context$2$0) {
-                    while (1) switch (context$2$0.prev = context$2$0.next) {
-                    case 0:
-                        R.Debug.dev(function() {
-                            assert(R.isClient(), "R.App.AppInstance.renderAppIntoDocumentInClient(...): should be in client.");
-                            assert(_.has(window, "__ReactOnRails") && _.isPlainObject(window.__ReactOnRails), "R.App.AppInstance.renderIntoDocumentInClient(...).__ReactOnRails: expecting Object.");
-                            assert(_.has(window.__ReactOnRails, "guid") && _.isString(window.__ReactOnRails.guid), "R.App.AppInstance.renderIntoDocumentInClient(...).__ReactOnRails.guid: expecting String.");
-                            assert(_.has(window.__ReactOnRails, "serializedFlux") && _.isString(window.__ReactOnRails.serializedFlux), "R.App.AppInstance.renderIntoDocumentInClient(...).__ReactOnRails.serializedFlux: expecting String.");
-                            assert(_.has(window.__ReactOnRails, "serializedHeaders") && _.isString(window.__ReactOnRails.serializedHeaders), "R.App.AppInstance.renderIntoDocumentInClient(...).__ReactOnRails.headers: expecting String.");
-                        });
-                        flux = new this._fluxClass();
-                        R.Debug.dev(function() {
-                            window.__ReactOnRails.flux = flux;
-                        });
-                        headers = JSON.parse(R.Base64.decode(window.__ReactOnRails.serializedHeaders));
-                        guid = window.__ReactOnRails.guid;
-                        context$2$0.next = 7;
-                        return flux.bootstrapInClient(window, headers, guid);
-                    case 7:
-                        //Unserialize flux in order to fill all data in store
-                        flux.unserialize(window.__ReactOnRails.serializedFlux);
-                        _.each(this._plugins, function(Plugin, name) {
-                            var plugin = new Plugin();
-                            R.Debug.dev(function() {
-                                assert(plugin.installInClient && _.isFunction(plugin.installInClient), "R.App.renderToStringInServer(...).plugins[...].installInClient: expecting Function. ('" + name + "')");
-                            });
-                            plugin.installInClient(flux, window);
-                        });
-                        rootProps = { flux: flux };
-                        R.Debug.dev(R.scope(function() {
-                            _.extend(rootProps, { __ReactOnRailsApp: this });
-                        }, this));
-                        factoryRootComponent = React.createFactory(this._rootClass);
-                        rootComponent = factoryRootComponent(rootProps);
-                        R.Debug.dev(function() {
-                            window.__ReactOnRails.rootComponent = rootComponent;
-                        });
-                        flux.startInjectingFromStores();
-                        /*
-                        * Render root component client-side, for each components:
-                        * 1. getInitialState : return store data computed server-side with R.Flux.prefetchFluxStores
-                        * 2. componentWillMount : initialization 
-                        * 3. Render : compute DOM with store data computed server-side with R.Flux.prefetchFluxStores
-                        * Root Component already has this server-rendered markup, 
-                        * React will preserve it and only attach event handlers.
-                        * 4. Finally componentDidMount (subscribe and fetching data) then rerendering with new potential computed data
-                        */
-                        React.render(rootComponent, window.document.getElementById("ReactOnRails-App-Root"));
-                        flux.stopInjectingFromStores();
-                    case 17:
-                    case "end":
-                        return context$2$0.stop();
-                    }
-                }, renderIntoDocumentInClient, this);
-            }),
-        },
-        /**
-        * <p>Initiliaziation method of a plugin for the application</p>
-        * @method createPlugin
-        * @param {object} specs The specified specs provided by the plugin
-        * @return {object} PluginInstance The instance of the created plugin
-        */
-        createPlugin: function createPlugin(specs) {
-            R.Debug.dev(function() {
-                assert(specs && _.isPlainObject(specs), "R.App.createPlugin(...).specs: expecting Object.");
-                assert(specs.displayName && _.isString(specs.displayName), "R.App.createPlugin(...).specs.displayName: expecting String.");
-                assert(specs.installInServer && _.isFunction(specs.installInServer), "R.App.createPlugin(...).specs.installInServer: expecting Function.");
-                assert(specs.installInClient && _.isFunction(specs.installInClient), "R.App.createPlugin(...).specs.installInClient: expecting Function.");
-            });
-
-            var PluginInstance = function PluginInstance() {
-                this.displayName = specs.displayName;
-                _.each(specs, R.scope(function(val, attr) {
-                    if(_.isFunction(val)) {
-                        this[attr] = R.scope(val, this);
-                    }
-                }, this));
-            };
-
-            _.extend(PluginInstance.prototype, specs, App._PluginInstancePrototype);
-
-            return PluginInstance;
-        },
-        _PluginInstancePrototype: {
-            displayName: null,
-            installInClient: null,
-            installInServer: null,
-        },
+      this.prerender = _.scope(this.prerender, this);
     };
 
-    if(R.isServer()) {
-        var fs = require("fs");
-        var _defaultTemplate = _.template(fs.readFileSync(path.join(__dirname, "..", "src", "R.App.defaultTemplate.tpl")));
-        App.defaultTemplate = function defaultTemplate(vars, libs) {
-            return _defaultTemplate({ vars: vars, libs: libs });
-        };
-    }
-    else {
-        App.defaultTemplate = function defaultTemplate(vars, libs) {
-            throw new Error("R.App.AppInstance.defaultTemplate(...): should not be called in the client.");
-        };
-    }
+    App.prototype.getFluxClass = function () {
+      _.abstract();
+    };
 
+    App.prototype.getRootClass = function () {
+      _.abstract();
+    };
+
+    App.prototype.getTemplate = function () {
+      _.abstract();
+    };
+
+    App.prototype.getPluginsClasses = function () {
+      _.abstract();
+    };
+
+    App.prototype.getTemplateVars = regeneratorRuntime.mark(function _callee(_ref) {
+      var req;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (true) switch (_context.prev = _context.next) {
+          case 0: req = _ref.req;
+            _.abstract();
+          case 2:
+          case "end": return _context.stop();
+        }
+      }, _callee, this);
+    });
+    App.prototype.prerender = function (req, res) {
+      return _.co.wrap(this._prerender).call(this, req, res);
+    };
+
+    App.prototype._prerender = regeneratorRuntime.mark(function _callee2(req, res) {
+      var _this2 = this;
+      var html, _ret;
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+        while (true) switch (_context2.prev = _context2.next) {
+          case 0: _context2.prev = 0;
+            _context2.next = 3;
+            return _this2.render({ req: req });
+          case 3: html = _context2.sent;
+            _context2.next = 11;
+            break;
+          case 6: _context2.prev = 6;
+            _context2.t0 = _context2["catch"](0);
+            _ret = (function () {
+              var err = _context2.t0.toString();
+              var stack;
+              _.dev(function () {
+                return stack = _context2.t0.stack;
+              });
+              _.prod(function () {
+                return stack = null;
+              });
+              return {
+                v: res.status(500).json({ err: err, stack: stack })
+              };
+            })();
+            if (!(typeof _ret === "object")) {
+              _context2.next = 11;
+              break;
+            }
+            return _context2.abrupt("return", _ret.v);
+          case 11: return _context2.abrupt("return", res.status(200).send(html));
+          case 12:
+          case "end": return _context2.stop();
+        }
+      }, _callee2, this, [[0, 6]]);
+    });
+    App.prototype.render = regeneratorRuntime.mark(function _callee3(_ref2) {
+      var _this3 = this;
+      var req, window;
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (true) switch (_context3.prev = _context3.next) {
+          case 0: req = _ref2.req;
+            window = _ref2.window;
+            // jshint ignore:line
+            _.dev(function () {
+              return __NODE__ ? req.should.be.an.Object : window.should.be.an.Object;
+            });
+            if (!__NODE__) {
+              _context3.next = 9;
+              break;
+            }
+            _context3.next = 6;
+            return _this3._renderInServer(req);
+          case 6: _context3.t1 = _context3.sent;
+            _context3.next = 12;
+            break;
+          case 9: _context3.next = 11;
+            return _this3._renderInClient(window);
+          case 11: _context3.t1 = _context3.sent;
+          case 12: return _context3.abrupt("return", _context3.t1);
+          case 13:
+          case "end": return _context3.stop();
+        }
+      }, _callee3, this);
+    });
+    App.prototype._renderInServer = regeneratorRuntime.mark(function _callee4(req) {
+      var _this4 = this;
+      var guid, headers, flux, plugins, rootProps, surrogateRootComponent, rootComponent, rootHtml, serializedFlux, serializedHeaders;
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (true) switch (_context4.prev = _context4.next) {
+          case 0: // jshint ignore:line
+            _.dev(function () {
+              return (__NODE__).should.be.ok && req.headers.should.be.ok;
+            });
+
+            guid = _.guid();
+            headers = req.headers;
+            flux = new _this4.Flux({ guid: guid, headers: headers, req: req });
+            _context4.next = 6;
+            return flux.bootstrap();
+          case 6: plugins = _this4.Plugins.map(function (Plugin) {
+              return new Plugin({ flux: flux, req: req, headers: headers });
+            });
+            rootProps = { flux: flux, plugins: plugins };
+            surrogateRootComponent = new _this4.Root.__ReactNexusSurrogate({ context: {}, props: rootProps, state: {} });
+            if (!surrogateRootComponent.componentWillMount) {
+              _.dev(function () {
+                return console.error("Root component requires componentWillMount implementation. Maybe you forgot to mixin R.Root.Mixin?");
+              });
+            }
+            // Emulate React lifecycle
+            surrogateRootComponent.componentWillMount();
+            _context4.next = 13;
+            return surrogateRootComponent.prefetchFluxStores();
+          case 13:
+            surrogateRootComponent.componentWillUnmount();
+
+            rootComponent = _this4.RootFactory(rootProps);
+            flux.injectingFromStores(function () {
+              return rootHtml = React.renderToString(rootComponent);
+            });
+            serializedFlux = flux.serialize();
+            flux.destroy();
+            plugins.forEach(function (plugin) {
+              return plugin.destroy();
+            });
+
+            serializedHeaders = _.base64Encode(JSON.stringify(headers));
+            _context4.next = 22;
+            return _this4.getTemplateVars({ req: req });
+          case 22: _context4.t2 = _context4.sent;
+            _context4.t3 = _.extend({}, _context4.t2, { rootHtml: rootHtml, serializedFlux: serializedFlux, serializedHeaders: serializedHeaders, guid: guid });
+            return _context4.abrupt("return", _this4.template(_context4.t3));
+          case 25:
+          case "end": return _context4.stop();
+        }
+      }, _callee4, this);
+    });
+    App.prototype._renderInClient = regeneratorRuntime.mark(function _callee5(window) {
+      var _this5 = this;
+      var headers, guid, flux, plugins, rootProps, rootComponent;
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (true) switch (_context5.prev = _context5.next) {
+          case 0: // jshint ignore:line
+            _.dev(function () {
+              return (__BROWSER__).should.be.ok && window.__ReactNexus.should.be.an.Object && window.__ReactNexus.guid.should.be.a.String && window.__ReactNexus.serializedFlux.should.be.a.String && window.__ReactNexus.serializedHeaders.should.be.a.String && window.__ReactNexus.rootElement.should.be.ok;
+            });
+            _.dev(function () {
+              return window.__ReactNexus.app = _this5;
+            });
+            headers = JSON.parse(_.base64Decode(window.__ReactNexus.serializedHeaders));
+            guid = window.__ReactNexus.guid;
+            flux = new _this5.Flux({ headers: headers, guid: guid, window: window });
+            _.dev(function () {
+              return window.__ReactNexus.flux = flux;
+            });
+
+            _context5.next = 8;
+            return flux.bootstrap({ window: window, headers: headers, guid: guid });
+          case 8: // jshint ignore:line
+            flux.unserialize(window.__ReactNexus.serializedFlux);
+            plugins = _this5.Plugins.forEach(function (Plugin) {
+              return new Plugin({ flux: flux, window: window, headers: headers });
+            });
+            _.dev(function () {
+              return window.__ReactNexus.plugins = plugins;
+            });
+
+            rootProps = { flux: flux, plugins: plugins };
+            rootComponent = _this5.RootFactory(rootProps);
+            _.dev(function () {
+              return window.__ReactNexus.rootComponent = rootComponent;
+            });
+            /*
+            * Render root component client-side, for each components:
+            * 1. getInitialState : return store data computed server-side with R.Flux.prefetchFluxStores
+            * 2. componentWillMount : initialization
+            * 3. Render : compute DOM with store data computed server-side with R.Flux.prefetchFluxStores
+            * Root Component already has this server-rendered markup,
+            * React will preserve it and only attach event handlers.
+            * 4. Finally componentDidMount (subscribe and fetching data) then rerendering with new potential computed data
+            */
+            flux.injectingFromStores(function () {
+              return React.render(rootComponent, window.__ReactNexus.rootElement);
+            });
+            window.addEventListener("beforeunload", function () {
+              return flux.destroy();
+            });
+          case 16:
+          case "end": return _context5.stop();
+        }
+      }, _callee5, this);
+    });
     return App;
+  })();
+
+  _.extend(App.prototype, /** @lends App.prototype */{
+    Flux: null,
+    Root: null,
+    RootFactory: null,
+    template: null,
+    Plugins: null });
+
+  _.extend(App, { Plugin: Plugin });
+  return App;
 };

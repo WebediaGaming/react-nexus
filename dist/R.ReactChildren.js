@@ -1,108 +1,74 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var React = R.React;
+"use strict";
 
-    var _vanillaReactChildren = React.Children;
-    /**
-    * <p>Method definitions that complements React.Children. <br />
-    * Used to navigate through all children of a specific component in order to calculate its descendants. </p>
-    * @class R.ReactChildren
-    */
-    var _patchedReactChildren = _.extend({}, React.Children, {
-        /**
-        * <p>Returns the child of the specified component </p>
-        * @method getChildrenList
-        * @param {object} component The current component 
-        * @return {object} object The child of the specified component
-        */
-        getChildrenList: function getChildrenList(component) {
-            if(null === component || !component.props || !component.props.children) {
-                return [];
-            }
-            return React.Children.map(component.props.children, _.identity);
-        },
-        /**
-        * <p>Returns all children of the specified component </p>
-        * @method getDescendantsList
-        * @param {object} component The current component 
-        * @return {object} descendantsList The list of children of the specified component
-        */
-        getDescendantsList: function getDescendantsList(component) {
-            var childrenList = React.Children.getChildrenList(component);
-            var descendantsList = [];
-            _.each(childrenList, function(child) {
-                descendantsList.push(child);
-                var subDescendantsList = React.Children.getDescendantsList(child);
-                _.each(subDescendantsList, function(node) {
-                    descendantsList.push(node);
-                });
-            });
-            return descendantsList;
-        },
-        /**
-        * <p>Returns all children of the specified component and execute the specified function </p>
-        * @method mapDescendants
-        * @param {object} component The current component 
-        * @param {Function} fn The function to execute 
-        * @return {object} object The list of children of the specified component
-        */
-        mapDescendants: function mapDescendants(component, fn) {
-            return _.map(React.Children.getDescendantsList(component), fn);
-        },
-       /**
-        * <p>Compute all children of the specified component and execute the function </p>
-        * @method mapTree
-        * @param {object} component The current component 
-        * @param {Function} fn The function to execute
-        * @return {object} object The list of children without the component and call fn for each of them
-        */
-        mapTree: function mapTree(component, fn) {
-            var tree = React.Children.getDescendantsList(component, fn);
-            tree.unshift(component);
-            return _.map(tree, fn);
-        },
-        /**
-        * <p> Function to use if you want restore native function of React.Children </p>
-        * @method restoreVanillaChildren
-        */
-        restoreVanillaChildren: function restoreVanillaChildren() {
-            React.Children = _vanillaReactChildren;
-        },
-        /**
-        * <p> Function to use if you want convert all the descendants of the component using a specified function </p>  
-        * @method transformDescendants
-        * @param {object} component The current component 
-        * @param {Function} fn The function to execute
-        * @return {object} component The computed component
-        */
-        transformDescendants: function transformDescendants(component, fn) {
-            var childrenList = React.Children.getDescendantsList(component);
-            if(childrenList.length === 0) {
-                return component;
-            }
-            else {
-                if(component.props){
-                    component.props.children = React.Children.mapDescendants(component, function(childComponent) {
-                        return React.Children.transformTree(childComponent, fn);
-                    });
-                }
-                return component;
-            }
-        },
-        /**
-        * <p> Convert all the current descendant of the component using a specified function </p>  
-        * @method transformTree
-        * @param {object} component The current component 
-        * @param {Function} fn The function to execute
-        * @return {object} object Call the transformDescendants function in order to convert the subdescendant of the current component
-        */
-        transformTree: function transformTree(component, fn) {
-            component = fn(component);
-            return React.Children.transformDescendants(component, fn);
-        },
-    });
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
+  var React = R.React;
 
-    React.Children = _patchedReactChildren;
+  var _vanillaReactChildren = React.Children;
 
-    return _patchedReactChildren;
+  var _patchedReactChildren = _.extend({}, React.Children, {
+    getChildrenList: function (component) {
+      if (null === component || !component.props || !component.props.children) {
+        return [];
+      }
+      var children = [];
+      React.Children.forEach(component.props.children, function (child) {
+        return children.push(child);
+      });
+      return children;
+    },
+
+    getDescendantsList: function (component) {
+      var children = React.Children.getChildrenList(component);
+      var descendants = [];
+      children.forEach(function (child) {
+        descendants.push(child);
+        React.Children.getDescendantsList(child).forEach(function (childDescendant) {
+          return descendants.push(childDescendant);
+        });
+      });
+      return descendants;
+    },
+
+    mapDescendants: function (component, fn) {
+      return React.Children.getDescendantsList(component).map(fn);
+    },
+
+    mapTree: function (component, fn) {
+      var tree = React.Children.getDescendantsList(component, fn);
+      tree.unshift(component);
+      return tree.map(fn);
+    },
+
+    restoreChildren: function () {
+      React.Children = _vanillaReactChildren;
+      return _vanillaReactChildren;
+    },
+
+    patchChildren: function () {
+      React.Children = _patchedReactChildren;
+      return _patchedReactChildren;
+    },
+
+    transformDescendants: function (component, fn) {
+      var children = React.Children.getDescendantsList(component);
+      if (children.length === 0) {
+        return component;
+      }
+      if (component.props) {
+        (function () {
+          var transformChild = function (child) {
+            return React.Children.transformTree(child, fn);
+          };
+          component.props.children = React.Children.mapDescendants(component, transformChild);
+        })();
+      }
+      return component;
+    },
+
+    transformTree: function (component, fn) {
+      return React.Children.transformDescendants(fn(component), fn);
+    } });
+
+  return _patchedReactChildren.patchChildren();
 };

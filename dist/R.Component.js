@@ -1,44 +1,18 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
-    var React = R.React;
+"use strict";
 
-    /**
-    * <p>Defines a specific mixin</p>
-    * <p>This will allow to components to access the main methods of react-rails</p>
-    * <ul>
-    * <li> Component.getFlux => Provide Flux for the current component </li>
-    * </ul>
-    * @class R.Component
-    */
-    var Component = {
-        Mixin: {
-            /**  
-            * <p>Refers to specifics mixins in order to manage Pure, Async, Animate and Flux methods</p>
-            * @property mixins
-            * @type {array.object}
-            */
-            mixins: [R.Pure.Mixin, R.Async.Mixin, R.Animate.Mixin, R.Flux.Mixin],
-            /** 
-            * <p>Defines context object for the current component<br />
-            * Allows all components using this mixin to have reference to R.Flux (Provides by the R.Root)</p>
-            * @property contextTypes
-            * @type {object} flux
-            */
-            contextTypes: {
-                flux: R.Flux.PropType,
-            },
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var Component = {
+    Mixin: {
+      _ComponentMixin: true,
 
-            _ComponentMixinHasComponentMixin: true,
-            /** <p>Provide Flux for the current component</p>
-            * @method getFlux
-            * @return {object} this.context.flux The Flux of the App
-            */
-            getFlux: function getFlux() {
-                return this.context.flux;
-            },
-        },
-    };
+      mixins: [R.Pure.Mixin, R.Async.Mixin, R.Animate.Mixin, R.Flux.Mixin],
 
-    return Component;
+      contextTypes: {
+        flux: R.Flux.PropType },
+
+      getFlux: function () {
+        return this.context.flux;
+      } } };
+
+  return Component;
 };

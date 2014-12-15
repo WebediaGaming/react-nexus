@@ -1,152 +1,79 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+"use strict";
 
-    /**
-    * <p>R.Dispatcher acts as a layer between Store/EventEmitters and components.
-    * A React component may submit an action to a dispatcher (such as a click event) and perform updates required.</p>
-    * <ul>
-    * <li> Dispatcher.createDispatcher => initialize methods according to the specifications provided</li>
-    * <li> Dispatcher.addActionListener => add an action listener</li>
-    * <li> Dispatcher.removeActionListener => remove an action listener</li>
-    * <li> Dispatcher.dispatch => dispatches an action submitted by a React component</li>
-    * <li> Dispatcher.destroy => remove all listener previously added</li>
-    * </ul>
-    * @class R.Dispatcher
-    */
-    var Dispatcher = {
-        /**
-        * Initializes the dispatcher according to the specifications provided
-        * @method createDispatcher
-        * @param {object} specs The specifications
-        * @return {DispatcherInstance} DispatcherInstance The created dispatcher instance
-        */
-        createDispatcher: function createDispatcher(specs) {
-            R.Debug.dev(function() {
-                assert(_.isObject(specs), "R.Dispatcher.createDispatcher(...).specs: expecting Object.");
-                assert(specs.actions && _.isObject(specs.actions), "R.Dispatcher.createDispatcher(...).specs.actions: expecting Object.");
-                assert(specs.displayName && _.isString(specs.displayName), "R.Dispatcher.createDispatcher(...).specs.displayName: expecting String.");
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
+  var ActionHandler = require("./R.Dispatcher.ActionHandler")(R);
+
+  var Dispatcher = (function () {
+    var Dispatcher = function Dispatcher(actionHandlers) {
+      var _this = this;
+      if (actionHandlers === undefined) actionHandlers = {};
+      _.dev(function () {
+        return actionHandlers.should.be.an.Object && Object.keys(actionHandlers).map(function (action) {
+          return action.should.be.a.String && actionHandlers[action].should.be.a.Function;
+        });
+      });
+      this.actionHandlers = {};
+      Object.keys(actionHandlers).forEach(function (action) {
+        return _this.addActionHandler(action, actionHandlers[action]);
+      });
+    };
+
+    Dispatcher.prototype.destroy = function () {
+      var _this2 = this;
+      // Explicitly remove all action handlers
+      Object.keys(this.actionHandlers).forEach(function (action) {
+        return Object.keys(_this2.actionHandlers[action]).forEach(function (k) {
+          return _this2.removeActionHandler(_this2.actionHandlers[action][k]);
+        });
+      });
+      // Nullify references
+      this.actionHandlers = null;
+    };
+
+    Dispatcher.prototype.addActionHandler = function (action, handler) {
+      var actionListener = new ActionHandler(action, handler);
+      actionListener.pushInto(this.actionHandlers);
+      return actionListener;
+    };
+
+    Dispatcher.prototype.removeActionHandler = function (actionListener) {
+      var _this3 = this;
+      _.dev(function () {
+        return actionListener.should.be.instanceOf(ActionHandler) && actionListener.isInside(_this3.actionHandlers).should.be.ok;
+      });
+      actionListener.removeFrom(this.actionHandlers);
+    };
+
+    Dispatcher.prototype.dispatch = regeneratorRuntime.mark(function _callee(action, params) {
+      var _this4 = this;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (true) switch (_context.prev = _context.next) {
+          case 0:
+            if (params === undefined) params = {};
+            // jshint ignore:line
+            _.dev(function () {
+              return _this4.actionHandlers[action].should.be.ok;
             });
-
-            var DispatcherInstance = function DispatcherInstance() {
-                this._actionsListeners = {};
-                this.addActionListener = R.scope(this.addActionListener, this);
-                this.removeActionListener = R.scope(this.removeActionListener, this);
-                this.dispatch = R.scope(this.dispatch, this);
-                _.each(specs, R.scope(function(val, attr) {
-                    if(_.isFunction(val)) {
-                        this[attr] = R.scope(val, this);
-                    }
-                }, this));
-                _.each(specs.actions, this.addActionListener);
-            };
-
-            _.extend(DispatcherInstance.prototype, specs, R.Dispatcher._DispatcherInstancePrototype);
-
-            return DispatcherInstance;
-        },
-        _DispatcherInstancePrototype: {
-            _isDispatcherInstance_: true,
-            displayName: null,
-            _actionsListeners: null,
-            /**
-            * <p>Register an async action listener</p>
-            * @method addActionListener
-            * @param {object} action The action name
-            * @param {Function} fn The function to execute when the listener will be notified
-            * @return {Dispatcher.ActionListener} actionListener The created actionListener
-            */
-            addActionListener: function addActionListener(action, fn) {
-                var actionListener = new R.Dispatcher.ActionListener(action);
-                if(!_.has(this._actionsListeners, action)) {
-                    this._actionsListeners[action] = {};
-                }
-                this._actionsListeners[action][actionListener.uniqueId] = fn;
-                return actionListener;
-            },
-            /**
-            * <p>Remove the previously added action listener</p>
-            * @method removeActionListener
-            * @param {object} actionListener The action name
-            */
-            removeActionListener: function removeActionListener(actionListener) {
-                R.Debug.dev(R.scope(function() {
-                    assert(actionListener instanceof R.Dispatcher.ActionListener, "R.Dispatcher.DispatcherInstance.removeActionListener(...): type R.Dispatcher.ActionListener expected.");
-                    assert(_.has(this._actionsListeners, actionListener), "R.Dispatcher.DispatcherInstance.removeActionListener(...): no action listener for this action.");
-                    assert(_.has(this._actionsListeners[actionListener.action], actionListener.uniqueId), "R.Dispatcher.DispatcherInstance.removeActionListener(...): no such action listener.");
-                }, this));
-                delete this._actionsListeners[actionListener.action][actionListener.uniqueId];
-                if(_.size(this._actionsListeners[actionListener.action]) === 0) {
-                    delete this._actionsListeners[actionListener.action];
-                }
-            },
-            /**
-            * <p>Dispatches an action submitted by a React component</p>
-            * @method dispatch
-            * @param {action} action The action name of the listener
-            * @param {object} params The specifics params necessary for an action
-            * @return {*} * the data that may be provided by the listener function
-            */
-            dispatch: regeneratorRuntime.mark(function dispatch(action, params) {
-                return regeneratorRuntime.wrap(function dispatch$(context$2$0) {
-                    while (1) switch (context$2$0.prev = context$2$0.next) {
-                    case 0:
-                        params = params || {};
-                        R.Debug.dev(R.scope(function() {
-                            if(!_.has(this._actionsListeners, action)) {
-                                console.warn("R.Dispatcher.DispatcherInstance.dispatch: dispatching an action with no listeners attached.");
-                            }
-                        }, this));
-
-                        if (!_.has(this._actionsListeners, action)) {
-                            context$2$0.next = 6;
-                            break;
-                        }
-
-                        context$2$0.next = 5;
-
-                        return _.map(this._actionsListeners[action], function(listener) {
-                            return listener(params);
-                        });
-                    case 5:
-                        return context$2$0.abrupt("return", context$2$0.sent);
-                    case 6:
-                    case "end":
-                        return context$2$0.stop();
-                    }
-                }, dispatch, this);
-            }),
-            /**
-            * <p>Remove all listener previously added </p>
-            * @method destroy
-            */
-            destroy: function destroy() {
-                _.each(this._actionsListeners, this.removeActionListener);
-            },
-        },
-    };
-
-    Dispatcher.ActionListener = function ActionListener(action) {
-        this.uniqueId = _.uniqueId("ActionListener");
-        this.action = action;
-    };
-
-    _.extend(Dispatcher.ActionListener.prototype, /** @lends R.Dispatcher.ActionListener */ {
-        /**
-         * @property
-         * @type {String}
-         * @private
-         * @readOnly
-         */
-        uniqueId: null,
-        /**
-         * @property
-         * @type {String}
-         * @private
-         * @readOnly
-         */
-        action: null,
+            _context.next = 4;
+            return Object.keys(_this4.actionHandlers[action]) // jshint ignore:line
+            .map(function (key) {
+              return _this4.actionHandlers[action][key].dispatch(params);
+            });
+          case 4: return _context.abrupt("return", _context.sent);
+          case 5:
+          case "end": return _context.stop();
+        }
+      }, _callee, this);
     });
-
     return Dispatcher;
+  })();
+
+  _.extend(Dispatcher.prototype, {
+    actionHandlers: null });
+
+  _.extend(Dispatcher, {
+    ActionHandler: ActionHandler });
+
+  return Dispatcher;
 };

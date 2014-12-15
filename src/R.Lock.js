@@ -1,50 +1,48 @@
 module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+  const _ = R._;
 
-    var Lock = function Lock() {
+  class Lock {
+    constructor() {
+      this._acquired = false;
+      this._queue = [];
+    }
+
+    acquire() {
+      return new Promise((resolve, reject) => {
+        if(!this._acquired) {
+          this._acquired = true;
+          return resolve();
+        }
+        else {
+          return this._queue.push({ resolve, reject });
+        }
+      });
+    }
+
+    release() {
+      _.dev(() => this._acquired.should.be.ok);
+      if(this._queue.length > 0) {
+        let { resolve } = this._queue[0];
+        this._queue.shift();
+        resolve();
+      }
+      else {
         this._acquired = false;
-        this._queue = [];
-    };
+      }
+    }
 
-    _.extend(Lock.prototype, {
-        _acquired: null,
-        _queue: null,
-        acquire: function acquire() {
-            return R.scope(function(fn) {
-                if(!this._acquired) {
-                    this._acquired = true;
-                    _.defer(fn);
-                }
-                else {
-                    this._queue.push(fn);
-                }
-            }, this);
-        },
-        release: function release() {
-            assert(this._acquired, "R.Lock.release(): lock not currently acquired.");
-            if(_.size(this._queue) > 0) {
-                var fn = this._queue[0];
-                this._queue.shift();
-                _.defer(fn);
-            }
-            else {
-                this._acquired = false;
-            }
-        },
-        performSync: function* performSync(fn) {
-            yield this.acquire();
-            var res = fn();
-            this.release();
-            return res;
-        },
-        perform: function* perform(fn) {
-            yield this.acquire();
-            var res = yield fn();
-            this.release();
-            return res;
-        },
-    });
+    *perform(fn) { // jshint ignore:line
+      yield this.acquire(); // jshint ignore:line
+      let res = yield fn(); // jshint ignore:line
+      this.release();
+      return res;
+    }
+  }
 
-    return Lock;
+  _.extend(Lock.prototype, {
+    _acquired: null,
+    _queue: null,
+  });
+
+  return Lock;
 };

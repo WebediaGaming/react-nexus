@@ -1,77 +1,64 @@
-module.exports = function(R) {
-    var _ = require("lodash");
-    var assert = require("assert");
+"use strict";
 
+require("6to5/polyfill");var Promise = (global || window).Promise = require("lodash-next").Promise;var __DEV__ = (process.env.NODE_ENV !== "production");var __PROD__ = !__DEV__;var __BROWSER__ = (typeof window === "object");var __NODE__ = !__BROWSER__;module.exports = function (R) {
+  var _ = R._;
+
+  var Lock = (function () {
     var Lock = function Lock() {
-        this._acquired = false;
-        this._queue = [];
+      this._acquired = false;
+      this._queue = [];
     };
 
-    _.extend(Lock.prototype, {
-        _acquired: null,
-        _queue: null,
-        acquire: function acquire() {
-            return R.scope(function(fn) {
-                if(!this._acquired) {
-                    this._acquired = true;
-                    _.defer(fn);
-                }
-                else {
-                    this._queue.push(fn);
-                }
-            }, this);
-        },
-        release: function release() {
-            assert(this._acquired, "R.Lock.release(): lock not currently acquired.");
-            if(_.size(this._queue) > 0) {
-                var fn = this._queue[0];
-                this._queue.shift();
-                _.defer(fn);
-            }
-            else {
-                this._acquired = false;
-            }
-        },
-        performSync: regeneratorRuntime.mark(function performSync(fn) {
-            var res;
+    Lock.prototype.acquire = function () {
+      var _this = this;
+      return new Promise(function (resolve, reject) {
+        if (!_this._acquired) {
+          _this._acquired = true;
+          return resolve();
+        } else {
+          return _this._queue.push({ resolve: resolve, reject: reject });
+        }
+      });
+    };
 
-            return regeneratorRuntime.wrap(function performSync$(context$2$0) {
-                while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    context$2$0.next = 2;
-                    return this.acquire();
-                case 2:
-                    res = fn();
-                    this.release();
-                    return context$2$0.abrupt("return", res);
-                case 5:
-                case "end":
-                    return context$2$0.stop();
-                }
-            }, performSync, this);
-        }),
-        perform: regeneratorRuntime.mark(function perform(fn) {
-            var res;
+    Lock.prototype.release = function () {
+      var _this2 = this;
+      _.dev(function () {
+        return _this2._acquired.should.be.ok;
+      });
+      if (this._queue.length > 0) {
+        var resolve = this._queue[0].resolve;
+        this._queue.shift();
+        resolve();
+      } else {
+        this._acquired = false;
+      }
+    };
 
-            return regeneratorRuntime.wrap(function perform$(context$2$0) {
-                while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    context$2$0.next = 2;
-                    return this.acquire();
-                case 2:
-                    context$2$0.next = 4;
-                    return fn();
-                case 4:
-                    res = context$2$0.sent;
-                    this.release();
-                    return context$2$0.abrupt("return", res);
-                case 7:
-                case "end":
-                    return context$2$0.stop();
-                }
-            }, perform, this);
-        }),
+    Lock.prototype.perform = regeneratorRuntime.mark(function _callee(fn) {
+      var _this3 = this;
+      var res;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (true) switch (_context.prev = _context.next) {
+          case 0: _context.next = 2;
+            return _this3.acquire();
+          case 2: _context.next = 4;
+            return fn();
+          case 4: res = _context.sent;
+            // jshint ignore:line
+            _this3.release();
+            return _context.abrupt("return", res);
+          case 7:
+          case "end": return _context.stop();
+        }
+      }, _callee, this);
     });
-
     return Lock;
+  })();
+
+  _.extend(Lock.prototype, {
+    _acquired: null,
+    _queue: null });
+
+  return Lock;
 };
