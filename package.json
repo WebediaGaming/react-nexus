@@ -23,13 +23,13 @@
   "license": "MIT",
   "dependencies": {
     "6to5": "^1.15.0",
-    "d3": "^3.5.2",
     "locale": "0.0.20",
     "lodash-next": "^1.10.4",
     "nexus-router": "^0.3.13",
     "raf": "^2.0.4",
     "react": "^0.12.1",
-    "setimmediate": "^1.0.2"
+    "setimmediate": "^1.0.2",
+    "tween-interpolate": "^0.1.0"
   },
   "devDependencies": {
     "del": "^1.1.0",
