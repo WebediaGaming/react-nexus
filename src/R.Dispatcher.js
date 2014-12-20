@@ -38,10 +38,14 @@ module.exports = function(R) {
       actionListener.removeFrom(this.actionHandlers);
     }
 
-    *dispatch(action, params = {}) { // jshint ignore:line
-      _.dev(() => this.actionHandlers[action].should.be.ok);
-      return yield Object.keys(this.actionHandlers[action]) // jshint ignore:line
-      .map((key) => this.actionHandlers[action][key].dispatch(params));
+    dispatch(action, params = {}) {
+      _.dev(() => action.should.be.a.String &&
+        params.should.be.an.Object
+      );
+      if(this.actionHandlers[action] === void 0) {
+        return Promise.resolve(true);
+      }
+      return Promise.map(Object.keys(this.actionHandlers[action]), (key) => this.actionHandlers[action][key].dispatch(params));
     }
   }
 

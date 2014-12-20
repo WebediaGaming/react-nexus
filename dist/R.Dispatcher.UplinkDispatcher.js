@@ -29,24 +29,14 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
 
     _extends(UplinkDispatcher, Dispatcher);
 
-    UplinkDispatcher.prototype.dispatch = regeneratorRuntime.mark(function _callee(action, params) {
-      var _this = this;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (true) switch (_context.prev = _context.next) {
-          case 0:
-            if (params === undefined) params = {};
-            // jshint ignore:line
-            _.dev(function () {
-              return action.should.be.a.String && (params === null || _.isObject(params)).should.be.ok;
-            });
-            _context.next = 4;
-            return _this._uplink.dispatch(action, params);
-          case 4: return _context.abrupt("return", _context.sent);
-          case 5:
-          case "end": return _context.stop();
-        }
-      }, _callee, this);
-    });
+    UplinkDispatcher.prototype.dispatch = function (action, params) {
+      if (params === undefined) params = {};
+      _.dev(function () {
+        return action.should.be.a.String && (params === null || _.isObject(params)).should.be.ok;
+      });
+      return this._uplink.dispatch(action, params);
+    };
+
     return UplinkDispatcher;
   })(Dispatcher);
 

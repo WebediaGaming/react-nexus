@@ -14,11 +14,11 @@ module.exports = function(R, Dispatcher) {
       });
     }
 
-    *dispatch(action, params = {}) { // jshint ignore:line
+    dispatch(action, params = {}) {
       _.dev(() => action.should.be.a.String &&
         (params === null || _.isObject(params)).should.be.ok
       );
-      return yield this._uplink.dispatch(action, params); // jshint ignore:line
+      return this._uplink.dispatch(action, params);
     }
   }
 
