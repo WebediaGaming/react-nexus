@@ -51,7 +51,7 @@ module.exports = function(R) {
 
   _.extend(Dispatcher, { ActionHandler });
 
-  const UplinkDispatcher = require('./R.UplinkDispatcher')(R, Dispatcher);
+  const UplinkDispatcher = require('./R.Dispatcher.UplinkDispatcher')(R, Dispatcher);
 
   _.extend(Dispatcher, { UplinkDispatcher });
 
