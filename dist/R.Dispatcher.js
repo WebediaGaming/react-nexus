@@ -72,8 +72,11 @@ require("6to5/polyfill");var Promise = (global || window).Promise = require("lod
   _.extend(Dispatcher.prototype, {
     actionHandlers: null });
 
-  _.extend(Dispatcher, {
-    ActionHandler: ActionHandler });
+  _.extend(Dispatcher, { ActionHandler: ActionHandler });
+
+  var UplinkDispatcher = require("./R.UplinkDispatcher")(R, Dispatcher);
+
+  _.extend(Dispatcher, { UplinkDispatcher: UplinkDispatcher });
 
   return Dispatcher;
 };

@@ -49,9 +49,11 @@ module.exports = function(R) {
     actionHandlers: null,
   });
 
-  _.extend(Dispatcher, {
-    ActionHandler,
-  });
+  _.extend(Dispatcher, { ActionHandler });
+
+  const UplinkDispatcher = require('./R.UplinkDispatcher')(R, Dispatcher);
+
+  _.extend(Dispatcher, { UplinkDispatcher });
 
   return Dispatcher;
 };
