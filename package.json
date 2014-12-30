@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "6to5": "^2.2.0",
+    "bluebird": "^2.5.3",
     "lodash": "^2.4.1"
   }
 }

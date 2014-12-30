@@ -1,5 +1,5 @@
 require('6to5/polyfill');
-var Promise = require('lodash-next').Promise;
+var Promise = require('bluebird').Promise;
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var plumber = require('gulp-plumber');
@@ -22,7 +22,8 @@ function build() {
   .pipe(plumber())
   .pipe(insert.prepend(
     'require(\'6to5/polyfill\'); ' +
-    'const Promise = (global || window).Promise = require(\'lodash-next\').Promise; ' +
+    'const _ = require(\'lodash\'); ' +
+    'const Promise = (global || window).Promise = require(\'bluebird\').Promise; ' +
     'const __DEV__ = (process.env.NODE_ENV !== \'production\'); ' +
     'const __PROD__ = !__DEV__; ' +
     'const __BROWSER__ = (typeof window === \'object\'); ' +
