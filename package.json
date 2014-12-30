@@ -28,7 +28,6 @@
     "jshint-stylish": "^1.0.0"
   },
   "dependencies": {
-    "6to5": "^2.2.0",
-    "lodash-next": "^2.0.1"
+    "6to5": "^2.2.0"
   }
 }
