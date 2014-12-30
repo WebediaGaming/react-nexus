@@ -1,5 +1,12 @@
 require('6to5/polyfill');
-var Promise = require('bluebird').Promise;
+var _ = require('lodash');
+var should = require('should');
+var Promise = (global || window).Promise = require('bluebird');
+var __DEV__ = (process.env.NODE_ENV !== 'production');
+var __PROD__ = !__DEV__;
+var __BROWSER__ = (typeof window === 'object');
+var __NODE__ = !__BROWSER__;
+(__DEV__ ? Promise.longStackTraces() : void 0);
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var plumber = require('gulp-plumber');
@@ -23,11 +30,14 @@ function build() {
   .pipe(insert.prepend(
     'require(\'6to5/polyfill\'); ' +
     'const _ = require(\'lodash\'); ' +
-    'const Promise = (global || window).Promise = require(\'bluebird\').Promise; ' +
+    'const should = require(\'should\'); ' +
+    'const Promise = (global || window).Promise = require(\'bluebird\'); ' +
     'const __DEV__ = (process.env.NODE_ENV !== \'production\'); ' +
     'const __PROD__ = !__DEV__; ' +
     'const __BROWSER__ = (typeof window === \'object\'); ' +
-    'const __NODE__ = !__BROWSER__; '))
+    'const __NODE__ = !__BROWSER__; ' +
+    '(__DEV__ ? Promise.longStackTraces() : void 0); '
+  ))
   .pipe(es6to5())
   .pipe(gulp.dest('dist'));
 }
