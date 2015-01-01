@@ -81,6 +81,7 @@
     // Custom Globals
     "globals"       : {        // additional predefined global variables
       "Promise"     : true,
+      "should"      : true,
       "_"           : true,
       "__DEV__"     : true,
       "__PROD__"    : true,
