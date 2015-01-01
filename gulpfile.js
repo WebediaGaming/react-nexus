@@ -6,16 +6,22 @@ var __DEV__ = (process.env.NODE_ENV !== 'production');
 var __PROD__ = !__DEV__;
 var __BROWSER__ = (typeof window === 'object');
 var __NODE__ = !__BROWSER__;
-(__DEV__ ? Promise.longStackTraces() : void 0);
+if(__DEV__) {
+  Promise.longStackTraces();
+}
+
+var del = require('del');
+var es6to5 = require('gulp-6to5');
+var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var plumber = require('gulp-plumber');
 var jshint = require('gulp-jshint');
-var stylish = require('jshint-stylish');
-var es6to5 = require('gulp-6to5');
-var del = require('del');
-var insert = require('gulp-insert');
+var plumber = require('gulp-plumber');
+var prepend = require('gulp-insert').prepend;
 var sourcemaps = require('gulp-sourcemaps');
+var stylish = require('jshint-stylish');
+
+var readPrelude = fs.readFileAsync('./__prelude.js');
 
 function lint() {
   return gulp.src('src/**/*.js')
@@ -25,21 +31,13 @@ function lint() {
 }
 
 function build() {
-  return gulp.src('src/**/*.js')
-  .pipe(plumber())
-  .pipe(insert.prepend(
-    'require(\'6to5/polyfill\'); ' +
-    'const _ = require(\'lodash\'); ' +
-    'const should = require(\'should\'); ' +
-    'const Promise = (global || window).Promise = require(\'bluebird\'); ' +
-    'const __DEV__ = (process.env.NODE_ENV !== \'production\'); ' +
-    'const __PROD__ = !__DEV__; ' +
-    'const __BROWSER__ = (typeof window === \'object\'); ' +
-    'const __NODE__ = !__BROWSER__; ' +
-    '(__DEV__ ? Promise.longStackTraces() : void 0); '
-  ))
-  .pipe(es6to5())
-  .pipe(gulp.dest('dist'));
+  return readPrelude.then(function(prelude) {
+    return gulp.src('src/**/*.js')
+      .pipe(plumber())
+      .pipe(prepend(prelude))
+      .pipe(es6to5())
+      .pipe(gulp.dest('dist'));
+  });
 }
 
 function clean() {
