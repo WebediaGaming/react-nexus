@@ -33,7 +33,7 @@
 
     // Relaxing
     "asi"           : false,     // true: Tolerate Automatic Semicolon Insertion (no semicolons)
-    "boss"          : false,     // true: Tolerate assignments where comparisons would be expected
+    "boss"          : true,      // true: Tolerate assignments where comparisons would be expected
     "debug"         : false,     // true: Allow debugger statements e.g. browser breakpoints.
     "eqnull"        : false,     // true: Tolerate use of `== null`
     "esnext"        : true,      // true: Allow ES.next (ES6) syntax (ex: `const`)
