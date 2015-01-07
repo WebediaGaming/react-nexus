@@ -35,7 +35,9 @@ function build() {
     return gulp.src('src/**/*.js')
       .pipe(plumber())
       .pipe(prepend(prelude))
-      .pipe(es6to5())
+      .pipe(es6to5({
+        modules: 'common',
+      }))
       .pipe(gulp.dest('dist'));
   });
 }
