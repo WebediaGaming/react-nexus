@@ -8,4 +8,5 @@ const __BROWSER__ = (typeof window === 'object');
 const __NODE__ = !__BROWSER__;
 if(__DEV__) {
   Promise.longStackTraces();
+  Error.stackTraceLimit = Infinity;
 }
