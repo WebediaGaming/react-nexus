@@ -40,6 +40,14 @@ const Mixin = {
       props.should.be.an.Object;
     }
     return {};
+    /**
+     * Example:
+     * {
+     *   'todoList': [this.nexus.remote, '/todoList'],
+     *   'user': [this.nexus.remote, `/users/${props.userId}`]
+     *   'clock': [this.nexus.local, '/clock'],
+     * }
+     */
   },
 
   prefetchNexusBindings() {

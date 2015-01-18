@@ -48,42 +48,41 @@ const Nexus = {
     .then(() => _.mapValues(fluxes, (flux) => flux.stopPrefetching());
   },
 
-  // In the server, prefetch, then renderToString, then inject all this in the given pageTemplate,
-  // passing the pageTemplate function two parameters: html (the prendered html string), and prefetched
-  // (a plain JS object representing the prefetched data, to be used by mountApp afterwards).
-  prerenderApp(rootElement, fluxes, pageTemplate) {
+  // In the server, prefetch, then renderToString, then return the generated HTML string and the raw prefetched data,
+  // which can then be injected into the server response (eg. using a global variable).
+  // It will be used by the browser to call mountApp.
+  prerenderApp(rootElement, fluxes) {
     if(__DEV__) {
       React.isValidElement(rootElement).should.be.true;
       fluxes.should.be.an.Object;
-      pageTemplate.should.be.a.Function;
       __NODE__.should.be.true;
       _.each(fluxes, (flux) => flux.should.be.an.instanceOf(Flux.Client));
     }
     return Nexus.prefetchApp(rootElement, fluxes)
-    .then((prefetched) => {
-      _.each(fluxes, (flux, key) => flux.startInjecting(prefetched[key]));
+    .then((data) => {
+      _.each(fluxes, (flux, key) => flux.startInjecting(data[key]));
       const html = Nexus.withNexus(fluxes, () => React.renderToString(rootElement));
       _.each(fluxes, (flux, key) => flux.stopInjecting());
-      return pageTemplate({ html, prefetched });
+      return [html, data];
     });
   }
 
   // In the client, mount the rootElement using the given fluxes and the given prefetched data into
   // the given domNode. Also globally and durably set the global nexus context.
-  mountApp(rootElement, fluxes, prefetched, domNode) {
+  mountApp(rootElement, fluxes, data, domNode) {
     if(__DEV__) {
       React.isValidElement(rootElement).should.be.true;
       fluxes.should.be.an.Object;
-      prefetched.should.be.an.Object;
+      data.should.be.an.Object;
       domNode.should.be.an.Object;
       __BROWSER__.should.be.true;
       _.each(fluxes, (flux) => flux.should.be.an.instanceOf(Flux.Client));
       (Nexus.currentNexus === null).should.be.true;
     }
     Nexus.currentNexus = fluxes;
-    _.each(fluxes, (flux, key) => flux.startInjecting(prefetched[key]));
+    _.each(fluxes, (flux, key) => flux.startInjecting(data[key]));
     const r = React.render(rootElement, domNode);
-    _.each(fluxes, (flux, key) => flux.stopInjecting(prefetched[key]));
+    _.each(fluxes, (flux, key) => flux.stopInjecting(data[key]));
     return r;
   }
 
