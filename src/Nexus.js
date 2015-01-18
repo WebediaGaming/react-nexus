@@ -1,6 +1,7 @@
 import React from 'react';
 import instanciateReactComponent from 'react/lib/instanciateReactComponent';
 import Mixin from './Mixin';
+import Flux from 'nexus-flux';
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -56,6 +57,7 @@ const Nexus = {
       fluxes.should.be.an.Object;
       pageTemplate.should.be.a.Function;
       __NODE__.should.be.true;
+      _.each(fluxes, (flux) => flux.should.be.an.instanceOf(Flux.Client));
     }
     return Nexus.prefetchApp(rootElement, fluxes)
     .then((prefetched) => {
@@ -75,6 +77,7 @@ const Nexus = {
       prefetched.should.be.an.Object;
       domNode.should.be.an.Object;
       __BROWSER__.should.be.true;
+      _.each(fluxes, (flux) => flux.should.be.an.instanceOf(Flux.Client));
       (Nexus.currentNexus === null).should.be.true;
     }
     Nexus.currentNexus = fluxes;
