@@ -1,5 +1,5 @@
 {
-  "name": "es6-starterkit",
+  "name": "react-nexus",
   "version": "0.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/elierotenberg/es6-starterkit.git"
+    "url": "https://github.com/elierotenberg/react-nexus.git"
   },
   "author": "Elie Rotenberg <elie@rotenberg.io>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elierotenberg/es6-starterkit/issues"
+    "url": "https://github.com/elierotenberg/react-nexus/issues"
   },
-  "homepage": "https://github.com/elierotenberg/es6-starterkit",
+  "homepage": "https://github.com/elierotenberg/react-nexus",
   "devDependencies": {
     "del": "^1.1.1",
     "gulp": "^3.8.10",
@@ -30,7 +30,9 @@
   "dependencies": {
     "6to5": "^2.9.4",
     "bluebird": "^2.6.2",
+    "lifespan": "^2.4.0",
     "lodash": "^2.4.1",
+    "react": "^0.12.2",
     "should": "^4.4.4"
   }
 }
