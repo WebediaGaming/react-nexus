@@ -28,12 +28,12 @@
     "jshint-stylish": "^1.0.0"
   },
   "dependencies": {
-    "6to5": "^2.13.1",
-    "bluebird": "^2.7.1",
-    "lifespan": "^2.5.0",
+    "6to5": "^2.13.3",
+    "bluebird": "^2.8.0",
+    "lifespan": "^2.7.0",
     "lodash": "^2.4.1",
-    "nexus-flux": "^1.1.0",
+    "nexus-flux": "^1.1.1",
     "react": "^0.12.2",
-    "should": "^4.6.0"
+    "should": "^4.6.1"
   }
 }

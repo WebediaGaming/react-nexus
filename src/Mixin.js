@@ -1,27 +1,24 @@
-import React from 'react';
 import Lifespan from 'lifespan';
-import Nexus from '../';
 
-const Mixin = {
+export default (Nexus) => ({
+
+  mixins: [Lifespan.Mixin],
 
   _nexusBindingsLifespan: null,
-  _lifespan: null,
 
-  get nexus() {
+  getNexus() {
     if(__DEV__) {
       (Nexus.currentNexus !== null).should.be.true;
     }
     return Nexus.currentNexus;
-  }
-
-  get lifespan() {
-    if(!this._lifespan) {
-      this._lifespan = new Lifespan();
-    }
-    return this._lifespan;
   },
 
   getInitialState() {
+    if(__DEV__) {
+      if(!_.isFunction(this.getNexusBindings)) {
+        throw new TypeError(`You MUST define getNexusBindings on React class ${this.displayName}.`);
+      }
+    }
     const bindings = this.getNexusBindings(this.props);
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {
@@ -33,32 +30,11 @@ const Mixin = {
       }
     });
     return state;
-  }
-
-  getNexusBindings(props = {}) {
-    if(__DEV__) {
-      props.should.be.an.Object;
-    }
-    return {};
-    /**
-     * Example:
-     * {
-     *   'todoList': [this.nexus.remote, '/todoList'],
-     *   'user': [this.nexus.remote, `/users/${props.userId}`]
-     *   'clock': [this.nexus.local, '/clock'],
-     * }
-     */
   },
 
   prefetchNexusBindings() {
-    const prefetchedState = {};
-    const bindings = this.getNexusBindings();
-    return Promise.all(_.map(bindings, ([flux, path], stateKey) => {
-      if(flux.isPrefetching) {
-        return flux.prefetch(path);
-      }
-      return Promise.resolve();
-    }))
+    const bindings = this.getNexusBindings(this.props);
+    return Promise.all(_.map(bindings, ([flux, path]) => flux.isPrefetching ? flux.prefetch(path) : Promise.resolve()))
     .then(() => this); // return this to be chainable
   },
 
@@ -71,18 +47,21 @@ const Mixin = {
         .onUpdate((head) => this.setState({ [stateKey]: head }))
         .onDelete(() => this.setState({ [stateKey]: void 0 }))
         .value, // will also return the immutable head
-    });
+    }));
     if(previousBindingsLifespan) {
       previousBindingsLifespan.release();
     }
   },
 
   componentWillMount() {
-    this.lifespan.onRelease(() => {
+    this.getLifespan().onRelease(() => {
       if(this._nexusBindingsLifespan) {
         this._nexusBindingsLifespan.release();
       }
     });
+  },
+
+  componentDidMount() {
     this.applyNexusBindings(this.props);
   },
 
@@ -90,11 +69,4 @@ const Mixin = {
     this.applyNexusBindings(nextProps);
   },
 
-  componentWillUnmount() {
-    this.lifespan.release();
-  },
-};
-
-
-
-export default Mixin;
+});

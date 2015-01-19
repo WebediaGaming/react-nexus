@@ -1,5 +1,9 @@
 "use strict";
 
+var _interopRequire = function (obj) {
+  return obj && (obj["default"] || obj);
+};
+
 require("6to5/polyfill");
 var _ = require("lodash");
 var should = require("should");
@@ -10,4 +14,8 @@ var __BROWSER__ = typeof window === "object";
 var __NODE__ = !__BROWSER__;
 if (__DEV__) {
   Promise.longStackTraces();
+  Error.stackTraceLimit = Infinity;
 }
+var Nexus = _interopRequire(require("./Nexus"));
+
+module.exports = Nexus;
