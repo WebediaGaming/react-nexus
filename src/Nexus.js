@@ -11,7 +11,7 @@ function flattenDescendants(element, acc = []) {
   }
   acc.push(element);
   if(element.props && element.props.children) {
-    React.Children.forEach((child) => flattenDescendants(child, acc));
+    React.Children.forEach(element.props.children, (child) => flattenDescendants(child, acc));
   }
   return acc;
 }
@@ -125,6 +125,7 @@ const Nexus = {
       return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
     }))
     .then((instance) => Nexus._withNexus(nexus, () => {
+      instance.state = instance.getInitialState ? instance.getInitialState() : {};
       if(instance.componentWillMount) {
         instance.componentWillMount();
       }

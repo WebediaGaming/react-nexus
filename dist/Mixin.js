@@ -72,8 +72,10 @@ module.exports = function (Nexus) {
 
         var flux = _ref2[0];
         var path = _ref2[1];
-        if (flux.isInjecting) {
-          state[stateKey] = flux.inject(path); // will return the immutable head
+        if (flux.isPrefetching) {
+          state[stateKey] = flux.getPrefetched(path);
+        } else if (flux.isInjecting) {
+          state[stateKey] = flux.getInjected(path); // will return the immutable head
         } else {
           state[stateKey] = null;
         }

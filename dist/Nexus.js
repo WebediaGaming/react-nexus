@@ -33,7 +33,7 @@ function flattenDescendants(element) {
   }
   acc.push(element);
   if (element.props && element.props.children) {
-    React.Children.forEach(function (child) {
+    React.Children.forEach(element.props.children, function (child) {
       return flattenDescendants(child, acc);
     });
   }
@@ -176,6 +176,7 @@ var Nexus = {
       });
     }).then(function (instance) {
       return Nexus._withNexus(nexus, function () {
+        instance.state = instance.getInitialState ? instance.getInitialState() : {};
         if (instance.componentWillMount) {
           instance.componentWillMount();
         }

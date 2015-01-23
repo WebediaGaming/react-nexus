@@ -23,8 +23,11 @@ export default (Nexus) => ({
     const bindings = this.getNexusBindings(this.props);
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {
-      if(flux.isInjecting) {
-        state[stateKey] = flux.inject(path); // will return the immutable head
+      if(flux.isPrefetching) {
+        state[stateKey] = flux.getPrefetched(path);
+      }
+      else if(flux.isInjecting) {
+        state[stateKey] = flux.getInjected(path); // will return the immutable head
       }
       else {
         state[stateKey] = null;
