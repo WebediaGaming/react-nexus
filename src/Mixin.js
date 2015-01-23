@@ -1,8 +1,9 @@
 import Lifespan from 'lifespan';
+import Maybe from 'react-maybe-state';
 
 export default (Nexus) => ({
 
-  mixins: [Lifespan.Mixin],
+  mixins: [Lifespan.Mixin, Maybe],
 
   _nexusBindingsLifespan: null,
 

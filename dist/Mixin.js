@@ -43,10 +43,12 @@ if (__DEV__) {
 }
 var Lifespan = _interopRequire(require("lifespan"));
 
+var Maybe = _interopRequire(require("react-maybe-state"));
+
 module.exports = function (Nexus) {
   return {
 
-    mixins: [Lifespan.Mixin],
+    mixins: [Lifespan.Mixin, Maybe],
 
     _nexusBindingsLifespan: null,
 
