@@ -27,6 +27,7 @@ const AppRootClass = React.createClass({
   getNexusBindings(props) {
     return {
       route: [this.getNexus().local, '/route'],
+      notFound: [this.getNexus().local, '/notFound'],
     };
   },
 
@@ -59,6 +60,7 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
     local: {
       '/route': { path: '/home' },
       '/bar': { mood: 'happy' },
+      '/notFound': void 0,
     },
   }));
   localFluxServer.lifespan.release();

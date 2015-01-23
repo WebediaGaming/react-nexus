@@ -63,7 +63,8 @@ var AppRootClass = React.createClass({
 
   getNexusBindings: function getNexusBindings(props) {
     return {
-      route: [this.getNexus().local, "/route"] };
+      route: [this.getNexus().local, "/route"],
+      notFound: [this.getNexus().local, "/notFound"] };
   },
 
   getInitialState: function getInitialState() {
@@ -95,7 +96,8 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus).then(function (_ref) {
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       "/route": { path: "/home" },
-      "/bar": { mood: "happy" } } }));
+      "/bar": { mood: "happy" },
+      "/notFound": void 0 } }));
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();
 });
