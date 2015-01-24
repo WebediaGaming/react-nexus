@@ -28,8 +28,8 @@
     "jshint-stylish": "^1.0.0"
   },
   "dependencies": {
-    "6to5": "^2.13.5",
-    "bluebird": "^2.8.2",
+    "6to5": "^2.13.7",
+    "bluebird": "^2.9.0",
     "lifespan": "^2.7.1",
     "lodash": "^2.4.1",
     "nexus-flux": "^1.5.1",

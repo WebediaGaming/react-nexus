@@ -6,7 +6,10 @@ import Flux from 'nexus-flux';
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
 function flattenDescendants(element, acc = []) {
-  if(element === null || _.isString(element)) {
+  if(__DEV__) {
+    acc.should.be.an.Array;
+  }
+  if(!React.isValidElement(element)) { // only pass through valid elements
     return acc;
   }
   acc.push(element);

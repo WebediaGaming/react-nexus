@@ -28,7 +28,11 @@ var Flux = _interopRequire(require("nexus-flux"));
 // use an accumulator to avoid lengthy lists construction and merging.
 function flattenDescendants(element) {
   var acc = arguments[1] === undefined ? [] : arguments[1];
-  if (element === null || _.isString(element)) {
+  if (__DEV__) {
+    acc.should.be.an.Array;
+  }
+  if (!React.isValidElement(element)) {
+    // only pass through valid elements
     return acc;
   }
   acc.push(element);
