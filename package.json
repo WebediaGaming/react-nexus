@@ -29,10 +29,10 @@
   },
   "dependencies": {
     "6to5": "^2.13.7",
-    "bluebird": "^2.9.0",
+    "bluebird": "^2.9.1",
     "lifespan": "^2.7.1",
     "lodash": "^2.4.1",
-    "nexus-flux": "^1.5.1",
+    "nexus-flux": "^1.5.3",
     "react": "^0.12.2",
     "react-maybe-state": "^1.0.0",
     "should": "^4.6.1"
