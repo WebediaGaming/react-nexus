@@ -24,7 +24,7 @@ export default (Nexus) => ({
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {
       if(flux.isPrefetching) {
-        state[stateKey] = flux.getPrefetched(path);
+        state[stateKey] = flux.getPrefetched(path); // will return the immutable head
       }
       else if(flux.isInjecting) {
         state[stateKey] = flux.getInjected(path); // will return the immutable head
@@ -48,7 +48,7 @@ export default (Nexus) => ({
     const bindings = this.getNexusBindings(props);
     _.each(bindings, ([flux, path], stateKey) => this.setState({
       [stateKey]: flux.Store(path, this._nexusBindingsLifespan)
-        .onUpdate((head) => this.setState({ [stateKey]: head }))
+        .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
         .onDelete(() => this.setState({ [stateKey]: void 0 }))
         .value, // will also return the immutable head
     }));

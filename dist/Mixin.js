@@ -73,7 +73,7 @@ module.exports = function (Nexus) {
         var flux = _ref2[0];
         var path = _ref2[1];
         if (flux.isPrefetching) {
-          state[stateKey] = flux.getPrefetched(path);
+          state[stateKey] = flux.getPrefetched(path); // will return the immutable head
         } else if (flux.isInjecting) {
           state[stateKey] = flux.getInjected(path); // will return the immutable head
         } else {
@@ -107,7 +107,8 @@ module.exports = function (Nexus) {
 
         var flux = _ref42[0];
         var path = _ref42[1];
-        return _this2.setState(_defineProperty({}, stateKey, flux.Store(path, _this2._nexusBindingsLifespan).onUpdate(function (head) {
+        return _this2.setState(_defineProperty({}, stateKey, flux.Store(path, _this2._nexusBindingsLifespan).onUpdate(function (_ref5) {
+          var head = _ref5.head;
           return _this2.setState(_defineProperty({}, stateKey, head));
         }).onDelete(function () {
           return _this2.setState(_defineProperty({}, stateKey, void 0));
