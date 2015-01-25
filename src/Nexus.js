@@ -3,7 +3,7 @@ import instanciateReactComponent from 'react/lib/instantiateReactComponent';
 import Mixin from './Mixin';
 import Flux from 'nexus-flux';
 
-const { isCompositeComponent } = React.addons.TestUtils;
+const { isCompositeComponent, isDOMComponent } = React.addons.TestUtils;
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -134,11 +134,11 @@ const Nexus = {
         return;
       }
       instance.state = instance.getInitialState ? instance.getInitialState() : {};
-      if(instance.componentWillMount) {
+      if(instance.componentWillMount && !isDOMComponent(instance)) { // dont pseudo-mount DOM components
         instance.componentWillMount();
       }
       const childElement = instance.render ? instance.render() : null;
-      if(instance.componentWillUnmount) {
+      if(instance.componentWillUnmount && !isDOMComponent(instance)) { // dont pseudo-unmount DOM components
         instance.componentWillUnmount();
       }
       return Promise.all(_.map(flattenDescendants(childElement), (descendantElement) =>

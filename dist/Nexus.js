@@ -25,6 +25,7 @@ var Mixin = _interopRequire(require("./Mixin"));
 var Flux = _interopRequire(require("nexus-flux"));
 
 var isCompositeComponent = React.addons.TestUtils.isCompositeComponent;
+var isDOMComponent = React.addons.TestUtils.isDOMComponent;
 
 
 // flatten the descendants of a given element into an array
@@ -188,14 +189,15 @@ var Nexus = {
           return;
         }
         instance.state = instance.getInitialState ? instance.getInitialState() : {};
-        if (instance.componentWillMount) {
+        if (instance.componentWillMount && !isDOMComponent(instance)) {
+          // dont pseudo-mount DOM components
           instance.componentWillMount();
         }
         var childElement = instance.render ? instance.render() : null;
-        if (instance.componentWillUnmount) {
+        if (instance.componentWillUnmount && !isDOMComponent(instance)) {
+          // dont pseudo-unmount DOM components
           instance.componentWillUnmount();
         }
-        // only keep composite elements
         return Promise.all(_.map(flattenDescendants(childElement), function (descendantElement) {
           return Nexus._prefetchElement(descendantElement, nexus);
         }));
