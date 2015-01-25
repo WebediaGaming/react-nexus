@@ -92,6 +92,7 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus).then(function (_ref) {
 
   var html = _ref2[0];
   var data = _ref2[1];
+  console.log(html, data);
   html.should.be.exactly("<div>My route is /home and foo is <p>happy</p></div>");
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {

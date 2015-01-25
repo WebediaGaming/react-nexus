@@ -1,7 +1,9 @@
-import React from 'react';
+import React from 'react/addons';
 import instanciateReactComponent from 'react/lib/instantiateReactComponent';
 import Mixin from './Mixin';
 import Flux from 'nexus-flux';
+
+const { isCompositeComponent } = React.addons.TestUtils;
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -128,6 +130,9 @@ const Nexus = {
       return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
     }))
     .then((instance) => Nexus._withNexus(nexus, () => {
+      if(!isCompositeComponent(instance)) { // dont traverse non-composite elements
+        return;
+      }
       instance.state = instance.getInitialState ? instance.getInitialState() : {};
       if(instance.componentWillMount) {
         instance.componentWillMount();

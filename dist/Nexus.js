@@ -16,13 +16,16 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-var React = _interopRequire(require("react"));
+var React = _interopRequire(require("react/addons"));
 
 var instanciateReactComponent = _interopRequire(require("react/lib/instantiateReactComponent"));
 
 var Mixin = _interopRequire(require("./Mixin"));
 
 var Flux = _interopRequire(require("nexus-flux"));
+
+var isCompositeComponent = React.addons.TestUtils.isCompositeComponent;
+
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -180,6 +183,10 @@ var Nexus = {
       });
     }).then(function (instance) {
       return Nexus._withNexus(nexus, function () {
+        if (!isCompositeComponent(instance)) {
+          // dont traverse non-composite elements
+          return;
+        }
         instance.state = instance.getInitialState ? instance.getInitialState() : {};
         if (instance.componentWillMount) {
           instance.componentWillMount();
@@ -188,6 +195,7 @@ var Nexus = {
         if (instance.componentWillUnmount) {
           instance.componentWillUnmount();
         }
+        // only keep composite elements
         return Promise.all(_.map(flattenDescendants(childElement), function (descendantElement) {
           return Nexus._prefetchElement(descendantElement, nexus);
         }));
