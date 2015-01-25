@@ -24,8 +24,7 @@ var Mixin = _interopRequire(require("./Mixin"));
 
 var Flux = _interopRequire(require("nexus-flux"));
 
-var isCompositeComponent = React.addons.TestUtils.isCompositeComponent;
-var isDOMComponent = React.addons.TestUtils.isDOMComponent;
+var isCompositeComponentElement = React.addons.TestUtils.isCompositeComponentElement;
 
 
 // flatten the descendants of a given element into an array
@@ -60,52 +59,60 @@ var Nexus = {
   // and set durably in the browser during the mounting phase.
   currentNexus: null,
 
+  shouldPrefetch: function shouldPrefetch(element) {
+    return React.isValidElement(element) && _.isFunction(element.type) && isCompositeComponentElement(element);
+  },
+
   // In the server, prefetch, then renderToString, then return the generated HTML string and the raw prefetched data,
   // which can then be injected into the server response (eg. using a global variable).
   // It will be used by the browser to call mountApp.
   prerenderApp: function prerenderApp(rootElement, nexus) {
-    if (__DEV__) {
-      React.isValidElement(rootElement).should.be["true"];
-      nexus.should.be.an.Object;
-      __NODE__.should.be["true"];
-      _.each(nexus, function (flux) {
-        return flux.should.be.an.instanceOf(Flux.Client);
+    return Promise["try"](function () {
+      if (__DEV__) {
+        React.isValidElement(rootElement).should.be["true"];
+        nexus.should.be.an.Object;
+        __NODE__.should.be["true"];
+        _.each(nexus, function (flux) {
+          return flux.should.be.an.instanceOf(Flux.Client);
+        });
+      }
+      return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
+        _.each(nexus, function (flux, key) {
+          return flux.startInjecting(data[key]);
+        });
+        var html = Nexus._withNexus(nexus, function () {
+          return React.renderToString(rootElement);
+        });
+        _.each(nexus, function (flux) {
+          return flux.stopInjecting();
+        });
+        return [html, data];
       });
-    }
-    return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
-      _.each(nexus, function (flux, key) {
-        return flux.startInjecting(data[key]);
-      });
-      var html = Nexus._withNexus(nexus, function () {
-        return React.renderToString(rootElement);
-      });
-      _.each(nexus, function (flux) {
-        return flux.stopInjecting();
-      });
-      return [html, data];
     });
   },
 
   prerenderAppToStaticMarkup: function prerenderAppToStaticMarkup(rootElement, nexus) {
-    if (__DEV__) {
-      React.isValidElement(rootElement).should.be["true"];
-      nexus.should.be.an.Object;
-      __NODE__.should.be["true"];
-      _.each(nexus, function (flux) {
-        return flux.should.be.an.instanceOf(Flux.Client);
+    return Promise["try"](function () {
+      if (__DEV__) {
+        React.isValidElement(rootElement).should.be["true"];
+        nexus.should.be.an.Object;
+        __NODE__.should.be["true"];
+        _.each(nexus, function (flux) {
+          return flux.should.be.an.instanceOf(Flux.Client);
+        });
+      }
+      return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
+        _.each(nexus, function (flux, key) {
+          return flux.startInjecting(data[key]);
+        });
+        var html = Nexus._withNexus(nexus, function () {
+          return React.renderToStaticMarkup(rootElement);
+        });
+        _.each(nexus, function (flux) {
+          return flux.stopInjecting();
+        });
+        return [html, data];
       });
-    }
-    return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
-      _.each(nexus, function (flux, key) {
-        return flux.startInjecting(data[key]);
-      });
-      var html = Nexus._withNexus(nexus, function () {
-        return React.renderToStaticMarkup(rootElement);
-      });
-      _.each(nexus, function (flux) {
-        return flux.stopInjecting();
-      });
-      return [html, data];
     });
   },
 
@@ -146,12 +153,12 @@ var Nexus = {
   // In the server, prefetch the dependencies and store them in the nexus as a side effect.
   // It will recursively prefetch all the nexus dependencies of all the components at the initial state.
   _prefetchApp: function PrefetchApp(rootElement, nexus) {
-    if (__DEV__) {
-      React.isValidElement(rootElement).should.be["true"];
-      nexus.should.be.an.Object;
-      __NODE__.should.be["true"];
-    }
     return Promise["try"](function () {
+      if (__DEV__) {
+        React.isValidElement(rootElement).should.be["true"];
+        nexus.should.be.an.Object;
+        __NODE__.should.be["true"];
+      }
       _.each(nexus, function (flux) {
         return flux.startPrefetching();
       });
@@ -172,36 +179,29 @@ var Nexus = {
   // - call componentWillUnmount
   // - yield to recursively prefetch descendant elements
   _prefetchElement: function PrefetchElement(element, nexus) {
-    if (__DEV__) {
-      React.isValidElement(element).should.be["true"];
-      nexus.should.be.an.Object;
-      __NODE__.should.be["true"];
-    }
     return Promise["try"](function () {
-      return Nexus._withNexus(nexus, function () {
-        var instance = instanciateReactComponent(element);
-        return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
-      });
-    }).then(function (instance) {
-      return Nexus._withNexus(nexus, function () {
-        if (!isCompositeComponent(instance)) {
-          // dont traverse non-composite elements
-          return;
-        }
-        instance.state = instance.getInitialState ? instance.getInitialState() : {};
-        if (instance.componentWillMount && !isDOMComponent(instance)) {
-          // dont pseudo-mount DOM components
-          instance.componentWillMount();
-        }
-        var childElement = instance.render ? instance.render() : null;
-        if (instance.componentWillUnmount && !isDOMComponent(instance)) {
-          // dont pseudo-unmount DOM components
-          instance.componentWillUnmount();
-        }
-        return Promise.all(_.map(flattenDescendants(childElement), function (descendantElement) {
-          return Nexus._prefetchElement(descendantElement, nexus);
-        }));
-      });
+      if (__DEV__) {
+        React.isValidElement(element).should.be["true"];
+        nexus.should.be.an.Object;
+        __NODE__.should.be["true"];
+      }
+      if (Nexus.shouldPrefetch(element)) {
+        return Nexus._withNexus(nexus, function () {
+          var instance = instanciateReactComponent(element);
+          return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
+        }).then(function (instance) {
+          return Nexus._withNexus(nexus, function () {
+            instance.state = instance.getInitialState ? instance.getInitialState() : {};
+            if (instance.componentWillMount) {
+              instance.componentWillMount();
+            }
+            var renderedElement = instance.render ? instance.render() : null;
+            return Promise.all(_.map(flattenDescendants(renderedElement), function (descendantElement) {
+              return Nexus._prefetchElement(descendantElement, nexus);
+            }));
+          });
+        });
+      }
     });
   } };
 

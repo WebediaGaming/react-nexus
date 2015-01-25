@@ -1,9 +1,6 @@
 import Lifespan from 'lifespan';
-import Maybe from 'react-maybe-state';
 
 export default (Nexus) => ({
-
-  mixins: [Lifespan.Mixin, Maybe],
 
   _nexusBindingsLifespan: null,
 
@@ -12,6 +9,10 @@ export default (Nexus) => ({
       (Nexus.currentNexus !== null).should.be.true;
     }
     return Nexus.currentNexus;
+  },
+
+  getNexusBindingsLifespan() {
+    return this._nexusBindingsLifespan;
   },
 
   getInitialState() {
@@ -43,7 +44,7 @@ export default (Nexus) => ({
   },
 
   applyNexusBindings(props) {
-    const previousBindingsLifespan = this._nexusBindingsLifespan;
+    const previousBindingsLifespan = this.getNexusBindingsLifespan();
     this._nexusBindingsLifespan = new Lifespan();
     const bindings = this.getNexusBindings(props);
     _.each(bindings, ([flux, path], stateKey) => this.setState({
@@ -57,16 +58,14 @@ export default (Nexus) => ({
     }
   },
 
-  componentWillMount() {
-    this.getLifespan().onRelease(() => {
-      if(this._nexusBindingsLifespan) {
-        this._nexusBindingsLifespan.release();
-      }
-    });
-  },
-
   componentDidMount() {
     this.applyNexusBindings(this.props);
+  },
+
+  componentWillUnmount() {
+    if(this._nexusBindingsLifespan) {
+      this._nexusBindingsLifespan.release();
+    }
   },
 
   componentWillReceiveProps(nextProps) {

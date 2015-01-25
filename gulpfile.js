@@ -20,6 +20,7 @@ var plumber = require('gulp-plumber');
 var prepend = require('gulp-insert').prepend;
 var sourcemaps = require('gulp-sourcemaps');
 var stylish = require('jshint-stylish');
+var rename = require('gulp-rename');
 
 var readPrelude = fs.readFileAsync('./__prelude.js');
 
@@ -32,12 +33,13 @@ function lint() {
 
 function build() {
   return readPrelude.then(function(prelude) {
-    return gulp.src('src/**/*.js')
+    return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
       .pipe(plumber())
       .pipe(prepend(prelude))
       .pipe(es6to5({
         modules: 'common',
       }))
+      .pipe(rename({ extname: '.js' }))
       .pipe(gulp.dest('dist'));
   });
 }

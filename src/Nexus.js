@@ -3,7 +3,7 @@ import instanciateReactComponent from 'react/lib/instantiateReactComponent';
 import Mixin from './Mixin';
 import Flux from 'nexus-flux';
 
-const { isCompositeComponent, isDOMComponent } = React.addons.TestUtils;
+const { isCompositeComponentElement } = React.addons.TestUtils;
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -33,38 +33,50 @@ const Nexus = {
   // and set durably in the browser during the mounting phase.
   currentNexus: null,
 
+  shouldPrefetch(element) {
+    return (
+      React.isValidElement(element) &&
+      _.isFunction(element.type) &&
+      isCompositeComponentElement(element)
+    );
+  },
+
   // In the server, prefetch, then renderToString, then return the generated HTML string and the raw prefetched data,
   // which can then be injected into the server response (eg. using a global variable).
   // It will be used by the browser to call mountApp.
   prerenderApp(rootElement, nexus) {
-    if(__DEV__) {
-      React.isValidElement(rootElement).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
-      _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
-    }
-    return Nexus._prefetchApp(rootElement, nexus)
-    .then((data) => {
-      _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
-      const html = Nexus._withNexus(nexus, () => React.renderToString(rootElement));
-      _.each(nexus, (flux) => flux.stopInjecting());
-      return [html, data];
+    return Promise.try(() => {
+      if(__DEV__) {
+        React.isValidElement(rootElement).should.be.true;
+        nexus.should.be.an.Object;
+        __NODE__.should.be.true;
+        _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
+      }
+      return Nexus._prefetchApp(rootElement, nexus)
+      .then((data) => {
+        _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
+        const html = Nexus._withNexus(nexus, () => React.renderToString(rootElement));
+        _.each(nexus, (flux) => flux.stopInjecting());
+        return [html, data];
+      });
     });
   },
 
   prerenderAppToStaticMarkup(rootElement, nexus) {
-    if(__DEV__) {
-      React.isValidElement(rootElement).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
-      _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
-    }
-    return Nexus._prefetchApp(rootElement, nexus)
-    .then((data) => {
-      _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
-      const html = Nexus._withNexus(nexus, () => React.renderToStaticMarkup(rootElement));
-      _.each(nexus, (flux) => flux.stopInjecting());
-      return [html, data];
+    return Promise.try(() => {
+      if(__DEV__) {
+        React.isValidElement(rootElement).should.be.true;
+        nexus.should.be.an.Object;
+        __NODE__.should.be.true;
+        _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
+      }
+      return Nexus._prefetchApp(rootElement, nexus)
+      .then((data) => {
+        _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
+        const html = Nexus._withNexus(nexus, () => React.renderToStaticMarkup(rootElement));
+        _.each(nexus, (flux) => flux.stopInjecting());
+        return [html, data];
+      });
     });
   },
 
@@ -99,12 +111,12 @@ const Nexus = {
   // In the server, prefetch the dependencies and store them in the nexus as a side effect.
   // It will recursively prefetch all the nexus dependencies of all the components at the initial state.
   _prefetchApp(rootElement, nexus) {
-    if(__DEV__) {
-      React.isValidElement(rootElement).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
-    }
     return Promise.try(() => {
+      if(__DEV__) {
+        React.isValidElement(rootElement).should.be.true;
+        nexus.should.be.an.Object;
+        __NODE__.should.be.true;
+      }
       _.each(nexus, (flux) => flux.startPrefetching());
       return Nexus._prefetchElement(rootElement, nexus);
     })
@@ -120,31 +132,29 @@ const Nexus = {
   // - call componentWillUnmount
   // - yield to recursively prefetch descendant elements
   _prefetchElement(element, nexus) {
-    if(__DEV__) {
-      React.isValidElement(element).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
-    }
-    return Promise.try(() => Nexus._withNexus(nexus, () => {
-      const instance = instanciateReactComponent(element);
-      return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
-    }))
-    .then((instance) => Nexus._withNexus(nexus, () => {
-      if(!isCompositeComponent(instance)) { // dont traverse non-composite elements
-        return;
+    return Promise.try(() => {
+      if(__DEV__) {
+        React.isValidElement(element).should.be.true;
+        nexus.should.be.an.Object;
+        __NODE__.should.be.true;
       }
-      instance.state = instance.getInitialState ? instance.getInitialState() : {};
-      if(instance.componentWillMount && !isDOMComponent(instance)) { // dont pseudo-mount DOM components
-        instance.componentWillMount();
+      if(Nexus.shouldPrefetch(element)) {
+        return Nexus._withNexus(nexus, () => {
+          const instance = instanciateReactComponent(element);
+          return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
+        })
+        .then((instance) => Nexus._withNexus(nexus, () => {
+          instance.state = instance.getInitialState ? instance.getInitialState() : {};
+          if(instance.componentWillMount) {
+            instance.componentWillMount();
+          }
+          const renderedElement = instance.render ? instance.render() : null;
+          return Promise.all(_.map(flattenDescendants(renderedElement), (descendantElement) =>
+            Nexus._prefetchElement(descendantElement, nexus)
+          ));
+        }));
       }
-      const childElement = instance.render ? instance.render() : null;
-      if(instance.componentWillUnmount && !isDOMComponent(instance)) { // dont pseudo-unmount DOM components
-        instance.componentWillUnmount();
-      }
-      return Promise.all(_.map(flattenDescendants(childElement), (descendantElement) =>
-        Nexus._prefetchElement(descendantElement, nexus)
-      ));
-    }));
+    });
   },
 };
 

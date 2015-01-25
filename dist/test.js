@@ -38,11 +38,8 @@ var React = _interopRequire(require("react"));
 
 var LocalFlux = _interopRequire(require("nexus-flux/adapters/Local"));
 
-var div = React.createFactory("div");
-var p = React.createFactory("p");
-
-var NestedClass = React.createClass({
-  displayName: "NestedClass",
+var Nested = React.createClass({
+  displayName: "Nested",
   mixins: [Nexus.Mixin],
 
   getNexusBindings: function getNexusBindings(props) {
@@ -52,13 +49,16 @@ var NestedClass = React.createClass({
   },
 
   render: function render() {
-    return p(null, this.state.bar.get("mood"));
+    var bar = this.state.bar;
+    return React.createElement(
+      "span",
+      null,
+      bar ? bar.get("mood") : null
+    );
   } });
 
-var Nested = React.createFactory(NestedClass);
-
-var AppRootClass = React.createClass({
-  displayName: "AppRootClass",
+var App = React.createClass({
+  displayName: "App",
   mixins: [Nexus.Mixin],
 
   getNexusBindings: function getNexusBindings(props) {
@@ -69,14 +69,45 @@ var AppRootClass = React.createClass({
 
   getInitialState: function getInitialState() {
     return {
-      foo: "/bar" };
+      foo: "/bar",
+      clicks: 0 };
+  },
+
+  click: function click() {
+    this.setState({ clicks: this.state.clicks + 1 });
   },
 
   render: function render() {
-    return div(null, "My route is ", this.state.route ? this.state.route.get("path") : null, " and foo is ", Nested({ foo: this.state.foo }));
+    var route = this.state.route;
+    var notFound = this.state.notFound;
+    var foo = this.state.foo;
+    var clicks = this.state.clicks;
+    return React.createElement(
+      "div",
+      { className: "App" },
+      React.createElement(
+        "p",
+        null,
+        "My route is ",
+        route ? route.get("path") : null,
+        " and foo is ",
+        React.createElement(Nested, { foo: foo }),
+        "."
+      ),
+      React.createElement(
+        "p",
+        null,
+        "The clicks counter is ",
+        clicks,
+        ". ",
+        React.createElement(
+          "button",
+          { onClick: this.click },
+          "increase counter"
+        )
+      )
+    );
   } });
-
-var AppRoot = React.createFactory(AppRootClass);
 
 var localFluxServer = new LocalFlux.Server();
 var localFluxClient = new LocalFlux.Client(localFluxServer);
@@ -87,13 +118,13 @@ localFluxServer.Store("/dev/null", localFluxServer.lifespan).set("void", null).c
 
 var nexus = { local: localFluxClient };
 
-Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus).then(function (_ref) {
+Nexus.prerenderAppToStaticMarkup(React.createElement(App, null), nexus).then(function (_ref) {
   var _ref2 = _slicedToArray(_ref, 2);
 
   var html = _ref2[0];
   var data = _ref2[1];
   console.log(html, data);
-  html.should.be.exactly("<div>My route is /home and foo is <p>happy</p></div>");
+  html.should.be.exactly("<div class=\"App\"><p>My route is /home and foo is <span>happy</span>.</p><p>The clicks counter is 0. <button>increase counter</button></p></div>");
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       "/route": { path: "/home" },
@@ -101,4 +132,6 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus).then(function (_ref) {
       "/notFound": void 0 } }));
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();
+})["catch"](function (err) {
+  throw err;
 });

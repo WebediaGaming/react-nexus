@@ -2,10 +2,7 @@ import Nexus from '../';
 import React from 'react';
 import LocalFlux from 'nexus-flux/adapters/Local';
 
-const div = React.createFactory('div');
-const p = React.createFactory('p');
-
-const NestedClass = React.createClass({
+const Nested = React.createClass({
   mixins: [Nexus.Mixin],
 
   getNexusBindings(props) {
@@ -15,13 +12,12 @@ const NestedClass = React.createClass({
   },
 
   render() {
-    return p(null, this.state.bar.get('mood'));
+    const { bar } = this.state;
+    return <span>{bar ? bar.get('mood') : null}</span>;
   },
 });
 
-const Nested = React.createFactory(NestedClass);
-
-const AppRootClass = React.createClass({
+const App = React.createClass({
   mixins: [Nexus.Mixin],
 
   getNexusBindings(props) {
@@ -34,15 +30,22 @@ const AppRootClass = React.createClass({
   getInitialState() {
     return {
       foo: '/bar',
+      clicks: 0,
     };
   },
 
+  click() {
+    this.setState({ clicks: this.state.clicks + 1 });
+  },
+
   render() {
-    return div(null, 'My route is ', this.state.route ? this.state.route.get('path') : null, ' and foo is ', Nested({ foo: this.state.foo }));
+    const { route, notFound, foo, clicks } = this.state;
+    return <div className='App'>
+      <p>My route is {route ? route.get('path') : null} and foo is <Nested foo={foo} />.</p>
+      <p>The clicks counter is {clicks}. <button onClick={this.click}>increase counter</button></p>
+    </div>;
   },
 });
-
-const AppRoot = React.createFactory(AppRootClass);
 
 const localFluxServer = new LocalFlux.Server();
 const localFluxClient = new LocalFlux.Client(localFluxServer);
@@ -53,10 +56,10 @@ localFluxServer.Store('/dev/null', localFluxServer.lifespan).set('void', null).c
 
 const nexus = { local: localFluxClient };
 
-Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
+Nexus.prerenderAppToStaticMarkup(<App />, nexus)
 .then(([html, data]) => {
   console.log(html, data);
-  html.should.be.exactly('<div>My route is /home and foo is <p>happy</p></div>');
+  html.should.be.exactly('<div class="App"><p>My route is /home and foo is <span>happy</span>.</p><p>The clicks counter is 0. <button>increase counter</button></p></div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       '/route': { path: '/home' },
@@ -66,4 +69,7 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
   }));
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();
+})
+.catch((err) => {
+  throw err;
 });

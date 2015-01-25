@@ -43,12 +43,8 @@ if (__DEV__) {
 }
 var Lifespan = _interopRequire(require("lifespan"));
 
-var Maybe = _interopRequire(require("react-maybe-state"));
-
 module.exports = function (Nexus) {
   return {
-
-    mixins: [Lifespan.Mixin, Maybe],
 
     _nexusBindingsLifespan: null,
 
@@ -57,6 +53,10 @@ module.exports = function (Nexus) {
         (Nexus.currentNexus !== null).should.be["true"];
       }
       return Nexus.currentNexus;
+    },
+
+    getNexusBindingsLifespan: function getNexusBindingsLifespan() {
+      return this._nexusBindingsLifespan;
     },
 
     getInitialState: function getInitialState() {
@@ -99,7 +99,7 @@ module.exports = function (Nexus) {
 
     applyNexusBindings: function applyNexusBindings(props) {
       var _this2 = this;
-      var previousBindingsLifespan = this._nexusBindingsLifespan;
+      var previousBindingsLifespan = this.getNexusBindingsLifespan();
       this._nexusBindingsLifespan = new Lifespan();
       var bindings = this.getNexusBindings(props);
       _.each(bindings, function (_ref4, stateKey) {
@@ -119,17 +119,14 @@ module.exports = function (Nexus) {
       }
     },
 
-    componentWillMount: function componentWillMount() {
-      var _this3 = this;
-      this.getLifespan().onRelease(function () {
-        if (_this3._nexusBindingsLifespan) {
-          _this3._nexusBindingsLifespan.release();
-        }
-      });
-    },
-
     componentDidMount: function componentDidMount() {
       this.applyNexusBindings(this.props);
+    },
+
+    componentWillUnmount: function componentWillUnmount() {
+      if (this._nexusBindingsLifespan) {
+        this._nexusBindingsLifespan.release();
+      }
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
