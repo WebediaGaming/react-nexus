@@ -186,7 +186,7 @@ var Nexus = {
       if (Nexus.shouldPrefetch(element)) {
         return Nexus._withNexus(nexus, function () {
           var instance = instanciateReactComponent(element);
-          return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : instance;
+          return instance.prefetchNexusBindings ? instance.prefetchNexusBindings() : Promise.resolve(instance);
         }).then(function (instance) {
           return Nexus._withNexus(nexus, function () {
             instance.state = instance.getInitialState ? instance.getInitialState() : {};
