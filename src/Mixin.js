@@ -20,11 +20,6 @@ export default (Nexus) => ({
   },
 
   getInitialState() {
-    if(__DEV__) {
-      if(!_.isFunction(this.getNexusBindings)) {
-        throw new TypeError(`You MUST define getNexusBindings on React class ${this.displayName}.`);
-      }
-    }
     const bindings = this.__getNexusBindings(this.props);
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {

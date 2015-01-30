@@ -41,11 +41,6 @@ module.exports = function (Nexus) {
     },
 
     getInitialState: function getInitialState() {
-      if (__DEV__) {
-        if (!_.isFunction(this.getNexusBindings)) {
-          throw new TypeError("You MUST define getNexusBindings on React class " + this.displayName + ".");
-        }
-      }
       var bindings = this.__getNexusBindings(this.props);
       var state = {};
       _.each(bindings, function (_ref, stateKey) {
