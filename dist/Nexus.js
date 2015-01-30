@@ -22,8 +22,17 @@ var Mixin = _interopRequire(require("./Mixin"));
 
 var Flux = _interopRequire(require("nexus-flux"));
 
-var isCompositeComponentElement = React.addons.TestUtils.isCompositeComponentElement;
-
+// if 'vanilla' isCompositeComponentElement is available, then use it,
+// otherwise use this polyfill. (this is required since the vanilla version
+// isn't shipped in the production build)
+var isCompositeComponentElement = React.addons && React.addons.TestUtils && React.addons.TestUtils.isCompositeComponentElement && _.isFunction(React.addons.TestUtils.isCompositeComponentElement) ? React.addons.TestUtils.isCompositeComponentElement : function (element) {
+  if (!React.isValidElement(element)) {
+    return false;
+  }
+  var prototype = element.type.prototype;
+  // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
+  return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
+};
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.

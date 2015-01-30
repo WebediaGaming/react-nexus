@@ -3,7 +3,22 @@ import instanciateReactComponent from 'react/lib/instantiateReactComponent';
 import Mixin from './Mixin';
 import Flux from 'nexus-flux';
 
-const { isCompositeComponentElement } = React.addons.TestUtils;
+// if 'vanilla' isCompositeComponentElement is available, then use it,
+// otherwise use this polyfill. (this is required since the vanilla version
+// isn't shipped in the production build)
+const isCompositeComponentElement = (
+    React.addons &&
+    React.addons.TestUtils &&
+    React.addons.TestUtils.isCompositeComponentElement &&
+    _.isFunction(React.addons.TestUtils.isCompositeComponentElement)
+  ) ? React.addons.TestUtils.isCompositeComponentElement : (element) => {
+  if(!React.isValidElement(element)) {
+    return false;
+  }
+  const { prototype } = element.type;
+  // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
+  return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
+};
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
