@@ -36,13 +36,17 @@ module.exports = function (Nexus) {
       return this._nexusBindingsLifespan;
     },
 
+    __getNexusBindings: function __getNexusBindings(props) {
+      return this.getNexusBindings ? this.getNexusBindings(props) || {} : {};
+    },
+
     getInitialState: function getInitialState() {
       if (__DEV__) {
         if (!_.isFunction(this.getNexusBindings)) {
           throw new TypeError("You MUST define getNexusBindings on React class " + this.displayName + ".");
         }
       }
-      var bindings = this.getNexusBindings(this.props) || {};
+      var bindings = this.__getNexusBindings(this.props);
       var state = {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
@@ -62,7 +66,7 @@ module.exports = function (Nexus) {
 
     prefetchNexusBindings: function prefetchNexusBindings() {
       var _this = this;
-      var bindings = this.getNexusBindings(this.props) || {};
+      var bindings = this.__getNexusBindings(this.props) || {};
       return Promise.all(_.map(bindings, function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2);
 
@@ -78,7 +82,7 @@ module.exports = function (Nexus) {
       var _this = this;
       var previousBindingsLifespan = this.getNexusBindingsLifespan();
       this._nexusBindingsLifespan = new Lifespan();
-      var bindings = this.getNexusBindings(props) || {};
+      var bindings = this.__getNexusBindings(props) || {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
 
