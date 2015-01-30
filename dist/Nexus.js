@@ -1,8 +1,6 @@
 "use strict";
 
-var _interopRequire = function (obj) {
-  return obj && (obj["default"] || obj);
-};
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
 require("6to5/polyfill");
 var _ = require("lodash");
@@ -142,7 +140,7 @@ var Nexus = {
   },
 
   // Temporarly set the global nexus context and run a synchronous function within this context
-  _withNexus: function WithNexus(nexus, fn) {
+  _withNexus: function _withNexus(nexus, fn) {
     var previousNexus = Nexus.currentNexus;
     Nexus.currentNexus = nexus;
     var r = fn();
@@ -152,7 +150,7 @@ var Nexus = {
 
   // In the server, prefetch the dependencies and store them in the nexus as a side effect.
   // It will recursively prefetch all the nexus dependencies of all the components at the initial state.
-  _prefetchApp: function PrefetchApp(rootElement, nexus) {
+  _prefetchApp: function _prefetchApp(rootElement, nexus) {
     return Promise["try"](function () {
       if (__DEV__) {
         React.isValidElement(rootElement).should.be["true"];
@@ -178,7 +176,7 @@ var Nexus = {
   // - call render
   // - call componentWillUnmount
   // - yield to recursively prefetch descendant elements
-  _prefetchElement: function PrefetchElement(element, nexus) {
+  _prefetchElement: function _prefetchElement(element, nexus) {
     return Promise["try"](function () {
       if (__DEV__) {
         React.isValidElement(element).should.be["true"];
