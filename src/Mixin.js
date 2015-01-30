@@ -21,7 +21,7 @@ export default (Nexus) => ({
         throw new TypeError(`You MUST define getNexusBindings on React class ${this.displayName}.`);
       }
     }
-    const bindings = this.getNexusBindings(this.props);
+    const bindings = this.getNexusBindings(this.props) || {};
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {
       if(flux.isPrefetching) {
@@ -38,7 +38,7 @@ export default (Nexus) => ({
   },
 
   prefetchNexusBindings() {
-    const bindings = this.getNexusBindings(this.props);
+    const bindings = this.getNexusBindings(this.props) || {};
     return Promise.all(_.map(bindings, ([flux, path]) => flux.isPrefetching ? flux.prefetch(path) : Promise.resolve()))
     .then(() => this); // return this to be chainable
   },
@@ -46,7 +46,7 @@ export default (Nexus) => ({
   applyNexusBindings(props) {
     const previousBindingsLifespan = this.getNexusBindingsLifespan();
     this._nexusBindingsLifespan = new Lifespan();
-    const bindings = this.getNexusBindings(props);
+    const bindings = this.getNexusBindings(props) || {};
     _.each(bindings, ([flux, path], stateKey) => this.setState({
       [stateKey]: flux.Store(path, this._nexusBindingsLifespan)
         .onUpdate(({ head }) => this.setState({ [stateKey]: head }))

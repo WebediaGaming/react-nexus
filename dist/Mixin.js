@@ -62,6 +62,9 @@ module.exports = function (Nexus) {
 
     prefetchNexusBindings: function prefetchNexusBindings() {
       var _this = this;
+      if (!this.getNexusBindings) {
+        return Promise.resolve(this);
+      }
       var bindings = this.getNexusBindings(this.props);
       return Promise.all(_.map(bindings, function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2);
