@@ -42,7 +42,7 @@ module.exports = function (Nexus) {
           throw new TypeError("You MUST define getNexusBindings on React class " + this.displayName + ".");
         }
       }
-      var bindings = this.getNexusBindings(this.props);
+      var bindings = this.getNexusBindings(this.props) || {};
       var state = {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
@@ -62,10 +62,7 @@ module.exports = function (Nexus) {
 
     prefetchNexusBindings: function prefetchNexusBindings() {
       var _this = this;
-      if (!this.getNexusBindings) {
-        return Promise.resolve(this);
-      }
-      var bindings = this.getNexusBindings(this.props);
+      var bindings = this.getNexusBindings(this.props) || {};
       return Promise.all(_.map(bindings, function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2);
 
@@ -81,7 +78,7 @@ module.exports = function (Nexus) {
       var _this = this;
       var previousBindingsLifespan = this.getNexusBindingsLifespan();
       this._nexusBindingsLifespan = new Lifespan();
-      var bindings = this.getNexusBindings(props);
+      var bindings = this.getNexusBindings(props) || {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
 
