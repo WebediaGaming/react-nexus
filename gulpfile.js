@@ -1,4 +1,4 @@
-require('6to5/polyfill');
+require('babel/polyfill');
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -11,7 +11,7 @@ if(__DEV__) {
 }
 
 var del = require('del');
-var es6to5 = require('gulp-6to5');
+var babel = require('gulp-babel');
 var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
 var gutil = require('gulp-util');
@@ -35,7 +35,7 @@ function build() {
     return gulp.src('src/**/*.js')
       .pipe(plumber())
       .pipe(prepend(prelude))
-      .pipe(es6to5({
+      .pipe(babel({
         modules: 'common',
       }))
       .pipe(gulp.dest('dist'));

@@ -15,7 +15,7 @@ The future is today!
 #### Features
 
 - Sanely configured `gulpfile.js`, `package.json`, `.gitignore`, `.editorconfig` and `.jshintrc`.
-- ES6 code from the `src` folder is transpiled into ES5 code in the `dist` folder via `6to5`.
+- ES6 code from the `src` folder is transpiled into ES5 code in the `dist` folder via `babel`.
 - Both CommonJS and ES6 modules are supported.
 - Several modules and variables are automatically injected in each module at transpile time. Check (and edit) `__prelude.js`.
 - `__DEV__` and `__PROD__` are boolean constants reflecting `process.env.NODE_ENV`. Best friends with `envify` and `uglify`.
