@@ -22,6 +22,10 @@ var Mixin = _interopRequire(require("./Mixin"));
 
 var Flux = _interopRequire(require("nexus-flux"));
 
+var Remutable = Flux.Remutable;
+var Lifespan = Flux.Lifespan;
+
+
 // if 'vanilla' isCompositeComponentElement is available, then use it,
 // otherwise use this polyfill. (this is required since the vanilla version
 // isn't shipped in the production build)
@@ -57,7 +61,10 @@ function flattenDescendants(element) {
 // A nexus object is just a collection of Flux.Client objects.
 
 var Nexus = {
-  React: React, // reference to the React object
+  // expose internal libs
+  Lifespan: Lifespan,
+  React: React,
+  Remutable: Remutable,
 
   Mixin: null, // reference to the Nexus React mixin
 

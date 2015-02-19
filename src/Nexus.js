@@ -2,6 +2,7 @@ import React from 'react/addons';
 import instanciateReactComponent from 'react/lib/instantiateReactComponent';
 import Mixin from './Mixin';
 import Flux from 'nexus-flux';
+const { Remutable, Lifespan } = Flux;
 
 // if 'vanilla' isCompositeComponentElement is available, then use it,
 // otherwise use this polyfill. (this is required since the vanilla version
@@ -39,7 +40,10 @@ function flattenDescendants(element, acc = []) {
 // A nexus object is just a collection of Flux.Client objects.
 
 const Nexus = {
-  React, // reference to the React object
+  // expose internal libs
+  Lifespan,
+  React,
+  Remutable,
 
   Mixin: null, // reference to the Nexus React mixin
 

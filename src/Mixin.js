@@ -1,4 +1,4 @@
-import Lifespan from 'lifespan';
+import { Lifespan } from 'nexus-flux';
 
 export default (Nexus) => ({
 
