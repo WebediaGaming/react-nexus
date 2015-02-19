@@ -200,7 +200,7 @@ var Nexus = {
             return Promise.resolve(instance);
           }
           // if the component opts out of prefetching, then do nothing
-          if (instance.shouldPrefetchNexusBindings && !instance.shouldPrefetchNexusBindings()) {
+          if (instance.shouldComponentPrefetchNexusBindings && !instance.shouldComponentPrefetchNexusBindings()) {
             return Promise.resolve(instance);
           }
           return instance.prefetchNexusBindings();
