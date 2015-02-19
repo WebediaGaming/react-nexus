@@ -24,7 +24,7 @@ var stylish = require('jshint-stylish');
 var readPrelude = fs.readFileAsync('./__prelude.js');
 
 function lint() {
-  return gulp.src('src/**/*.js')
+  return gulp.src(['src/**/*.js'])
   .pipe(plumber())
   .pipe(jshint())
   .pipe(jshint.reporter(stylish));
@@ -32,7 +32,7 @@ function lint() {
 
 function build() {
   return readPrelude.then(function(prelude) {
-    return gulp.src('src/**/*.js')
+    return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
       .pipe(plumber())
       .pipe(prepend(prelude))
       .pipe(babel({

@@ -1,6 +1,7 @@
 import Nexus from '../';
 import React from 'react';
 import LocalFlux from 'nexus-flux/adapters/Local';
+import { Remutable, Lifespan } from 'nexus-flux';
 
 const Nested = React.createClass({
   mixins: [Nexus.Mixin],
@@ -47,12 +48,21 @@ const App = React.createClass({
   },
 });
 
-const localFluxServer = new LocalFlux.Server();
-const localFluxClient = new LocalFlux.Client(localFluxServer);
 
-localFluxServer.Store('/route', localFluxServer.lifespan).set('path', '/home').commit();
-localFluxServer.Store('/bar', localFluxServer.lifespan).set('mood', 'happy').commit();
-localFluxServer.Store('/dev/null', localFluxServer.lifespan).set('void', null).commit();
+const stores = {
+  '/route': new Remutable({
+    path: '/home',
+  }),
+  '/bar': new Remutable({
+    mood: 'happy',
+  }),
+  '/dev/null': new Remutable({
+    'void': null,
+  }),
+};
+
+const localFluxServer = new LocalFlux.Server(stores);
+const localFluxClient = new LocalFlux.Client(localFluxServer);
 
 const nexus = { local: localFluxClient };
 

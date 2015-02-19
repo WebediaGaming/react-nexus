@@ -47,7 +47,7 @@ export default (Nexus) => ({
     this._nexusBindingsLifespan = new Lifespan();
     const bindings = this.__getNexusBindings(props) || {};
     _.each(bindings, ([flux, path], stateKey) => this.setState({
-      [stateKey]: flux.Store(path, this._nexusBindingsLifespan)
+      [stateKey]: flux.getStore(path, this._nexusBindingsLifespan)
         .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
         .onDelete(() => this.setState({ [stateKey]: void 0 }))
         .value, // will also return the immutable head

@@ -83,7 +83,7 @@ module.exports = function (Nexus) {
 
         var flux = _ref2[0];
         var path = _ref2[1];
-        return _this.setState(_defineProperty({}, stateKey, flux.Store(path, _this._nexusBindingsLifespan).onUpdate(function (_ref3) {
+        return _this.setState(_defineProperty({}, stateKey, flux.getStore(path, _this._nexusBindingsLifespan).onUpdate(function (_ref3) {
           var head = _ref3.head;
           return _this.setState(_defineProperty({}, stateKey, head));
         }).onDelete(function () {
