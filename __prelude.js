@@ -1,4 +1,4 @@
-require('6to5/polyfill');
+require('babel/polyfill');
 const _ = require('lodash');
 const should = require('should');
 const Promise = (global || window).Promise = require('bluebird');

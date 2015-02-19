@@ -1,4 +1,4 @@
-require('6to5/polyfill');
+require('babel/polyfill');
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -11,7 +11,7 @@ if(__DEV__) {
 }
 
 var del = require('del');
-var es6to5 = require('gulp-6to5');
+var babel = require('gulp-babel');
 var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
 var gutil = require('gulp-util');
@@ -20,7 +20,6 @@ var plumber = require('gulp-plumber');
 var prepend = require('gulp-insert').prepend;
 var sourcemaps = require('gulp-sourcemaps');
 var stylish = require('jshint-stylish');
-var rename = require('gulp-rename');
 
 var readPrelude = fs.readFileAsync('./__prelude.js');
 
@@ -33,13 +32,12 @@ function lint() {
 
 function build() {
   return readPrelude.then(function(prelude) {
-    return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
+    return gulp.src('src/**/*.js')
       .pipe(plumber())
       .pipe(prepend(prelude))
-      .pipe(es6to5({
+      .pipe(babel({
         modules: 'common',
       }))
-      .pipe(rename({ extname: '.js' }))
       .pipe(gulp.dest('dist'));
   });
 }
