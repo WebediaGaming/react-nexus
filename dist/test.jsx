@@ -16,6 +16,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
+
 var Nexus = _interopRequire(require("../"));
 
 var React = _interopRequire(require("react"));
@@ -27,9 +28,9 @@ var _nexusFlux = require("nexus-flux");
 var Remutable = _nexusFlux.Remutable;
 var Lifespan = _nexusFlux.Lifespan;
 
-
 var Nested = React.createClass({
   displayName: "Nested",
+
   mixins: [Nexus.Mixin],
 
   getNexusBindings: function getNexusBindings(props) {
@@ -40,6 +41,7 @@ var Nested = React.createClass({
 
   render: function render() {
     var bar = this.state.bar;
+
     return React.createElement(
       "span",
       null,
@@ -49,6 +51,7 @@ var Nested = React.createClass({
 
 var App = React.createClass({
   displayName: "App",
+
   mixins: [Nexus.Mixin],
 
   getNexusBindings: function getNexusBindings(props) {
@@ -73,6 +76,7 @@ var App = React.createClass({
     var notFound = _state.notFound;
     var foo = _state.foo;
     var clicks = _state.clicks;
+
     return React.createElement(
       "div",
       { className: "App" },
@@ -100,7 +104,6 @@ var App = React.createClass({
     );
   } });
 
-
 var stores = {
   "/route": new Remutable({
     path: "/home" }),
@@ -119,6 +122,7 @@ Nexus.prerenderAppToStaticMarkup(React.createElement(App, null), nexus).then(fun
 
   var html = _ref2[0];
   var data = _ref2[1];
+
   console.log(html, data);
   html.should.be.exactly("<div class=\"App\"><p>My route is /home and foo is <span>happy</span>.</p><p>The clicks counter is 0. <button>increase counter</button></p></div>");
   JSON.stringify(data).should.be.exactly(JSON.stringify({

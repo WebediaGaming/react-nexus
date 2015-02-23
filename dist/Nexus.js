@@ -14,6 +14,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
+
 var React = _interopRequire(require("react/addons"));
 
 var instanciateReactComponent = _interopRequire(require("react/lib/instantiateReactComponent"));
@@ -25,7 +26,6 @@ var Flux = _interopRequire(require("nexus-flux"));
 var Remutable = Flux.Remutable;
 var Lifespan = Flux.Lifespan;
 
-
 // if 'vanilla' isCompositeComponentElement is available, then use it,
 // otherwise use this polyfill. (this is required since the vanilla version
 // isn't shipped in the production build)
@@ -34,6 +34,7 @@ var isCompositeComponentElement = React.addons && React.addons.TestUtils && Reac
     return false;
   }
   var prototype = element.type.prototype;
+
   // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
   return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
 };
@@ -42,6 +43,7 @@ var isCompositeComponentElement = React.addons && React.addons.TestUtils && Reac
 // use an accumulator to avoid lengthy lists construction and merging.
 function flattenDescendants(element) {
   var acc = arguments[1] === undefined ? [] : arguments[1];
+
   if (__DEV__) {
     acc.should.be.an.Array;
   }

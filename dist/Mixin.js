@@ -16,7 +16,9 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
+
 var Lifespan = require("nexus-flux").Lifespan;
+
 module.exports = function (Nexus) {
   return {
 
@@ -45,6 +47,7 @@ module.exports = function (Nexus) {
 
         var flux = _ref2[0];
         var path = _ref2[1];
+
         if (flux.isPrefetching) {
           state[stateKey] = flux.getPrefetched(path); // will return the immutable head
         } else if (flux.isInjecting) {
@@ -58,6 +61,7 @@ module.exports = function (Nexus) {
 
     prefetchNexusBindings: function prefetchNexusBindings() {
       var _this = this;
+
       var bindings = this.__getNexusBindings(this.props) || {};
       return Promise.all(_.map(bindings, function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2);
@@ -72,6 +76,7 @@ module.exports = function (Nexus) {
 
     applyNexusBindings: function applyNexusBindings(props) {
       var _this = this;
+
       var previousBindingsLifespan = this.getNexusBindingsLifespan();
       this._nexusBindingsLifespan = new Lifespan();
       var bindings = this.__getNexusBindings(props) || {};
