@@ -78,22 +78,33 @@ module.exports = function (Nexus) {
       var _this = this;
 
       var previousBindingsLifespan = this.getNexusBindingsLifespan();
-      this._nexusBindingsLifespan = new Lifespan();
+      this._nexusBindingsLifespan = [];
       var bindings = this.__getNexusBindings(props) || {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
 
         var flux = _ref2[0];
         var path = _ref2[1];
-        return _this.setState(_defineProperty({}, stateKey, flux.getStore(path, _this._nexusBindingsLifespan).onUpdate(function (_ref3) {
+
+        var lifespan = new Lifespan();
+        _this._nexusBindingsLifespan.push({ lifespan: lifespan, path: path });
+        _this.setState(_defineProperty({}, stateKey, flux.getStore(path, lifespan).onUpdate(function (_ref3) {
           var head = _ref3.head;
           return _this.setState(_defineProperty({}, stateKey, head));
         }).onDelete(function () {
           return _this.setState(_defineProperty({}, stateKey, void 0));
         }).value));
       });
+
       if (previousBindingsLifespan) {
-        previousBindingsLifespan.release();
+        previousBindingsLifespan.map(function (_ref) {
+          var lifespan = _ref.lifespan;
+          var path = _ref.path;
+
+          if (_.find(_this._nexusBindingsLifespan, { path: path }) === void 0) {
+            lifespan.release();
+          }
+        });
       }
     },
 
@@ -103,7 +114,11 @@ module.exports = function (Nexus) {
 
     componentWillUnmount: function componentWillUnmount() {
       if (this._nexusBindingsLifespan) {
-        this._nexusBindingsLifespan.release();
+        this._nexusBindingsLifespan.map(function (_ref) {
+          var lifespan = _ref.lifespan;
+
+          lifespan.release();
+        });
       }
     },
 
