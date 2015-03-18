@@ -22,7 +22,8 @@ var Lifespan = require("nexus-flux").Lifespan;
 module.exports = function (Nexus) {
   return {
 
-    _nexusBindingsLifespan: null,
+    _nexusBindings: null,
+    _nexusBindingsLifespans: null,
 
     getNexus: function getNexus() {
       if (__DEV__) {
@@ -31,16 +32,12 @@ module.exports = function (Nexus) {
       return Nexus.currentNexus;
     },
 
-    getNexusBindingsLifespan: function getNexusBindingsLifespan() {
-      return this._nexusBindingsLifespan;
-    },
-
-    __getNexusBindings: function __getNexusBindings(props) {
+    _getNexusBindings: function _getNexusBindings(props) {
       return this.getNexusBindings ? this.getNexusBindings(props) || {} : {};
     },
 
     getInitialState: function getInitialState() {
-      var bindings = this.__getNexusBindings(this.props);
+      var bindings = this._getNexusBindings(this.props);
       var state = {};
       _.each(bindings, function (_ref, stateKey) {
         var _ref2 = _slicedToArray(_ref, 2);
@@ -62,7 +59,7 @@ module.exports = function (Nexus) {
     prefetchNexusBindings: function prefetchNexusBindings() {
       var _this = this;
 
-      var bindings = this.__getNexusBindings(this.props) || {};
+      var bindings = this._getNexusBindings(this.props) || {};
       return Promise.all(_.map(bindings, function (_ref) {
         var _ref2 = _slicedToArray(_ref, 2);
 
@@ -77,24 +74,60 @@ module.exports = function (Nexus) {
     applyNexusBindings: function applyNexusBindings(props) {
       var _this = this;
 
-      var previousBindingsLifespan = this.getNexusBindingsLifespan();
-      this._nexusBindingsLifespan = new Lifespan();
-      var bindings = this.__getNexusBindings(props) || {};
-      _.each(bindings, function (_ref, stateKey) {
-        var _ref2 = _slicedToArray(_ref, 2);
+      var prevBindings = this._nexusBindings;
+      var prevLifespans = this._nexusBindingsLifespans;
+      var nextBindings = this._getNexusBindings(props) || {};
+      var nextLifespans = {};
 
-        var flux = _ref2[0];
-        var path = _ref2[1];
-        return _this.setState(_defineProperty({}, stateKey, flux.getStore(path, _this._nexusBindingsLifespan).onUpdate(function (_ref3) {
-          var head = _ref3.head;
-          return _this.setState(_defineProperty({}, stateKey, head));
-        }).onDelete(function () {
-          return _this.setState(_defineProperty({}, stateKey, void 0));
-        }).value));
+      _.each(_.union(_.keys(prevBindings), _.keys(nextBindings)), function (stateKey) {
+        var prev = prevBindings[stateKey];
+        var next = nextBindings[stateKey];
+        var addNextBinding = function () {
+          var _next = _slicedToArray(next, 2);
+
+          var flux = _next[0];
+          var path = _next[1];
+
+          var lifespan = nextLifespans[stateKey] = new Lifespan();
+          _this.setState(_defineProperty({}, stateKey, flux.getStore(path, lifespan).onUpdate(function (_ref) {
+            var head = _ref.head;
+            return _this.setState(_defineProperty({}, stateKey, head));
+          }).onDelete(function () {
+            return _this.setState(_defineProperty({}, stateKey, void 0));
+          }).value));
+        };
+        var removePrevBinding = function () {
+          _this.setState(_defineProperty({}, stateKey, void 0));
+          prevLifespans[stateKey].release();
+        };
+        if (prev === void 0) {
+          // binding is added
+          addNextBinding();
+        }
+        if (next === void 0) {
+          // binding is removed
+          removePrevBinding();
+        }
+
+        var _prev = _slicedToArray(prev, 2);
+
+        var prevFlux = _prev[0];
+        var prevPath = _prev[1];
+
+        var _next = _slicedToArray(next, 2);
+
+        var nextFlux = _next[0];
+        var nextPath = _next[1];
+
+        if (prevFlux !== nextFlux || prevPath !== nextPath) {
+          // binding is modified
+          removePrevBinding();
+          addNextBinding();
+        }
       });
-      if (previousBindingsLifespan) {
-        previousBindingsLifespan.release();
-      }
+
+      this._nexusBindings = nextBindings;
+      this._nexusBindingsLifespans = nextLifespans;
     },
 
     componentDidMount: function componentDidMount() {
@@ -102,14 +135,12 @@ module.exports = function (Nexus) {
     },
 
     componentWillUnmount: function componentWillUnmount() {
-      if (this._nexusBindingsLifespan) {
-        this._nexusBindingsLifespan.release();
-      }
+      _.each(this._nexusBindingsLifespans || [], function (lifespan) {
+        return lifespan.release();
+      });
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
       this.applyNexusBindings(nextProps);
     } };
 };
-
-// will also return the immutable head

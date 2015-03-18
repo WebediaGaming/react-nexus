@@ -2,7 +2,8 @@ import { Lifespan } from 'nexus-flux';
 
 export default (Nexus) => ({
 
-  _nexusBindingsLifespan: null,
+  _nexusBindings: null,
+  _nexusBindingsLifespans: null,
 
   getNexus() {
     if(__DEV__) {
@@ -11,16 +12,12 @@ export default (Nexus) => ({
     return Nexus.currentNexus;
   },
 
-  getNexusBindingsLifespan() {
-    return this._nexusBindingsLifespan;
-  },
-
-  __getNexusBindings(props) {
+  _getNexusBindings(props) {
     return this.getNexusBindings ? this.getNexusBindings(props) || {} : {};
   },
 
   getInitialState() {
-    const bindings = this.__getNexusBindings(this.props);
+    const bindings = this._getNexusBindings(this.props);
     const state = {};
     _.each(bindings, ([flux, path], stateKey) => {
       if(flux.isPrefetching) {
@@ -37,24 +34,50 @@ export default (Nexus) => ({
   },
 
   prefetchNexusBindings() {
-    const bindings = this.__getNexusBindings(this.props) || {};
+    const bindings = this._getNexusBindings(this.props) || {};
     return Promise.all(_.map(bindings, ([flux, path]) => flux.isPrefetching ? flux.prefetch(path) : Promise.resolve()))
     .then(() => this); // return this to be chainable
   },
 
   applyNexusBindings(props) {
-    const previousBindingsLifespan = this.getNexusBindingsLifespan();
-    this._nexusBindingsLifespan = new Lifespan();
-    const bindings = this.__getNexusBindings(props) || {};
-    _.each(bindings, ([flux, path], stateKey) => this.setState({
-      [stateKey]: flux.getStore(path, this._nexusBindingsLifespan)
-        .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
-        .onDelete(() => this.setState({ [stateKey]: void 0 }))
-        .value, // will also return the immutable head
-    }));
-    if(previousBindingsLifespan) {
-      previousBindingsLifespan.release();
-    }
+    const prevBindings = this._nexusBindings;
+    const prevLifespans = this._nexusBindingsLifespans;
+    const nextBindings = this._getNexusBindings(props) || {};
+    const nextLifespans = {};
+
+    _.each(_.union(_.keys(prevBindings), _.keys(nextBindings)), (stateKey) => {
+      const prev = prevBindings[stateKey];
+      const next = nextBindings[stateKey];
+      const addNextBinding = () => {
+        const [flux, path] = next;
+        const lifespan = nextLifespans[stateKey] = new Lifespan();
+        this.setState({
+          [stateKey]: flux.getStore(path, lifespan)
+            .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
+            .onDelete(() => this.setState({ [stateKey]: void 0 }))
+          .value
+        });
+      };
+      const removePrevBinding = () => {
+        this.setState({ [stateKey]: void 0 });
+        prevLifespans[stateKey].release();
+      };
+      if(prev === void 0) { // binding is added
+        addNextBinding();
+      }
+      if(next === void 0) { // binding is removed
+        removePrevBinding();
+      }
+      const [prevFlux, prevPath] = prev;
+      const [nextFlux, nextPath] = next;
+      if(prevFlux !== nextFlux || prevPath !== nextPath) { // binding is modified
+        removePrevBinding();
+        addNextBinding();
+      }
+    });
+
+    this._nexusBindings = nextBindings;
+    this._nexusBindingsLifespans = nextLifespans;
   },
 
   componentDidMount() {
@@ -62,9 +85,7 @@ export default (Nexus) => ({
   },
 
   componentWillUnmount() {
-    if(this._nexusBindingsLifespan) {
-      this._nexusBindingsLifespan.release();
-    }
+    _.each(this._nexusBindingsLifespans || [], (lifespan) => lifespan.release());
   },
 
   componentWillReceiveProps(nextProps) {
