@@ -33,12 +33,12 @@ function lint() {
 function build() {
   return readPrelude.then(function(prelude) {
     return gulp.src('src/**/*.js')
-      .pipe(plumber())
-      .pipe(prepend(prelude))
-      .pipe(babel({
-        modules: 'common',
-      }))
-      .pipe(gulp.dest('dist'));
+    .pipe(plumber())
+    .pipe(prepend(prelude))
+    .pipe(babel({
+      modules: 'common',
+    }))
+    .pipe(gulp.dest('dist'));
   });
 }
 
