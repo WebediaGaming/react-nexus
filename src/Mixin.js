@@ -44,16 +44,25 @@ export default (Nexus) => ({
 
   applyNexusBindings(props) {
     const previousBindingsLifespan = this.getNexusBindingsLifespan();
-    this._nexusBindingsLifespan = new Lifespan();
+    this._nexusBindingsLifespan = [];
     const bindings = this.__getNexusBindings(props) || {};
-    _.each(bindings, ([flux, path], stateKey) => this.setState({
-      [stateKey]: flux.getStore(path, this._nexusBindingsLifespan)
+    _.each(bindings, ([flux, path], stateKey) => {
+      const lifespan = new Lifespan();
+      this._nexusBindingsLifespan.push({lifespan, path});
+      this.setState({
+        [stateKey]: flux.getStore(path, lifespan)
         .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
         .onDelete(() => this.setState({ [stateKey]: void 0 }))
-        .value, // will also return the immutable head
-    }));
+          .value, // will also return the immutable head
+        });
+    });
+
     if(previousBindingsLifespan) {
-      previousBindingsLifespan.release();
+      previousBindingsLifespan.map(({lifespan, path}) => {
+        if(_.find(this._nexusBindingsLifespan, {path}) === void 0){
+          lifespan.release();
+        }
+      });
     }
   },
 
@@ -63,7 +72,9 @@ export default (Nexus) => ({
 
   componentWillUnmount() {
     if(this._nexusBindingsLifespan) {
-      this._nexusBindingsLifespan.release();
+       this._nexusBindingsLifespan.map(({lifespan}) => {
+          lifespan.release();
+      });
     }
   },
 
