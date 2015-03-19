@@ -74,8 +74,8 @@ module.exports = function (Nexus) {
     applyNexusBindings: function applyNexusBindings(props) {
       var _this = this;
 
-      var prevBindings = this._nexusBindings;
-      var prevLifespans = this._nexusBindingsLifespans;
+      var prevBindings = this._nexusBindings || {};
+      var prevLifespans = this._nexusBindingsLifespans || {};
       var nextBindings = this._getNexusBindings(props) || {};
       var nextLifespans = {};
 
@@ -103,10 +103,12 @@ module.exports = function (Nexus) {
         if (prev === void 0) {
           // binding is added
           addNextBinding();
+          return;
         }
         if (next === void 0) {
           // binding is removed
           removePrevBinding();
+          return;
         }
 
         var _prev = _slicedToArray(prev, 2);

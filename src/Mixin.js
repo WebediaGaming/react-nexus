@@ -40,8 +40,8 @@ export default (Nexus) => ({
   },
 
   applyNexusBindings(props) {
-    const prevBindings = this._nexusBindings;
-    const prevLifespans = this._nexusBindingsLifespans;
+    const prevBindings = this._nexusBindings || {};
+    const prevLifespans = this._nexusBindingsLifespans || {};
     const nextBindings = this._getNexusBindings(props) || {};
     const nextLifespans = {};
 
@@ -64,9 +64,11 @@ export default (Nexus) => ({
       };
       if(prev === void 0) { // binding is added
         addNextBinding();
+        return;
       }
       if(next === void 0) { // binding is removed
         removePrevBinding();
+        return;
       }
       const [prevFlux, prevPath] = prev;
       const [nextFlux, nextPath] = next;
