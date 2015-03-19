@@ -76,6 +76,9 @@ export default (Nexus) => ({
         removePrevBinding();
         addNextBinding();
       }
+      else {
+        nextLifespans[stateKey] = this._nexusBindingsLifespans[stateKey];
+      }
     });
 
     this._nexusBindings = nextBindings;

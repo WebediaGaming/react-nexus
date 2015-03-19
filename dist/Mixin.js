@@ -125,6 +125,8 @@ module.exports = function (Nexus) {
           // binding is modified
           removePrevBinding();
           addNextBinding();
+        } else {
+          nextLifespans[stateKey] = _this._nexusBindingsLifespans[stateKey];
         }
       });
 
