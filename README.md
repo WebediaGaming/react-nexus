@@ -1,7 +1,7 @@
 React Nexus
 ===========
 
-Isomorphic React apps done right. Server-side rendering, data prefetching, SEO for free.
+Isomorphic React apps done ~~right~~ well. Server-side rendering, data prefetching, SEO for free.
 
 #### Nexus Flux
 
