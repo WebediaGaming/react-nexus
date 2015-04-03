@@ -14,6 +14,7 @@ var del = require('del');
 var babel = require('gulp-babel');
 var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
+var exec = require('gulp-exec');
 var gutil = require('gulp-util');
 var jshint = require('gulp-jshint');
 var plumber = require('gulp-plumber');
@@ -26,6 +27,8 @@ var readPrelude = fs.readFileAsync('./__prelude.js');
 function lint() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
+  .pipe(exec('eslint .'))
+  .pipe(exec.reporter())
   .pipe(jshint())
   .pipe(jshint.reporter(stylish));
 }
