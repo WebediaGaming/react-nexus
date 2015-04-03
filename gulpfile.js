@@ -27,8 +27,8 @@ var readPrelude = fs.readFileAsync('./__prelude.js');
 function lint() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
-  .pipe(exec('eslint .'))
-  .pipe(exec.reporter())
+  .pipe(exec('eslint <%= file.path %>'))
+  .pipe(exec.reporter());
   .pipe(jshint())
   .pipe(jshint.reporter(stylish));
 }
