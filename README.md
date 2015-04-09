@@ -14,7 +14,7 @@ The future is today!
 
 #### Features
 
-- Sanely configured `gulpfile.js`, `package.json`, `.gitignore`, `.editorconfig`, `.eslintrc`, `.eslintignore`, `.jsbeautifyrc` and `.jshintrc`.
+- Sanely configured `gulpfile.js`, `package.json`, `.gitignore`, `.editorconfig`, `.eslintrc` and `.jsbeautifyrc`.
 - ES6 code from the `src` folder is transpiled into ES5 code in the `dist` folder via `babel`.
 - Both CommonJS and ES6 modules are supported.
 - Several modules and variables are automatically injected in each module at transpile time. Check (and edit) `__prelude.js`.
