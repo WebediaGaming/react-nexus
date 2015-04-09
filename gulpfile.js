@@ -28,7 +28,7 @@ function lint() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
   .pipe(exec('eslint <%= file.path %>'))
-  .pipe(exec.reporter());
+  .pipe(exec.reporter())
   .pipe(jshint())
   .pipe(jshint.reporter(stylish));
 }
@@ -49,16 +49,7 @@ function clean() {
   del(['dist']);
 }
 
-gulp.task('lint', function() {
-  return lint();
-});
-
-gulp.task('clean', function() {
-  return clean();
-});
-
-gulp.task('build', ['lint', 'clean'], function() {
-  return build();
-});
-
+gulp.task('lint', lint);
+gulp.task('clean', clean);
+gulp.task('build', ['lint', 'clean'], build);
 gulp.task('default', ['build']);
