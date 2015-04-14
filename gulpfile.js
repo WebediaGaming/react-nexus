@@ -16,7 +16,6 @@ var eslint = require('gulp-eslint');
 var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var jshint = require('gulp-jshint');
 var plumber = require('gulp-plumber');
 var prepend = require('gulp-insert').prepend;
 var sourcemaps = require('gulp-sourcemaps');
@@ -28,9 +27,7 @@ function lint() {
   return gulp.src('src/**/*.js')
   .pipe(plumber())
   .pipe(eslint())
-  .pipe(eslint.format())
-  .pipe(jshint())
-  .pipe(jshint.reporter(stylish));
+  .pipe(eslint.format());
 }
 
 function build() {
