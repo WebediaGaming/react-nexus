@@ -40,9 +40,8 @@ function flattenDescendants(element, acc = []) {
 }
 
 // A nexus object is just a collection of Flux.Client objects.
-function Nexus() {}
 
-Object.assign(Nexus, {
+const Nexus = {
   // expose internal libs
   Lifespan,
   React,
@@ -186,7 +185,7 @@ Object.assign(Nexus, {
       }
     });
   },
-});
+};
 
 Nexus.Mixin = Mixin(Nexus);
 
