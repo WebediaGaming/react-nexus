@@ -64,5 +64,3 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
   localFluxClient.lifespan.release();
 });
 ```
-
-
