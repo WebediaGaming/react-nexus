@@ -7,19 +7,21 @@ const { Remutable, Lifespan } = Flux;
 // if 'vanilla' isCompositeComponentElement is available, then use it,
 // otherwise use this polyfill. (this is required since the vanilla version
 // isn't shipped in the production build)
-const isCompositeComponentElement = (
-    React.addons &&
-    React.addons.TestUtils &&
-    React.addons.TestUtils.isCompositeComponentElement &&
-    _.isFunction(React.addons.TestUtils.isCompositeComponentElement)
-  ) ? React.addons.TestUtils.isCompositeComponentElement : (element) => {
+
+function isCompositeComponentElementPolyfill(element) {
   if(!React.isValidElement(element)) {
     return false;
   }
   const { prototype } = element.type;
   // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
   return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
-};
+}
+
+const isCompositeComponentElement =
+  React.addons && React.addons.TestUtils &&
+  React.addons.TestUtils.isCompositeComponentElement &&
+  _.isFunction(React.addons.TestUtils.isCompositeComponentElement) ?
+  React.addons.TestUtils.isCompositeComponentElement : isCompositeComponentElementPolyfill;
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -38,8 +40,9 @@ function flattenDescendants(element, acc = []) {
 }
 
 // A nexus object is just a collection of Flux.Client objects.
+function Nexus() {}
 
-const Nexus = {
+Object.assign(Nexus, {
   // expose internal libs
   Lifespan,
   React,
@@ -183,7 +186,7 @@ const Nexus = {
       }
     });
   },
-};
+});
 
 Nexus.Mixin = Mixin(Nexus);
 
