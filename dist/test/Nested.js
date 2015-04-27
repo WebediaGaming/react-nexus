@@ -32,8 +32,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-
-var Nested = (function (_React$Component) {
+exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
   function Nested() {
     _classCallCheck(this, Nested);
 
@@ -67,10 +66,10 @@ var Nested = (function (_React$Component) {
   }]);
 
   return Nested;
-})(_React2['default'].Component);
-
-exports['default'] = _Nexus2['default'].Enhance(Nested, function (_ref) {
+})(_React2['default'].Component), function getNexusBindings(_ref) {
   var foo = _ref.foo;
-  return { bar: ['local', foo] };
+
+  return {
+    bar: ['local', foo] };
 });
 module.exports = exports['default'];

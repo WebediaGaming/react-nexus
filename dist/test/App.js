@@ -38,8 +38,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-
-var App = (function (_React$Component) {
+exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
   function App(props) {
     _classCallCheck(this, App);
 
@@ -64,7 +63,6 @@ var App = (function (_React$Component) {
       var clicks = _state.clicks;
       var route = this.props.route;
 
-      console.log({ route: route });
       return _React2['default'].createElement(
         'div',
         { className: 'App' },
@@ -105,9 +103,8 @@ var App = (function (_React$Component) {
   }]);
 
   return App;
-})(_React2['default'].Component);
-
-exports['default'] = _Nexus2['default'].Enhance(App, function () {
-  return { route: ['local', '/route'] };
+})(_React2['default'].Component), function getNexusBindings() {
+  return {
+    route: ['local', '/route'] };
 });
 module.exports = exports['default'];

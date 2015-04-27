@@ -12,7 +12,16 @@ function checkBindings(bindings) {
   }
 }
 
+const STATUS = {
+  PREFETCH: 'PREFETCH',
+  INJECT: 'INJECT',
+  PENDING: 'PENDING',
+  LIVE: 'LIVE',
+};
+
 export default (Nexus) => (Component, getNexusBindings) => class NexusElement extends React.Component {
+  static displayName = `Nexus${Component.displayName}`;
+
   constructor(props) {
     if(__DEV__) {
       getNexusBindings.should.be.a.Function;
@@ -24,12 +33,12 @@ export default (Nexus) => (Component, getNexusBindings) => class NexusElement ex
     checkBindings(bindings);
     this.state = _.mapValues(bindings, ([flux, path, defaultValue]) => {
       if(this.getFlux(flux).isPrefetching) {
-        return this.getFlux(flux).prefetch(path);
+        return [STATUS.PREFETCH, this.getFlux(flux).prefetch(path)];
       }
       if(this.getFlux(flux).isInjecting) {
-        return this.getFlux(flux).getInjected(path);
+        return [STATUS.INJECT, this.getFlux(flux).getInjected(path)];
       }
-      return defaultValue;
+      return [STATUS.PENDING, defaultValue];
     });
   }
 
@@ -47,11 +56,28 @@ export default (Nexus) => (Component, getNexusBindings) => class NexusElement ex
     return this.getNexus()[flux];
   }
 
-  prefetchNexusBindings() {
-    const bindings = getNexusBindings(this.props);
-    return Promise.all(_.map(bindings, ([flux, path]) =>
-      this.getFlux(flux).isPrefetching ? this.getFlux(flux).prefetch(path) : Promise.resolve())
-    ).then(() => this);
+  getCurrentValue(key) {
+    if(__DEV__) {
+      key.should.be.a.String;
+      this.state.should.have.property(key);
+    }
+  }
+
+  getDataMap() {
+    return _.mapValues(this.state, ([status, value]) => {
+      // in this case only, the value is wrapped
+      if(status === STATUS.PREFETCH) {
+        return value.value();
+      }
+      // in all other cases (INJECT, PENDING, LIVE) then the value is unwrapped
+      return value;
+    });
+  }
+
+  waitForPrefetching() {
+    return Promise.all(_.map(this.state, ([status, value]) =>
+      status === STATUS.PREFETCH ? value.promise : Promise.resolve()
+    ));
   }
 
   applyNexusBindings(props) {
@@ -66,12 +92,10 @@ export default (Nexus) => (Component, getNexusBindings) => class NexusElement ex
       const addNextBinding = () => {
         const [flux, path, defaultValue] = next;
         const lifespan = nextLifespans[stateKey] = new Lifespan();
-        this.setState({
-          [stateKey]: this.getFlux(flux).getStore(path, lifespan)
-            .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
-            .onDelete(() => this.setState({ [stateKey]: void 0 }))
-          .value || defaultValue,
-        });
+        this.getFlux(flux).getStore(path, lifespan)
+        .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
+        .onDelete(() => this.setState({ [stateKey]: void 0 }));
+        this.setState({ [stateKey]: [STATUS.PENDING, defaultValue] });
       };
       const removePrevBinding = () => {
         this.setState({ [stateKey]: void 0 });
@@ -117,7 +141,6 @@ export default (Nexus) => (Component, getNexusBindings) => class NexusElement ex
   }
 
   render() {
-    const props = Object.assign({}, this.props, this.state);
-    return <Component {...props} />;
+    return <Component {...Object.assign({}, this.props, this.getDataMap())} />;
   }
 };

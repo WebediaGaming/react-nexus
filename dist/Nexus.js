@@ -10,10 +10,6 @@ var _React = require('react/addons');
 
 var _React2 = _interopRequireDefault(_React);
 
-var _instanciateReactComponent = require('react/lib/instantiateReactComponent');
-
-var _instanciateReactComponent2 = _interopRequireDefault(_instanciateReactComponent);
-
 var _createEnhance = require('./Enhance');
 
 var _createEnhance2 = _interopRequireDefault(_createEnhance);
@@ -52,6 +48,10 @@ function isCompositeComponentElementPolyfill(element) {
 }
 
 var isCompositeComponentElement = _React2['default'].addons && _React2['default'].addons.TestUtils && _React2['default'].addons.TestUtils.isCompositeComponentElement && _.isFunction(_React2['default'].addons.TestUtils.isCompositeComponentElement) ? _React2['default'].addons.TestUtils.isCompositeComponentElement : isCompositeComponentElementPolyfill;
+
+function isReactNexusComponent(instance) {
+  return _.isObject(instance) && _.isObject(instance.prototype) && _.isFunction(instance.prototype.waitForPrefetching);
+}
 
 // flatten the descendants of a given element into an array
 // use an accumulator to avoid lengthy lists construction and merging.
@@ -132,8 +132,6 @@ var Nexus = {
         });
       }
       return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
-        console.log('------- DATA READY ---------');
-        console.log(data);
         _.each(nexus, function (flux, key) {
           return flux.startInjecting(data[key]);
         });
@@ -202,6 +200,26 @@ var Nexus = {
     });
   },
 
+  _getPrefetchedReactComponent: function _getPrefetchedReactComponent(element, nexus) {
+    var instance = null;
+    return Nexus._withNexus(nexus, function () {
+      instance = new element.type(element._store.props);
+      if (!isReactNexusComponent(instance)) {
+        return Promise.resolve(instance);
+      }
+      return instance.waitForPrefetching();
+    }).then(function () {
+      Nexus._withNexus(nexus, function () {
+        return instance && instance.componentWillMount && instance.componentWillMount();
+      });
+      return instance;
+    }).disposer(function () {
+      return Nexus._withNexus(nexus, function () {
+        return instance && instance.componentWillUnmount && instance.componentWillUnmount();
+      });
+    });
+  },
+
   // Within a prefetchApp async stack, prefetch the dependencies of the given element and its descendants
   // it will:
   // - instanciate the component
@@ -218,24 +236,9 @@ var Nexus = {
         __NODE__.should.be['true'];
       }
       if (Nexus.shouldPrefetch(element)) {
-        return Nexus._withNexus(nexus, function () {
-          var instance = new element.type(element._store.props);
-          // if the component isn't a React Nexus component, then do nothing
-          if (instance.prefetchNexusBindings === void 0) {
-            return Promise.resolve(instance);
-          }
-          // if the component opts out of prefetching, then do nothing
-          if (instance.shouldComponentPrefetchNexusBindings && !instance.shouldComponentPrefetchNexusBindings()) {
-            return Promise.resolve(instance);
-          }
-          return instance.prefetchNexusBindings();
-        }).then(function (instance) {
+        return Promise.using(Nexus._getPrefetchedReactComponent(element, nexus), function (instance) {
           return Nexus._withNexus(nexus, function () {
-            if (instance.componentWillMount) {
-              instance.componentWillMount();
-            }
-            var renderedElement = instance.render ? instance.render() : null;
-            return Promise.all(_.map(flattenDescendants(renderedElement), function (descendantElement) {
+            return Promise.all(_.map(flattenDescendants(instance.render ? instance.render() : null), function (descendantElement) {
               return Nexus._prefetchElement(descendantElement, nexus);
             }));
           });

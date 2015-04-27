@@ -54,6 +54,12 @@ function checkBindings(bindings) {
   }
 }
 
+var STATUS = {
+  PREFETCH: 'PREFETCH',
+  INJECT: 'INJECT',
+  PENDING: 'PENDING',
+  LIVE: 'LIVE' };
+
 exports['default'] = function (Nexus) {
   return function (Component, getNexusBindings) {
     return (function (_React$Component) {
@@ -78,12 +84,12 @@ exports['default'] = function (Nexus) {
           var defaultValue = _ref32[2];
 
           if (_this.getFlux(flux).isPrefetching) {
-            return _this.getFlux(flux).prefetch(path);
+            return [STATUS.PREFETCH, _this.getFlux(flux).prefetch(path)];
           }
           if (_this.getFlux(flux).isInjecting) {
-            return _this.getFlux(flux).getInjected(path);
+            return [STATUS.INJECT, _this.getFlux(flux).getInjected(path)];
           }
-          return defaultValue;
+          return [STATUS.PENDING, defaultValue];
         });
       }
 
@@ -106,25 +112,45 @@ exports['default'] = function (Nexus) {
           return this.getNexus()[flux];
         }
       }, {
-        key: 'prefetchNexusBindings',
-        value: function prefetchNexusBindings() {
-          var _this2 = this;
-
-          var bindings = getNexusBindings(this.props);
-          return Promise.all(_.map(bindings, function (_ref4) {
+        key: 'getCurrentValue',
+        value: function getCurrentValue(key) {
+          if (__DEV__) {
+            key.should.be.a.String;
+            this.state.should.have.property(key);
+          }
+        }
+      }, {
+        key: 'getDataMap',
+        value: function getDataMap() {
+          return _.mapValues(this.state, function (_ref4) {
             var _ref42 = _slicedToArray(_ref4, 2);
 
-            var flux = _ref42[0];
-            var path = _ref42[1];
-            return _this2.getFlux(flux).isPrefetching ? _this2.getFlux(flux).prefetch(path) : Promise.resolve();
-          })).then(function () {
-            return _this2;
+            var status = _ref42[0];
+            var value = _ref42[1];
+
+            // in this case only, the value is wrapped
+            if (status === STATUS.PREFETCH) {
+              return value.value();
+            }
+            // in all other cases (INJECT, PENDING, LIVE) then the value is unwrapped
+            return value;
           });
+        }
+      }, {
+        key: 'waitForPrefetching',
+        value: function waitForPrefetching() {
+          return Promise.all(_.map(this.state, function (_ref5) {
+            var _ref52 = _slicedToArray(_ref5, 2);
+
+            var status = _ref52[0];
+            var value = _ref52[1];
+            return status === STATUS.PREFETCH ? value.promise : Promise.resolve();
+          }));
         }
       }, {
         key: 'applyNexusBindings',
         value: function applyNexusBindings(props) {
-          var _this3 = this;
+          var _this2 = this;
 
           var prevBindings = this._nexusBindings || {};
           var prevLifespans = this._nexusBindingsLifespans || {};
@@ -142,15 +168,16 @@ exports['default'] = function (Nexus) {
               var defaultValue = _next[2];
 
               var lifespan = nextLifespans[stateKey] = new _Lifespan.Lifespan();
-              _this3.setState(_defineProperty({}, stateKey, _this3.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref5) {
-                var head = _ref5.head;
-                return _this3.setState(_defineProperty({}, stateKey, head));
+              _this2.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref6) {
+                var head = _ref6.head;
+                return _this2.setState(_defineProperty({}, stateKey, [STATUS.LIVE, head]));
               }).onDelete(function () {
-                return _this3.setState(_defineProperty({}, stateKey, void 0));
-              }).value || defaultValue));
+                return _this2.setState(_defineProperty({}, stateKey, void 0));
+              });
+              _this2.setState(_defineProperty({}, stateKey, [STATUS.PENDING, defaultValue]));
             };
             var removePrevBinding = function removePrevBinding() {
-              _this3.setState(_defineProperty({}, stateKey, void 0));
+              _this2.setState(_defineProperty({}, stateKey, void 0));
               prevLifespans[stateKey].release();
             };
             if (prev === void 0) {
@@ -179,7 +206,7 @@ exports['default'] = function (Nexus) {
               removePrevBinding();
               addNextBinding();
             } else {
-              nextLifespans[stateKey] = _this3._nexusBindingsLifespans[stateKey];
+              nextLifespans[stateKey] = _this2._nexusBindingsLifespans[stateKey];
             }
           });
 
@@ -211,9 +238,12 @@ exports['default'] = function (Nexus) {
       }, {
         key: 'render',
         value: function render() {
-          var props = Object.assign({}, this.props, this.state);
-          return _React2['default'].createElement(Component, props);
+          return _React2['default'].createElement(Component, Object.assign({}, this.props, this.getDataMap()));
         }
+      }], [{
+        key: 'displayName',
+        value: 'Nexus' + Component.displayName,
+        enumerable: true
       }]);
 
       return NexusElement;
