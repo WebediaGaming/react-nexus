@@ -1,6 +1,6 @@
 'use strict';
 
-var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
+var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
 
 Object.defineProperty(exports, '__esModule', {
   value: true
@@ -8,7 +8,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _Nexus = require('./Nexus');
 
-var _Nexus2 = _interopRequireWildcard(_Nexus);
+var _Nexus2 = _interopRequireDefault(_Nexus);
 
 require('babel/polyfill');
 var _ = require('lodash');

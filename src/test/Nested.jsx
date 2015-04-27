@@ -1,18 +1,19 @@
 import Nexus from '../';
 import React from 'react';
 
-export default React.createClass({
-  displayName: 'Nested',
-  mixins: [Nexus.Mixin],
+class Nested extends React.Component {
+  static displayName = 'Nested';
 
-  getNexusBindings(props) {
-    return {
-      bar: [this.getNexus().local, props.foo],
-    };
-  },
+  static propTypes = {
+    bar: React.PropTypes.any,
+  };
 
   render() {
-    const { bar } = this.state;
+    const { bar } = this.props;
     return <span>{bar ? bar.get('mood') : null}</span>;
-  },
-});
+  }
+}
+
+export default Nexus.Enhance(Nested, ({ foo }) =>
+  ({ bar: ['local', foo] })
+);

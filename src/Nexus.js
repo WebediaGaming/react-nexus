@@ -1,6 +1,6 @@
 import React from 'react/addons';
 import instanciateReactComponent from 'react/lib/instantiateReactComponent';
-import Mixin from './Mixin';
+import createEnhance from './Enhance';
 import Flux from 'nexus-flux';
 const { Remutable, Lifespan } = Flux;
 
@@ -93,6 +93,8 @@ const Nexus = {
       }
       return Nexus._prefetchApp(rootElement, nexus)
       .then((data) => {
+        console.log('------- DATA READY ---------');
+        console.log(data);
         _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
         const html = Nexus._withNexus(nexus, () => React.renderToStaticMarkup(rootElement));
         _.each(nexus, (flux) => flux.stopInjecting());
@@ -161,7 +163,7 @@ const Nexus = {
       }
       if(Nexus.shouldPrefetch(element)) {
         return Nexus._withNexus(nexus, () => {
-          const instance = instanciateReactComponent(element);
+          const instance = new element.type(element._store.props);
           // if the component isn't a React Nexus component, then do nothing
           if(instance.prefetchNexusBindings === void 0) {
             return Promise.resolve(instance);
@@ -173,7 +175,6 @@ const Nexus = {
           return instance.prefetchNexusBindings();
         })
         .then((instance) => Nexus._withNexus(nexus, () => {
-          instance.state = instance.getInitialState ? instance.getInitialState() : {};
           if(instance.componentWillMount) {
             instance.componentWillMount();
           }
@@ -187,6 +188,6 @@ const Nexus = {
   },
 };
 
-Nexus.Mixin = Mixin(Nexus);
+Nexus.Enhance = createEnhance(Nexus);
 
 export default Nexus;

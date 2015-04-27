@@ -2,33 +2,33 @@ import Nexus from '../';
 import React from 'react';
 import Nested from './Nested';
 
-export default React.createClass({
-  displayName: 'App',
-  mixins: [Nexus.Mixin],
+class App extends React.Component {
+  static displayName = 'App';
 
-  getNexusBindings() {
-    return {
-      route: [this.getNexus().local, '/route'],
-      notFound: [this.getNexus().local, '/notFound'],
-    };
-  },
+  static propTypes = {
+    route: React.PropTypes.any,
+  };
 
-  getInitialState() {
-    return {
-      foo: '/bar',
-      clicks: 0,
-    };
-  },
+  constructor(props) {
+    super(props);
+    this.state = { foo: '/bar', clicks: 0 };
+  }
 
   click() {
     this.setState({ clicks: this.state.clicks + 1 });
-  },
+  }
 
   render() {
-    const { route, foo, clicks } = this.state;
+    const { foo, clicks } = this.state;
+    const { route } = this.props;
+    console.log({ route });
     return <div className='App'>
-      <p>My route is {route ? route.get('path') : null} and foo is <Nested foo={foo} />.</p>
-      <p>The clicks counter is {clicks}. <button onClick={this.click}>increase counter</button></p>
+      <p>My route is { route ? route.get('path') : null} and foo is <Nested foo={ foo } />.</p>
+      <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
     </div>;
-  },
-});
+  }
+}
+
+export default Nexus.Enhance(App, () =>
+  ({ route: ['local', '/route'] })
+);

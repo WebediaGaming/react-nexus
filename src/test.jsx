@@ -21,7 +21,7 @@ const localFluxClient = new LocalFlux.Client(localFluxServer);
 
 const nexus = { local: localFluxClient };
 
-Nexus.prerenderAppToStaticMarkup(<App />, nexus)
+Nexus.prerenderAppToStaticMarkup(<App nexus={ nexus } />, nexus)
 .then(([html, data]) => {
   console.log(html, data);
   html.should.be.exactly('<div class="App">' +

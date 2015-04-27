@@ -1,26 +1,26 @@
 'use strict';
 
-var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
+var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
 
 var _Nexus = require('../');
 
-var _Nexus2 = _interopRequireWildcard(_Nexus);
+var _Nexus2 = _interopRequireDefault(_Nexus);
 
 var _React = require('react');
 
-var _React2 = _interopRequireWildcard(_React);
+var _React2 = _interopRequireDefault(_React);
 
 var _LocalFlux = require('nexus-flux/adapters/Local');
 
-var _LocalFlux2 = _interopRequireWildcard(_LocalFlux);
+var _LocalFlux2 = _interopRequireDefault(_LocalFlux);
 
 var _Remutable = require('nexus-flux');
 
 var _App = require('./test/App');
 
-var _App2 = _interopRequireWildcard(_App);
+var _App2 = _interopRequireDefault(_App);
 
 require('babel/polyfill');
 var _ = require('lodash');
@@ -48,7 +48,7 @@ var localFluxClient = new _LocalFlux2['default'].Client(localFluxServer);
 
 var nexus = { local: localFluxClient };
 
-_Nexus2['default'].prerenderAppToStaticMarkup(_React2['default'].createElement(_App2['default'], null), nexus).then(function (_ref) {
+_Nexus2['default'].prerenderAppToStaticMarkup(_React2['default'].createElement(_App2['default'], { nexus: nexus }), nexus).then(function (_ref) {
   var _ref2 = _slicedToArray(_ref, 2);
 
   var html = _ref2[0];

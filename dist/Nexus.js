@@ -1,6 +1,6 @@
 'use strict';
 
-var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
+var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
 
 Object.defineProperty(exports, '__esModule', {
   value: true
@@ -8,19 +8,19 @@ Object.defineProperty(exports, '__esModule', {
 
 var _React = require('react/addons');
 
-var _React2 = _interopRequireWildcard(_React);
+var _React2 = _interopRequireDefault(_React);
 
 var _instanciateReactComponent = require('react/lib/instantiateReactComponent');
 
-var _instanciateReactComponent2 = _interopRequireWildcard(_instanciateReactComponent);
+var _instanciateReactComponent2 = _interopRequireDefault(_instanciateReactComponent);
 
-var _Mixin = require('./Mixin');
+var _createEnhance = require('./Enhance');
 
-var _Mixin2 = _interopRequireWildcard(_Mixin);
+var _createEnhance2 = _interopRequireDefault(_createEnhance);
 
 var _Flux = require('nexus-flux');
 
-var _Flux2 = _interopRequireWildcard(_Flux);
+var _Flux2 = _interopRequireDefault(_Flux);
 
 require('babel/polyfill');
 var _ = require('lodash');
@@ -132,6 +132,8 @@ var Nexus = {
         });
       }
       return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
+        console.log('------- DATA READY ---------');
+        console.log(data);
         _.each(nexus, function (flux, key) {
           return flux.startInjecting(data[key]);
         });
@@ -217,7 +219,7 @@ var Nexus = {
       }
       if (Nexus.shouldPrefetch(element)) {
         return Nexus._withNexus(nexus, function () {
-          var instance = _instanciateReactComponent2['default'](element);
+          var instance = new element.type(element._store.props);
           // if the component isn't a React Nexus component, then do nothing
           if (instance.prefetchNexusBindings === void 0) {
             return Promise.resolve(instance);
@@ -229,7 +231,6 @@ var Nexus = {
           return instance.prefetchNexusBindings();
         }).then(function (instance) {
           return Nexus._withNexus(nexus, function () {
-            instance.state = instance.getInitialState ? instance.getInitialState() : {};
             if (instance.componentWillMount) {
               instance.componentWillMount();
             }
@@ -243,7 +244,7 @@ var Nexus = {
     });
   } };
 
-Nexus.Mixin = _Mixin2['default'](Nexus);
+Nexus.Enhance = _createEnhance2['default'](Nexus);
 
 exports['default'] = Nexus;
 module.exports = exports['default'];
