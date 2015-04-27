@@ -188,6 +188,7 @@
     /* ECMAScript 6 */
     "no-var": 1,
     "generator-star-spacing": [1, "before"],
+    "object-shorthand": [1, "always"],
 
     /* Legacy */
     "max-depth": [0, 3],
