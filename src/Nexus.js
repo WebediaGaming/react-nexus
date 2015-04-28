@@ -1,6 +1,6 @@
 import React from 'react/addons';
 import instanciateReactComponent from 'react/lib/instantiateReactComponent';
-import Mixin from './Mixin';
+import createMixin from './createMixin';
 import Flux from 'nexus-flux';
 const { Remutable, Lifespan } = Flux;
 
@@ -185,6 +185,6 @@ const Nexus = {
   },
 };
 
-Nexus.Mixin = new Mixin(Nexus);
+Nexus.Mixin = createMixin(Nexus);
 
 export default Nexus;

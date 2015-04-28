@@ -14,9 +14,9 @@ var _instanciateReactComponent = require('react/lib/instantiateReactComponent');
 
 var _instanciateReactComponent2 = _interopRequireDefault(_instanciateReactComponent);
 
-var _Mixin = require('./Mixin');
+var _createMixin = require('./createMixin');
 
-var _Mixin2 = _interopRequireDefault(_Mixin);
+var _createMixin2 = _interopRequireDefault(_createMixin);
 
 var _Flux = require('nexus-flux');
 
@@ -240,7 +240,7 @@ var Nexus = {
     });
   } };
 
-Nexus.Mixin = new _Mixin2['default'](Nexus);
+Nexus.Mixin = _createMixin2['default'](Nexus);
 
 exports['default'] = Nexus;
 module.exports = exports['default'];
