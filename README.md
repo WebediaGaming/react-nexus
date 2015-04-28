@@ -59,7 +59,9 @@ const nexus = { local: localFluxClient };
 Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
 .then(([html, data]) => {
   html.should.be.exactly('<div>My route is /home</div>');
-  JSON.stringify(data).should.be.exactly(JSON.stringify({ local: { '/route': { path: '/home' }}}));
+  JSON.stringify(data).should.be.exactly(JSON.stringify({
+    local: { '/route': { path: '/home' }}
+  }));
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();
 });
