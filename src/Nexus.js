@@ -1,6 +1,6 @@
 import React from 'react/addons';
 import instanciateReactComponent from 'react/lib/instantiateReactComponent';
-import Mixin from './Mixin';
+import createMixin from './createMixin';
 import Flux from 'nexus-flux';
 const { Remutable, Lifespan } = Flux;
 
@@ -8,11 +8,11 @@ const { Remutable, Lifespan } = Flux;
 // otherwise use this polyfill. (this is required since the vanilla version
 // isn't shipped in the production build)
 const isCompositeComponentElement = (
-    React.addons &&
-    React.addons.TestUtils &&
-    React.addons.TestUtils.isCompositeComponentElement &&
-    _.isFunction(React.addons.TestUtils.isCompositeComponentElement)
-  ) ? React.addons.TestUtils.isCompositeComponentElement : (element) => {
+  React.addons &&
+  React.addons.TestUtils &&
+  React.addons.TestUtils.isCompositeComponentElement &&
+  _.isFunction(React.addons.TestUtils.isCompositeComponentElement)
+) ? React.addons.TestUtils.isCompositeComponentElement : (element) => {
   if(!React.isValidElement(element)) {
     return false;
   }
@@ -185,6 +185,6 @@ const Nexus = {
   },
 };
 
-Nexus.Mixin = Mixin(Nexus);
+Nexus.Mixin = createMixin(Nexus);
 
 export default Nexus;

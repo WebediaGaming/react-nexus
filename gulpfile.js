@@ -12,50 +12,39 @@ if(__DEV__) {
 
 var del = require('del');
 var babel = require('gulp-babel');
+var eslint = require('gulp-eslint');
 var fs = Promise.promisifyAll(require('fs'));
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var jshint = require('gulp-jshint');
 var plumber = require('gulp-plumber');
 var prepend = require('gulp-insert').prepend;
-var sourcemaps = require('gulp-sourcemaps');
-var stylish = require('jshint-stylish');
 
 var readPrelude = fs.readFileAsync('./__prelude.js');
-
-function lint() {
-  return gulp.src(['src/**/*.js'])
-  .pipe(plumber())
-  .pipe(jshint())
-  .pipe(jshint.reporter(stylish));
-}
-
-function build() {
-  return readPrelude.then(function(prelude) {
-    return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
-      .pipe(plumber())
-      .pipe(prepend(prelude))
-      .pipe(babel({
-        modules: 'common',
-      }))
-      .pipe(gulp.dest('dist'));
-  });
-}
 
 function clean() {
   del(['dist']);
 }
 
-gulp.task('lint', function() {
-  return lint();
-});
+function lint() {
+  return gulp.src(['src/**/*.js'])
+  .pipe(plumber())
+  .pipe(eslint())
+  .pipe(eslint.format());
+}
 
-gulp.task('clean', function() {
-  return clean();
-});
+function build() {
+  return readPrelude.then(function(prelude) {
+    return gulp.src('src/**/*.js')
+    .pipe(plumber())
+    .pipe(prepend(prelude))
+    .pipe(babel({
+      modules: 'common',
+    }))
+    .pipe(gulp.dest('dist'));
+  });
+}
 
-gulp.task('build', ['lint', 'clean'], function() {
-  return build();
-});
-
+gulp.task('clean', clean);
+gulp.task('lint', lint);
+gulp.task('build', ['lint', 'clean'], build);
 gulp.task('default', ['build']);
