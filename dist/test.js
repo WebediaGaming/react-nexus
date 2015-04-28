@@ -48,7 +48,7 @@ var localFluxClient = new _LocalFlux2['default'].Client(localFluxServer);
 
 var nexus = { local: localFluxClient };
 
-_Nexus2['default'].prerenderAppToStaticMarkup(_React2['default'].createElement(_App2['default'], { nexus: nexus }), nexus).then(function (_ref) {
+_Nexus2['default'].prerenderAppToStaticMarkup(_React2['default'].createElement(_App2['default'], null), nexus).then(function (_ref) {
   var _ref2 = _slicedToArray(_ref, 2);
 
   var html = _ref2[0];

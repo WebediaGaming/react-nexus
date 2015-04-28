@@ -33,17 +33,25 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
-  function Nested() {
-    _classCallCheck(this, Nested);
+  var _class = function () {
+    _classCallCheck(this, _class);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
     }
-  }
+  };
 
-  _inherits(Nested, _React$Component);
+  _inherits(_class, _React$Component);
 
-  _createClass(Nested, [{
+  _createClass(_class, [{
+    key: 'getNexusBindings',
+    value: function getNexusBindings(_ref) {
+      var foo = _ref.foo;
+
+      return {
+        bar: ['local', foo] };
+    }
+  }, {
     key: 'render',
     value: function render() {
       var bar = this.props.bar;
@@ -65,11 +73,6 @@ exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
     enumerable: true
   }]);
 
-  return Nested;
-})(_React2['default'].Component), function getNexusBindings(_ref) {
-  var foo = _ref.foo;
-
-  return {
-    bar: ['local', foo] };
-});
+  return _class;
+})(_React2['default'].Component));
 module.exports = exports['default'];

@@ -39,16 +39,22 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
-  function App(props) {
-    _classCallCheck(this, App);
+  var _class = function (props) {
+    _classCallCheck(this, _class);
 
-    _get(Object.getPrototypeOf(App.prototype), 'constructor', this).call(this, props);
+    _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, props);
     this.state = { foo: '/bar', clicks: 0 };
-  }
+  };
 
-  _inherits(App, _React$Component);
+  _inherits(_class, _React$Component);
 
-  _createClass(App, [{
+  _createClass(_class, [{
+    key: 'getNexusBindings',
+    value: function getNexusBindings() {
+      return {
+        route: ['local', '/route'] };
+    }
+  }, {
     key: 'click',
     value: function click() {
       this.setState({ clicks: this.state.clicks + 1 });
@@ -102,9 +108,6 @@ exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
     enumerable: true
   }]);
 
-  return App;
-})(_React2['default'].Component), function getNexusBindings() {
-  return {
-    route: ['local', '/route'] };
-});
+  return _class;
+})(_React2['default'].Component));
 module.exports = exports['default'];

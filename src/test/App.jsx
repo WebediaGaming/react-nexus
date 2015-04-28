@@ -2,12 +2,18 @@ import Nexus from '../';
 import React from 'react';
 import Nested from './Nested';
 
-export default Nexus.Enhance(class App extends React.Component {
+export default Nexus.Enhance(class extends React.Component {
   static displayName = 'App';
 
   static propTypes = {
     route: React.PropTypes.any,
   };
+
+  getNexusBindings() {
+    return {
+      route: ['local', '/route'],
+    };
+  }
 
   constructor(props) {
     super(props);
@@ -26,8 +32,4 @@ export default Nexus.Enhance(class App extends React.Component {
       <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
     </div>;
   }
-}, function getNexusBindings() {
-  return {
-    route: ['local', '/route'],
-  };
 });
