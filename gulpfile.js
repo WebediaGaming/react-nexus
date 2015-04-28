@@ -18,9 +18,12 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var plumber = require('gulp-plumber');
 var prepend = require('gulp-insert').prepend;
-var sourcemaps = require('gulp-sourcemaps');
 
 var readPrelude = fs.readFileAsync('./__prelude.js');
+
+function clean() {
+  del(['dist']);
+}
 
 function lint() {
   return gulp.src(['src/**/*.js'])
@@ -41,11 +44,7 @@ function build() {
   });
 }
 
-function clean() {
-  del(['dist']);
-}
-
-gulp.task('lint', lint);
 gulp.task('clean', clean);
+gulp.task('lint', lint);
 gulp.task('build', ['lint', 'clean'], build);
 gulp.task('default', ['build']);

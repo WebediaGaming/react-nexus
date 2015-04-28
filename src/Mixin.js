@@ -55,7 +55,7 @@ export default (Nexus) => ({
           [stateKey]: flux.getStore(path, lifespan)
             .onUpdate(({ head }) => this.setState({ [stateKey]: head }))
             .onDelete(() => this.setState({ [stateKey]: void 0 }))
-          .value
+          .value,
         });
       };
       const removePrevBinding = () => {
