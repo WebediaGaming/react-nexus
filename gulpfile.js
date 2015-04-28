@@ -26,7 +26,7 @@ function clean() {
 }
 
 function lint() {
-  return gulp.src(['src/**/*.js'])
+  return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
   .pipe(plumber())
   .pipe(eslint())
   .pipe(eslint.format());
@@ -34,7 +34,7 @@ function lint() {
 
 function build() {
   return readPrelude.then(function(prelude) {
-    return gulp.src('src/**/*.js')
+    return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
     .pipe(plumber())
     .pipe(prepend(prelude))
     .pipe(babel({
