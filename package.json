@@ -28,11 +28,11 @@
     "gulp-util": "^3.0.4"
   },
   "dependencies": {
-    "nexus-flux": "^3.2.0",
-    "react": "^0.12.2",
     "babel": "^5.1.13",
     "bluebird": "^2.9.24",
     "lodash": "^3.7.0",
+    "nexus-flux": "^3.2.0",
+    "react": "^0.12.2",
     "should": "^6.0.1"
   }
 }
