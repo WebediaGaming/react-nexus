@@ -127,7 +127,7 @@
     "no-undef": 1,
     "no-undef-init": 1,
     "no-undefined": 1,
-    "no-unused-vars": [1, { "vars": "local", "args": "all" }],
+    "no-unused-vars": [1, { "vars": "local", "args": "after-used" }],
     "no-use-before-define": 1,
 
     /* Node.js */
