@@ -3,10 +3,9 @@ import { Lifespan } from 'nexus-flux';
 function checkBindings(bindings) {
   if(__DEV__) {
     bindings.should.be.an.Object;
-    _.each(bindings, ([flux, path, defaultValue]) => {
+    _.each(bindings, ([flux, path, /* defaultValue */]) => {
       flux.should.be.a.String;
       path.should.be.a.String;
-      void defaultValue;
     });
   }
 }
@@ -33,7 +32,7 @@ export default (React, Nexus) => (Component, getNexusBindings = Component.protot
       checkBindings(bindings);
       this.state = _.mapValues(bindings, ([flux, path, defaultValue]) => {
         if(this.getFlux(flux).isPrefetching) {
-          return [STATUS.PREFETCH, this.getFlux(flux).prefetch(path)];
+          return [STATUS.PREFETCH, this.getFlux(flux).prefetch(path).promise];
         }
         if(this.getFlux(flux).isInjecting) {
           return [STATUS.INJECT, this.getFlux(flux).getInjected(path)];
@@ -101,17 +100,20 @@ export default (React, Nexus) => (Component, getNexusBindings = Component.protot
           this.setState({ [stateKey]: void 0 });
           prevLifespans[stateKey].release();
         };
-        if(prev === void 0) { // binding is added
+        // binding is added
+        if(prev === void 0) {
           addNextBinding();
           return;
         }
-        if(next === void 0) { // binding is removed
+        // binding is removed
+        if(next === void 0) {
           removePrevBinding();
           return;
         }
         const [prevFlux, prevPath] = prev;
         const [nextFlux, nextPath] = next;
-        if(prevFlux !== nextFlux || prevPath !== nextPath) { // binding is modified
+        // binding is modified
+        if(prevFlux !== nextFlux || prevPath !== nextPath) {
           removePrevBinding();
           addNextBinding();
         }

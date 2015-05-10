@@ -1,24 +1,24 @@
 'use strict';
 
-var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _inherits = function (subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
-
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _Nexus = require('../');
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _Nexus2 = _interopRequireDefault(_Nexus);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _React = require('react');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _React2 = _interopRequireDefault(_React);
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var _2 = require('../');
+
+var _3 = _interopRequireDefault(_2);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 require('babel/polyfill');
 var _ = require('lodash');
@@ -32,7 +32,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
+exports['default'] = _3['default'].Enhance((function (_React$Component) {
   var _class = function () {
     _classCallCheck(this, _class);
 
@@ -56,7 +56,7 @@ exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
     value: function render() {
       var bar = this.props.bar;
 
-      return _React2['default'].createElement(
+      return _react2['default'].createElement(
         'span',
         null,
         bar ? bar.get('mood') : null
@@ -69,10 +69,10 @@ exports['default'] = _Nexus2['default'].Enhance((function (_React$Component) {
   }, {
     key: 'propTypes',
     value: {
-      bar: _React2['default'].PropTypes.any },
+      bar: _react2['default'].PropTypes.any },
     enumerable: true
   }]);
 
   return _class;
-})(_React2['default'].Component));
+})(_react2['default'].Component));
 module.exports = exports['default'];

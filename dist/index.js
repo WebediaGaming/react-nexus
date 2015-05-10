@@ -1,14 +1,18 @@
 'use strict';
 
-var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _Nexus = require('./Nexus');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _Nexus2 = _interopRequireDefault(_Nexus);
+var _createNexus = require('./createNexus');
+
+var _createNexus2 = _interopRequireDefault(_createNexus);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 require('babel/polyfill');
 var _ = require('lodash');
@@ -22,5 +26,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = _Nexus2['default'];
+
+var Nexus = _createNexus2['default'](_react2['default']);
+exports['default'] = Nexus;
 module.exports = exports['default'];

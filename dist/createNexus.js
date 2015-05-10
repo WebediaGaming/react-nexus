@@ -1,18 +1,18 @@
 'use strict';
 
-var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _createEnhance = require('./Enhance');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createEnhance = require('./createEnhance');
 
 var _createEnhance2 = _interopRequireDefault(_createEnhance);
 
-var _Flux = require('nexus-flux');
+var _nexusFlux = require('nexus-flux');
 
-var _Flux2 = _interopRequireDefault(_Flux);
+var _nexusFlux2 = _interopRequireDefault(_nexusFlux);
 
 require('babel/polyfill');
 var _ = require('lodash');
@@ -26,8 +26,8 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-var Remutable = _Flux2['default'].Remutable;
-var Lifespan = _Flux2['default'].Lifespan;
+var Remutable = _nexusFlux2['default'].Remutable;
+var Lifespan = _nexusFlux2['default'].Lifespan;
 
 exports['default'] = function (React) {
   function isCompositeComponentElement(element) {
@@ -52,8 +52,8 @@ exports['default'] = function (React) {
     if (__DEV__) {
       acc.should.be.an.Array;
     }
+    // only pass through valid elements
     if (!React.isValidElement(element)) {
-      // only pass through valid elements
       return acc;
     }
     acc.push(element);
@@ -72,8 +72,7 @@ exports['default'] = function (React) {
     Lifespan: Lifespan,
     React: React,
     Remutable: Remutable,
-
-    Enhance: null, // reference to the Nexus React mixin
+    Enhance: null,
 
     // A global reference to the current nexus context, mapping keys to Flux client objects
     // It is set temporarly in the server during the prefetching/prerendering phase,
@@ -94,7 +93,7 @@ exports['default'] = function (React) {
           nexus.should.be.an.Object;
           __NODE__.should.be['true'];
           _.each(nexus, function (flux) {
-            return flux.should.be.an.instanceOf(_Flux2['default'].Client);
+            return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
           });
         }
         return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
@@ -119,7 +118,7 @@ exports['default'] = function (React) {
           nexus.should.be.an.Object;
           __NODE__.should.be['true'];
           _.each(nexus, function (flux) {
-            return flux.should.be.an.instanceOf(_Flux2['default'].Client);
+            return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
           });
         }
         return Nexus._prefetchApp(rootElement, nexus).then(function (data) {
@@ -147,7 +146,7 @@ exports['default'] = function (React) {
         domNode.should.be.an.Object;
         __BROWSER__.should.be['true'];
         _.each(nexus, function (flux) {
-          return flux.should.be.an.instanceOf(_Flux2['default'].Client);
+          return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
         });
         (Nexus.currentNexus === null).should.be['true'];
       }

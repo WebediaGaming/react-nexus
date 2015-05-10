@@ -1,4 +1,4 @@
-import createEnhance from './Enhance';
+import createEnhance from './createEnhance';
 import Flux from 'nexus-flux';
 const { Remutable, Lifespan } = Flux;
 
@@ -24,7 +24,8 @@ export default (React) => {
     if(__DEV__) {
       acc.should.be.an.Array;
     }
-    if(!React.isValidElement(element)) { // only pass through valid elements
+    // only pass through valid elements
+    if(!React.isValidElement(element)) {
       return acc;
     }
     acc.push(element);
@@ -41,8 +42,7 @@ export default (React) => {
     Lifespan,
     React,
     Remutable,
-
-    Enhance: null, // reference to the Nexus React mixin
+    Enhance: null,
 
     // A global reference to the current nexus context, mapping keys to Flux client objects
     // It is set temporarly in the server during the prefetching/prerendering phase,
