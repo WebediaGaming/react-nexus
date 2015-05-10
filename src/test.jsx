@@ -26,7 +26,8 @@ Nexus.prerenderAppToStaticMarkup(<App />, nexus)
   console.log(html, data);
   html.should.be.exactly('<div class="App">' +
     '<p>My route is /home and foo is <span>happy</span>.</p>' +
-    '<p>The clicks counter is 0. <button>increase counter</button></p></div>');
+    '<p>The clicks counter is 0. <button>increase counter</button>' +
+  '</p></div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       '/route': { path: '/home' },

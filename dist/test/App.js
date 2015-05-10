@@ -1,18 +1,28 @@
 'use strict';
 
-var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _React = require('react');
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _React2 = _interopRequireDefault(_React);
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { desc = parent = getter = undefined; _again = false; var object = _x,
+    property = _x2,
+    receiver = _x3; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-var _Nexus = require('../');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _Nexus2 = _interopRequireDefault(_Nexus);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var _2 = require('../');
+
+var _3 = _interopRequireDefault(_2);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _Nested = require('./Nested');
 
@@ -30,57 +40,76 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = _React2['default'].createClass({
-  displayName: 'App',
+exports['default'] = _3['default'].Enhance((function (_React$Component) {
+  var _class = function (props) {
+    _classCallCheck(this, _class);
 
-  mixins: [_Nexus2['default'].Mixin],
+    _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, props);
+    this.state = { foo: '/bar', clicks: 0 };
+  };
 
-  getNexusBindings: function getNexusBindings() {
-    return {
-      route: [this.getNexus().local, '/route'],
-      notFound: [this.getNexus().local, '/notFound'] };
-  },
+  _inherits(_class, _React$Component);
 
-  getInitialState: function getInitialState() {
-    return {
-      foo: '/bar',
-      clicks: 0 };
-  },
+  _createClass(_class, [{
+    key: 'getNexusBindings',
+    value: function getNexusBindings() {
+      return {
+        route: ['local', '/route'] };
+    }
+  }, {
+    key: 'click',
+    value: function click() {
+      this.setState({ clicks: this.state.clicks + 1 });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
 
-  click: function click() {
-    this.setState({ clicks: this.state.clicks + 1 });
-  },
+      var _state = this.state;
+      var foo = _state.foo;
+      var clicks = _state.clicks;
+      var route = this.props.route;
 
-  render: function render() {
-    var _state = this.state;
-    var route = _state.route;
-    var foo = _state.foo;
-    var clicks = _state.clicks;
-
-    return _React2['default'].createElement(
-      'div',
-      { className: 'App' },
-      _React2['default'].createElement(
-        'p',
-        null,
-        'My route is ',
-        route ? route.get('path') : null,
-        ' and foo is ',
-        _React2['default'].createElement(_Nested2['default'], { foo: foo }),
-        '.'
-      ),
-      _React2['default'].createElement(
-        'p',
-        null,
-        'The clicks counter is ',
-        clicks,
-        '. ',
-        _React2['default'].createElement(
-          'button',
-          { onClick: this.click },
-          'increase counter'
+      return _react2['default'].createElement(
+        'div',
+        { className: 'App' },
+        _react2['default'].createElement(
+          'p',
+          null,
+          'My route is ',
+          route ? route.get('path') : null,
+          ' and foo is ',
+          _react2['default'].createElement(_Nested2['default'], { foo: foo }),
+          '.'
+        ),
+        _react2['default'].createElement(
+          'p',
+          null,
+          'The clicks counter is ',
+          clicks,
+          '. ',
+          _react2['default'].createElement(
+            'button',
+            { onClick: function () {
+                return _this2.click();
+              } },
+            'increase counter'
+          )
         )
-      )
-    );
-  } });
+      );
+    }
+  }], [{
+    key: 'displayName',
+    value: 'App',
+    enumerable: true
+  }, {
+    key: 'propTypes',
+    value: {
+      route: _react2['default'].PropTypes.any },
+    enumerable: true
+  }]);
+
+  return _class;
+})(_react2['default'].Component));
 module.exports = exports['default'];
