@@ -66,7 +66,7 @@
 
     /* Best Practices */
     "block-scoped-var": 1,
-    "complexity": [1, 5],
+    "complexity": 0,
     "consistent-return": 1,
     "curly": [1, "all"],
     "default-case": 0,
