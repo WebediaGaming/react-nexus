@@ -166,7 +166,7 @@
     "no-spaced-func": 1,
     "no-ternary": 0,
     "no-trailing-spaces": 1,
-    "no-underscore-dangle": 1,
+    "no-underscore-dangle": 0,
     "no-unneeded-ternary": 1,
     "no-wrap-func": 1,
     "one-var": [1, "never"],
