@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "babel": "^5.4.5",
+    "babel-runtime": "^5.4.7",
     "bluebird": "^2.9.25",
     "lodash": "^3.9.1",
     "should": "^6.0.3"
