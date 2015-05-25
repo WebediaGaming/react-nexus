@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/elierotenberg/es6-starterkit",
   "devDependencies": {
-    "babel-eslint": "^3.1.6",
+    "babel-eslint": "^3.1.9",
     "del": "^1.2.0",
     "eslint-plugin-react": "^2.3.0",
     "gulp": "^3.8.11",
@@ -29,9 +29,9 @@
     "gulp-util": "^3.0.4"
   },
   "dependencies": {
-    "babel": "^5.4.5",
-    "bluebird": "^2.9.25",
-    "lodash": "^3.9.1",
+    "babel": "^5.4.7",
+    "bluebird": "^2.9.26",
+    "lodash": "^3.9.2",
     "should": "^6.0.3"
   }
 }
