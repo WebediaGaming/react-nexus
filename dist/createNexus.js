@@ -1,10 +1,12 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+var _Object$defineProperty = require('babel-runtime/core-js/object/define-property')['default'];
+
+var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
+
+_Object$defineProperty(exports, '__esModule', {
   value: true
 });
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _createEnhance = require('./createEnhance');
 
@@ -14,7 +16,6 @@ var _nexusFlux = require('nexus-flux');
 
 var _nexusFlux2 = _interopRequireDefault(_nexusFlux);
 
-require('babel/polyfill');
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -237,7 +238,7 @@ exports['default'] = function (React) {
       });
     } };
 
-  Nexus.Enhance = _createEnhance2['default'](React, Nexus);
+  Nexus.Enhance = (0, _createEnhance2['default'])(React, Nexus);
 
   return Nexus;
 };
