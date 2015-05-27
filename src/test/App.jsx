@@ -27,9 +27,11 @@ export default Nexus.Enhance(class extends React.Component {
   render() {
     const { foo, clicks } = this.state;
     const { route } = this.props;
-    return <div className='App'>
-      <p>My route is { route ? route.get('path') : null} and foo is <Nested foo={ foo } />.</p>
-      <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
-    </div>;
+    return (
+      <div className='App'>
+        <p>My route is { route ? route.get('path') : null} and foo is <Nested foo={ foo } />.</p>
+        <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
+      </div>
+    );
   }
 });
