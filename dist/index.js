@@ -1,20 +1,27 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+var _Object$defineProperty = require('babel-runtime/core-js/object/define-property')['default'];
+
+var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
+
+var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
+
+_Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _Nexus = require('./Nexus');
 
-var _createNexus = require('./createNexus');
+var _Nexus2 = _interopRequireDefault(_Nexus);
 
-var _createNexus2 = _interopRequireDefault(_createNexus);
+var _bind = require('./bind');
 
-var _react = require('react');
+var _bind2 = _interopRequireDefault(_bind);
 
-var _react2 = _interopRequireDefault(_react);
+var _Injector = require('./Injector');
 
-require('babel/polyfill');
+var _Injector2 = _interopRequireDefault(_Injector);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -27,6 +34,7 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 
-var Nexus = _createNexus2['default'](_react2['default']);
-exports['default'] = Nexus;
+_Object$assign(_Nexus2['default'], { bind: _bind2['default'], Injector: _Injector2['default'] });
+
+exports['default'] = _Nexus2['default'];
 module.exports = exports['default'];

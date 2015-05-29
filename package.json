@@ -33,6 +33,8 @@
     "babel-runtime": "^5.4.7",
     "bluebird": "^2.9.26",
     "lodash": "^3.9.2",
+    "nexus-flux": "^3.3.0",
+    "react": "^0.13.3",
     "should": "^6.0.3"
   }
 }

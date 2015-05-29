@@ -14,13 +14,13 @@ _Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _2 = require('../');
-
-var _3 = _interopRequireDefault(_2);
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _bind = require('./bind');
+
+var _bind2 = _interopRequireDefault(_bind);
 
 var _ = require('lodash');
 var should = require('should');
@@ -33,50 +33,31 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = _3['default'].bind((function (_React$Component) {
-  var _class = function () {
-    _classCallCheck(this, _class);
+exports['default'] = (0, _bind2['default'])((function (_React$Component) {
+  function Injector() {
+    _classCallCheck(this, Injector);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
     }
-  };
+  }
 
-  _inherits(_class, _React$Component);
+  _inherits(Injector, _React$Component);
 
-  _createClass(_class, [{
-    key: 'getNexusBindings',
-    value: function getNexusBindings(_ref) {
-      var foo = _ref.foo;
-
-      return {
-        bar: ['local', foo] };
-    }
-  }, {
+  _createClass(Injector, [{
     key: 'render',
     value: function render() {
-      var bar = this.props.bar;
-
-      return _react2['default'].createElement(
-        'span',
-        null,
-        bar ? bar.get('mood') : null
-      );
+      return _react2['default'].cloneElement(this.props.children, _.omit(this.props, 'children'));
     }
   }], [{
-    key: 'displayName',
-    value: 'Nested',
-    enumerable: true
-  }, {
     key: 'propTypes',
     value: {
-      bar: _react2['default'].PropTypes.any },
+      children: _react2['default'].PropTypes.element.isRequired },
     enumerable: true
   }]);
 
-  return _class;
-})(_react2['default'].Component), function (_ref2) {
-  var foo = _ref2.foo;
-  return { bar: ['local', foo] };
+  return Injector;
+})(_react2['default'].Component), function (props) {
+  return _.omit(props, 'children');
 });
 module.exports = exports['default'];

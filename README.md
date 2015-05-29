@@ -21,7 +21,7 @@ Here's how you would do it using React Nexus:
 
 - Instanciate a [Nexus Flux](https://github.com/elierotenberg/nexus-flux) which abstracts your asynchronous data backend
 
-- Define a component using `Nexus.Mixin` which declares its dependencies in `getNexusBindings`: it will be invoked to perform one-way binding from Nexus Flux stores (which can be remote stores) to the components state.
+- Define a component class enhanced with `Nexus.bind`, which declares its dependencies in `getNexusBindings`. The bindings will be automatically resolved and kept up to date, and injected back in the props of the component.
 
 - Render the app on the server using `Nexus.prerenderApp`
 
@@ -31,32 +31,34 @@ Here's how you would do it using React Nexus:
 Example (using LocalFlux as a placeholder, but you can use SocketIOFlux to use remote stores):
 
 ```js
-const div = React.createFactory('div');
-
-const AppRootClass = React.createClass({
-  mixins: [Nexus.Mixin],
-
+const App = Nexus.bind(class extends React.Component {
   getNexusBindings(props) {
     return {
-      route: [this.getNexus().local, '/route'],
+      route: ['local', '/route', Immutable.Map({ path: 'unknown' })],
     };
-  },
+  }
 
   render() {
-    return div(null, 'My route is ', this.state ? this.state.route.get('path') : null);
-  },
-});
+    return <div>`My route is ${this.props.route.get('path')}`</div>;
+  }
+})
 
-const AppRoot = React.createFactory(AppRootClass);
+// alternate syntax
+const App = Nexus.bind(class extends React.Component {
+  render() {
+    return <div>`My route is ${this.props.route.get('path')}`</div>;
+  }
+}, (props) => ({ route: ['local', '/route', Immutable.Map({ path: 'unknown' })]}));
 
 const localFluxServer = new LocalFlux.Server();
 const localFluxClient = new LocalFlux.Client(localFluxServer);
 
 localFluxServer.Store('/route', localFluxServer.lifespan).set('path', '/home').commit();
 
+// A nexus object is just a map of Nexus Flux clients
 const nexus = { local: localFluxClient };
 
-Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
+Nexus.prerenderAppToStaticMarkup(<App />, nexus)
 .then(([html, data]) => {
   html.should.be.exactly('<div>My route is /home</div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
@@ -65,4 +67,39 @@ Nexus.prerenderAppToStaticMarkup(AppRoot(), nexus)
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();
 });
+```
+
+#### Full API documentation
+
+`Nexus.prerenderApp(element: React.Element, nexus: Object): Promise`
+
+Asynchronously pre-renders the given React Element. Returns a `Promise` for an 2-element array `[html, data]` containing the generated HTML and the prefetched data in POJO form.
+Analogous to `React.renderToString`.
+
+`Nexus.prerenderAppToStaticMarkup(element: React.Element, nexus: Object)`
+
+Similar to `Nexus.prerenderApp`, but strips out React-specific markup. Analogous to `React.renderToStaticMarkup`.
+
+`Nexus.mountApp(element: React.Element, nexus: Object, data: Object, domNode: DOMNode)`
+
+Synchronously mounts the given React Element, and starts the asynchronous prefetching/reconciling of each bindings in the hierarchy.
+Analogous to `React.render`.
+
+`Nexus.bind(Component: React.Component, [getNexusBindings(props: Object): Object], [displayName: String])`
+
+Enhances the given React Component class with Nexus bindings. The `getNexusBindings` function can be either passed as the 2nd parameter, or defined or the prototype of `Component`, whichever you find more convenient. The returned component will maintain bindings with the underlying Nexus Flux stores, ie. its props will be updated everytime the underlying Nexus Flux stores are updated.
+
+Bindings can depend on props (provided as the single argument of `getNexusBindings`). Similarly to `render`, `getNexusBindings` should be fast and without side-effects, since it will be called multiple times during the lifecycle of the component.
+
+`getNexusBindings` must return an Object mapping each `key` with a `[flux, storeName, storeKey, defaultValue = void 0]` 4-tuple. `flux` is a Nexus Flux instance, `storeName` is the name of the bound store, and `storeKey` is the key of the value to be bound. `defaultValue` is an optional default value, which will be passed as props for this key until the store is actually fetched (useful for distinguishing stores containing `void 0` with unresolved bindings).
+
+`Nexus.Injector: React.Component`
+
+Special React component which performs data-binding for you. Its props are interpreted as regular Nexus bindings and transfered as props to its child.
+
+Example:
+```js
+<Injector {route=['local', '/route']}>
+  <MyComponent /> // MyComponent expects a 'route' prop
+</Injector>
 ```

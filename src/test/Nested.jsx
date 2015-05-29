@@ -1,7 +1,7 @@
 import Nexus from '../';
 import React from 'react';
 
-export default Nexus.Enhance(class extends React.Component {
+export default Nexus.bind(class extends React.Component {
   static displayName = 'Nested';
 
   static propTypes = {
@@ -18,4 +18,4 @@ export default Nexus.Enhance(class extends React.Component {
     const { bar } = this.props;
     return <span>{bar ? bar.get('mood') : null}</span>;
   }
-});
+}, ({ foo }) => ({ bar: ['local', foo] }));

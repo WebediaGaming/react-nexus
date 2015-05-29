@@ -2,8 +2,7 @@ import Nexus from '../';
 import React from 'react';
 import Nested from './Nested';
 
-export default Nexus.Enhance(class extends React.Component {
-  static displayName = 'App';
+export default Nexus.bind(class App extends React.Component {
 
   static propTypes = {
     route: React.PropTypes.any,
@@ -27,9 +26,9 @@ export default Nexus.Enhance(class extends React.Component {
   render() {
     const { foo, clicks } = this.state;
     const { route } = this.props;
-    return <div className='App'>
+    return (<div className='App'>
       <p>My route is { route ? route.get('path') : null} and foo is <Nested foo={ foo } />.</p>
       <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
-    </div>;
+    </div>);
   }
 });

@@ -1,4 +1,7 @@
-import createNexus from './createNexus';
-import React from 'react';
-const Nexus = createNexus(React);
+import Nexus from './Nexus';
+import bind from './bind';
+import Injector from './Injector';
+
+Object.assign(Nexus, { bind, Injector });
+
 export default Nexus;

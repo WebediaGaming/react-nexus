@@ -1,30 +1,25 @@
-import { Lifespan } from 'nexus-flux';
+import React from 'react';
+import Nexus from './Nexus';
+const { Lifespan, checkBindings, STATUS } = Nexus;
 
-function checkBindings(bindings) {
+function bind(
+    Component,
+    getNexusBindings = Component.prototype.getNexusBindings,
+    displayName = `Nexus${Component.displayName}`
+  ) {
   if(__DEV__) {
-    bindings.should.be.an.Object;
-    _.each(bindings, ([flux, path, /* defaultValue */]) => {
-      flux.should.be.a.String;
-      path.should.be.a.String;
-    });
+    Component.should.be.a.Function;
+    getNexusBindings.should.be.a.Function;
+    displayName.should.be.a.String;
   }
-}
+  return class extends React.Component {
+    static displayName = displayName;
 
-const STATUS = {
-  PREFETCH: 'PREFETCH',
-  INJECT: 'INJECT',
-  PENDING: 'PENDING',
-  LIVE: 'LIVE',
-};
-
-export default (React, Nexus) => (Component, getNexusBindings = Component.prototype.getNexusBindings) =>
-  class extends React.Component {
-    static displayName = `Nexus${Component.displayName}`;
+    _nexusBindings = null;
+    _nexusBindingsLifespans = null;
+    state = null;
 
     constructor(props) {
-      if(__DEV__) {
-        getNexusBindings.should.be.a.Function;
-      }
       super(props);
       this._nexusBindings = {};
       this._nexusBindingsLifespans = {};
@@ -146,22 +141,24 @@ export default (React, Nexus) => (Component, getNexusBindings = Component.protot
       const nexusContext = { nexus: this.getNexus() };
       const dataMap = this.getDataMap();
       const { props } = this;
-      const merges = { nexusContext, props, dataMap };
-      const childProps = Object.assign({}, ..._.values(merges));
-      if(__DEV__) {
-        _.each(merges, (mergeA, indexA) =>
-          _.each(merges, (mergeB, indexB) => {
-            if(mergeA !== mergeB && _.intersection(_.keys(mergeA), _.keys(mergeB)).length !== 0) {
-              console.warn('react-nexus:',
-                this.constructor.displayName,
-                'has conflicting keys:',
-                { [indexA]: mergeA, [indexB]: mergeB }
-              );
-            }
-          })
-        );
-      }
+      const childProps = Object.assign({}, nexusContext, props, dataMap);
+      // if(__DEV__) {
+      //   _.each(merges, (mergeA, indexA) =>
+      //     _.each(merges, (mergeB, indexB) => {
+      //       if(mergeA !== mergeB && _.intersection(_.keys(mergeA), _.keys(mergeB)).length !== 0) {
+      //         console.warn('react-nexus:',
+      //           this.constructor.displayName,
+      //           'has conflicting keys:',
+      //           { [indexA]: mergeA, [indexB]: mergeB }
+      //         );
+      //       }
+      //     })
+      //   );
+      // }
       // Key conflicts priority: { nexus } > this.props > this.getDataMap()
       return <Component {...childProps} />;
     }
   };
+}
+
+export default bind;
