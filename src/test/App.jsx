@@ -1,6 +1,8 @@
 import Nexus from '../';
 import React from 'react';
 import Nested from './Nested';
+import Etc from './Etc';
+const { Injector } = Nexus;
 
 export default Nexus.bind(class App extends React.Component {
 
@@ -29,6 +31,9 @@ export default Nexus.bind(class App extends React.Component {
     return (<div className='App'>
       <p>My route is { route ? route.get('path') : null} and foo is <Nested foo={ foo } />.</p>
       <p>The clicks counter is { clicks }. <button onClick={ () => this.click() }>increase counter</button></p>
+      <Injector etc={['local', '/etc', {}]}>
+        {({ etc }) => <Etc etc={etc} />}
+      </Injector>
     </div>);
   }
 });

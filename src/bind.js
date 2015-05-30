@@ -1,5 +1,6 @@
 import React from 'react';
 import Nexus from './Nexus';
+import Immutable from 'immutable';
 const { Lifespan, checkBindings, STATUS } = Nexus;
 
 function bind(
@@ -32,7 +33,7 @@ function bind(
         if(this.getFlux(flux).isInjecting) {
           return [STATUS.INJECT, this.getFlux(flux).getInjected(path)];
         }
-        return [STATUS.PENDING, defaultValue];
+        return [STATUS.PENDING, Immutable.Map(defaultValue)];
       });
     }
 
@@ -89,7 +90,7 @@ function bind(
           this.getFlux(flux).getStore(path, lifespan)
           .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
           .onDelete(() => this.setState({ [stateKey]: void 0 }));
-          this.setState({ [stateKey]: [STATUS.PENDING, defaultValue] });
+          this.setState({ [stateKey]: [STATUS.PENDING, Immutable.Map(defaultValue)] });
         };
         const removePrevBinding = () => {
           this.setState({ [stateKey]: void 0 });

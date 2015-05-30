@@ -11,6 +11,9 @@ const stores = {
   '/bar': new Remutable({
     mood: 'happy',
   }),
+  '/etc': new Remutable({
+    foo: 'bar',
+  }),
   '/dev/null': new Remutable({
     'void': null,
   }),
@@ -26,12 +29,14 @@ Nexus.prerenderAppToStaticMarkup(<App />, nexus)
   console.log(html, data);
   html.should.be.exactly('<div class="App">' +
     '<p>My route is /home and foo is <span>happy</span>.</p>' +
-    '<p>The clicks counter is 0. <button>increase counter</button>' +
-  '</p></div>');
+    '<p>The clicks counter is 0. <button>increase counter</button></p>' +
+    '<div class="Etc">etc = foo: bar</div>' +
+  '</div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       '/route': { path: '/home' },
       '/bar': { mood: 'happy' },
+      '/etc': { foo: 'bar' },
       '/notFound': void 0,
     },
   }));

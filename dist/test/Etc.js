@@ -18,9 +18,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _bind = require('./bind');
+var _2 = require('../');
 
-var _bind2 = _interopRequireDefault(_bind);
+var _3 = _interopRequireDefault(_2);
 
 var _ = require('lodash');
 var should = require('should');
@@ -33,31 +33,41 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = (0, _bind2['default'])((function (_React$Component) {
-  function Injector() {
-    _classCallCheck(this, Injector);
+
+var _default = (function (_React$Component) {
+  var _class = function _default() {
+    _classCallCheck(this, _class);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
     }
-  }
+  };
 
-  _inherits(Injector, _React$Component);
+  _inherits(_class, _React$Component);
 
-  _createClass(Injector, [{
+  _createClass(_class, [{
     key: 'render',
     value: function render() {
-      return _react2['default'].cloneElement(this.props.children(_.omit(this.props, 'children')));
+      return _react2['default'].createElement(
+        'div',
+        { className: 'Etc' },
+        'etc = foo: ',
+        this.props.etc.get('foo')
+      );
     }
   }], [{
+    key: 'displayName',
+    value: 'Etc',
+    enumerable: true
+  }, {
     key: 'propTypes',
     value: {
-      children: _react2['default'].PropTypes.func.isRequired },
+      etc: _3['default'].PropTypes.Immutable.Map },
     enumerable: true
   }]);
 
-  return Injector;
-})(_react2['default'].Component), function (props) {
-  return _.omit(props, 'children');
-});
+  return _class;
+})(_react2['default'].Component);
+
+exports['default'] = _default;
 module.exports = exports['default'];

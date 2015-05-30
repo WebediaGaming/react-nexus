@@ -39,6 +39,8 @@ var stores = {
     path: '/home' }),
   '/bar': new _nexusFlux.Remutable({
     mood: 'happy' }),
+  '/etc': new _nexusFlux.Remutable({
+    foo: 'bar' }),
   '/dev/null': new _nexusFlux.Remutable({
     'void': null }) };
 
@@ -54,11 +56,12 @@ _3['default'].prerenderAppToStaticMarkup(_react2['default'].createElement(_testA
   var data = _ref2[1];
 
   console.log(html, data);
-  html.should.be.exactly('<div class="App">' + '<p>My route is /home and foo is <span>happy</span>.</p>' + '<p>The clicks counter is 0. <button>increase counter</button>' + '</p></div>');
+  html.should.be.exactly('<div class="App">' + '<p>My route is /home and foo is <span>happy</span>.</p>' + '<p>The clicks counter is 0. <button>increase counter</button></p>' + '<div class="Etc">etc = foo: bar</div>' + '</div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       '/route': { path: '/home' },
       '/bar': { mood: 'happy' },
+      '/etc': { foo: 'bar' },
       '/notFound': void 0 } }));
   localFluxServer.lifespan.release();
   localFluxClient.lifespan.release();

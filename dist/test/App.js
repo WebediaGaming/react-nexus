@@ -28,6 +28,10 @@ var _Nested = require('./Nested');
 
 var _Nested2 = _interopRequireDefault(_Nested);
 
+var _Etc = require('./Etc');
+
+var _Etc2 = _interopRequireDefault(_Etc);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -39,6 +43,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
+var Injector = _3['default'].Injector;
 exports['default'] = _3['default'].bind((function (_React$Component) {
   function App(props) {
     _classCallCheck(this, App);
@@ -95,6 +100,14 @@ exports['default'] = _3['default'].bind((function (_React$Component) {
               } },
             'increase counter'
           )
+        ),
+        _react2['default'].createElement(
+          Injector,
+          { etc: ['local', '/etc', {}] },
+          function (_ref) {
+            var etc = _ref.etc;
+            return _react2['default'].createElement(_Etc2['default'], { etc: etc });
+          }
         )
       );
     }

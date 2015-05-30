@@ -30,6 +30,10 @@ var _Nexus = require('./Nexus');
 
 var _Nexus2 = _interopRequireDefault(_Nexus);
 
+var _immutable = require('immutable');
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -81,7 +85,7 @@ function bind(Component) {
           if (_this.getFlux(flux).isInjecting) {
             return [STATUS.INJECT, _this.getFlux(flux).getInjected(path)];
           }
-          return [STATUS.PENDING, defaultValue];
+          return [STATUS.PENDING, _immutable2['default'].Map(defaultValue)];
         });
       };
 
@@ -166,7 +170,7 @@ function bind(Component) {
               }).onDelete(function () {
                 return _this2.setState(_defineProperty({}, stateKey, void 0));
               });
-              _this2.setState(_defineProperty({}, stateKey, [STATUS.PENDING, defaultValue]));
+              _this2.setState(_defineProperty({}, stateKey, [STATUS.PENDING, _immutable2['default'].Map(defaultValue)]));
             };
             var removePrevBinding = function removePrevBinding() {
               _this2.setState(_defineProperty({}, stateKey, void 0));

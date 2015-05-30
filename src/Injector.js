@@ -3,10 +3,10 @@ import bind from './bind';
 
 export default bind(class Injector extends React.Component {
   static propTypes = {
-    children: React.PropTypes.element.isRequired,
+    children: React.PropTypes.func.isRequired,
   }
 
   render() {
-    return React.cloneElement(this.props.children, _.omit(this.props, 'children'));
+    return React.cloneElement(this.props.children(_.omit(this.props, 'children')));
   }
 }, (props) => _.omit(props, 'children'));

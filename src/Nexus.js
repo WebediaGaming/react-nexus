@@ -1,4 +1,5 @@
 import Flux from 'nexus-flux';
+import Immutable from 'immutable';
 import React from 'react';
 const { Remutable, Lifespan } = Flux;
 
@@ -202,6 +203,12 @@ Object.assign(Nexus, {
     }
     return bindings;
   },
+
+  PropTypes: Object.assign({}, React.PropTypes, {
+    Immutable: {
+      Map: (props, propName) => Immutable.Map.isMap(props[propName]) ? null : new Error(`Expecting an Immutable.Map`),
+    },
+  }),
 
   STATUS: {
     PREFETCH: 'PREFETCH',

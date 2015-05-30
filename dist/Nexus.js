@@ -16,6 +16,10 @@ var _nexusFlux = require('nexus-flux');
 
 var _nexusFlux2 = _interopRequireDefault(_nexusFlux);
 
+var _immutable = require('immutable');
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -263,6 +267,12 @@ _Object$assign(Nexus, {
     }
     return bindings;
   },
+
+  PropTypes: _Object$assign({}, _react2['default'].PropTypes, {
+    Immutable: {
+      Map: function Map(props, propName) {
+        return _immutable2['default'].Map.isMap(props[propName]) ? null : new Error('Expecting an Immutable.Map');
+      } } }),
 
   STATUS: {
     PREFETCH: 'PREFETCH',

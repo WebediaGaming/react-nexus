@@ -91,15 +91,28 @@ Enhances the given React Component class with Nexus bindings. The `getNexusBindi
 
 Bindings can depend on props (provided as the single argument of `getNexusBindings`). Similarly to `render`, `getNexusBindings` should be fast and without side-effects, since it will be called multiple times during the lifecycle of the component.
 
-`getNexusBindings` must return an Object mapping each `key` with a `[flux, storeName, storeKey, defaultValue = void 0]` 4-tuple. `flux` is a Nexus Flux instance, `storeName` is the name of the bound store, and `storeKey` is the key of the value to be bound. `defaultValue` is an optional default value, which will be passed as props for this key until the store is actually fetched (useful for distinguishing stores containing `void 0` with unresolved bindings).
+`getNexusBindings` must return an Object mapping each `key` with a `[flux, storeName, storeKey, defaultValue = void 0]` 4-tuple. `flux` is a Nexus Flux instance, `storeName` is the name of the bound store, and `storeKey` is the key of the value to be bound. `defaultValue` is an optional default value, which will be passed as props for this key until the store is actually fetched (useful for distinguishing stores containing `void 0` with unresolved bindings). `defaultValue` is automatically wrapped with `Immutable.Map` so you can pass POJOs as default values;
 
 `Nexus.Injector: React.Component`
 
-Special React component which performs data-binding for you. Its props are interpreted as regular Nexus bindings and transfered as props to its child.
+Special React component which performs data-binding for you. Its props are interpreted as bindings, and passed to its child function. See the example below.
 
 Example:
 ```js
 <Injector {route=['local', '/route']}>
-  <MyComponent /> // MyComponent expects a 'route' prop
+  {({ route }) => <MyComponent route={route} />}
 </Injector>
+```
+
+You can't pass <MyComponent> directly because the evaluation of React Elements are not lazy in React.
+
+`Nexus.PropTypes.Immutable.Map`
+
+Convenient `PropTypes` validator for `Immutable.Map` (delegating to `Immutable.Map.isMap`), to typecheck the results of bindings.
+
+Example:
+```js
+static propTypes = {
+  route: Nexus.PropTypes.Immutable.Map,
+}
 ```
