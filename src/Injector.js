@@ -7,6 +7,6 @@ export default bind(class Injector extends React.Component {
   }
 
   render() {
-    return React.cloneElement(this.props.children(_.omit(this.props, 'children')));
+    return this.props.children(_.omit(this.props, 'children'));
   }
 }, (props) => _.omit(props, 'children'));

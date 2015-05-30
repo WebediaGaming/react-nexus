@@ -47,7 +47,7 @@ exports['default'] = (0, _bind2['default'])((function (_React$Component) {
   _createClass(Injector, [{
     key: 'render',
     value: function render() {
-      return _react2['default'].cloneElement(this.props.children(_.omit(this.props, 'children')));
+      return this.props.children(_.omit(this.props, 'children'));
     }
   }], [{
     key: 'propTypes',
