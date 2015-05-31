@@ -259,6 +259,10 @@ function bind(Component) {
         key: 'displayName',
         value: displayName,
         enumerable: true
+      }, {
+        key: 'isReactNexusComponent',
+        value: true,
+        enumerable: true
       }]);
 
       return _class;

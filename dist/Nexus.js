@@ -51,7 +51,7 @@ function isCompositeComponentElement(element) {
 }
 
 function isReactNexusComponent(instance) {
-  return _.isObject(instance) && _.isObject(instance.prototype) && _.isFunction(instance.prototype.waitForPrefetching);
+  return _.isObject(instance) && _.isObject(instance.constructor) && _.isFunction(instance.constructor.isReactNexusComponent);
 }
 
 // flatten the descendants of a given element into an array
