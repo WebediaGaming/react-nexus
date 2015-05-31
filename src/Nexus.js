@@ -14,10 +14,8 @@ function isCompositeComponentElement(element) {
   return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
 }
 
-function isReactNexusComponent(instance) {
-  return _.isObject(instance) &&
-    _.isObject(instance.constructor) &&
-    _.isFunction(instance.constructor.isReactNexusComponent);
+function isReactNexusComponentInstance(instance) {
+  return _.isObject(instance) && instance.isReactNexusComponentInstance;
 }
 
 // flatten the descendants of a given element into an array
@@ -59,7 +57,7 @@ function getPrefetchedReactComponent(element, nexus) {
   return withNexus(nexus, () => {
     // subject to change in upcoming versions of React
     instance = new element.type(element._store ? element._store.props : element.props);
-    if(!isReactNexusComponent(instance)) {
+    if(!isReactNexusComponentInstance(instance)) {
       return Promise.resolve(instance);
     }
     return instance.waitForPrefetching();

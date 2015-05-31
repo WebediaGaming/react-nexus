@@ -65,6 +65,7 @@ function bind(Component) {
         _classCallCheck(this, _class);
 
         _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, props);
+        this.isReactNexusComponent = true;
         this._nexusBindings = null;
         this._nexusBindingsLifespans = null;
         this.state = null;
@@ -258,10 +259,6 @@ function bind(Component) {
       }], [{
         key: 'displayName',
         value: displayName,
-        enumerable: true
-      }, {
-        key: 'isReactNexusComponent',
-        value: true,
         enumerable: true
       }]);
 
