@@ -71,8 +71,8 @@ function bind(
     }
 
     waitForPrefetching() {
-      return Promise.all(_.map(this.state, ([status, value]) =>
-        status === STATUS.PREFETCH ? value.promise : Promise.resolve()
+      return Promise.all(_.map(this.state, ([status, promise]) =>
+        status === STATUS.PREFETCH ? promise : Promise.resolve()
       ));
     }
 

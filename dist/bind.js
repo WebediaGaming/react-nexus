@@ -140,8 +140,8 @@ function bind(Component) {
             var _ref42 = _slicedToArray(_ref4, 2);
 
             var status = _ref42[0];
-            var value = _ref42[1];
-            return status === STATUS.PREFETCH ? value.promise : Promise.resolve();
+            var promise = _ref42[1];
+            return status === STATUS.PREFETCH ? promise : Promise.resolve();
           }));
         }
       }, {
