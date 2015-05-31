@@ -65,7 +65,7 @@ function bind(Component) {
         _classCallCheck(this, _class);
 
         _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, props);
-        this.isReactNexusComponent = true;
+        this.isReactNexusComponentInstance = true;
         this._nexusBindings = null;
         this._nexusBindingsLifespans = null;
         this.state = null;

@@ -15,7 +15,7 @@ function bind(
   }
   return class extends React.Component {
     static displayName = displayName;
-    isReactNexusComponent = true;
+    isReactNexusComponentInstance = true;
 
     _nexusBindings = null;
     _nexusBindingsLifespans = null;
