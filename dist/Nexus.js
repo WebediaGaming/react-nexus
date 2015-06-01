@@ -278,6 +278,7 @@ _Object$assign(Nexus, {
     PREFETCH: 'PREFETCH',
     INJECT: 'INJECT',
     PENDING: 'PENDING',
+    SYNCING: 'SYNCING',
     LIVE: 'LIVE' } });
 
 exports['default'] = Nexus;

@@ -65,7 +65,7 @@ function bind(
         if(status === STATUS.PREFETCH) {
           return value.value();
         }
-        // in all other cases (INJECT, PENDING, LIVE) then the value is unwrapped
+        // in all other cases (INJECT, PENDING, LIVE, SYNCING) then the value is unwrapped
         return value;
       });
     }
@@ -88,19 +88,18 @@ function bind(
         const addNextBinding = () => {
           const [flux, path, defaultValue] = next;
           const lifespan = nextLifespans[stateKey] = new Lifespan();
-          this.setState({
-            [stateKey]: this.getFlux(flux).getStore(path, lifespan)
-                .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
-                .onDelete(() => this.setState({ [stateKey]: void 0 }))
-              .value || defaultValue,
-          });
+          const store = this.getFlux(flux).getStore(path, lifespan)
+            .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
+            .onDelete(() => this.setState({ [stateKey]: void 0 }));
+          this.setState({ [stateKey]: [STATUS.SYNCING, store.value || Immutable.Map(defaultValue)] });
         };
         const removePrevBinding = () => {
           this.setState({ [stateKey]: void 0 });
           prevLifespans[stateKey].release();
         };
-        // binding is added
-        if(prev === void 0) {
+        const [status] = this.state[stateKey];
+        // binding is added/synced
+        if(prev === void 0 || status === STATUS.PENDING) {
           addNextBinding();
           return;
         }
@@ -146,20 +145,6 @@ function bind(
       const dataMap = this.getDataMap();
       const { props } = this;
       const childProps = Object.assign({}, nexusContext, props, dataMap);
-      // if(__DEV__) {
-      //   _.each(merges, (mergeA, indexA) =>
-      //     _.each(merges, (mergeB, indexB) => {
-      //       if(mergeA !== mergeB && _.intersection(_.keys(mergeA), _.keys(mergeB)).length !== 0) {
-      //         console.warn('react-nexus:',
-      //           this.constructor.displayName,
-      //           'has conflicting keys:',
-      //           { [indexA]: mergeA, [indexB]: mergeB }
-      //         );
-      //       }
-      //     })
-      //   );
-      // }
-      // Key conflicts priority: { nexus } > this.props > this.getDataMap()
       return <Component {...childProps} />;
     }
   };

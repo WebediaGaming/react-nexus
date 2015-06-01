@@ -129,7 +129,7 @@ function bind(Component) {
             if (status === STATUS.PREFETCH) {
               return value.value();
             }
-            // in all other cases (INJECT, PENDING, LIVE) then the value is unwrapped
+            // in all other cases (INJECT, PENDING, LIVE, SYNCING) then the value is unwrapped
             return value;
           });
         }
@@ -165,19 +165,25 @@ function bind(Component) {
               var defaultValue = _next[2];
 
               var lifespan = nextLifespans[stateKey] = new Lifespan();
-              _this2.setState(_defineProperty({}, stateKey, _this2.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref5) {
+              var store = _this2.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref5) {
                 var head = _ref5.head;
                 return _this2.setState(_defineProperty({}, stateKey, [STATUS.LIVE, head]));
               }).onDelete(function () {
                 return _this2.setState(_defineProperty({}, stateKey, void 0));
-              }).value || defaultValue));
+              });
+              _this2.setState(_defineProperty({}, stateKey, [STATUS.SYNCING, store.value || _immutable2['default'].Map(defaultValue)]));
             };
             var removePrevBinding = function removePrevBinding() {
               _this2.setState(_defineProperty({}, stateKey, void 0));
               prevLifespans[stateKey].release();
             };
-            // binding is added
-            if (prev === void 0) {
+
+            var _state$stateKey = _slicedToArray(_this2.state[stateKey], 1);
+
+            var status = _state$stateKey[0];
+
+            // binding is added/synced
+            if (prev === void 0 || status === STATUS.PENDING) {
               addNextBinding();
               return;
             }
@@ -239,20 +245,6 @@ function bind(Component) {
           var props = this.props;
 
           var childProps = _Object$assign({}, nexusContext, props, dataMap);
-          // if(__DEV__) {
-          //   _.each(merges, (mergeA, indexA) =>
-          //     _.each(merges, (mergeB, indexB) => {
-          //       if(mergeA !== mergeB && _.intersection(_.keys(mergeA), _.keys(mergeB)).length !== 0) {
-          //         console.warn('react-nexus:',
-          //           this.constructor.displayName,
-          //           'has conflicting keys:',
-          //           { [indexA]: mergeA, [indexB]: mergeB }
-          //         );
-          //       }
-          //     })
-          //   );
-          // }
-          // Key conflicts priority: { nexus } > this.props > this.getDataMap()
           return _react2['default'].createElement(Component, childProps);
         }
       }], [{
