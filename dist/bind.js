@@ -165,13 +165,12 @@ function bind(Component) {
               var defaultValue = _next[2];
 
               var lifespan = nextLifespans[stateKey] = new Lifespan();
-              _this2.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref5) {
+              _this2.setState(_defineProperty({}, stateKey, _this2.getFlux(flux).getStore(path, lifespan).onUpdate(function (_ref5) {
                 var head = _ref5.head;
                 return _this2.setState(_defineProperty({}, stateKey, [STATUS.LIVE, head]));
               }).onDelete(function () {
                 return _this2.setState(_defineProperty({}, stateKey, void 0));
-              });
-              _this2.setState(_defineProperty({}, stateKey, [STATUS.PENDING, _immutable2['default'].Map(defaultValue)]));
+              }).value || defaultValue));
             };
             var removePrevBinding = function removePrevBinding() {
               _this2.setState(_defineProperty({}, stateKey, void 0));

@@ -88,10 +88,12 @@ function bind(
         const addNextBinding = () => {
           const [flux, path, defaultValue] = next;
           const lifespan = nextLifespans[stateKey] = new Lifespan();
-          this.getFlux(flux).getStore(path, lifespan)
-          .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
-          .onDelete(() => this.setState({ [stateKey]: void 0 }));
-          this.setState({ [stateKey]: [STATUS.PENDING, Immutable.Map(defaultValue)] });
+          this.setState({
+            [stateKey]: this.getFlux(flux).getStore(path, lifespan)
+                .onUpdate(({ head }) => this.setState({ [stateKey]: [STATUS.LIVE, head] }))
+                .onDelete(() => this.setState({ [stateKey]: void 0 }))
+              .value || defaultValue,
+          });
         };
         const removePrevBinding = () => {
           this.setState({ [stateKey]: void 0 });
