@@ -2,7 +2,7 @@ import Nexus from '../';
 import React from 'react';
 
 export default Nexus.bind(class extends React.Component {
-  static displayName = 'Nested';
+  static displayName = 'NestedBind';
 
   static propTypes = {
     bar: React.PropTypes.any,
@@ -16,6 +16,6 @@ export default Nexus.bind(class extends React.Component {
 
   render() {
     const { bar } = this.props;
-    return <span>{bar ? bar.get('mood') : null}</span>;
+    return <span className='NestedBind'>{bar ? bar.get('mood') : null}</span>;
   }
 }, ({ foo }) => ({ bar: ['local', foo] }));

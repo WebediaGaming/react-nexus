@@ -24,13 +24,17 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Nested = require('./Nested');
+var _NestedBind = require('./NestedBind');
 
-var _Nested2 = _interopRequireDefault(_Nested);
+var _NestedBind2 = _interopRequireDefault(_NestedBind);
 
-var _Etc = require('./Etc');
+var _NestedInject = require('./NestedInject');
 
-var _Etc2 = _interopRequireDefault(_Etc);
+var _NestedInject2 = _interopRequireDefault(_NestedInject);
+
+var _NestedInjector = require('./NestedInjector');
+
+var _NestedInjector2 = _interopRequireDefault(_NestedInjector);
 
 var _ = require('lodash');
 var should = require('should');
@@ -84,7 +88,16 @@ exports['default'] = _3['default'].bind((function (_React$Component) {
           'My route is ',
           route ? route.get('path') : null,
           ' and foo is ',
-          _react2['default'].createElement(_Nested2['default'], { foo: foo }),
+          _react2['default'].createElement(_NestedBind2['default'], { foo: foo }),
+          '.'
+        ),
+        _react2['default'].createElement(
+          'p',
+          null,
+          'My route is ',
+          route ? route.get('path') : null,
+          ' and foo is ',
+          _react2['default'].createElement(_NestedInject2['default'], { foo: foo }),
           '.'
         ),
         _react2['default'].createElement(
@@ -106,7 +119,7 @@ exports['default'] = _3['default'].bind((function (_React$Component) {
           { etc: ['local', '/etc', {}] },
           function (_ref) {
             var etc = _ref.etc;
-            return _react2['default'].createElement(_Etc2['default'], { etc: etc });
+            return _react2['default'].createElement(_NestedInjector2['default'], { etc: etc });
           }
         )
       );

@@ -56,7 +56,7 @@ _3['default'].prerenderAppToStaticMarkup(_react2['default'].createElement(_testA
   var data = _ref2[1];
 
   console.log(html, data);
-  html.should.be.exactly('<div class="App">' + '<p>My route is /home and foo is <span>happy</span>.</p>' + '<p>The clicks counter is 0. <button>increase counter</button></p>' + '<div class="Etc">etc = foo: bar</div>' + '</div>');
+  html.should.be.exactly('<div class="App">' + '<p>My route is /home and foo is <span class="NestedBind">happy</span>.</p>' + '<p>My route is /home and foo is <span class="NestedInject">happy</span>.</p>' + '<p>The clicks counter is 0. <button>increase counter</button></p>' + '<div class="NestedInjector">etc = foo: bar</div>' + '</div>');
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
       '/route': { path: '/home' },

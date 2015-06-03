@@ -33,9 +33,10 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = _3['default'].bind((function (_React$Component) {
-  var _class = function () {
-    _classCallCheck(this, _class);
+
+var _default = (function (_React$Component) {
+  var _class = function _default() {
+    _classCallCheck(this, _class2);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
@@ -44,28 +45,22 @@ exports['default'] = _3['default'].bind((function (_React$Component) {
 
   _inherits(_class, _React$Component);
 
-  _createClass(_class, [{
-    key: 'getNexusBindings',
-    value: function getNexusBindings(_ref) {
-      var foo = _ref.foo;
+  var _class2 = _class;
 
-      return {
-        bar: ['local', foo] };
-    }
-  }, {
+  _createClass(_class2, [{
     key: 'render',
     value: function render() {
       var bar = this.props.bar;
 
       return _react2['default'].createElement(
         'span',
-        null,
+        { className: 'NestedInject' },
         bar ? bar.get('mood') : null
       );
     }
   }], [{
     key: 'displayName',
-    value: 'Nested',
+    value: 'NestedInject',
     enumerable: true
   }, {
     key: 'propTypes',
@@ -74,9 +69,13 @@ exports['default'] = _3['default'].bind((function (_React$Component) {
     enumerable: true
   }]);
 
+  _class = _3['default'].inject(function (_ref) {
+    var foo = _ref.foo;
+    return {
+      bar: ['local', foo] };
+  })(_class) || _class;
   return _class;
-})(_react2['default'].Component), function (_ref2) {
-  var foo = _ref2.foo;
-  return { bar: ['local', foo] };
-});
+})(_react2['default'].Component);
+
+exports['default'] = _default;
 module.exports = exports['default'];

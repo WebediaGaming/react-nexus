@@ -124,6 +124,9 @@ Object.assign(Nexus, {
   // Enhance a component (placeholder slot)
   // @see bind.js
   bind: null,
+  // Component enhance decorator (placeholder slot)
+  // @see inject.js
+  inject: null,
   // Generic Injector component (placeholder slot)
   // @see Injector.js
   Injector: null,

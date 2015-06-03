@@ -14,13 +14,13 @@ _Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
 var _2 = require('../');
 
 var _3 = _interopRequireDefault(_2);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _ = require('lodash');
 var should = require('should');
@@ -33,9 +33,8 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-
-var _default = (function (_React$Component) {
-  var _class = function _default() {
+exports['default'] = _3['default'].bind((function (_React$Component) {
+  var _class = function () {
     _classCallCheck(this, _class);
 
     if (_React$Component != null) {
@@ -46,28 +45,38 @@ var _default = (function (_React$Component) {
   _inherits(_class, _React$Component);
 
   _createClass(_class, [{
+    key: 'getNexusBindings',
+    value: function getNexusBindings(_ref) {
+      var foo = _ref.foo;
+
+      return {
+        bar: ['local', foo] };
+    }
+  }, {
     key: 'render',
     value: function render() {
+      var bar = this.props.bar;
+
       return _react2['default'].createElement(
-        'div',
-        { className: 'Etc' },
-        'etc = foo: ',
-        this.props.etc.get('foo')
+        'span',
+        { className: 'NestedBind' },
+        bar ? bar.get('mood') : null
       );
     }
   }], [{
     key: 'displayName',
-    value: 'Etc',
+    value: 'NestedBind',
     enumerable: true
   }, {
     key: 'propTypes',
     value: {
-      etc: _3['default'].PropTypes.Immutable.Map },
+      bar: _react2['default'].PropTypes.any },
     enumerable: true
   }]);
 
   return _class;
-})(_react2['default'].Component);
-
-exports['default'] = _default;
+})(_react2['default'].Component), function (_ref2) {
+  var foo = _ref2.foo;
+  return { bar: ['local', foo] };
+});
 module.exports = exports['default'];

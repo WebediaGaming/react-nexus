@@ -2,29 +2,15 @@
 
 var _Object$defineProperty = require('babel-runtime/core-js/object/define-property')['default'];
 
-var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
-
 var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
 
 _Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _Nexus = require('./Nexus');
-
-var _Nexus2 = _interopRequireDefault(_Nexus);
-
 var _bind = require('./bind');
 
 var _bind2 = _interopRequireDefault(_bind);
-
-var _inject = require('./inject');
-
-var _inject2 = _interopRequireDefault(_inject);
-
-var _Injector = require('./Injector');
-
-var _Injector2 = _interopRequireDefault(_Injector);
 
 var _ = require('lodash');
 var should = require('should');
@@ -38,7 +24,11 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 
-_Object$assign(_Nexus2['default'], { bind: _bind2['default'], inject: _inject2['default'], Injector: _Injector2['default'] });
+function inject(getNexusBindings, displayName) {
+  return function (Component) {
+    return (0, _bind2['default'])(Component, getNexusBindings, displayName);
+  };
+}
 
-exports['default'] = _Nexus2['default'];
+exports['default'] = inject;
 module.exports = exports['default'];
