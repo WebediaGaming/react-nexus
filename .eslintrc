@@ -160,7 +160,7 @@
     "newline-after-var": 0,
     "no-array-constructor": 1,
     "no-continue": 1,
-    "no-inline-comments": 1,
+    "no-inline-comments": 0,
     "no-lonely-if": 1,
     "no-mixed-spaces-and-tabs": 1,
     "no-multiple-empty-lines": [1, { "max": 1 }],
