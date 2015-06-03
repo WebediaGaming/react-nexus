@@ -44,7 +44,8 @@
     "no-dupe-args": 1,
     "no-dupe-keys": 1,
     "no-duplicate-case": 0,
-    "no-empty-character-class": 1,
+    /* "no-empty-character-class": 1, */
+    "no-empty-class": 1,
     "no-empty": 1,
     "no-ex-assign": 1,
     "no-extra-boolean-cast": 1,
