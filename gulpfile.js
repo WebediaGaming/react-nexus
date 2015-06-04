@@ -35,7 +35,11 @@ function build() {
     .pipe(prepend(prelude))
     .pipe(babel({
       modules: 'common',
-      optional: ['runtime'],
+      optional: [
+        'runtime',
+        'es7.classProperties',
+        'es7.decorators',
+      ],
     }))
     .pipe(gulp.dest('dist'));
   });
