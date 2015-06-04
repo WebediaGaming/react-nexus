@@ -22,6 +22,10 @@ var _inject = require('./inject');
 
 var _inject2 = _interopRequireDefault(_inject);
 
+var _pureRenderDecorator = require('pure-render-decorator');
+
+var _pureRenderDecorator2 = _interopRequireDefault(_pureRenderDecorator);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -63,6 +67,7 @@ var Injector = (function (_React$Component) {
     enumerable: true
   }]);
 
+  Injector = (0, _pureRenderDecorator2['default'])(Injector) || Injector;
   Injector = (0, _inject2['default'])(function (props) {
     return _.omit(props, 'children');
   })(Injector) || Injector;

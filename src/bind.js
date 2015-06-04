@@ -1,6 +1,7 @@
 import React from 'react';
 import Nexus from './Nexus';
 import Immutable from 'immutable';
+import pure from 'pure-render-decorator';
 const { Lifespan, checkBindings, STATUS } = Nexus;
 
 function bind(
@@ -13,7 +14,7 @@ function bind(
     getNexusBindings.should.be.a.Function;
     displayName.should.be.a.String;
   }
-  return class extends React.Component {
+  return @pure class extends React.Component {
     static displayName = displayName;
     isReactNexusComponentInstance = true;
 

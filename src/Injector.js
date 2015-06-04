@@ -1,7 +1,9 @@
 import React from 'react';
 import inject from './inject';
+import pure from 'pure-render-decorator';
 
 @inject((props) => _.omit(props, 'children'))
+@pure
 class Injector extends React.Component {
   static displayName = 'Injector';
 

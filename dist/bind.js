@@ -34,6 +34,10 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
+var _pureRenderDecorator = require('pure-render-decorator');
+
+var _pureRenderDecorator2 = _interopRequireDefault(_pureRenderDecorator);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -62,9 +66,9 @@ function bind(Component) {
       var _class = function (props) {
         var _this = this;
 
-        _classCallCheck(this, _class);
+        _classCallCheck(this, _class2);
 
-        _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, props);
+        _get(Object.getPrototypeOf(_class2.prototype), 'constructor', this).call(this, props);
         this.isReactNexusComponentInstance = true;
         this._nexusBindings = null;
         this._nexusBindingsLifespans = null;
@@ -92,7 +96,9 @@ function bind(Component) {
 
       _inherits(_class, _React$Component);
 
-      _createClass(_class, [{
+      var _class2 = _class;
+
+      _createClass(_class2, [{
         key: 'getNexus',
         value: function getNexus() {
           if (__DEV__) {
@@ -253,6 +259,7 @@ function bind(Component) {
         enumerable: true
       }]);
 
+      _class = (0, _pureRenderDecorator2['default'])(_class) || _class;
       return _class;
     })(_react2['default'].Component);
   })();
