@@ -50,6 +50,10 @@ exports['default'] = (0, _bind2['default'])((function (_React$Component) {
       return this.props.children(_.omit(this.props, 'children'));
     }
   }], [{
+    key: 'displayName',
+    value: 'Injector',
+    enumerable: true
+  }, {
     key: 'propTypes',
     value: {
       children: _react2['default'].PropTypes.func.isRequired },

@@ -2,6 +2,7 @@ import React from 'react';
 import bind from './bind';
 
 export default bind(class Injector extends React.Component {
+  static displayName = 'Injector';
   static propTypes = {
     children: React.PropTypes.func.isRequired,
   }
