@@ -18,9 +18,9 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _bind = require('./bind');
+var _inject = require('./inject');
 
-var _bind2 = _interopRequireDefault(_bind);
+var _inject2 = _interopRequireDefault(_inject);
 
 var _ = require('lodash');
 var should = require('should');
@@ -33,9 +33,10 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-exports['default'] = (0, _bind2['default'])((function (_React$Component) {
+
+var Injector = (function (_React$Component) {
   function Injector() {
-    _classCallCheck(this, Injector);
+    _classCallCheck(this, _Injector);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
@@ -44,7 +45,9 @@ exports['default'] = (0, _bind2['default'])((function (_React$Component) {
 
   _inherits(Injector, _React$Component);
 
-  _createClass(Injector, [{
+  var _Injector = Injector;
+
+  _createClass(_Injector, [{
     key: 'render',
     value: function render() {
       return this.props.children(_.omit(this.props, 'children'));
@@ -60,8 +63,11 @@ exports['default'] = (0, _bind2['default'])((function (_React$Component) {
     enumerable: true
   }]);
 
+  Injector = (0, _inject2['default'])(function (props) {
+    return _.omit(props, 'children');
+  })(Injector) || Injector;
   return Injector;
-})(_react2['default'].Component), function (props) {
-  return _.omit(props, 'children');
-});
+})(_react2['default'].Component);
+
+exports['default'] = Injector;
 module.exports = exports['default'];

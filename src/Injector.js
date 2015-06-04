@@ -1,8 +1,10 @@
 import React from 'react';
-import bind from './bind';
+import inject from './inject';
 
-export default bind(class Injector extends React.Component {
+@inject((props) => _.omit(props, 'children'))
+class Injector extends React.Component {
   static displayName = 'Injector';
+
   static propTypes = {
     children: React.PropTypes.func.isRequired,
   }
@@ -10,4 +12,6 @@ export default bind(class Injector extends React.Component {
   render() {
     return this.props.children(_.omit(this.props, 'children'));
   }
-}, (props) => _.omit(props, 'children'));
+}
+
+export default Injector;
