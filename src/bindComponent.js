@@ -6,11 +6,11 @@ import Nexus from './Nexus';
 const { Lifespan } = Nexus;
 
 const STATUS = {
-  PREFETCH: Symbol('PREFETCH'),
-  INJECT: Symbol('INJECT'),
-  PENDING: Symbol('PENDING'),
-  SYNCING: Symbol('SYNCING'),
-  LIVE: Symbol('LIVE'),
+  PREFETCH: 'PREFETCH',
+  INJECT: 'INJECT',
+  PENDING: 'PENDING',
+  SYNCING: 'SYNCING',
+  LIVE: 'LIVE',
 };
 
 function normalizeGetBindings(getBindings = {}) {

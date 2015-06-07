@@ -14,8 +14,6 @@ var _slicedToArray = require('babel-runtime/helpers/sliced-to-array')['default']
 
 var _Object$defineProperty = require('babel-runtime/core-js/object/define-property')['default'];
 
-var _Symbol = require('babel-runtime/core-js/symbol')['default'];
-
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
 
 var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
@@ -54,11 +52,11 @@ if (__DEV__) {
 var Lifespan = _Nexus2['default'].Lifespan;
 
 var STATUS = {
-  PREFETCH: _Symbol('PREFETCH'),
-  INJECT: _Symbol('INJECT'),
-  PENDING: _Symbol('PENDING'),
-  SYNCING: _Symbol('SYNCING'),
-  LIVE: _Symbol('LIVE') };
+  PREFETCH: 'PREFETCH',
+  INJECT: 'INJECT',
+  PENDING: 'PENDING',
+  SYNCING: 'SYNCING',
+  LIVE: 'LIVE' };
 
 function normalizeGetBindings() {
   var getBindings = arguments[0] === undefined ? {} : arguments[0];
