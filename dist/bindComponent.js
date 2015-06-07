@@ -214,7 +214,8 @@ function bindComponent(Component) {
             var path = _v[1];
             var defaultValue = _v[2];
 
-            var store = flux.getStore(path, lifespans[k] = new Lifespan()).onUpdate(function (head) {
+            var store = flux.getStore(path, lifespans[k] = new Lifespan()).onUpdate(function (_ref10) {
+              var head = _ref10.head;
               return _this.setState(_defineProperty({}, k, [STATUS.LIVE, head, defaultValue]));
             }).onDelete(function () {
               return _this.setState(_defineProperty({}, k, [STATUS.LIVE, defaultValue, defaultValue]));
@@ -244,11 +245,11 @@ function bindComponent(Component) {
         value: function waitForPrefetching() {
           var _this2 = this;
 
-          return Promise.all(_.map(this.state, function (_ref10) {
-            var _ref102 = _slicedToArray(_ref10, 2);
+          return Promise.all(_.map(this.state, function (_ref11) {
+            var _ref112 = _slicedToArray(_ref11, 2);
 
-            var status = _ref102[0];
-            var value = _ref102[1];
+            var status = _ref112[0];
+            var value = _ref112[1];
             return status === STATUS.PREFETCH ? value.promise : Promise.resolve();
           })).then(function () {
             return { instance: _this2 };

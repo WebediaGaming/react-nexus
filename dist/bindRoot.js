@@ -28,10 +28,6 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
-var _pureRenderDecorator = require('pure-render-decorator');
-
-var _pureRenderDecorator2 = _interopRequireDefault(_pureRenderDecorator);
-
 var _Nexus = require('./Nexus');
 
 var _Nexus2 = _interopRequireDefault(_Nexus);
@@ -72,10 +68,10 @@ function bindRoot(Component) {
 
         var otherProps = _objectWithoutProperties(_ref, ['nexus', 'lifespan', 'data']);
 
-        _classCallCheck(this, _class2);
+        _classCallCheck(this, _class);
 
         // eslint-disable-line
-        _get(Object.getPrototypeOf(_class2.prototype), 'constructor', this).call(this, otherProps);
+        _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, otherProps);
         this.isReactNexusRootInstance = true;
         this.state = { mounted: false, nexus: nexus };
         // nexus and lifespan should either be both null or none is null
@@ -94,9 +90,7 @@ function bindRoot(Component) {
 
       _inherits(_class, _React$Component);
 
-      var _class2 = _class;
-
-      _createClass(_class2, [{
+      _createClass(_class, [{
         key: 'getOtherProps',
         value: function getOtherProps() {
           return _.omit(this.props, ['nexus', 'data']);
@@ -162,6 +156,15 @@ function bindRoot(Component) {
           });
         }
       }, {
+        key: 'shouldComponentUpdate',
+        value: function shouldComponentUpdate(nextProps, nextState) {
+          // prevent re-rendering on the client while nexus is null
+          if (__BROWSER__ && nextState.nexus === null) {
+            return false;
+          }
+          return _react2['default'].PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
+        }
+      }, {
         key: 'render',
         value: function render() {
           var nexus = this.state.nexus;
@@ -186,7 +189,6 @@ function bindRoot(Component) {
         enumerable: true
       }]);
 
-      _class = (0, _pureRenderDecorator2['default'])(_class) || _class;
       return _class;
     })(_react2['default'].Component);
   })();
