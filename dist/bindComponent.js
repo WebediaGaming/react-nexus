@@ -89,12 +89,12 @@ function bindComponent(Component) {
       var _class = function (props) {
         _classCallCheck(this, _class2);
 
-        // eslint-disable-line object-shorthand
         _get(Object.getPrototypeOf(_class2.prototype), 'constructor', this).call(this, props);
         this.isReactNexusComponentInstance = true;
         this.state = null;
         this.bindings = null;
         this.lifespans = null;
+        this.nexus = _Nexus2['default'].currentNexus;
         this.bindings = {};
         this.lifespans = {};
         this.state = _.mapValues(this.getBindings(props), function (_ref) {
@@ -121,7 +121,8 @@ function bindComponent(Component) {
       _createClass(_class2, [{
         key: 'getBindings',
         value: function getBindings(props) {
-          var nexus = _Nexus2['default'].currentNexus;
+          var nexus = this.nexus;
+
           return _.mapValues(_getBindings(props), function (_ref3) {
             var _ref32 = _slicedToArray(_ref3, 2);
 
@@ -258,6 +259,7 @@ function bindComponent(Component) {
       }, {
         key: 'render',
         value: function render() {
+          _Nexus2['default'].currentNexus = this.nexus;
           return _react2['default'].createElement(Component, this.getChildrenProps());
         }
       }], [{

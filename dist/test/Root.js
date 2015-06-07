@@ -101,27 +101,25 @@ var Root = (function (_React$Component) {
     var data = _ref.data;
     var path = _ref.path;
 
-    return Promise['try'](function () {
-      var lifespan = new Lifespan();
-      var recover = function recover(key, defaultValue) {
-        return data && data[key] || defaultValue;
-      };
-      var localStores = {
-        '/session': new Remutable(recover('/session', { userId: 1 })),
-        '/route': new Remutable({ path: path }),
-        '/users/1': new Remutable(recover('/users/1', { firstName: 'Immanuel', lastName: 'Kant' })),
-        '/users/2': new Remutable(recover('/users/2', { firstName: 'Friedrich', lastName: 'Nietzsche' })) };
+    var lifespan = new Lifespan();
+    var recover = function recover(key, defaultValue) {
+      return data && data[key] || defaultValue;
+    };
+    var localStores = {
+      '/session': new Remutable(recover('/session', { userId: 1 })),
+      '/route': new Remutable({ path: path }),
+      '/users/1': new Remutable(recover('/users/1', { firstName: 'Immanuel', lastName: 'Kant' })),
+      '/users/2': new Remutable(recover('/users/2', { firstName: 'Friedrich', lastName: 'Nietzsche' })) };
 
-      var localServer = new _nexusFluxAdaptersLocal2['default'].Server(localStores);
-      var localClient = new _nexusFluxAdaptersLocal2['default'].Client(localServer);
-      lifespan.onRelease(function () {
-        localServer.lifespan.release();
-        localClient.lifespan.release();
-      });
-
-      var nexus = { local: localClient };
-      return { lifespan: lifespan, nexus: nexus };
+    var localServer = new _nexusFluxAdaptersLocal2['default'].Server(localStores);
+    var localClient = new _nexusFluxAdaptersLocal2['default'].Client(localServer);
+    lifespan.onRelease(function () {
+      localServer.lifespan.release();
+      localClient.lifespan.release();
     });
+
+    var nexus = { local: localClient };
+    return { lifespan: lifespan, nexus: nexus };
   })(Root) || Root;
   return Root;
 })(_react2['default'].Component);

@@ -16,8 +16,6 @@ var _Object$defineProperty = require('babel-runtime/core-js/object/define-proper
 
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
 
-var _Object$create = require('babel-runtime/core-js/object/create')['default'];
-
 var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
 
 _Object$defineProperty(exports, '__esModule', {
@@ -73,21 +71,15 @@ function bindRoot(Component) {
 
         _classCallCheck(this, _class);
 
-        // eslint-disable-line
         _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, otherProps);
         this.isReactNexusRootInstance = true;
-        this.state = { mounted: false, nexus: nexus };
-        // nexus and lifespan should either be both null or none is null
         if (nexus !== null) {
-          if (__DEV__) {
-            (lifespan !== null).should.be['true'];
-          }
-          this.state.promiseForNexus = Promise.resolve({ nexus: nexus, lifespan: lifespan, instance: this });
+          _.each(nexus, function (flux, k) {
+            return flux.startInjecting(data[k]);
+          });
+          _Object$assign(this, { nexus: nexus, lifespan: lifespan });
         } else {
-          if (__DEV__) {
-            (lifespan === null).should.be['true'];
-          }
-          this.state.promiseForNexus = this.createAndRegisterNexus(_extends({ data: data }, otherProps)); // eslint-disable-line
+          _Object$assign(this, createNexus.call(this, _extends({ data: data }, otherProps))); // eslint-disable-line object-shorthand
         }
       };
 
@@ -99,85 +91,32 @@ function bindRoot(Component) {
           return _.omit(this.props, ['nexus', 'data']);
         }
       }, {
-        key: 'createAndRegisterNexus',
-        value: function createAndRegisterNexus(_ref2) {
-          var _this = this;
+        key: 'getNexus',
+        value: function getNexus() {
+          var nexus = this.nexus;
+          var lifespan = this.lifespan;
 
-          var data = _ref2.data;
-
-          var otherProps = _objectWithoutProperties(_ref2, ['data']);
-
-          // eslint-disable-line object-shorthand
-          var promise = createNexus.call(this, _extends({ data: data }, otherProps)) // eslint-disable-line object-shorthand
-          .then(function (_ref3) {
-            var nexus = _ref3.nexus;
-            var lifespan = _ref3.lifespan;
-
-            return { nexus: nexus, lifespan: lifespan, instance: _this };
-          });
-          promise.then(function (_ref4) {
-            var nexus = _ref4.nexus;
-            return _this.setNexus(nexus);
-          });
-          return promise;
-        }
-      }, {
-        key: 'setNexus',
-        value: function setNexus(nexus) {
-          var _this2 = this;
-
-          _Nexus2['default'].currentNexus = nexus;
-          var mounted = this.state.mounted;
-
-          if (!mounted) {
-            _Object$assign(this.state, { nexus: nexus });
-          } else {
-            _.each(nexus, function (flux, k) {
-              return flux.startInjecting(_this2.props.data[k]);
-            });
-            this.setState({ nexus: nexus }, function () {
-              return _.each(nexus, function (flux) {
-                return flux.stopInjecting();
-              });
-            });
-          }
+          return { nexus: nexus, lifespan: lifespan, instance: this };
         }
       }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-          this.setState({ mounted: true });
-        }
-      }, {
-        key: 'waitForNexus',
-        value: function waitForNexus() {
-          var _this3 = this;
+          var nexus = this.state.nexus;
 
-          return this.state.promiseForNexus.then(function (_ref5) {
-            var nexus = _ref5.nexus;
-            var lifespan = _ref5.lifespan;
-            return { nexus: nexus, lifespan: lifespan, instance: _this3 };
+          _.each(nexus, function (flux) {
+            return flux.stopInjecting();
           });
         }
       }, {
-        key: 'shouldComponentUpdate',
-        value: function shouldComponentUpdate(nextProps, nextState) {
-          // prevent re-rendering on the client while nexus is null
-          if (__BROWSER__ && nextState.nexus === null) {
-            return false;
-          }
-          return PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+          this.lifespan.release();
         }
       }, {
         key: 'render',
         value: function render() {
-          var nexus = this.state.nexus;
-
-          var otherProps = this.getOtherProps();
-          if (nexus === null) {
-            // apply defaultRender to a fake, non-constructed instance of Component with the same props
-            return defaultRender.call(_Object$create(Component.prototype, { props: otherProps }));
-          }
-          return _react2['default'].createElement(Component, otherProps);
+          _Nexus2['default'].currentNexus = this.nexus;
+          return _react2['default'].createElement(Component, this.getOtherProps());
         }
       }], [{
         key: 'displayName',
@@ -199,3 +138,4 @@ function bindRoot(Component) {
 
 exports['default'] = bindRoot;
 module.exports = exports['default'];
+// eslint-disable-line object-shorthand

@@ -47,7 +47,7 @@ function bindComponent(
     lifespans = null;
 
     getBindings(props) {
-      const nexus = Nexus.currentNexus;
+      const { nexus } = this;
       return _.mapValues(_getBindings(props), ([binding, defaultValue]) => {
         const [key, path] = _.isString(binding) ? binding.split(':/') : binding;
         const flux = nexus[key];
@@ -123,8 +123,9 @@ function bindComponent(
       .then(() => ({ instance: this }));
     }
 
-    constructor(props) { // eslint-disable-line object-shorthand
+    constructor(props) {
       super(props);
+      this.nexus = Nexus.currentNexus;
       this.bindings = {};
       this.lifespans = {};
       this.state = _.mapValues(this.getBindings(props), ([flux, path, defaultValue]) => {
@@ -139,6 +140,7 @@ function bindComponent(
     }
 
     render() {
+      Nexus.currentNexus = this.nexus;
       return <Component {...this.getChildrenProps()} />;
     }
   };

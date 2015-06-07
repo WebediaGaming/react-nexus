@@ -19,7 +19,7 @@ The [React docs](http://facebook.github.io/react/tips/initial-ajax.html) suggest
 
 Here's how you would do it using React Nexus:
 
-- Define a root component using `@root(createNexus)`. `createNexus` returns a `Promise` for an object mapping to instances of [Nexus Flux](https://github.com/elierotenberg/nexus-flux) clients. Each of these instances abstracts an asynchronous data backend.
+- Define a root component using `@root(createNexus)`. `createNexus` returns an object mapping to instances of [Nexus Flux](https://github.com/elierotenberg/nexus-flux) clients. Each of these instances abstracts an asynchronous data backend.
 
 - Define components using `@component(getNexusBindings)`. `getNexusBindings` returns an object mapping flux stores to props keys.
 
@@ -35,38 +35,35 @@ import Nexus from 'react-nexus';
 
 // root component decorator
 @Nexus.root(({ data }) => {
-  // nexus instanciation can be asynchronous
-  return Promise.try(() => {
-    // init some flux stores
-    const stores = {
-      // if the value is already in data, reuse it, otherwise initialize it
-      '/counters': new Remutable(data && data['/counters'] || { clicks: 0 }),
-    };
+  // init some flux stores
+  const stores = {
+    // if the value is already in data, reuse it, otherwise initialize it
+    '/counters': new Remutable(data && data['/counters'] || { clicks: 0 }),
+  };
 
-    const server = new LocalFlux.Server(stores);
-    const client = new LocalFlux.Client(server);
+  const server = new LocalFlux.Server(stores);
+  const client = new LocalFlux.Client(server);
 
-    // define some actions
-    server.on('action', ({ path, params }) => {
-      if(path === '/click') {
-        const counters = stores['/counters'];
-        counters.set('clicks,' counters.get('clicks') + 1);
-        // updates the stores
-        server.dispatchUpdate('/counters', counters.commit());
-      }
-    });
-
-    // define some clean-up logic
-    const lifespan = new Lifespan();
-    lifespan.onRelease(() => {
-      client.lifespan.release();
-      server.lifespan.release();
-    });
-
-    const nexus = { local: client };
-    // export the nexus and a lifespan object to clean things up later
-    return { nexus, lifespan };
+  // define some actions
+  server.on('action', ({ path, params }) => {
+    if(path === '/click') {
+      const counters = stores['/counters'];
+      counters.set('clicks,' counters.get('clicks') + 1);
+      // updates the stores
+      server.dispatchUpdate('/counters', counters.commit());
+    }
   });
+
+  // define some clean-up logic
+  const lifespan = new Lifespan();
+  lifespan.onRelease(() => {
+    client.lifespan.release();
+    server.lifespan.release();
+  });
+
+  const nexus = { local: client };
+  // export the nexus and a lifespan object to clean things up later
+  return { nexus, lifespan };
 })
 // component decorator
 @Nexus.component(() => ({
@@ -119,13 +116,11 @@ Asynchronously renders the App. Returns a `Promise` for `{ html, data }` where `
 
 Exactly like `renderToString`, but generates clean HTML, like `React.renderToStaticMarkup`.
 
-#### `@root(createNexus, defaultRender)`
+#### `@root(createNexus)`
 
 `React.Component` class decorator.
 
-`createNexus` is function which takes the props of the components, and returns a `Promise` for `{ nexus, lifespan }`. `nexus` is an object mapping flux names to flux clients. `lifespan` should have a `release` method which will be called when the framework is done with your `nexus` so you can clean up after yourself.
-
-`defaultRender` is an optional alternative `render` function (defaulting to a `null`-returning function) to call when attempting to render on the client while `createNexus()` is pending. This can be useful to display a spinning loader for example.
+`createNexus` is function which takes the props of the components, and returns an object `{ nexus, lifespan }`. `nexus` is an object mapping flux names to flux clients. `lifespan` should have a `release` method which will be called when the framework is done with your `nexus` so you can clean up after yourself.
 
 `@root` returns a higher-order component. However, it will transfer all its props (except for the special prop `data`) to the underlying component. It should be used at the top level of a components hierachy, as expected by `renderToString`.
 

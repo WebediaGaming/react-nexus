@@ -125,7 +125,7 @@ function getDisposableReactRootInstance(element) {
     if (!isReactNexusRootInstance(instance)) {
       throw new Error('' + element + ': expecting a React Nexus Root.');
     }
-    return instance.waitForNexus();
+    return instance.getNexus();
   }).disposer(function (_ref) {
     var lifespan = _ref.lifespan;
     var instance = _ref.instance;
@@ -137,10 +137,8 @@ function getDisposableReactRootInstance(element) {
 
 function getDisposableReactComponentInstance(element, nexus) {
   return Promise['try'](function () {
-    var prevNexus = Nexus.currentNexus;
     Nexus.currentNexus = nexus;
     var instance = constructReactElementInstance(element);
-    Nexus.currentNexus = prevNexus;
     if (isReactNexusComponentInstance(instance)) {
       return instance.waitForPrefetching();
     }
@@ -181,13 +179,7 @@ function renderTo(element) {
         return flux.stopPrefetching();
       });
     }).then(function (data) {
-      _.each(nexus, function (flux, k) {
-        return flux.startInjecting(data[k]);
-      });
-      var prevNexus = Nexus.currentNexus;
-      Nexus.currentNexus = nexus;
-      var html = renderToString(_react2['default'].cloneElement(element, { nexus: nexus, lifespan: lifespan }));
-      Nexus.currentNexus = prevNexus;
+      var html = renderToString(_react2['default'].cloneElement(element, { nexus: nexus, lifespan: lifespan, data: data }));
       _.each(nexus, function (flux) {
         return flux.stopInjecting();
       });
