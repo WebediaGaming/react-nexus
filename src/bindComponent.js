@@ -95,7 +95,7 @@ function bindComponent(
         .each(([k, v]) => {
           const [flux, path, defaultValue] = v;
           const store = flux.getStore(path, lifespans[k] = new Lifespan())
-            .onUpdate((head) => this.setState({ [k]: [STATUS.LIVE, head, defaultValue] }))
+            .onUpdate(({ head }) => this.setState({ [k]: [STATUS.LIVE, head, defaultValue] }))
             .onDelete(() => this.setState({ [k]: [STATUS.LIVE, defaultValue, defaultValue] }));
           this.setState({ [k]: [STATUS.SYNCING, store.value || defaultValue, defaultValue]});
         })

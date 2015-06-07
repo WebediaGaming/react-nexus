@@ -1,5 +1,4 @@
 import React from 'react';
-import pure from 'pure-render-decorator';
 
 import Nexus from './Nexus';
 
@@ -15,7 +14,7 @@ function bindRoot(
     displayName.should.be.a.String;
   }
 
-  return @pure class extends React.Component {
+  return class extends React.Component {
     static displayName = displayName;
 
     static propTypes = {
@@ -76,6 +75,14 @@ function bindRoot(
         }
         this.state.promiseForNexus = this.createAndRegisterNexus({ data, ...otherProps }); // eslint-disable-line
       }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+      // prevent re-rendering on the client while nexus is null
+      if(__BROWSER__ && nextState.nexus === null) {
+        return false;
+      }
+      return React.PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
     }
 
     render() {
