@@ -8,9 +8,9 @@ _Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _bind = require('./bind');
+var _bindRoot = require('./bindRoot');
 
-var _bind2 = _interopRequireDefault(_bind);
+var _bindRoot2 = _interopRequireDefault(_bindRoot);
 
 var _ = require('lodash');
 var should = require('should');
@@ -24,11 +24,11 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 
-function inject(getNexusBindings, displayName) {
+function root(createNexus, defaultRender, displayName) {
   return function (Component) {
-    return (0, _bind2['default'])(Component, getNexusBindings, displayName);
+    return (0, _bindRoot2['default'])(Component, createNexus, defaultRender, displayName);
   };
 }
 
-exports['default'] = inject;
+exports['default'] = root;
 module.exports = exports['default'];

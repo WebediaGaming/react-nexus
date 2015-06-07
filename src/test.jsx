@@ -1,49 +1,29 @@
 import React from 'react';
-import LocalFlux from 'nexus-flux/adapters/Local';
-import { Remutable } from 'nexus-flux';
-import Nexus from '../';
-import App from './test/App';
+import { renderToStaticMarkup } from '../';
+import Root from './test/Root';
 
-const stores = {
-  '/route': new Remutable({
-    path: '/home',
-  }),
-  '/bar': new Remutable({
-    mood: 'happy',
-  }),
-  '/etc': new Remutable({
-    foo: 'bar',
-  }),
-  '/dev/null': new Remutable({
-    'void': null,
-  }),
-};
-
-const localFluxServer = new LocalFlux.Server(stores);
-const localFluxClient = new LocalFlux.Client(localFluxServer);
-
-const nexus = { local: localFluxClient };
-
-Nexus.prerenderAppToStaticMarkup(<App />, nexus)
-.then(([html, data]) => {
-  console.log(html, data);
-  html.should.be.exactly('<div class="App">' +
-    '<p>My route is /home and foo is <span class="NestedBind">happy</span>.</p>' +
-    '<p>My route is /home and foo is <span class="NestedInject">happy</span>.</p>' +
-    '<p>The clicks counter is 0. <button>increase counter</button></p>' +
-    '<div class="NestedInjector">etc = foo: bar</div>' +
-  '</div>');
+renderToStaticMarkup(<Root path={'Königsberg'} mood={'happy'} foo={'bar'} />)
+.then(({ html, data }) => {
+  html.should.be.exactly([
+    '<div class="Root">',
+      '<p>Route is Königsberg. User is <span>Kant. Immanuel Kant</span>.</p>',
+    '</div>',
+  ].join(''));
   JSON.stringify(data).should.be.exactly(JSON.stringify({
     local: {
-      '/route': { path: '/home' },
-      '/bar': { mood: 'happy' },
-      '/etc': { foo: 'bar' },
-      '/notFound': void 0,
+      '/route': {
+        'path': 'Königsberg',
+      },
+      '/session': {
+        'userId': 1,
+      },
+      '/users/1': {
+        firstName: 'Immanuel',
+        lastName: 'Kant',
+      },
     },
   }));
-  localFluxServer.lifespan.release();
-  localFluxClient.lifespan.release();
+  console.log(html);
+  console.log(JSON.stringify(data, null, 2));
 })
-.catch((err) => {
-  throw err;
-});
+.catch((err) => { throw err; });

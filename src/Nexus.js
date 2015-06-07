@@ -9,6 +9,18 @@ function isCompositeComponentElement(element) {
   if(!React.isValidElement(element)) {
     return false;
   }
+  if(__DEV__) {
+    element.should.be.an.Object;
+    element.should.have.property('type');
+  }
+  const { type } = element;
+  if(_.isString(type)) { // eg. 'div'
+    return false;
+  }
+  if(__DEV__) {
+    type.should.be.a.Function;
+    type.should.have.property('prototype');
+  }
   const { prototype } = element.type;
   // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
   return _.isFunction(prototype.render) && _.isFunction(prototype.setState);
@@ -16,6 +28,10 @@ function isCompositeComponentElement(element) {
 
 function isReactNexusComponentInstance(instance) {
   return _.isObject(instance) && instance.isReactNexusComponentInstance;
+}
+
+function isReactNexusRootInstance(instance) {
+  return _.isObject(instance) && instance.isReactNexusRootInstance;
 }
 
 // flatten the descendants of a given element into an array
@@ -35,84 +51,89 @@ function flattenDescendants(element, acc = []) {
   return acc;
 }
 
-// Temporarly set the global nexus context and run a synchronous function within this context
-function withNexus(nexus, fn) {
-  const previousNexus = Nexus.currentNexus;
-  Nexus.currentNexus = nexus;
-  const r = fn();
-  Nexus.currentNexus = previousNexus;
-  return r;
+function constructReactElementInstance(element) {
+  if(__DEV__) {
+    React.isValidElement(element).should.be.true;
+  }
+  // subject to change in upcoming versions of React
+  return new element.type(element._store ? element._store.props : element.props);
 }
 
-function shouldPrefetch(element) {
-  return (
-    React.isValidElement(element) &&
-    _.isFunction(element.type) &&
-    isCompositeComponentElement(element)
-  );
+function renderReactComponentInstanceCompositeDescendants(instance) {
+  const children = instance.render ? instance.render() : null;
+  const descendants = flattenDescendants(children);
+  return _.filter(descendants, isCompositeComponentElement);
 }
 
-function getPrefetchedReactComponent(element, nexus) {
-  let instance = null;
-  return withNexus(nexus, () => {
-    // subject to change in upcoming versions of React
-    instance = new element.type(element._store ? element._store.props : element.props);
-    if(!isReactNexusComponentInstance(instance)) {
-      return Promise.resolve(instance);
-    }
-    return instance.waitForPrefetching();
-  })
-  .then(() => {
-    withNexus(nexus, () =>
-      instance && instance.componentWillMount && instance.componentWillMount()
-    );
-    return instance;
-  })
-  .disposer(() => withNexus(nexus, () => instance && instance.componentWillUnmount && instance.componentWillUnmount()));
+function initializeReactElementInstance(instance) {
+  if(instance && instance.componentWillMount) {
+    instance.componentWillMount();
+  }
+  return instance;
 }
 
-// Within a prefetchApp async stack, prefetch the dependencies of the given element and its descendants
-// it will:
-// - instanciate the component
-// - call componentWillMount
-// - yield to prefetch nexus bindings (if applicable)
-// - call render
-// - call componentWillUnmount
-// - yield to recursively prefetch descendant elements
-function prefetchElement(element, nexus) {
+function destroyReactElementInstance(instance) {
+  if(instance && instance.componentWillUnmount) {
+    instance.componentWillUnmount();
+  }
+  return instance;
+}
+
+function getDisposableReactRootInstance(element) {
   return Promise.try(() => {
-    if(__DEV__) {
-      React.isValidElement(element).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
+    const instance = constructReactElementInstance(element);
+    if(!isReactNexusRootInstance(instance)) {
+      throw new Error(`${element}: expecting a React Nexus Root.`);
     }
-    if(shouldPrefetch(element)) {
-      return Promise.using(getPrefetchedReactComponent(element, nexus), (instance) =>
-        withNexus(nexus, () =>
-          Promise.all(
-            _.map(flattenDescendants(instance.render ? instance.render() : null), (descendantElement) =>
-              prefetchElement(descendantElement, nexus)
-            )
-          )
-        )
-      );
-    }
+    return instance.waitForNexus();
+  })
+  .disposer(({ lifespan, instance })=> {
+    lifespan.release();
+    destroyReactElementInstance(instance);
   });
 }
 
-// In the server, prefetch the dependencies and store them in the nexus as a side effect.
-// It will recursively prefetch all the nexus dependencies of all the components at the initial state.
-function prefetchApp(rootElement, nexus) {
+function getDisposableReactComponentInstance(element, nexus) {
   return Promise.try(() => {
-    if(__DEV__) {
-      React.isValidElement(rootElement).should.be.true;
-      nexus.should.be.an.Object;
-      __NODE__.should.be.true;
+    const prevNexus = Nexus.currentNexus;
+    Nexus.currentNexus = nexus;
+    const instance = constructReactElementInstance(element);
+    Nexus.currentNexus = prevNexus;
+    if(isReactNexusComponentInstance(instance)) {
+      return instance.waitForPrefetching();
     }
-    _.each(nexus, (flux) => flux.startPrefetching());
-    return prefetchElement(rootElement, nexus);
+    return Promise.resolve({ instance });
   })
-  .then(() => _.mapValues(nexus, (flux) => flux.stopPrefetching()));
+  .disposer(({ instance }) => destroyReactElementInstance(instance));
+}
+
+function prefetchElement(element, nexus) {
+  return Promise.using(getDisposableReactComponentInstance(element, nexus), ({ instance }) => {
+    initializeReactElementInstance(instance);
+    return Promise.all(_.map(renderReactComponentInstanceCompositeDescendants(instance),
+      (childElement) => prefetchElement(childElement, nexus)
+    ));
+  });
+}
+
+function renderTo(element, renderToString = React.renderToString) {
+  return Promise.using(getDisposableReactRootInstance(element), ({ nexus, lifespan, instance }) => {
+    _.each(nexus, (flux) => flux.startPrefetching());
+    initializeReactElementInstance(instance);
+    return Promise.map(renderReactComponentInstanceCompositeDescendants(instance),
+      (childElement) => prefetchElement(childElement, nexus)
+    )
+    .then(() => _.mapValues(nexus, (flux) => flux.stopPrefetching()))
+    .then((data) => {
+      _.each(nexus, (flux, k) => flux.startInjecting(data[k]));
+      const prevNexus = Nexus.currentNexus;
+      Nexus.currentNexus = nexus;
+      const html = renderToString(React.cloneElement(element, { nexus, lifespan }));
+      Nexus.currentNexus = prevNexus;
+      _.each(nexus, (flux) => flux.stopInjecting());
+      return { html, data };
+    });
+  });
 }
 
 Object.assign(Nexus, {
@@ -121,88 +142,25 @@ Object.assign(Nexus, {
   React,
   Remutable,
 
-  // Enhance a component (placeholder slot)
-  // @see bind.js
-  bind: null,
-  // Component enhance decorator (placeholder slot)
-  // @see inject.js
-  inject: null,
-  // Generic Injector component (placeholder slot)
-  // @see Injector.js
-  Injector: null,
+  // Root decorator (placeholder slot)
+  // @see root.js
+  root: null,
+
+  // Component decorator (placeholder slot)
+  // @see component.js
+  component: null,
 
   // A global reference to the current nexus context, mapping keys to Flux client objects
   // It is set temporarly in the server during the prefetching/prerendering phase,
   // and set durably in the browser during the mounting phase.
   currentNexus: null,
 
-  // In the server, prefetch, then renderToString, then return the generated HTML string and the raw prefetched data,
-  // which can then be injected into the server response (eg. using a global variable).
-  // It will be used by the browser to call mountApp.
-  prerenderApp(rootElement, nexus) {
-    return Promise.try(() => {
-      if(__DEV__) {
-        React.isValidElement(rootElement).should.be.true;
-        nexus.should.be.an.Object;
-        __NODE__.should.be.true;
-        _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
-      }
-      return prefetchApp(rootElement, nexus)
-      .then((data) => {
-        _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
-        const html = withNexus(nexus, () => React.renderToString(rootElement));
-        _.each(nexus, (flux) => flux.stopInjecting());
-        return [html, data];
-      });
-    });
+  renderToString(rootElement) {
+    return renderTo(rootElement, React.renderToString);
   },
 
-  prerenderAppToStaticMarkup(rootElement, nexus) {
-    return Promise.try(() => {
-      if(__DEV__) {
-        React.isValidElement(rootElement).should.be.true;
-        nexus.should.be.an.Object;
-        __NODE__.should.be.true;
-        _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
-      }
-      return prefetchApp(rootElement, nexus)
-      .then((data) => {
-        _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
-        const html = withNexus(nexus, () => React.renderToStaticMarkup(rootElement));
-        _.each(nexus, (flux) => flux.stopInjecting());
-        return [html, data];
-      });
-    });
-  },
-
-  // In the client, mount the rootElement using the given nexus and the given prefetched data into
-  // the given domNode. Also globally and durably set the global nexus context.
-  mountApp(rootElement, nexus, data, domNode) {
-    if(__DEV__) {
-      React.isValidElement(rootElement).should.be.true;
-      nexus.should.be.an.Object;
-      data.should.be.an.Object;
-      domNode.should.be.an.Object;
-      __BROWSER__.should.be.true;
-      _.each(nexus, (flux) => flux.should.be.an.instanceOf(Flux.Client));
-      (Nexus.currentNexus === null).should.be.true;
-    }
-    Nexus.currentNexus = nexus;
-    _.each(nexus, (flux, key) => flux.startInjecting(data[key]));
-    const r = React.render(rootElement, domNode);
-    _.each(nexus, (flux, key) => flux.stopInjecting(data[key]));
-    return r;
-  },
-
-  checkBindings(bindings) {
-    if(__DEV__) {
-      bindings.should.be.an.Object;
-      _.each(bindings, ([flux, path, /* defaultValue */]) => {
-        flux.should.be.a.String;
-        path.should.be.a.String;
-      });
-    }
-    return bindings;
+  renderToStaticMarkup(rootElement) {
+    return renderTo(rootElement, React.renderToStaticMarkup);
   },
 
   PropTypes: Object.assign({}, React.PropTypes, {
@@ -210,14 +168,6 @@ Object.assign(Nexus, {
       Map: (props, propName) => Immutable.Map.isMap(props[propName]) ? null : new Error(`Expecting an Immutable.Map`),
     },
   }),
-
-  STATUS: {
-    PREFETCH: 'PREFETCH',
-    INJECT: 'INJECT',
-    PENDING: 'PENDING',
-    SYNCING: 'SYNCING',
-    LIVE: 'LIVE',
-  },
 });
 
 export default Nexus;

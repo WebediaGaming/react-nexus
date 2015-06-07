@@ -1,8 +1,7 @@
 import Nexus from './Nexus';
-import bind from './bind';
-import inject from './inject';
-import Injector from './Injector';
+import component from './component';
+import root from './root';
 
-Object.assign(Nexus, { bind, inject, Injector });
+Object.assign(Nexus, { component, root });
 
 export default Nexus;

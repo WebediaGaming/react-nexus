@@ -1,7 +1,5 @@
 'use strict';
 
-var _slicedToArray = require('babel-runtime/helpers/sliced-to-array')['default'];
-
 var _Object$defineProperty = require('babel-runtime/core-js/object/define-property')['default'];
 
 var _Object$assign = require('babel-runtime/core-js/object/assign')['default'];
@@ -44,6 +42,20 @@ function isCompositeComponentElement(element) {
   if (!_react2['default'].isValidElement(element)) {
     return false;
   }
+  if (__DEV__) {
+    element.should.be.an.Object;
+    element.should.have.property('type');
+  }
+  var type = element.type;
+
+  if (_.isString(type)) {
+    // eg. 'div'
+    return false;
+  }
+  if (__DEV__) {
+    type.should.be.a.Function;
+    type.should.have.property('prototype');
+  }
   var prototype = element.type.prototype;
 
   // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
@@ -52,6 +64,10 @@ function isCompositeComponentElement(element) {
 
 function isReactNexusComponentInstance(instance) {
   return _.isObject(instance) && instance.isReactNexusComponentInstance;
+}
+
+function isReactNexusRootInstance(instance) {
+  return _.isObject(instance) && instance.isReactNexusRootInstance;
 }
 
 // flatten the descendants of a given element into an array
@@ -75,83 +91,107 @@ function flattenDescendants(element) {
   return acc;
 }
 
-// Temporarly set the global nexus context and run a synchronous function within this context
-function withNexus(nexus, fn) {
-  var previousNexus = Nexus.currentNexus;
-  Nexus.currentNexus = nexus;
-  var r = fn();
-  Nexus.currentNexus = previousNexus;
-  return r;
+function constructReactElementInstance(element) {
+  if (__DEV__) {
+    _react2['default'].isValidElement(element).should.be['true'];
+  }
+  // subject to change in upcoming versions of React
+  return new element.type(element._store ? element._store.props : element.props);
 }
 
-function shouldPrefetch(element) {
-  return _react2['default'].isValidElement(element) && _.isFunction(element.type) && isCompositeComponentElement(element);
+function renderReactComponentInstanceCompositeDescendants(instance) {
+  var children = instance.render ? instance.render() : null;
+  var descendants = flattenDescendants(children);
+  return _.filter(descendants, isCompositeComponentElement);
 }
 
-function getPrefetchedReactComponent(element, nexus) {
-  var instance = null;
-  return withNexus(nexus, function () {
-    // subject to change in upcoming versions of React
-    instance = new element.type(element._store ? element._store.props : element.props);
-    if (!isReactNexusComponentInstance(instance)) {
-      return Promise.resolve(instance);
+function initializeReactElementInstance(instance) {
+  if (instance && instance.componentWillMount) {
+    instance.componentWillMount();
+  }
+  return instance;
+}
+
+function destroyReactElementInstance(instance) {
+  if (instance && instance.componentWillUnmount) {
+    instance.componentWillUnmount();
+  }
+  return instance;
+}
+
+function getDisposableReactRootInstance(element) {
+  return Promise['try'](function () {
+    var instance = constructReactElementInstance(element);
+    if (!isReactNexusRootInstance(instance)) {
+      throw new Error('' + element + ': expecting a React Nexus Root.');
     }
-    return instance.waitForPrefetching();
-  }).then(function () {
-    withNexus(nexus, function () {
-      return instance && instance.componentWillMount && instance.componentWillMount();
-    });
-    return instance;
-  }).disposer(function () {
-    return withNexus(nexus, function () {
-      return instance && instance.componentWillUnmount && instance.componentWillUnmount();
-    });
+    return instance.waitForNexus();
+  }).disposer(function (_ref) {
+    var lifespan = _ref.lifespan;
+    var instance = _ref.instance;
+
+    lifespan.release();
+    destroyReactElementInstance(instance);
   });
 }
 
-// Within a prefetchApp async stack, prefetch the dependencies of the given element and its descendants
-// it will:
-// - instanciate the component
-// - call componentWillMount
-// - yield to prefetch nexus bindings (if applicable)
-// - call render
-// - call componentWillUnmount
-// - yield to recursively prefetch descendant elements
+function getDisposableReactComponentInstance(element, nexus) {
+  return Promise['try'](function () {
+    var prevNexus = Nexus.currentNexus;
+    Nexus.currentNexus = nexus;
+    var instance = constructReactElementInstance(element);
+    Nexus.currentNexus = prevNexus;
+    if (isReactNexusComponentInstance(instance)) {
+      return instance.waitForPrefetching();
+    }
+    return Promise.resolve({ instance: instance });
+  }).disposer(function (_ref2) {
+    var instance = _ref2.instance;
+    return destroyReactElementInstance(instance);
+  });
+}
+
 function prefetchElement(element, nexus) {
-  return Promise['try'](function () {
-    if (__DEV__) {
-      _react2['default'].isValidElement(element).should.be['true'];
-      nexus.should.be.an.Object;
-      __NODE__.should.be['true'];
-    }
-    if (shouldPrefetch(element)) {
-      return Promise.using(getPrefetchedReactComponent(element, nexus), function (instance) {
-        return withNexus(nexus, function () {
-          return Promise.all(_.map(flattenDescendants(instance.render ? instance.render() : null), function (descendantElement) {
-            return prefetchElement(descendantElement, nexus);
-          }));
-        });
-      });
-    }
+  return Promise.using(getDisposableReactComponentInstance(element, nexus), function (_ref3) {
+    var instance = _ref3.instance;
+
+    initializeReactElementInstance(instance);
+    return Promise.all(_.map(renderReactComponentInstanceCompositeDescendants(instance), function (childElement) {
+      return prefetchElement(childElement, nexus);
+    }));
   });
 }
 
-// In the server, prefetch the dependencies and store them in the nexus as a side effect.
-// It will recursively prefetch all the nexus dependencies of all the components at the initial state.
-function prefetchApp(rootElement, nexus) {
-  return Promise['try'](function () {
-    if (__DEV__) {
-      _react2['default'].isValidElement(rootElement).should.be['true'];
-      nexus.should.be.an.Object;
-      __NODE__.should.be['true'];
-    }
+function renderTo(element) {
+  var renderToString = arguments[1] === undefined ? _react2['default'].renderToString : arguments[1];
+
+  return Promise.using(getDisposableReactRootInstance(element), function (_ref4) {
+    var nexus = _ref4.nexus;
+    var lifespan = _ref4.lifespan;
+    var instance = _ref4.instance;
+
     _.each(nexus, function (flux) {
       return flux.startPrefetching();
     });
-    return prefetchElement(rootElement, nexus);
-  }).then(function () {
-    return _.mapValues(nexus, function (flux) {
-      return flux.stopPrefetching();
+    initializeReactElementInstance(instance);
+    return Promise.map(renderReactComponentInstanceCompositeDescendants(instance), function (childElement) {
+      return prefetchElement(childElement, nexus);
+    }).then(function () {
+      return _.mapValues(nexus, function (flux) {
+        return flux.stopPrefetching();
+      });
+    }).then(function (data) {
+      _.each(nexus, function (flux, k) {
+        return flux.startInjecting(data[k]);
+      });
+      var prevNexus = Nexus.currentNexus;
+      Nexus.currentNexus = nexus;
+      var html = renderToString(_react2['default'].cloneElement(element, { nexus: nexus, lifespan: lifespan }));
+      Nexus.currentNexus = prevNexus;
+      _.each(nexus, function (flux) {
+        return flux.stopInjecting();
+      });
+      return { html: html, data: data };
     });
   });
 }
@@ -162,128 +202,32 @@ _Object$assign(Nexus, {
   React: _react2['default'],
   Remutable: Remutable,
 
-  // Enhance a component (placeholder slot)
-  // @see bind.js
-  bind: null,
-  // Component enhance decorator (placeholder slot)
-  // @see inject.js
-  inject: null,
-  // Generic Injector component (placeholder slot)
-  // @see Injector.js
-  Injector: null,
+  // Root decorator (placeholder slot)
+  // @see root.js
+  root: null,
+
+  // Component decorator (placeholder slot)
+  // @see component.js
+  component: null,
 
   // A global reference to the current nexus context, mapping keys to Flux client objects
   // It is set temporarly in the server during the prefetching/prerendering phase,
   // and set durably in the browser during the mounting phase.
   currentNexus: null,
 
-  // In the server, prefetch, then renderToString, then return the generated HTML string and the raw prefetched data,
-  // which can then be injected into the server response (eg. using a global variable).
-  // It will be used by the browser to call mountApp.
-  prerenderApp: function prerenderApp(rootElement, nexus) {
-    return Promise['try'](function () {
-      if (__DEV__) {
-        _react2['default'].isValidElement(rootElement).should.be['true'];
-        nexus.should.be.an.Object;
-        __NODE__.should.be['true'];
-        _.each(nexus, function (flux) {
-          return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
-        });
-      }
-      return prefetchApp(rootElement, nexus).then(function (data) {
-        _.each(nexus, function (flux, key) {
-          return flux.startInjecting(data[key]);
-        });
-        var html = withNexus(nexus, function () {
-          return _react2['default'].renderToString(rootElement);
-        });
-        _.each(nexus, function (flux) {
-          return flux.stopInjecting();
-        });
-        return [html, data];
-      });
-    });
+  renderToString: function renderToString(rootElement) {
+    return renderTo(rootElement, _react2['default'].renderToString);
   },
 
-  prerenderAppToStaticMarkup: function prerenderAppToStaticMarkup(rootElement, nexus) {
-    return Promise['try'](function () {
-      if (__DEV__) {
-        _react2['default'].isValidElement(rootElement).should.be['true'];
-        nexus.should.be.an.Object;
-        __NODE__.should.be['true'];
-        _.each(nexus, function (flux) {
-          return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
-        });
-      }
-      return prefetchApp(rootElement, nexus).then(function (data) {
-        _.each(nexus, function (flux, key) {
-          return flux.startInjecting(data[key]);
-        });
-        var html = withNexus(nexus, function () {
-          return _react2['default'].renderToStaticMarkup(rootElement);
-        });
-        _.each(nexus, function (flux) {
-          return flux.stopInjecting();
-        });
-        return [html, data];
-      });
-    });
-  },
-
-  // In the client, mount the rootElement using the given nexus and the given prefetched data into
-  // the given domNode. Also globally and durably set the global nexus context.
-  mountApp: function mountApp(rootElement, nexus, data, domNode) {
-    if (__DEV__) {
-      _react2['default'].isValidElement(rootElement).should.be['true'];
-      nexus.should.be.an.Object;
-      data.should.be.an.Object;
-      domNode.should.be.an.Object;
-      __BROWSER__.should.be['true'];
-      _.each(nexus, function (flux) {
-        return flux.should.be.an.instanceOf(_nexusFlux2['default'].Client);
-      });
-      (Nexus.currentNexus === null).should.be['true'];
-    }
-    Nexus.currentNexus = nexus;
-    _.each(nexus, function (flux, key) {
-      return flux.startInjecting(data[key]);
-    });
-    var r = _react2['default'].render(rootElement, domNode);
-    _.each(nexus, function (flux, key) {
-      return flux.stopInjecting(data[key]);
-    });
-    return r;
-  },
-
-  checkBindings: function checkBindings(bindings) {
-    if (__DEV__) {
-      bindings.should.be.an.Object;
-      _.each(bindings, function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2);
-
-        var flux = _ref2[0];
-        var path = _ref2[1];
-
-        flux.should.be.a.String;
-        path.should.be.a.String;
-      });
-    }
-    return bindings;
+  renderToStaticMarkup: function renderToStaticMarkup(rootElement) {
+    return renderTo(rootElement, _react2['default'].renderToStaticMarkup);
   },
 
   PropTypes: _Object$assign({}, _react2['default'].PropTypes, {
     Immutable: {
       Map: function Map(props, propName) {
         return _immutable2['default'].Map.isMap(props[propName]) ? null : new Error('Expecting an Immutable.Map');
-      } } }),
-
-  STATUS: {
-    PREFETCH: 'PREFETCH',
-    INJECT: 'INJECT',
-    PENDING: 'PENDING',
-    SYNCING: 'SYNCING',
-    LIVE: 'LIVE' } });
+      } } }) });
 
 exports['default'] = Nexus;
 module.exports = exports['default'];
-/* defaultValue */

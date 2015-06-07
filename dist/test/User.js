@@ -14,13 +14,13 @@ _Object$defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _2 = require('../');
-
-var _3 = _interopRequireDefault(_2);
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _2 = require('../');
+
+var _3 = _interopRequireDefault(_2);
 
 var _ = require('lodash');
 var should = require('should');
@@ -34,48 +34,54 @@ if (__DEV__) {
   Error.stackTraceLimit = Infinity;
 }
 
-var _default = (function (_React$Component) {
-  var _class = function _default() {
-    _classCallCheck(this, _class2);
+var User = (function (_React$Component) {
+  function User() {
+    _classCallCheck(this, _User);
 
     if (_React$Component != null) {
       _React$Component.apply(this, arguments);
     }
-  };
+  }
 
-  _inherits(_class, _React$Component);
+  _inherits(User, _React$Component);
 
-  var _class2 = _class;
+  var _User = User;
 
-  _createClass(_class2, [{
+  _createClass(_User, [{
     key: 'render',
     value: function render() {
-      var bar = this.props.bar;
+      var user = this.props.user;
 
+      var firstName = user.get('firstName');
+      var lastName = user.get('lastName');
       return _react2['default'].createElement(
         'span',
-        { className: 'NestedInject' },
-        bar ? bar.get('mood') : null
+        null,
+        lastName,
+        '. ',
+        firstName,
+        ' ',
+        lastName
       );
     }
   }], [{
     key: 'displayName',
-    value: 'NestedInject',
+    value: 'User',
     enumerable: true
   }, {
     key: 'propTypes',
     value: {
-      bar: _react2['default'].PropTypes.any },
+      user: _3['default'].PropTypes.Immutable.Map },
     enumerable: true
   }]);
 
-  _class = _3['default'].inject(function (_ref) {
-    var foo = _ref.foo;
+  User = _3['default'].component(function (_ref) {
+    var userId = _ref.userId;
     return {
-      bar: ['local', foo] };
-  })(_class) || _class;
-  return _class;
+      user: ['local://users/' + userId, { firstName: 'John', lastName: 'Doe' }] };
+  })(User) || User;
+  return User;
 })(_react2['default'].Component);
 
-exports['default'] = _default;
+exports['default'] = User;
 module.exports = exports['default'];
