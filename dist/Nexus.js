@@ -226,7 +226,10 @@ _Object$assign(Nexus, {
   PropTypes: _Object$assign({}, _react2['default'].PropTypes, {
     Immutable: {
       Map: function Map(props, propName) {
-        return _immutable2['default'].Map.isMap(props[propName]) ? null : new Error('Expecting an Immutable.Map');
+        if (!_immutable2['default'].Map.isMap(props[propName])) {
+          return new Error('Expecting an Immutable.Map for ' + propName + '.');
+        }
+        return null;
       } } }) });
 
 exports['default'] = Nexus;

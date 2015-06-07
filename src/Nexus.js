@@ -165,7 +165,12 @@ Object.assign(Nexus, {
 
   PropTypes: Object.assign({}, React.PropTypes, {
     Immutable: {
-      Map: (props, propName) => Immutable.Map.isMap(props[propName]) ? null : new Error(`Expecting an Immutable.Map`),
+      Map(props, propName) {
+        if(!Immutable.Map.isMap(props[propName])) {
+          return new Error(`Expecting an Immutable.Map for ${propName}.`);
+        }
+        return null;
+      },
     },
   }),
 });
