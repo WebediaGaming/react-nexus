@@ -60,15 +60,26 @@ var STATUS = {
   SYNCING: _Symbol('SYNCING'),
   LIVE: _Symbol('LIVE') };
 
-function getDefaultBindings() {
-  return {};
+function normalizeGetBindings() {
+  var getBindings = arguments[0] === undefined ? {} : arguments[0];
+
+  if (!_.isFunction(getBindings)) {
+    if (__DEV__) {
+      getBindings.should.be.an.Object;
+    }
+    return function () {
+      return getBindings;
+    };
+  }
+  return getBindings;
 }
 
 function bindComponent(Component) {
   var getBindings = arguments[1] === undefined ? Component.prototype.getNexusBindings : arguments[1];
   var displayName = arguments[2] === undefined ? 'NexusComponent' + Component.displayName : arguments[2];
   return (function () {
-    var _getBindings = getBindings || getDefaultBindings;
+    // getBindings can be a function or a static object
+    var _getBindings = normalizeGetBindings(getBindings);
 
     if (__DEV__) {
       Component.should.be.a.Function;

@@ -13,8 +13,14 @@ const STATUS = {
   LIVE: Symbol('LIVE'),
 };
 
-function getDefaultBindings() {
-  return {};
+function normalizeGetBindings(getBindings = {}) {
+  if(!_.isFunction(getBindings)) {
+    if(__DEV__) {
+      getBindings.should.be.an.Object;
+    }
+    return () => getBindings;
+  }
+  return getBindings;
 }
 
 function bindComponent(
@@ -22,7 +28,8 @@ function bindComponent(
   getBindings = Component.prototype.getNexusBindings,
   displayName = `NexusComponent${Component.displayName}`
   ) {
-  const _getBindings = getBindings || getDefaultBindings;
+  // getBindings can be a function or a static object
+  const _getBindings = normalizeGetBindings(getBindings);
 
   if(__DEV__) {
     Component.should.be.a.Function;
