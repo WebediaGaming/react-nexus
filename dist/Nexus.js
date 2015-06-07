@@ -181,7 +181,9 @@ function renderTo(element) {
     }).then(function (data) {
       var html = renderToString(_react2['default'].cloneElement(element, { nexus: nexus, lifespan: lifespan, data: data }));
       _.each(nexus, function (flux) {
-        return flux.stopInjecting();
+        if (flux.isInjecting) {
+          flux.stopInjecting();
+        }
       });
       return { html: html, data: data };
     });

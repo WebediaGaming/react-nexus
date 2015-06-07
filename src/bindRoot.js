@@ -36,9 +36,32 @@ function bindRoot(
       return { nexus, lifespan, instance: this };
     }
 
+    startInjecting() {
+      const { nexus } = this;
+      const { data } = this.props;
+      if(data !== null) {
+        _.each(data, (i, k) => {
+          if(nexus[k]) {
+            nexus[k].startInjecting(i);
+          }
+        });
+      }
+    }
+
+    stopInjecting() {
+      const { nexus } = this;
+      const { data } = this.props;
+      if(data !== null) {
+        _.each(data, (i, k) => {
+          if(nexus[k]) {
+            nexus[k].stopInjecting();
+          }
+        });
+      }
+    }
+
     componentDidMount() {
-      const { nexus } = this.state;
-      _.each(nexus, (flux) => flux.stopInjecting());
+      this.stopInjecting();
     }
 
     componentWillUnmount() {
@@ -53,12 +76,12 @@ function bindRoot(
     }) {
       super(otherProps);
       if(nexus !== null) {
-        _.each(nexus, (flux, k) => flux.startInjecting(data[k]));
         Object.assign(this, { nexus, lifespan });
       }
       else {
         Object.assign(this, createNexus.call(this, { data, ...otherProps })); // eslint-disable-line object-shorthand
       }
+      this.startInjecting();
     }
 
     render() {

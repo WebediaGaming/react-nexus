@@ -124,7 +124,11 @@ function renderTo(element, renderToString = React.renderToString) {
     .then(() => _.mapValues(nexus, (flux) => flux.stopPrefetching()))
     .then((data) => {
       const html = renderToString(React.cloneElement(element, { nexus, lifespan, data }));
-      _.each(nexus, (flux) => flux.stopInjecting());
+      _.each(nexus, (flux) => {
+        if(flux.isInjecting) {
+          flux.stopInjecting();
+        }
+      });
       return { html, data };
     });
   });

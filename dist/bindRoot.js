@@ -74,13 +74,11 @@ function bindRoot(Component) {
         _get(Object.getPrototypeOf(_class.prototype), 'constructor', this).call(this, otherProps);
         this.isReactNexusRootInstance = true;
         if (nexus !== null) {
-          _.each(nexus, function (flux, k) {
-            return flux.startInjecting(data[k]);
-          });
           _Object$assign(this, { nexus: nexus, lifespan: lifespan });
         } else {
           _Object$assign(this, createNexus.call(this, _extends({ data: data }, otherProps))); // eslint-disable-line object-shorthand
         }
+        this.startInjecting();
       };
 
       _inherits(_class, _React$Component);
@@ -99,13 +97,37 @@ function bindRoot(Component) {
           return { nexus: nexus, lifespan: lifespan, instance: this };
         }
       }, {
+        key: 'startInjecting',
+        value: function startInjecting() {
+          var nexus = this.nexus;
+          var data = this.props.data;
+
+          if (data !== null) {
+            _.each(data, function (i, k) {
+              if (nexus[k]) {
+                nexus[k].startInjecting(i);
+              }
+            });
+          }
+        }
+      }, {
+        key: 'stopInjecting',
+        value: function stopInjecting() {
+          var nexus = this.nexus;
+          var data = this.props.data;
+
+          if (data !== null) {
+            _.each(data, function (i, k) {
+              if (nexus[k]) {
+                nexus[k].stopInjecting();
+              }
+            });
+          }
+        }
+      }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
-          var nexus = this.state.nexus;
-
-          _.each(nexus, function (flux) {
-            return flux.stopInjecting();
-          });
+          this.stopInjecting();
         }
       }, {
         key: 'componentWillUnmount',
