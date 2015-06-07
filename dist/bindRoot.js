@@ -28,6 +28,8 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactAddons = require('react/addons');
+
 var _Nexus = require('./Nexus');
 
 var _Nexus2 = _interopRequireDefault(_Nexus);
@@ -43,6 +45,7 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
+var PureRenderMixin = _reactAddons.addons.PureRenderMixin;
 
 function bindRoot(Component) {
   var createNexus = arguments[1] === undefined ? Component.prototype.createNexus : arguments[1];
@@ -162,7 +165,7 @@ function bindRoot(Component) {
           if (__BROWSER__ && nextState.nexus === null) {
             return false;
           }
-          return _react2['default'].PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
+          return PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
         }
       }, {
         key: 'render',

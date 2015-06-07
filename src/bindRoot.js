@@ -1,4 +1,6 @@
 import React from 'react';
+import { addons } from 'react/addons';
+const { PureRenderMixin } = addons;
 
 import Nexus from './Nexus';
 
@@ -82,7 +84,7 @@ function bindRoot(
       if(__BROWSER__ && nextState.nexus === null) {
         return false;
       }
-      return React.PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
+      return PureRenderMixin.shouldComponentUpdate.call(this, nextProps, nextState);
     }
 
     render() {
