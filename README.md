@@ -40,7 +40,7 @@ import Nexus from 'react-nexus';
     // init some flux stores
     const stores = {
       // if the value is already in data, reuse it, otherwise initialize it
-      '/counters': data && data['/counters'] || { clicks: 0 },
+      '/counters': new Remutable(data && data['/counters'] || { clicks: 0 }),
     };
 
     const server = new LocalFlux.Server(stores);
