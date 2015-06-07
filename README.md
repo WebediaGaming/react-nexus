@@ -157,6 +157,8 @@ class ... extends React.Component
 class ... extends React.Component
 ```
 
+`@component` support slight convenience variations. `@component` without any argument doesn't have bindings except for `this.props.nexus`, to dispatch actions. `@component(obj)` is a convenience shorthand for `@component(() => obj)` for when the bindings don't depend on the props of the component.
+
 #### `PropTypes.Immutable.Map`
 
 Convenient `PropTypes` validator for `Immutable.Map` (delegating to `Immutable.Map.isMap`), to typecheck the results of bindings.
