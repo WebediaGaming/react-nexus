@@ -1,9 +1,9 @@
 import React from 'react';
 import Immutable from 'immutable';
 import pure from 'pure-render-decorator';
+import { Lifespan } from 'nexus-flux';
 
 import Nexus from './Nexus';
-const { Lifespan } = Nexus;
 
 const STATUS = {
   PREFETCH: 'PREFETCH',

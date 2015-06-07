@@ -78,7 +78,7 @@ function bindRoot(Component) {
         } else {
           _Object$assign(this, createNexus.call(this, _extends({ data: data }, otherProps))); // eslint-disable-line object-shorthand
         }
-        this.startInjecting();
+        this.startInjecting(data);
       };
 
       _inherits(_class, _React$Component);
@@ -98,9 +98,8 @@ function bindRoot(Component) {
         }
       }, {
         key: 'startInjecting',
-        value: function startInjecting() {
+        value: function startInjecting(data) {
           var nexus = this.nexus;
-          var data = this.props.data;
 
           if (data !== null) {
             _.each(data, function (i, k) {

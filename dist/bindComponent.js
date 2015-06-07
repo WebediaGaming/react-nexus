@@ -34,6 +34,8 @@ var _pureRenderDecorator = require('pure-render-decorator');
 
 var _pureRenderDecorator2 = _interopRequireDefault(_pureRenderDecorator);
 
+var _nexusFlux = require('nexus-flux');
+
 var _Nexus = require('./Nexus');
 
 var _Nexus2 = _interopRequireDefault(_Nexus);
@@ -49,7 +51,6 @@ if (__DEV__) {
   Promise.longStackTraces();
   Error.stackTraceLimit = Infinity;
 }
-var Lifespan = _Nexus2['default'].Lifespan;
 
 var STATUS = {
   PREFETCH: 'PREFETCH',
@@ -215,7 +216,7 @@ function bindComponent(Component) {
             var path = _v[1];
             var defaultValue = _v[2];
 
-            var store = flux.getStore(path, lifespans[k] = new Lifespan()).onUpdate(function (_ref10) {
+            var store = flux.getStore(path, lifespans[k] = new _nexusFlux.Lifespan()).onUpdate(function (_ref10) {
               var head = _ref10.head;
               return _this.setState(_defineProperty({}, k, [STATUS.LIVE, head, defaultValue]));
             }).onDelete(function () {

@@ -36,9 +36,8 @@ function bindRoot(
       return { nexus, lifespan, instance: this };
     }
 
-    startInjecting() {
+    startInjecting(data) {
       const { nexus } = this;
-      const { data } = this.props;
       if(data !== null) {
         _.each(data, (i, k) => {
           if(nexus[k]) {
@@ -81,7 +80,7 @@ function bindRoot(
       else {
         Object.assign(this, createNexus.call(this, { data, ...otherProps })); // eslint-disable-line object-shorthand
       }
-      this.startInjecting();
+      this.startInjecting(data);
     }
 
     render() {
