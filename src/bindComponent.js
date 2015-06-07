@@ -13,12 +13,16 @@ const STATUS = {
   LIVE: Symbol('LIVE'),
 };
 
+function getDefaultBindings() {
+  return {};
+}
+
 function bindComponent(
   Component,
   getBindings = Component.prototype.getNexusBindings,
   displayName = `NexusComponent${Component.displayName}`
   ) {
-  const _getBindings = getBindings;
+  const _getBindings = getBindings || getDefaultBindings;
 
   if(__DEV__) {
     Component.should.be.a.Function;
