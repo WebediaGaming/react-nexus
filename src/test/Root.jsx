@@ -4,6 +4,7 @@ import Nexus from '../';
 const { Lifespan, Remutable } = Nexus;
 
 import User from './User';
+import Users from './Users';
 
 @Nexus.root(({ data, path }) => {
   const lifespan = new Lifespan();
@@ -11,6 +12,7 @@ import User from './User';
   const localStores = {
     '/session': new Remutable(recover('/session', { userId: 1 })),
     '/route': new Remutable({ path }),
+    '/users': new Remutable({ '1': 1, '2': 2 }),
     '/users/1': new Remutable(recover('/users/1', { firstName: 'Immanuel', lastName: 'Kant' })),
     '/users/2': new Remutable(recover('/users/2', { firstName: 'Friedrich', lastName: 'Nietzsche' })),
   };
@@ -43,6 +45,7 @@ class Root extends React.Component {
     const userId = session.get('userId');
     return <div className='Root'>
       <p>Route is {path || null}. User is {userId ? <User userId={userId} /> : null}.</p>
+      <Users />
     </div>;
   }
 }

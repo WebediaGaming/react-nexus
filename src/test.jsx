@@ -7,6 +7,10 @@ renderToStaticMarkup(<Root path={'Königsberg'} mood={'happy'} foo={'bar'} />)
   html.should.be.exactly([
     '<div class="Root">',
       '<p>Route is Königsberg. User is <span>Kant. Immanuel Kant</span>.</p>',
+      '<ul>',
+        '<li>Immanuel Kant</li>',
+        '<li>Friedrich Nietzsche</li>',
+      '</ul>',
     '</div>',
   ].join(''));
   JSON.stringify(data).should.be.exactly(JSON.stringify({
@@ -20,6 +24,14 @@ renderToStaticMarkup(<Root path={'Königsberg'} mood={'happy'} foo={'bar'} />)
       '/users/1': {
         firstName: 'Immanuel',
         lastName: 'Kant',
+      },
+      '/users': {
+        '1': 1,
+        '2': 2,
+      },
+      '/users/2': {
+        firstName: 'Friedrich',
+        lastName: 'Nietzsche',
       },
     },
   }));

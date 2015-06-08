@@ -30,6 +30,10 @@ var _User = require('./User');
 
 var _User2 = _interopRequireDefault(_User);
 
+var _Users = require('./Users');
+
+var _Users2 = _interopRequireDefault(_Users);
+
 var _ = require('lodash');
 var should = require('should');
 var Promise = (global || window).Promise = require('bluebird');
@@ -77,7 +81,8 @@ var Root = (function (_React$Component) {
           '. User is ',
           userId ? _react2['default'].createElement(_User2['default'], { userId: userId }) : null,
           '.'
-        )
+        ),
+        _react2['default'].createElement(_Users2['default'], null)
       );
     }
   }], [{
@@ -108,6 +113,7 @@ var Root = (function (_React$Component) {
     var localStores = {
       '/session': new Remutable(recover('/session', { userId: 1 })),
       '/route': new Remutable({ path: path }),
+      '/users': new Remutable({ '1': 1, '2': 2 }),
       '/users/1': new Remutable(recover('/users/1', { firstName: 'Immanuel', lastName: 'Kant' })),
       '/users/2': new Remutable(recover('/users/2', { firstName: 'Friedrich', lastName: 'Nietzsche' })) };
 

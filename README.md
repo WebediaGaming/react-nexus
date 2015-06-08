@@ -102,6 +102,29 @@ Nexus.renderToString(<App />)
 React.render(<App data={getInjectedData()} />);
 ```
 
+### Composition and reactive data fetching
+
+One of the nice features of React Nexus is that it enables chaining. You can define a component that depends on data which is the result of nested queries. For example, let's imagine we want to fetch the list of users in our database, then fetch the profile of each user, and render a component that depends on all this stuff (contrived example).
+
+```js
+// the result from this query...
+@component({
+  users: ['remote://users', {}]
+})
+// is injected here...
+@component(({ users }) =>
+  users.mapEntries(([userId, user]) =>
+    [`user:${userId}`, [`remote://users/${userId}/profile`, {}]]
+  ).toObject()
+))
+class Users extends React.Component {
+  // ... this component will receive all the users,
+  // and their updates.
+}
+```
+
+In addition to be dead numb to perform nested data-fetching, you get reactive data fetching for free. Whenever a piece of data is updated somewhere in the `@component` chain, the dependencies are properly diffed and updated accordingly. In this case, if `remote://users` is updated to add a new user, then this user is injected into the next `@component`, which in turn subscribes to the updates of this user, and injects it into `Users`.
+
 ### API
 
 The API is very concise. There are only a few core functions and some useful helps.
@@ -138,19 +161,7 @@ This means in particular that you can typecheck fetched values using `propTypes`
 
 Much like `render`, `getNexusBindings` should be very fast and without side effects, as it will be called multiple times during the lifecycle of a component.
 
-`@component` and `@root` can be applied on the same component, but beware that the order is very important:
-
-```js
-// good
-@root()
-@component()
-class ... extends React.Component
-
-// bad
-@component()
-@root()
-class ... extends React.Component
-```
+`@component` and `@root` can be applied on the same component, but `@root` must be applied first since `@component` only works in a component hierarchy with a `@root`-decorated root.
 
 `@component` support slight convenience variations. `@component` without any argument doesn't have bindings except for `this.props.nexus`, to dispatch actions. `@component(obj)` is a convenience shorthand for `@component(() => obj)` for when the bindings don't depend on the props of the component.
 
