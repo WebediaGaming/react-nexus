@@ -20,14 +20,6 @@
     "browser": true,
     "node": true
   },
-  "globals": {
-    "_": true,
-    "Promise": true,
-    "__DEV__": true,
-    "__PROD__": true,
-    "__NODE__": true,
-    "__BROWSER__": true
-  },
   "parser": "babel-eslint",
   "plugins": [
     "react"

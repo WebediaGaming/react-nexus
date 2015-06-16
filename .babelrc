@@ -1,0 +1,4 @@
+{
+  "modules": "common",
+  "optional": ["es7.classProperties"]
+}
