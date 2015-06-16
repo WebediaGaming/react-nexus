@@ -1,6 +1,6 @@
 {
   "name": "react-nexus",
-  "version": "3.4.3",
+  "version": "3.5.0",
   "description": "",
   "license": "MIT",
   "author": "Elie Rotenberg <elie@rotenberg.io>",
@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "bluebird": "^2.9.30",
-    "lodash": "^3.9.2",
     "lodash": "^3.9.3",
     "nexus-flux": "^4.0.1",
     "pure-render-decorator": "^0.1.0",
