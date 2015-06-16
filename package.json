@@ -26,11 +26,11 @@
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.1",
     "gulp-plumber": "^1.0.1",
-    "immutable": "^3.7.3",
     "react": "^0.13.3"
   },
   "dependencies": {
     "bluebird": "^2.9.30",
+    "immutable": "^3.7.3",
     "lodash": "^3.9.3",
     "nexus-flux": "^4.0.1",
     "pure-render-decorator": "^0.1.0",
