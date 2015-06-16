@@ -4,7 +4,6 @@ React Nexus
 Isomorphic React apps done ~~right~~ well. Server-side rendering, data prefetching, SEO for free.
 
 ### Nexus Flux
-
 React Nexus is closely related to [Nexus Flux](https://github.com/elierotenberg/nexus-flux), although Nexus Flux works without React Nexus.
 
 React Nexus takes a webapp, made with React components using Nexus Flux, and orchestrates everything to achieve server-side rendering, data prefetching, SEO and truly isormophic apps for free.
@@ -206,3 +205,7 @@ renderToString(<App />)
 // --- CLIENT PART ---
 window.startClient = (data, node) => React.render(<App data={data} />, node);
 ```
+
+### Usage
+
+This module is written in ES6/7. You will need `babel` to run it.

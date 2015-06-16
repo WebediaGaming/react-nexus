@@ -2,6 +2,9 @@ import React from 'react';
 import Immutable from 'immutable';
 import pure from 'pure-render-decorator';
 import { Lifespan } from 'nexus-flux';
+const __DEV__ = process.env.NODE_ENV === 'development';
+import _ from 'lodash';
+import Promise from 'bluebird';
 
 import Nexus from './Nexus';
 

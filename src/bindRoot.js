@@ -1,6 +1,8 @@
 import React from 'react';
 import { addons } from 'react/addons';
 const { PureRenderMixin } = addons;
+const __DEV__ = process.env.NODE_ENV === 'development';
+import _ from 'lodash';
 
 import Nexus from './Nexus';
 

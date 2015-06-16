@@ -1,6 +1,7 @@
 import React from 'react';
 import { component } from '../';
 import transform from 'react-transform-props';
+import _ from 'lodash';
 
 @component(() => ({
   users: ['local://users', {}],
