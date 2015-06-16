@@ -20,5 +20,5 @@ function test() {
 }
 
 gulp.task('lint', lint);
-gulp.task('test', test);
-gulp.task('default', ['lint', 'test']);
+gulp.task('test', ['lint'], test);
+gulp.task('default', ['test']);
