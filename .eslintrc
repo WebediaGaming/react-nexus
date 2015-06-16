@@ -146,7 +146,8 @@
     "camelcase": [1, { "properties": "always" }],
     "comma-spacing": [1, { "before": false, "after": true }],
     "comma-style": [1, "last"],
-    "consistent-this": [0, "_this"],
+    "computed-property-spacing": 0,
+    "consistent-this": 0,
     "eol-last": 1,
     "func-names": 1,
     "func-style": 0,
@@ -187,13 +188,14 @@
     "space-infix-ops": 1,
     "space-return-throw-case": 1,
     "space-unary-ops": 0,
-    "spaced-line-comment": [1, "always"],
+    "spaced-comment": [1, "always"],
     "wrap-regex": 1,
 
     /* ECMAScript 6 */
     "generator-star-spacing": [1, "after"],
     "no-var": 1,
     "object-shorthand": [1, "always"],
+    "prefer-const": 1,
 
     /* Legacy */
     "max-depth": [0, 3],

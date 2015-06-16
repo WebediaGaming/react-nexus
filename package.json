@@ -15,20 +15,20 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "babel": "^5.5.5",
-    "babel-runtime": "^5.5.5",
-    "bluebird": "^2.9.27",
+    "babel": "^5.5.8",
+    "babel-runtime": "^5.5.8",
+    "bluebird": "^2.9.30",
     "lodash": "^3.9.3",
     "should": "^6.0.3"
   },
   "devDependencies": {
-    "babel-eslint": "^3.1.14",
+    "babel-eslint": "^3.1.15",
     "del": "^1.2.0",
-    "eslint": "^0.22.1",
-    "eslint-plugin-react": "^2.5.0",
+    "eslint": "^0.23.0",
+    "eslint-plugin-react": "^2.5.2",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.1.0",
-    "gulp-eslint": "^0.13.2",
+    "gulp-eslint": "^0.14.0",
     "gulp-insert": "^0.4.0",
     "gulp-plumber": "^1.0.1",
     "gulp-sourcemaps": "^1.5.2",
