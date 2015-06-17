@@ -1,5 +1,6 @@
 import React from 'react';
 import { addons } from 'react/addons';
+import pure from 'pure-render-decorator';
 const { PureRenderMixin } = addons;
 const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
@@ -18,7 +19,7 @@ function bindRoot(
     displayName.should.be.a.String;
   }
 
-  return class extends React.Component {
+  return @pure class extends React.Component {
     static displayName = displayName;
 
     static propTypes = {
