@@ -6,7 +6,7 @@
   "bugs": "https://github.com/elierotenberg/es6-starterkit/issues",
   "license": "MIT",
   "author": "Elie Rotenberg <elie@rotenberg.io>",
-  "main": "dist/index.js",
+  "main": "src/index.jsx",
   "repository": {
     "type": "git",
     "url": "https://github.com/elierotenberg/es6-starterkit.git"
