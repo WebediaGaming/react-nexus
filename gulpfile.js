@@ -1,6 +1,10 @@
 require('babel/register')({
-  only: ['src/**'],
-  optional: ['runtime'],
+  only: /\.jsx$/,
+  optional: [
+    'runtime',
+    'es7.classProperties',
+    'es7.decorators',
+  ],
 });
 
 var eslint = require('gulp-eslint');
@@ -20,7 +24,7 @@ function lint() {
 }
 
 function test() {
-  return gulp.src(['src/__tests__/*.js', 'src/__tests__/*.jsx'])
+  return gulp.src('src/__tests__/**/*.jsx')
     .pipe(mocha());
 }
 
