@@ -21,7 +21,7 @@
     "babel-eslint": "^3.1.15",
     "babel-runtime": "^5.5.8",
     "eslint": "^0.23.0",
-    "eslint-plugin-react": "^2.5.2",
+    "eslint-plugin-react": "2.5.2",
     "gulp": "^3.9.0",
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.1",

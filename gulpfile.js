@@ -1,3 +1,4 @@
+/* eslint-disable no-var, vars-on-top */
 require('babel/register')({
   only: /\.jsx$/,
   optional: [
@@ -11,10 +12,6 @@ var eslint = require('gulp-eslint');
 var gulp = require('gulp');
 var plumber = require('gulp-plumber');
 var mocha = require('gulp-mocha');
-
-function clean() {
-  del(['dist']);
-}
 
 function lint() {
   return gulp.src(['src/**/*.js', 'src/**/*.jsx'])
