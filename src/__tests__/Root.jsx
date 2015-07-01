@@ -1,5 +1,5 @@
 import React from 'react';
-import LocalFlux from 'nexus-flux/adapters/local';
+import LocalFlux from 'nexus-flux/adapters/Local';
 import Nexus from '../';
 const { Lifespan, Remutable } = Nexus;
 
