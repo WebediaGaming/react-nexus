@@ -47,7 +47,7 @@ import Nexus from 'react-nexus';
   server.on('action', ({ path, params }) => {
     if(path === '/click') {
       const counters = stores['/counters'];
-      counters.set('clicks,' counters.get('clicks') + 1);
+      counters.set('clicks', counters.get('clicks') + 1);
       // updates the stores
       server.dispatchUpdate('/counters', counters.commit());
     }
