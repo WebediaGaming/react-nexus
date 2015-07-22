@@ -63,16 +63,6 @@ function bindRoot(
       }
     }
 
-    createComponent() {
-      const { nexus } = this;
-      this.Component = class extends Component {
-        render() {
-          Nexus.currentNexus = nexus;
-          return super.render();
-        }
-      };
-    }
-
     componentDidMount() {
       this.stopInjecting();
     }
