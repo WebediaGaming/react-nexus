@@ -6,6 +6,7 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 
 import Nexus from './Nexus';
+import createBoundComponent from './createBoundComponent';
 
 function bindRoot(
     Component,
@@ -62,6 +63,16 @@ function bindRoot(
       }
     }
 
+    createComponent() {
+      const { nexus } = this;
+      this.Component = class extends Component {
+        render() {
+          Nexus.currentNexus = nexus;
+          return super.render();
+        }
+      };
+    }
+
     componentDidMount() {
       this.stopInjecting();
     }
@@ -83,12 +94,14 @@ function bindRoot(
       else {
         Object.assign(this, createNexus.call(this, { data, ...otherProps })); // eslint-disable-line object-shorthand
       }
+      this.BoundComponent = createBoundComponent(this, Component);
       this.startInjecting(data);
     }
 
     render() {
       Nexus.currentNexus = this.nexus;
-      return <Component {...this.getOtherProps()} />;
+      const { BoundComponent } = this;
+      return <BoundComponent {...this.getOtherProps()} />;
     }
   };
 }

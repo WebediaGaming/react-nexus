@@ -7,6 +7,7 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 
 import Nexus from './Nexus';
+import createBoundComponent from './createBoundComponent';
 
 const STATUS = {
   PREFETCH: 'PREFETCH',
@@ -140,11 +141,13 @@ function bindComponent(
         }
         return [STATUS.PENDING, defaultValue, defaultValue];
       });
+      this.BoundComponent = createBoundComponent(this, Component);
     }
 
     render() {
       Nexus.currentNexus = this.nexus;
-      return <Component {...this.getChildrenProps()} />;
+      const { BoundComponent } = this;
+      return <BoundComponent {...this.getChildrenProps()} />;
     }
   };
 }
