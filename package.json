@@ -32,7 +32,7 @@
     "bluebird": "^2.9.30",
     "immutable": "^3.7.3",
     "lodash": "^3.9.3",
-    "nexus-flux": "^4.1.1",
+    "nexus-flux": "^4.1.2",
     "pure-render-decorator": "^0.1.0",
     "react-transform-props": "^1.0.1",
     "should": "^6.0.3"
