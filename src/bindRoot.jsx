@@ -3,6 +3,7 @@ import pure from 'pure-render-decorator';
 const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 
+import { $isRootInstance } from './symbols';
 import Nexus from './Nexus';
 import createBoundComponent from './createBoundComponent';
 
@@ -18,7 +19,7 @@ function bindRoot(
     displayName.should.be.a.String;
   }
 
-  return @pure class extends React.Component {
+  const NexusRoot = @pure class extends React.Component {
     static displayName = displayName;
 
     static propTypes = {
@@ -26,8 +27,6 @@ function bindRoot(
       lifespan: React.PropTypes.object,
       nexus: React.PropTypes.object,
     };
-
-    isReactNexusRootInstance = true;
 
     getOtherProps() {
       return _.omit(this.props, ['nexus', 'data']);
@@ -92,6 +91,12 @@ function bindRoot(
       return <BoundComponent {...this.getOtherProps()} />;
     }
   };
+
+  Object.assign(NexusRoot.prototype, {
+    [$isRootInstance]: true,
+  });
+
+  return NexusRoot;
 }
 
 export default bindRoot;

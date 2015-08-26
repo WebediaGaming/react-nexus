@@ -6,6 +6,8 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 import Promise from 'bluebird';
 
+import { $isComponentInstance, $isRootInstance, $waitForPrefetching } from './symbols';
+
 const Nexus = {};
 
 function isCompositeComponentElement(element) {
@@ -30,11 +32,11 @@ function isCompositeComponentElement(element) {
 }
 
 function isReactNexusComponentInstance(instance) {
-  return _.isObject(instance) && instance.isReactNexusComponentInstance;
+  return _.isObject(instance) && instance[$isComponentInstance];
 }
 
 function isReactNexusRootInstance(instance) {
-  return _.isObject(instance) && instance.isReactNexusRootInstance;
+  return _.isObject(instance) && instance[$isRootInstance];
 }
 
 // flatten the descendants of a given element into an array
@@ -101,7 +103,7 @@ function getDisposableReactComponentInstance(element, nexus) {
     Nexus.currentNexus = nexus;
     const instance = constructReactElementInstance(element);
     if(isReactNexusComponentInstance(instance)) {
-      return instance.waitForPrefetching();
+      return instance[$waitForPrefetching]();
     }
     return Promise.resolve({ instance });
   })

@@ -2,6 +2,8 @@ import Nexus from './Nexus';
 import component from './component';
 import root from './root';
 
-Object.assign(Nexus, { component, root });
+import symbols from './symbols';
+
+Object.assign(Nexus, { component, root }, symbols);
 
 export default Nexus;

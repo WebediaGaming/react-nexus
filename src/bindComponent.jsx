@@ -8,6 +8,7 @@ import Promise from 'bluebird';
 
 import Nexus from './Nexus';
 import createBoundComponent from './createBoundComponent';
+import { $isComponentInstance, $waitForPrefetching } from './symbols';
 
 const STATUS = {
   PREFETCH: 'PREFETCH',
@@ -41,10 +42,8 @@ function bindComponent(
     displayName.should.be.a.String;
   }
 
-  return @pure class extends React.Component {
+  const NexusComponent = @pure class extends React.Component {
     static displayName = displayName;
-
-    isReactNexusComponentInstance = true;
 
     state = null;
     bindings = null;
@@ -120,7 +119,7 @@ function bindComponent(
       this.updateBindings({});
     }
 
-    waitForPrefetching() {
+    [$waitForPrefetching]() {
       return Promise.all(_.map(this.state,
         ([status, value]) => status === STATUS.PREFETCH ? value.promise : Promise.resolve()
       ))
@@ -150,6 +149,12 @@ function bindComponent(
       return <BoundComponent {...this.getChildrenProps()} />;
     }
   };
+
+  Object.assign(NexusComponent.prototype, {
+    [$isComponentInstance]: true,
+  });
+
+  return NexusComponent;
 }
 
 export default bindComponent;
