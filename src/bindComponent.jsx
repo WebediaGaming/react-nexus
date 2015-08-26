@@ -31,7 +31,7 @@ function bindComponent(
   Component,
   getBindings = Component.prototype.getNexusBindings,
   displayName = `NexusComponent${Component.displayName}`
-  ) {
+) {
   // getBindings can be a function or a static object
   const _getBindings = normalizeGetBindings(getBindings);
 

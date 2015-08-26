@@ -10,11 +10,11 @@ describe('renderToStaticMarkup', function test() {
       .then(({ html, data }) => {
         html.should.be.exactly([
           '<div class="Root">',
-            '<p>Route is Königsberg. User is <span>Kant. Immanuel Kant</span>.</p>',
-            '<ul>',
-              '<li>Immanuel Kant</li>',
-              '<li>Friedrich Nietzsche</li>',
-            '</ul>',
+          '<p>Route is Königsberg. User is <span>Kant. Immanuel Kant</span>.</p>',
+          '<ul>',
+          '<li>Immanuel Kant</li>',
+          '<li>Friedrich Nietzsche</li>',
+          '</ul>',
           '</div>',
         ].join(''));
         JSON.stringify(data).should.be.exactly(JSON.stringify({
