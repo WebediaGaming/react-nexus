@@ -7,7 +7,6 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 
 import Nexus from './Nexus';
-import createBoundComponent from './createBoundComponent';
 import { $isComponentInstance, $waitForPrefetching } from './symbols';
 
 const STATUS = {
@@ -45,6 +44,10 @@ function bindComponent(
   const NexusComponent = @pure class extends React.Component {
     static displayName = displayName;
 
+    static contextTypes = {
+      nexus: React.PropTypes.object.isRequired,
+    };
+
     state = null;
     bindings = null;
     lifespans = null;
@@ -72,7 +75,7 @@ function bindComponent(
     }
 
     getChildrenProps() {
-      return Object.assign({ nexus: Nexus.currentNexus }, this.getOtherProps(this.props), this.getStoreProps());
+      return Object.assign({ nexus: this.nexus }, this.getOtherProps(this.props), this.getStoreProps());
     }
 
     updateBindings(nextBindings = {}) {
@@ -126,9 +129,9 @@ function bindComponent(
       .then(() => ({ instance: this }));
     }
 
-    constructor(props) {
-      super(props);
-      this.nexus = Nexus.currentNexus;
+    constructor(props, context) {
+      super(props, context);
+      this.nexus = context.nexus;
       this.bindings = {};
       this.lifespans = {};
       this.state = _.mapValues(this.getBindings(props), ([flux, path, defaultValue]) => {
@@ -140,13 +143,10 @@ function bindComponent(
         }
         return [STATUS.PENDING, defaultValue, defaultValue];
       });
-      this.BoundComponent = createBoundComponent(this, Component);
     }
 
     render() {
-      Nexus.currentNexus = this.nexus;
-      const { BoundComponent } = this;
-      return <BoundComponent {...this.getChildrenProps()} />;
+      return <Component {...this.getChildrenProps()} />;
     }
   };
 

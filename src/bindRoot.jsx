@@ -5,7 +5,6 @@ import _ from 'lodash';
 
 import { $isRootInstance } from './symbols';
 import Nexus from './Nexus';
-import createBoundComponent from './createBoundComponent';
 
 function bindRoot(
     Component,
@@ -22,6 +21,10 @@ function bindRoot(
   const NexusRoot = @pure class extends React.Component {
     static displayName = displayName;
 
+    static childContextTypes = {
+      nexus: React.PropTypes.object.isRequired,
+    };
+
     static propTypes = {
       data: React.PropTypes.object,
       lifespan: React.PropTypes.object,
@@ -30,6 +33,13 @@ function bindRoot(
 
     getOtherProps() {
       return _.omit(this.props, ['nexus', 'data']);
+    }
+
+    getChildContext() {
+      const { nexus } = this;
+      return {
+        nexus,
+      };
     }
 
     getNexus() {
@@ -81,14 +91,11 @@ function bindRoot(
       else {
         Object.assign(this, createNexus.call(this, { data, ...otherProps })); // eslint-disable-line object-shorthand
       }
-      this.BoundComponent = createBoundComponent(this, Component);
       this.startInjecting(data);
     }
 
     render() {
-      Nexus.currentNexus = this.nexus;
-      const { BoundComponent } = this;
-      return <BoundComponent {...this.getOtherProps()} />;
+      return <Component {...this.getOtherProps()} />;
     }
   };
 

@@ -56,12 +56,12 @@ function flattenDescendants(element, acc = []) {
   return acc;
 }
 
-function constructReactElementInstance(element) {
+function constructReactElementInstance(element, context = {}) {
   if(__DEV__) {
     React.isValidElement(element).should.be.true;
   }
   // subject to change in upcoming versions of React
-  return new element.type(element._store ? element._store.props : element.props);
+  return new element.type(element._store ? element._store.props : element.props, context);
 }
 
 function renderReactComponentInstanceCompositeDescendants(instance) {
@@ -100,8 +100,7 @@ function getDisposableReactRootInstance(element) {
 
 function getDisposableReactComponentInstance(element, nexus) {
   return Promise.try(() => {
-    Nexus.currentNexus = nexus;
-    const instance = constructReactElementInstance(element);
+    const instance = constructReactElementInstance(element, { nexus });
     if(isReactNexusComponentInstance(instance)) {
       return instance[$waitForPrefetching]();
     }
@@ -152,11 +151,6 @@ Object.assign(Nexus, {
   // Component decorator (placeholder slot)
   // @see component.js
   component: null,
-
-  // A global reference to the current nexus context, mapping keys to Flux client objects
-  // It is set temporarly in the server during the prefetching/prerendering phase,
-  // and set durably in the browser during the mounting phase.
-  currentNexus: null,
 
   renderToString(rootElement) {
     return renderTo(rootElement, React.renderToString);
