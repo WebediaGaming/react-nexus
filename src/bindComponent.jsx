@@ -1,10 +1,12 @@
 import React from 'react';
 import Immutable from 'immutable';
-import pure from 'pure-render-decorator';
 import { Lifespan } from 'nexus-flux';
 const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 import Promise from 'bluebird';
+
+import { addons } from 'react/addons';
+const { PureRenderMixin } = addons;
 
 import Nexus from './Nexus';
 import { $isComponentInstance, $waitForPrefetching } from './symbols';
@@ -30,6 +32,7 @@ function normalizeGetBindings(getBindings = {}) {
 function bindComponent(
   Component,
   getBindings = Component.prototype.getNexusBindings,
+  shouldNexusComponentUpdate,
   displayName = `NexusComponent${Component.displayName}`
 ) {
   // getBindings can be a function or a static object
@@ -41,7 +44,7 @@ function bindComponent(
     displayName.should.be.a.String;
   }
 
-  const NexusComponent = @pure class extends React.Component {
+  const NexusComponent = class extends React.Component {
     static displayName = displayName;
 
     static contextTypes = {
@@ -143,6 +146,13 @@ function bindComponent(
         }
         return [STATUS.PENDING, defaultValue, defaultValue];
       });
+    }
+
+    shouldComponentUpdate(...args) {
+      if(shouldNexusComponentUpdate) {
+        return shouldNexusComponentUpdate.apply(this, [this, ...args]);
+      }
+      return PureRenderMixin.shouldComponentUpdate.apply(this, args);
     }
 
     render() {
