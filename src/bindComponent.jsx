@@ -1,15 +1,15 @@
 import React from 'react';
 import Immutable from 'immutable';
 import { Lifespan } from 'nexus-flux';
-const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 import Promise from 'bluebird';
+import should from 'should';
 
 import { addons } from 'react/addons';
 const { PureRenderMixin } = addons;
-
-import Nexus from './Nexus';
 import { $isComponentInstance, $waitForPrefetching } from './symbols';
+
+const __DEV__ = process.env.NODE_ENV === 'development';
 
 const STATUS = {
   PREFETCH: 'PREFETCH',
@@ -22,7 +22,7 @@ const STATUS = {
 function normalizeGetBindings(getBindings = {}) {
   if(!_.isFunction(getBindings)) {
     if(__DEV__) {
-      getBindings.should.be.an.Object;
+      should(getBindings).be.an.Object;
     }
     return () => getBindings;
   }
@@ -39,9 +39,9 @@ function bindComponent(
   const _getBindings = normalizeGetBindings(getBindings);
 
   if(__DEV__) {
-    Component.should.be.a.Function;
-    _getBindings.should.be.a.Function;
-    displayName.should.be.a.String;
+    should(Component).be.a.Function;
+    should(_getBindings).be.a.Function;
+    should(displayName).be.a.String;
   }
 
   const NexusComponent = class extends React.Component {

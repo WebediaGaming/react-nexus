@@ -1,10 +1,12 @@
 import Flux from 'nexus-flux';
 import Immutable from 'immutable';
 import React from 'react';
-const { Remutable, Lifespan } = Flux;
-const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
 import Promise from 'bluebird';
+import should from 'should';
+
+const { Remutable, Lifespan } = Flux;
+const __DEV__ = process.env.NODE_ENV === 'development';
 
 import { $isComponentInstance, $isRootInstance, $waitForPrefetching } from './symbols';
 
@@ -15,16 +17,16 @@ function isCompositeComponentElement(element) {
     return false;
   }
   if(__DEV__) {
-    element.should.be.an.Object;
-    element.should.have.property('type');
+    should(element).be.an.Object;
+    should(element).have.property('type');
   }
   const { type } = element;
   if(_.isString(type)) { // eg. 'div'
     return false;
   }
   if(__DEV__) {
-    type.should.be.a.Function;
-    type.should.have.property('prototype');
+    should(type).be.a.Function;
+    should(type).have.property('prototype');
   }
   const { prototype } = element.type;
   // @see https://github.com/facebook/react/blob/master/src/test/ReactTestUtils.js#L86-L97
@@ -43,7 +45,7 @@ function isReactNexusRootInstance(instance) {
 // use an accumulator to avoid lengthy lists construction and merging.
 function flattenDescendants(element, acc = []) {
   if(__DEV__) {
-    acc.should.be.an.Array;
+    should(acc).be.an.Array;
   }
   // only pass through valid elements
   if(!React.isValidElement(element)) {
@@ -58,7 +60,7 @@ function flattenDescendants(element, acc = []) {
 
 function constructReactElementInstance(element, context = {}) {
   if(__DEV__) {
-    React.isValidElement(element).should.be.true;
+    should(React.isValidElement(element)).be.true;
   }
   // subject to change in upcoming versions of React
   return new element.type(element._store ? element._store.props : element.props, context);

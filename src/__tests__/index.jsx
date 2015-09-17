@@ -2,13 +2,14 @@ const { describe, it } = global;
 import React from 'react';
 import { renderToStaticMarkup } from '../';
 import Root from './Root';
+import should from 'should';
 
 describe('renderToStaticMarkup', function test() {
   this.timeout(5000);
   it('should render the correct HTML and data', () =>
     renderToStaticMarkup(<Root path={'Königsberg'} mood={'happy'} foo={'bar'} />)
       .then(({ html, data }) => {
-        html.should.be.exactly([
+        should(html).be.exactly([
           '<div class="Root">',
           '<p>Route is Königsberg. User is <span>Kant. Immanuel Kant</span>.</p>',
           '<ul>',
@@ -17,7 +18,7 @@ describe('renderToStaticMarkup', function test() {
           '</ul>',
           '</div>',
         ].join(''));
-        JSON.stringify(data).should.be.exactly(JSON.stringify({
+        should(JSON.stringify(data)).be.exactly(JSON.stringify({
           local: {
             '/route': {
               'path': 'Königsberg',

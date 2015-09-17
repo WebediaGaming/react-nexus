@@ -1,10 +1,11 @@
 import React from 'react';
 import pure from 'pure-render-decorator';
-const __DEV__ = process.env.NODE_ENV === 'development';
 import _ from 'lodash';
+import should from 'should';
+
+const __DEV__ = process.env.NODE_ENV === 'development';
 
 import { $isRootInstance } from './symbols';
-import Nexus from './Nexus';
 
 function bindRoot(
     Component,
@@ -14,8 +15,8 @@ function bindRoot(
 ) {
 
   if(__DEV__) {
-    createNexus.should.be.a.Function;
-    displayName.should.be.a.String;
+    should(createNexus).be.a.Function;
+    should(displayName).be.a.String;
   }
 
   const NexusRoot = @pure class extends React.Component {
