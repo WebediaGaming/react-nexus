@@ -1,6 +1,6 @@
 {
-  "name": "LIB-NAME",
-  "version": "0.0.0",
+  "name": "react-nexus",
+  "version": "4.0.0-dev",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elierotenberg/LIB-NAME.git"
+    "url": "git+https://github.com/elierotenberg/react-nexus.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Elie Rotenberg <elie@rotenberg.io>",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elierotenberg/LIB-NAME/issues"
+    "url": "https://github.com/elierotenberg/react-nexus/issues"
   },
-  "homepage": "https://github.com/elierotenberg/LIB-NAME#readme",
+  "homepage": "https://github.com/elierotenberg/react-nexus#readme",
   "private": true,
   "devDependencies": {
     "babel": "^5.8.23",
@@ -35,5 +35,9 @@
   },
   "dependencies": {
     "babel-runtime": "^5.8.25"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0-rc1",
+    "react-dom": "^0.14.0-rc1"
   }
 }
