@@ -1,7 +1,10 @@
+import should from 'should/as-function';
+const __DEV__ = process.env.NODE_ENV === 'development';
 /**
  * @abstract
  */
 class Flux {
+  static displayName = 'Flux';
   /**
    * Create a new Flux instance based on a previous call to serialize()
    * @param {Object} Previous return value of serialize()
@@ -11,8 +14,11 @@ class Flux {
   static unserialize() {}
 
   constructor() {
-    if(this.constructor === Flux) {
-      throw new Error('Nexus.Flux is an abstract class. You must extend it.');
+    if(__DEV__) {
+      if(this.constructor === Flux) {
+        throw new Error('Nexus.Flux is an abstract class. You must extend it.');
+      }
+      should(this.constructor).have.property('displayName').which.is.a.String();
     }
   }
 

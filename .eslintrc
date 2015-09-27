@@ -213,7 +213,7 @@
     // "babel/block-scoped-var": 1,
     "babel/object-shorthand": [1, "always"],
     "babel/generator-star-spacing": [1, "after"],
-    "babel/new-cap": 1,
+    "babel/new-cap": [2, { "capIsNewExceptions": ["T.Promise"] }],
     "babel/object-curly-spacing": [1, "always"],
 
     /* React */

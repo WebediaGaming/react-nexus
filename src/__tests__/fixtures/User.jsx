@@ -20,9 +20,9 @@ const userSchema = T.shape({
 
 @multiInject(({ userId }, { http, local }) => ({
   me: http.get(`/me`, {
-    authToken: _.last(local.values('/authToken')),
+    query: { authToken: _.last(local.values('/authToken')) },
   }),
-  user: http.get(`/users/${userId}`, { refreshEvery: 5000 }),
+  user: http.get(`/users/${userId}`),
   users: http.get(`/users`, { refreshEvery: 600000 }),
 }))
 @pure

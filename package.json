@@ -23,6 +23,7 @@
     "eslint": "^1.5.1",
     "eslint-plugin-babel": "^2.1.1",
     "eslint-plugin-react": "^3.4.2",
+    "express": "^4.13.3",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.1",
     "gulp-eslint": "^1.0.0",
@@ -32,6 +33,7 @@
     "mocha": "^2.3.3",
     "rimraf": "^2.4.3",
     "source-map-support": "^0.3.2",
+    "superagent": "^1.4.0",
     "typecheck-decorator": "^1.0.0"
   },
   "dependencies": {
