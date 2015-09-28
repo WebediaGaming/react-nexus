@@ -7,13 +7,13 @@ import Injector from './components/Injector';
 import MultiInjector from './components/MultiInjector';
 
 function flattenChildren(children, acc = []) {
-  return React.Children.map((element) => {
+  React.Children.forEach(children, (element) => {
     acc.push(element);
-    if(typeof element === 'object' && element.children) {
-      return flattenChildren(element.children);
+    if(typeof element === 'object' && element.props && element.props.children) {
+      return flattenChildren(element.props.children);
     }
-    return acc;
   });
+  return acc;
 }
 
 function create(Component, props, context) {
@@ -49,7 +49,7 @@ function satisfy({ props, type }) {
   return populate([]);
 }
 
-function prepare(element, context) {
+function prepare(element, context = {}) {
   if(typeof element !== 'object') {
     return Promise.resolve();
   }
@@ -63,9 +63,9 @@ function prepare(element, context) {
     const inst = create(type, props, context);
     const [childrenElements, childContext] = render(inst, context);
     // There is a caveat here: an elements' context should be its parents', not itw owners'.
-    return React.Children.map(flattenChildren(childrenElements), (descendantElement) =>
+    return Promise.all(_.map(flattenChildren(childrenElements), (descendantElement) =>
       prepare(descendantElement, childContext)
-    )
+    ))
     .catch((err) => {
       dispose(err);
       throw err;

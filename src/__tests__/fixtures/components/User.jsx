@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import T from 'typecheck-decorator';
 
-import { inject, multiInject, pure } from '../../../';
+import { multiInject, pure } from '../../../';
 
 function propType(schema) {
   return T.toPropType(T.shape([
@@ -17,11 +17,11 @@ const userSchema = T.shape({
   profilePicture: T.String(),
 });
 
-@inject('authToken', (props, { local }) => local.get('/authToken'))
-@multiInject(({ userId, authToken }, { http }) => ({
-  me: http.get(`/me`, { query: { authToken } }),
+@multiInject(({ userId }, { http }) => ({
+  me: http.get(`/me`, { query: { authToken: 'E47Exd7RdDds' } }),
   user: http.get(`/users/${userId}`),
   users: http.get(`/users`, { refreshEvery: 5000 }),
+  error: http.get('/error'),
 }))
 @pure
 export default class extends React.Component {
@@ -29,8 +29,8 @@ export default class extends React.Component {
   static propTypes = {
     me: propType(userSchema),
     user: propType(userSchema),
-    userId: React.PropTypes.number.isRequired,
-    users: propType(T.Array(userSchema)),
+    userId: React.PropTypes.string.isRequired,
+    users: propType(T.Array({ type: userSchema })),
   };
 
   constructor(props, context) {

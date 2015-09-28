@@ -11,21 +11,23 @@ export default function multiInject(getBindings, customShouldComponentUpdate = p
   if(__DEV__) {
     should(getBindings).be.a.Function();
   }
-  return (Component) => class DecoratedMultiInjector extends React.Component {
-    static displayName = `@multiInject`;
+  return function $multiInject(Component) {
+    return class extends React.Component {
+      static displayName = `@multiInject(${Component.displayName})`;
 
-    shouldComponentUpdate(...args) {
-      return customShouldComponentUpdate.apply(this, args);
-    }
-
-    render() {
-      const bindings = getBindings(this.props, this.context);
-      if(__DEV__) {
-        _.each(bindings, ({ flux }) => flux.should.be.an.instanceOf(Flux));
+      shouldComponentUpdate(...args) {
+        return customShouldComponentUpdate.apply(this, args);
       }
-      return <MultiInjector {...bindings}>{(multiValues) =>
-        <Component {...Object.assign({}, this.props, _.mapValues(multiValues, (value) => _.last(value)))} />
-      }</MultiInjector>;
-    }
+
+      render() {
+        const bindings = getBindings(this.props, this.context);
+        if(__DEV__) {
+          _.each(bindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
+        }
+        return <MultiInjector {...bindings}>{(multiValues) =>
+          <Component {...Object.assign({}, this.props, _.mapValues(multiValues, (value) => _.last(value)))} />
+        }</MultiInjector>;
+      }
+    };
   };
 }

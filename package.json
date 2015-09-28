@@ -31,10 +31,12 @@
     "gulp-plumber": "^1.0.1",
     "gulp-sourcemaps": "^1.5.2",
     "mocha": "^2.3.3",
+    "react": "^0.14.0-rc1",
+    "react-dom": "^0.14.0-rc1",
     "rimraf": "^2.4.3",
     "source-map-support": "^0.3.2",
     "superagent": "^1.4.0",
-    "typecheck-decorator": "^1.0.0"
+    "typecheck-decorator": "^1.0.1"
   },
   "dependencies": {
     "babel-runtime": "^5.8.25",

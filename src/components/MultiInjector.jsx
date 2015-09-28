@@ -44,10 +44,10 @@ class MultiInjector extends React.Component {
     if(__DEV__) {
       _.each(bindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
     }
-    this.state = _.mapValues(bindings, ({ flux, params }, key) =>
-      flux.values(key)
+    this.state = _.mapValues(bindings, ({ flux, params }) =>
+      flux.values(params)
     );
-    this.unobserve = _.mapValues(bindings, () => _.noop);
+    this.unobserve = {};
   }
 
   componentDidMount() {
@@ -93,7 +93,8 @@ class MultiInjector extends React.Component {
   }
 
   componentWillUnmount() {
-    _.each(Object.keys(this.unobserve), (key) => this.unsubscribe(key));
+    const { bindings } = MultiInjector.destructureProps(this.props);
+    _.each(Object.keys(bindings), (key) => this.unsubscribe(key));
   }
 
   shouldComponentUpdate(...args) {

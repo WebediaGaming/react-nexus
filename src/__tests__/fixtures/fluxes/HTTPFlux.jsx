@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import should from 'should/as-function';
 import superagent from 'superagent';
 import url from 'url';
 import Promise from 'bluebird';
@@ -14,9 +13,9 @@ const optNumber = T.option(T.Number());
 const valueShape = T.shape([
   T.option(T.oneOf(T.instanceOf(Error), T.String())),
   T.any(),
-  T.oneOf(T.instanceOf(Date), T.String()),
+  T.option(T.oneOf(T.instanceOf(Date), T.String())),
 ]);
-const valuesType = T.Array(valueShape);
+const valuesType = T.Array({ type: valueShape });
 
 const optionsShape = T.shape({
   maxRequestDuration: optNumber,
@@ -33,8 +32,8 @@ const paramsShape = T.shape({
   refreshEvery: optNumber,
 });
 const defaultParams = {
-  refreshEvery: null,
-  authToken: null,
+  query: {},
+  refreshEvery: void 0,
 };
 
 class HTTPFlux extends Flux {
@@ -43,7 +42,7 @@ class HTTPFlux extends Flux {
   @devTakes(T.shape({
     baseUrl: T.String(),
     options: optionsShape,
-    data: T.Object(valuesType),
+    data: T.Object({ type: valuesType }),
   }))
   @devReturns(T.instanceOf(HTTPFlux))
   static unserialize({ baseUrl, options, data }) {
@@ -56,12 +55,12 @@ class HTTPFlux extends Flux {
     return JSON.stringify(params);
   }
 
-  constructor(baseUrl, options, data) {
+  constructor(baseUrl, options = {}, data = {}) {
     super();
     if(__DEV__) {
       T.String()(baseUrl);
       optionsShape(options);
-      T.Object(valuesType)(data);
+      T.Object({ type: valuesType })(data);
     }
     this.originalOptions = options;
     this.options = _.defaults({}, options, defaultOptions);
@@ -75,7 +74,7 @@ class HTTPFlux extends Flux {
   @devReturns(T.shape({
     baseUrl: T.String(),
     options: optionsShape,
-    data: T.Object(valuesType),
+    data: T.Object({ type: valuesType }),
   }))
   serialize() {
     return {
@@ -87,17 +86,16 @@ class HTTPFlux extends Flux {
 
   @devTakes(T.String(), valueShape)
   @devReturns(T.instanceOf(HTTPFlux))
-  pushValue(params, [err, res]) {
-    const key = this.constructor.keyFor(params);
+  pushValue(key, [err, res]) {
     const value = [err, res, new Date()];
-    this.data[key] = (this.data[key] || []).concat(value);
+    this.data[key] = (this.data[key] || []).concat([value]);
     if(_.has(this.observers, key)) {
       _.each(this.observers[key], (fn) => fn(value));
     }
     return this;
   }
 
-  @devTakes(T.String(), paramsShape)
+  @devTakes(T.String(), T.Object())
   @devReturns(T.shape({
     flux: T.instanceOf(HTTPFlux),
     params: paramsShape,
@@ -113,8 +111,8 @@ class HTTPFlux extends Flux {
   @devReturns(valuesType)
   values(params) {
     const key = this.constructor.keyFor(params);
-    if(__DEV__) {
-      should(this.data).have.property(key);
+    if(!_.has(this.data, key)) {
+      this.data[key] = [];
     }
     return this.data[key];
   }
@@ -159,7 +157,7 @@ class HTTPFlux extends Flux {
     const key = this.constructor.keyFor(params);
     const { path, query } = params;
     if(!_.has(this.promises, key)) {
-      this.promises[key] = this.fetch(path, 'get', { query })
+      this.promises[key] = this.request(path, 'get', { query })
         .then(([err, res]) => this.pushValue(key, [err, res]));
     }
     return this.promises[key];

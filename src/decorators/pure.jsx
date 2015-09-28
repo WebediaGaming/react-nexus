@@ -1,7 +1,10 @@
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 
-function pure() {
-  return (Component) => class extends Component {
+function pure(Component) {
+  if(!Component) {
+    return pure;
+  }
+  return class extends Component {
     shouldComponentUpdate(...args) {
       return pureShouldComponentUpdate.apply(this, args);
     }

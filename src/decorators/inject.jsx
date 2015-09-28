@@ -13,21 +13,23 @@ export default function inject(key, getBinding, customShouldComponentUpdate = pu
     should(typeof key).be.oneOf('string', 'symbol');
     should(getBinding).be.a.Function();
   }
-  return (Component) => class extends React.Component {
-    static displayName = `@inject`;
+  return function $inject(Component) {
+    return class extends React.Component {
+      static displayName = `@inject(${Component.displayName})`;
 
-    shouldComponentUpdate(...args) {
-      return customShouldComponentUpdate.apply(this, args);
-    }
-
-    render() {
-      const { flux, params } = getBinding(this.props, this.context);
-      if(__DEV__) {
-        should(flux).be.an.instanceOf(Flux);
+      shouldComponentUpdate(...args) {
+        return customShouldComponentUpdate.apply(this, args);
       }
-      return <Injector flux={flux} params={params}>{(values) =>
-        <Component {...Object.assign({}, this.props, { [key]: _.last(values) })} />
-      }</Injector>;
-    }
+
+      render() {
+        const { flux, params } = getBinding(this.props, this.context);
+        if(__DEV__) {
+          should(flux).be.an.instanceOf(Flux);
+        }
+        return <Injector flux={flux} params={params}>{(values) =>
+          <Component {...Object.assign({}, this.props, { [key]: _.last(values) })} />
+        }</Injector>;
+      }
+    };
   };
 }

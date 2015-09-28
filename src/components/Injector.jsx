@@ -23,7 +23,7 @@ class Injector extends React.Component {
     this.state = {
       values: flux.values(params),
     };
-    this.unobserve = _.noop;
+    this.unobserve = null;
   }
 
   componentDidMount() {
@@ -37,8 +37,10 @@ class Injector extends React.Component {
   }
 
   unsubscribe() {
-    this.unobserve();
-    this.setState({ values: void 0 });
+    if(this.unobserve) {
+      this.unobserve();
+      this.setState({ values: void 0 });
+    }
   }
 
   subscribe({ flux, params }) {
