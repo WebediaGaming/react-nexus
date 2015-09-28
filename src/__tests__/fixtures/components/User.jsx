@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import T from 'typecheck-decorator';
 
-import { multiInject, pure } from '../../';
+import { inject, multiInject, pure } from '../../../';
 
 function propType(schema) {
   return T.toPropType(T.shape([
@@ -17,12 +17,11 @@ const userSchema = T.shape({
   profilePicture: T.String(),
 });
 
-@multiInject(({ userId }, { http, local }) => ({
-  me: http.get(`/me`, {
-    query: { authToken: _.last(local.values('/authToken')) },
-  }),
+@inject('authToken', (props, { local }) => local.get('/authToken'))
+@multiInject(({ userId, authToken }, { http }) => ({
+  me: http.get(`/me`, { query: { authToken } }),
   user: http.get(`/users/${userId}`),
-  users: http.get(`/users`, { refreshEvery: 600000 }),
+  users: http.get(`/users`, { refreshEvery: 5000 }),
 }))
 @pure
 export default class extends React.Component {
@@ -60,7 +59,7 @@ export default class extends React.Component {
           return <p>{err.toString()}</p>;
         }
         return <p>Total users: {users.length}</p>;
-      }(...this.props.users)}
+      }(_.last(this.props.users))}
       {(err, user) => {
         if(!err && !user) {
           return <p>Loading user...</p>;
@@ -81,7 +80,7 @@ export default class extends React.Component {
             return <p>{following.value().toString()}</p>;
           }(this.state)}
         </p>;
-      }(...this.props.user)}
+      }(_.last(this.props.user))}
     </div>;
   }
 }

@@ -5,7 +5,7 @@ import url from 'url';
 import Promise from 'bluebird';
 import T, { takes as devTakes, returns as devReturns } from 'typecheck-decorator';
 
-import { Flux } from '../..';
+import { Flux } from '../../..';
 
 const __DEV__ = process.env.NODE_ENV === 'development';
 

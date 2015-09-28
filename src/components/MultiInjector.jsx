@@ -5,9 +5,9 @@ import should from 'should/as-function';
 
 const __DEV__ = process.env.NODE_ENV === 'development';
 
-import pureShouldComponentUpdate from './pureShouldComponentUpdate';
-import omitChildren from './omitChildren';
-import Flux from './Flux';
+import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
+import omitChildren from '../utils/omitChildren';
+import Flux from '../Flux';
 
 function diff(prev, next) {
   return [
@@ -20,14 +20,6 @@ function omitShouldComponentUpdate(props) {
   return _.omit(props, 'shouldComponentUpdate');
 }
 
-function destructureProps(props) {
-  return {
-    children: props.children,
-    shouldComponentUpdate: props.shouldComponentUpdate,
-    bindings: omitChildren(omitShouldComponentUpdate(props)),
-  };
-}
-
 class MultiInjector extends React.Component {
   static displayName = 'Nexus.MultiInjector';
   static propTypes = {
@@ -38,9 +30,17 @@ class MultiInjector extends React.Component {
     shouldComponentUpdate: pureShouldComponentUpdate,
   };
 
+  static destructureProps(props) {
+    return {
+      children: props.children,
+      shouldComponentUpdate: props.shouldComponentUpdate,
+      bindings: omitChildren(omitShouldComponentUpdate(props)),
+    };
+  }
+
   constructor(props, context) {
     super(props, context);
-    const { bindings } = destructureProps(this.props);
+    const { bindings } = MultiInjector.destructureProps(this.props);
     if(__DEV__) {
       _.each(bindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
     }
@@ -51,7 +51,7 @@ class MultiInjector extends React.Component {
   }
 
   componentDidMount() {
-    const { bindings } = destructureProps(this.props);
+    const { bindings } = MultiInjector.destructureProps(this.props);
     _.each(bindings, ({ flux, params }, key) =>
       this.subscribe({ flux, params }, key)
     );
@@ -82,8 +82,8 @@ class MultiInjector extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { bindings: prevBindings } = destructureProps(this.props);
-    const { bindings: nextBindings } = destructureProps(nextProps);
+    const { bindings: prevBindings } = MultiInjector.destructureProps(this.props);
+    const { bindings: nextBindings } = MultiInjector.destructureProps(nextProps);
     if(__DEV__) {
       _.each(nextBindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
     }
@@ -101,7 +101,8 @@ class MultiInjector extends React.Component {
   }
 
   render() {
-    return this.props.children(this.state);
+    const { children, bindings } = MultiInjector.destructureProps(this.props);
+    return children(_.mapValues(bindings, ({ flux, params }) => flux.values(params)));
   }
 }
 

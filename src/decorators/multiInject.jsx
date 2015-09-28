@@ -3,9 +3,9 @@ import React from 'react';
 import should from 'should/as-function';
 const __DEV__ = process.env.NODE_ENV === 'development';
 
-import Flux from './Flux';
-import MultiInjector from './MultiInjector';
-import pureShouldComponentUpdate from './pureShouldComponentUpdate';
+import Flux from '../Flux';
+import MultiInjector from '../components/MultiInjector';
+import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 
 export default function multiInject(getBindings, customShouldComponentUpdate = pureShouldComponentUpdate) {
   if(__DEV__) {

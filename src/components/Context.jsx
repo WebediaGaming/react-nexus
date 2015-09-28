@@ -5,8 +5,8 @@ import should from 'should/as-function';
 
 const __DEV__ = process.env.NODE_ENV === 'development';
 
-import omitChildren from './omitChildren';
-import Flux from './Flux';
+import omitChildren from '../utils/omitChildren';
+import Flux from '../Flux';
 
 class Context extends React.Component {
   static displayName = 'Nexus.Context';

@@ -2,8 +2,8 @@ import _ from 'lodash';
 import deepEqual from 'deep-equal';
 import React from 'react';
 
-import Flux from './Flux';
-import pureShouldComponentUpdate from './pureShouldComponentUpdate';
+import Flux from '../Flux';
+import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 
 class Injector extends React.Component {
   static displayName = 'Nexus.Injector';
@@ -67,8 +67,8 @@ class Injector extends React.Component {
   }
 
   render() {
-    const { values } = this.state;
-    return this.children(values);
+    const { children, flux, params } = this.props;
+    return children(flux.values(params));
   }
 }
 

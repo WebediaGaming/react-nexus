@@ -1,11 +1,11 @@
-import pureShouldComponentUpdate from './pureShouldComponentUpdate';
-import Context from './Context';
+import Context from './components/Context';
 import Flux from './Flux';
-import inject from './inject';
-import Injector from './Injector';
-import multiInject from './multiInject';
-import MultiInjector from './MultiInjector';
-import pure from './pure';
+import inject from './decorators/inject';
+import Injector from './components/Injector';
+import multiInject from './decorators/multiInject';
+import MultiInjector from './components/MultiInjector';
+import prepare from './prepare';
+import pure from './decorators/pure';
 
 export default {
   Context,
@@ -14,6 +14,6 @@ export default {
   Injector,
   multiInject,
   MultiInjector,
+  prepare,
   pure,
-  pureShouldComponentUpdate,
 };

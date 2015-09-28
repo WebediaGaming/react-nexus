@@ -4,9 +4,9 @@ import should from 'should/as-function';
 
 const __DEV__ = process.env.NODE_ENV;
 
-import Injector from './Injector';
-import Flux from './Flux';
-import pureShouldComponentUpdate from './pureShouldComponentUpdate';
+import Injector from '../components/Injector';
+import Flux from '../Flux';
+import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 
 export default function inject(key, getBinding, customShouldComponentUpdate = pureShouldComponentUpdate) {
   if(__DEV__) {
