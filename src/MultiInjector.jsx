@@ -65,7 +65,7 @@ class MultiInjector extends React.Component {
 
   unsubscribe(key) {
     if(_.has(this.unobserve, key)) {
-      this.unobserve(key);
+      this.unobserve[key]();
       this.setState({
         [key]: void 0,
       });

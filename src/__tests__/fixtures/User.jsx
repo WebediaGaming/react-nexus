@@ -6,7 +6,6 @@ import { multiInject, pure } from '../../';
 
 function propType(schema) {
   return T.toPropType(T.shape([
-    T.bool(), // pending
     T.option(T.oneOf(T.exactly(null), T.Error())), // err
     T.option(schema), // res
   ]));
@@ -53,8 +52,8 @@ export default class extends React.Component {
 
   render() {
     return <div>
-      {(pending, err, users) => {
-        if(pending) {
+      {(err, users) => {
+        if(!err && !users) {
           return <p>Loading users...</p>;
         }
         if(err) {
@@ -62,8 +61,8 @@ export default class extends React.Component {
         }
         return <p>Total users: {users.length}</p>;
       }(...this.props.users)}
-      {(pending, err, user) => {
-        if(pending) {
+      {(err, user) => {
+        if(!err && !user) {
           return <p>Loading user...</p>;
         }
         if(err) {
