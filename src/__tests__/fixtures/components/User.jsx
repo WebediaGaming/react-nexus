@@ -1,7 +1,7 @@
 import React from 'react';
 import T from 'typecheck-decorator';
 
-import { inject, multiInject, pure, $nexus, isPending, lastErrorOf, lastValueOf } from '../../../';
+import { inject, multiInject, pure, isPending, lastErrorOf, lastValueOf, getNexusOf } from '../../../';
 
 // Helper components
 
@@ -84,7 +84,7 @@ export default class User extends React.Component {
 
   followUser() {
     const { userId, authToken } = this.props;
-    const { http } = this.context[$nexus];
+    const { http } = getNexusOf(this);
     this.setState({
       following: http.dispatch('follow user', {
         userId: lastValueOf(userId),
@@ -95,7 +95,7 @@ export default class User extends React.Component {
 
   updateFontSize(e) {
     e.preventDefault();
-    const { local } = this.context[$nexus];
+    const { local } = getNexusOf(this);
     local.dispatch('set font size', { fontSize: e.target.value });
   }
 

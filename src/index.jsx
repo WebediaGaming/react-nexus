@@ -9,6 +9,7 @@ import MultiInjector from './components/MultiInjector';
 import prepare from './prepare';
 import pure from './decorators/pure';
 import $nexus from './$nexus';
+import getNexusOf from './utils/getNexusOf';
 import lastValueOf from './utils/lastValueOf';
 import lastErrorOf from './utils/lastErrorOf';
 import isPending from './utils/isPending';
@@ -21,6 +22,7 @@ export default {
   HTTPFlux,
   inject,
   Injector,
+  getNexusOf,
   lastValueOf,
   lastErrorOf,
   isPending,
