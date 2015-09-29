@@ -7,7 +7,7 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 import omitChildren from '../utils/omitChildren';
-import Flux from '../Flux';
+import Flux from '../fluxes/Flux';
 
 function diff(prev, next) {
   return [

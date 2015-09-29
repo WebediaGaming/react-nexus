@@ -6,7 +6,7 @@ import should from 'should/as-function';
 const __DEV__ = process.env.NODE_ENV === 'development';
 
 import $nexus from '../$nexus';
-import Flux from '../Flux';
+import Flux from '../fluxes/Flux';
 import omitChildren from '../utils/omitChildren';
 import validateNexus from '../utils/validateNexus';
 

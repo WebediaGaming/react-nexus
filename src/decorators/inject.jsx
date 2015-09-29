@@ -4,7 +4,7 @@ import should from 'should/as-function';
 const __DEV__ = process.env.NODE_ENV;
 
 import $nexus from '../$nexus';
-import Flux from '../Flux';
+import Flux from '../fluxes/Flux';
 import Injector from '../components/Injector';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 import validateNexus from '../utils/validateNexus';

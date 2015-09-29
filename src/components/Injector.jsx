@@ -2,7 +2,7 @@ import _ from 'lodash';
 import deepEqual from 'deep-equal';
 import React from 'react';
 
-import Flux from '../Flux';
+import Flux from '../fluxes/Flux';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 
 class Injector extends React.Component {

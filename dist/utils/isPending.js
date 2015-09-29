@@ -1,0 +1,11 @@
+"use strict";
+
+exports.__esModule = true;
+exports["default"] = isPending;
+
+function isPending(versions) {
+  return versions.length === 0;
+}
+
+module.exports = exports["default"];
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInV0aWxzL2lzUGVuZGluZy5qc3giXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O3FCQUF3QixTQUFTOztBQUFsQixTQUFTLFNBQVMsQ0FBQyxRQUFRLEVBQUU7QUFDMUMsU0FBTyxRQUFRLENBQUMsTUFBTSxLQUFLLENBQUMsQ0FBQztDQUM5QiIsImZpbGUiOiJ1dGlscy9pc1BlbmRpbmcuanMiLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBpc1BlbmRpbmcodmVyc2lvbnMpIHtcclxuICByZXR1cm4gdmVyc2lvbnMubGVuZ3RoID09PSAwO1xyXG59XHJcbiJdLCJzb3VyY2VSb290IjoiL3NvdXJjZS8ifQ==

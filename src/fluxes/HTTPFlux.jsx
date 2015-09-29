@@ -60,7 +60,7 @@ class HTTPFlux extends Flux {
     this.options = _.defaults({}, options, defaultOptions);
     this.baseUrl = baseUrl;
     this.data = data;
-    this.promises = _.mapValues(data, ([err, res]) => Promise.resolve([err, res]));
+    this.promises = _.mapValues(data, ([err, val, date]) => Promise.resolve([err, val, date]));
     this.observers = {};
     this.refreshers = {};
   }
@@ -80,8 +80,8 @@ class HTTPFlux extends Flux {
 
   @devTakes(T.String(), versionType)
   @devReturns(T.instanceOf(HTTPFlux))
-  pushVersion(key, [err, res]) {
-    const version = [err, res, new Date()];
+  pushVersion(key, [err, val]) {
+    const version = [err, val, new Date()];
     this.data[key] = (this.data[key] || []).concat([version]);
     if(_.has(this.observers, key)) {
       _.each(this.observers[key], (fn) => fn(version));
@@ -141,7 +141,7 @@ class HTTPFlux extends Flux {
       req.abort();
       throw err;
     })
-    .then((res) => [void 0, res])
+    .then((val) => [void 0, val])
     .catch((err) => [err.toString(), void 0]);
   }
 
@@ -152,7 +152,7 @@ class HTTPFlux extends Flux {
     const { path, query } = params;
     if(!_.has(this.promises, key)) {
       this.promises[key] = this.request(path, 'get', { query })
-        .then(([err, res]) => this.pushVersion(key, [err, res]));
+        .then(([err, val]) => this.pushVersion(key, [err, val]));
     }
     return this.promises[key];
   }
@@ -183,13 +183,13 @@ class HTTPFlux extends Flux {
       if(refreshEvery) {
         this.refreshers[key] = setInterval(() =>
           this.fetch(path, 'get', { query })
-            .then(([err, res]) => this.pushVersion(key, [err, res]))
+            .then(([err, val]) => this.pushVersion(key, [err, val]))
         , refreshEvery);
       }
     }
     this.observers[key].push(fn);
     if(this.promises[key]) {
-      _.defer(() => _.each(this.data[key], ([err, res]) => fn([err, res])));
+      _.defer(() => _.each(this.versions(params), ([err, val, date]) => fn([err, val, date])));
     }
     else {
       this.populate(params);

@@ -9,13 +9,19 @@ Promise.promisifyAll(fs);
 
 import app, { users, authTokens } from './fixtures/app';
 import User from './fixtures/components/User';
+import CustomHTTPFlux from './fixtures/fluxes/CustomHTTPFlux';
 import Nexus from '../';
 
 describe('Nexus', () => {
   let server;
   before(() => server = app.listen(8888));
   it('.prepare', (done) => {
-    const context = { http: new Nexus.HTTPFlux('http://localhost:8888') };
+    const authTokenValue = 'E47Exd7RdDds';
+    const http = new CustomHTTPFlux('http://localhost:8888');
+    const local = new Nexus.LocalFlux();
+    local.set('/authToken', authTokenValue);
+    local.set('/fontSize', 12);
+    const context = { http, local };
     const tree = <Nexus.Context {...context}>
       <User userId='CategoricalDude' />
     </Nexus.Context>;
@@ -24,7 +30,7 @@ describe('Nexus', () => {
     .then((rawHtml) => rawHtml.toString('utf-8').trim())
     .then((expectedHtml) => {
       function fetched(path, params) {
-        return context.http.versions(context.http.get(path, params).params);
+        return http.versions(http.get(path, params).params);
       }
       function checkFetched(path, params, fn) {
         const versions = fetched(path, params);
@@ -48,6 +54,7 @@ describe('Nexus', () => {
         should(err).be.a.String().containEql('Not Found');
         should(val).be.exactly(void 0);
       });
+      should(Nexus.lastValueOf(local.versions('/authToken'))).be.exactly(authTokenValue);
       const html = renderToStaticMarkup(tree);
       should(html).be.exactly(expectedHtml);
       done(null);

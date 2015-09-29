@@ -7,3 +7,8 @@ export const version = T.shape([
 ]);
 
 export const versions = T.Array({ type: version });
+
+export const action = T.shape({
+  type: T.String(),
+  payload: T.Object(),
+});
