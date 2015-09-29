@@ -19,6 +19,12 @@ gulp.task('lint', () =>
   .pipe(eslint.format())
 );
 
+gulp.task('fixtures', () =>
+  gulp.src('src/**/*.html')
+  .pipe(plumber())
+  .pipe(gulp.dest('dist'))
+);
+
 gulp.task('build', ['lint'], () =>
   gulp.src('src/**/*.jsx')
   .pipe(sourcemaps.init())
@@ -27,7 +33,7 @@ gulp.task('build', ['lint'], () =>
   .pipe(gulp.dest('dist'))
 );
 
-gulp.task('test', ['build'], () =>
+gulp.task('test', ['build', 'fixtures'], () =>
   gulp.src('dist/**/__tests__/**/*.js')
   .pipe(mocha())
 );

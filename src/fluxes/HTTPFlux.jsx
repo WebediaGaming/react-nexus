@@ -5,19 +5,13 @@ import Promise from 'bluebird';
 import T, { takes as devTakes, returns as devReturns } from 'typecheck-decorator';
 
 import Flux from './Flux';
+import { version as versionType, versions as versionsType } from '../utils/types';
 
 const __DEV__ = process.env.NODE_ENV === 'development';
 
 const optNumber = T.option(T.Number());
 
-const valueShape = T.shape([
-  T.option(T.oneOf(T.instanceOf(Error), T.String())),
-  T.any(),
-  T.option(T.oneOf(T.instanceOf(Date), T.String())),
-]);
-const valuesType = T.Array({ type: valueShape });
-
-const optionsShape = T.shape({
+const optionsType = T.shape({
   maxRequestDuration: optNumber,
   maxAgents: optNumber,
 });
@@ -26,7 +20,7 @@ const defaultOptions = {
   maxAgents: 1000,
 };
 
-const paramsShape = T.shape({
+const paramsType = T.shape({
   path: T.String(),
   query: T.Object(),
   refreshEvery: optNumber,
@@ -41,15 +35,15 @@ class HTTPFlux extends Flux {
 
   @devTakes(T.shape({
     baseUrl: T.String(),
-    options: optionsShape,
-    data: T.Object({ type: valuesType }),
+    options: optionsType,
+    data: T.Object({ type: versionsType }),
   }))
   @devReturns(T.instanceOf(HTTPFlux))
   static unserialize({ baseUrl, options, data }) {
     return new HTTPFlux(baseUrl, options, data);
   }
 
-  @devTakes(paramsShape)
+  @devTakes(paramsType)
   @devReturns(T.String())
   static keyFor(params) {
     return JSON.stringify(params);
@@ -59,8 +53,8 @@ class HTTPFlux extends Flux {
     super();
     if(__DEV__) {
       T.String()(baseUrl);
-      optionsShape(options);
-      T.Object({ type: valuesType })(data);
+      optionsType(options);
+      T.Object({ type: versionsType })(data);
     }
     this.originalOptions = options;
     this.options = _.defaults({}, options, defaultOptions);
@@ -73,8 +67,8 @@ class HTTPFlux extends Flux {
 
   @devReturns(T.shape({
     baseUrl: T.String(),
-    options: optionsShape,
-    data: T.Object({ type: valuesType }),
+    options: optionsType,
+    data: T.Object({ type: versionsType }),
   }))
   serialize() {
     return {
@@ -84,13 +78,13 @@ class HTTPFlux extends Flux {
     };
   }
 
-  @devTakes(T.String(), valueShape)
+  @devTakes(T.String(), versionType)
   @devReturns(T.instanceOf(HTTPFlux))
-  pushValue(key, [err, res]) {
-    const value = [err, res, new Date()];
-    this.data[key] = (this.data[key] || []).concat([value]);
+  pushVersion(key, [err, res]) {
+    const version = [err, res, new Date()];
+    this.data[key] = (this.data[key] || []).concat([version]);
     if(_.has(this.observers, key)) {
-      _.each(this.observers[key], (fn) => fn(value));
+      _.each(this.observers[key], (fn) => fn(version));
     }
     return this;
   }
@@ -98,7 +92,7 @@ class HTTPFlux extends Flux {
   @devTakes(T.String(), T.Object())
   @devReturns(T.shape({
     flux: T.instanceOf(HTTPFlux),
-    params: paramsShape,
+    params: paramsType,
   }))
   get(path, params = {}) {
     return {
@@ -107,9 +101,9 @@ class HTTPFlux extends Flux {
     };
   }
 
-  @devTakes(paramsShape)
-  @devReturns(valuesType)
-  values(params) {
+  @devTakes(paramsType)
+  @devReturns(versionsType)
+  versions(params) {
     const key = this.constructor.keyFor(params);
     if(!_.has(this.data, key)) {
       this.data[key] = [];
@@ -151,14 +145,14 @@ class HTTPFlux extends Flux {
     .catch((err) => [err.toString(), void 0]);
   }
 
-  @devTakes(paramsShape)
+  @devTakes(paramsType)
   @devReturns(T.Promise())
   populate(params) {
     const key = this.constructor.keyFor(params);
     const { path, query } = params;
     if(!_.has(this.promises, key)) {
       this.promises[key] = this.request(path, 'get', { query })
-        .then(([err, res]) => this.pushValue(key, [err, res]));
+        .then(([err, res]) => this.pushVersion(key, [err, res]));
     }
     return this.promises[key];
   }
@@ -179,7 +173,7 @@ class HTTPFlux extends Flux {
     });
   }
 
-  @devTakes(paramsShape, T.Function())
+  @devTakes(paramsType, T.Function())
   @devReturns(T.Function())
   observe(params, fn) {
     const key = this.constructor.keyFor(params);
@@ -189,7 +183,7 @@ class HTTPFlux extends Flux {
       if(refreshEvery) {
         this.refreshers[key] = setInterval(() =>
           this.fetch(path, 'get', { query })
-            .then(([err, res]) => this.pushValue(key, [err, res]))
+            .then(([err, res]) => this.pushVersion(key, [err, res]))
         , refreshEvery);
       }
     }

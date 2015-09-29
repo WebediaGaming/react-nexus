@@ -1,0 +1,16 @@
+'use strict';
+
+var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
+
+exports.__esModule = true;
+
+var _typecheckDecorator = require('typecheck-decorator');
+
+var _typecheckDecorator2 = _interopRequireDefault(_typecheckDecorator);
+
+var version = _typecheckDecorator2['default'].shape([_typecheckDecorator2['default'].option(_typecheckDecorator2['default'].oneOf(_typecheckDecorator2['default'].instanceOf(Error), _typecheckDecorator2['default'].String())), _typecheckDecorator2['default'].any(), _typecheckDecorator2['default'].option(_typecheckDecorator2['default'].oneOf(_typecheckDecorator2['default'].instanceOf(Date), _typecheckDecorator2['default'].String()))]);
+
+exports.version = version;
+var versions = _typecheckDecorator2['default'].Array({ type: version });
+exports.versions = versions;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInV0aWxzL3R5cGVzLmpzeCJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7a0NBQWMscUJBQXFCOzs7O0FBRTVCLElBQU0sT0FBTyxHQUFHLGdDQUFFLEtBQUssQ0FBQyxDQUM3QixnQ0FBRSxNQUFNLENBQUMsZ0NBQUUsS0FBSyxDQUFDLGdDQUFFLFVBQVUsQ0FBQyxLQUFLLENBQUMsRUFBRSxnQ0FBRSxNQUFNLEVBQUUsQ0FBQyxDQUFDLEVBQ2xELGdDQUFFLEdBQUcsRUFBRSxFQUNQLGdDQUFFLE1BQU0sQ0FBQyxnQ0FBRSxLQUFLLENBQUMsZ0NBQUUsVUFBVSxDQUFDLElBQUksQ0FBQyxFQUFFLGdDQUFFLE1BQU0sRUFBRSxDQUFDLENBQUMsQ0FDbEQsQ0FBQyxDQUFDOzs7QUFFSSxJQUFNLFFBQVEsR0FBRyxnQ0FBRSxLQUFLLENBQUMsRUFBRSxJQUFJLEVBQUUsT0FBTyxFQUFFLENBQUMsQ0FBQyIsImZpbGUiOiJ1dGlscy90eXBlcy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBUIGZyb20gJ3R5cGVjaGVjay1kZWNvcmF0b3InO1xyXG5cclxuZXhwb3J0IGNvbnN0IHZlcnNpb24gPSBULnNoYXBlKFtcclxuICBULm9wdGlvbihULm9uZU9mKFQuaW5zdGFuY2VPZihFcnJvciksIFQuU3RyaW5nKCkpKSxcclxuICBULmFueSgpLFxyXG4gIFQub3B0aW9uKFQub25lT2YoVC5pbnN0YW5jZU9mKERhdGUpLCBULlN0cmluZygpKSksXHJcbl0pO1xyXG5cclxuZXhwb3J0IGNvbnN0IHZlcnNpb25zID0gVC5BcnJheSh7IHR5cGU6IHZlcnNpb24gfSk7XHJcbiJdLCJzb3VyY2VSb290IjoiL3NvdXJjZS8ifQ==

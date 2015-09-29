@@ -45,7 +45,7 @@ class MultiInjector extends React.Component {
       _.each(bindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
     }
     this.state = _.mapValues(bindings, ({ flux, params }) =>
-      flux.values(params)
+      flux.versions(params)
     );
     this.unobserve = {};
   }
@@ -59,7 +59,7 @@ class MultiInjector extends React.Component {
 
   refreshState({ flux, params }, key) {
     this.setState({
-      [key]: flux.values(params),
+      [key]: flux.versions(params),
     });
   }
 
@@ -103,7 +103,7 @@ class MultiInjector extends React.Component {
 
   render() {
     const { children, bindings } = MultiInjector.destructureProps(this.props);
-    return children(_.mapValues(bindings, ({ flux, params }) => flux.values(params)));
+    return children(_.mapValues(bindings, ({ flux, params }) => flux.versions(params)));
   }
 }
 

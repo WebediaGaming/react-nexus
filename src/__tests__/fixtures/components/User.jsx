@@ -44,7 +44,7 @@ export default class extends React.Component {
     this.setState({
       following: http.dispatch('followUser', {
         userId,
-        authToken: _.last(local.values('/authToken')),
+        authToken: _.last(local.versions('/authToken')),
       }),
     });
   }

@@ -29,22 +29,22 @@ class Flux {
   serialize() {}
 
   /**
-   * Returns the list of the latest values the requested resource has taken
+   * Returns the list of the latest versions the requested resource has taken
    * @param {Object} Requested resource parameters
-   * @return {Array} List of the latest values the requested resource has taken
+   * @return {Array} List of the latest versions the requested resource has taken
    */
-  values() {}
+  versions() {}
 
   /**
-   * Commands to asynchronously populate so that when the Promise is settled, values() doesn't throw
+   * Commands to asynchronously populate so that when the Promise is settled, versions() doesn't throw
    * @return {Promise} Resolves if and when the population has been settled (whether it actually succeeded or not)
    */
   populate() {}
 
   /**
-   * Start observing a resource (implicitly populating it) and register a callback whenever it receives a new value
+   * Start observing a resource (implicitly populating it) and register a callback whenever it receives a new version
    * @param {Object} Request resource parameters
-   * @param {Function} Callback to be invoked whener the resource receives a new value
+   * @param {Function} Callback to be invoked whener the resource receives a new version
    * @return {Function} Callback to terminate the observation
    */
   observe() {}

@@ -21,7 +21,7 @@ class Injector extends React.Component {
     super(props, context);
     const { flux, params } = this.props;
     this.state = {
-      values: flux.values(params),
+      versions: flux.versions(params),
     };
     this.unobserve = null;
   }
@@ -32,14 +32,14 @@ class Injector extends React.Component {
 
   refreshState({ flux, params }) {
     this.setState({
-      values: flux.values(params),
+      versions: flux.versions(params),
     });
   }
 
   unsubscribe() {
     if(this.unobserve) {
       this.unobserve();
-      this.setState({ values: void 0 });
+      this.setState({ versions: void 0 });
     }
   }
 
@@ -70,7 +70,7 @@ class Injector extends React.Component {
 
   render() {
     const { children, flux, params } = this.props;
-    return children(flux.values(params));
+    return children(flux.versions(params));
   }
 }
 
