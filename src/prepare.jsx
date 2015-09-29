@@ -7,7 +7,7 @@ import Injector from './components/Injector';
 import MultiInjector from './components/MultiInjector';
 
 /**
- * Recursively flattens a React.Children hierarchy tree into a React.Element Array.
+ * Recursively flattens a React.Children hierarchy tree into a `React.Element` array.
  * @param  {React.Children} children Hierarchy roots
  * @param  {Array<React.Element>} [acc=[]] Accumulator in which to push new elements
  * @return {Array<React.Element>} Flattened hierarchy
@@ -23,8 +23,9 @@ function flattenChildren(children, acc = []) {
 }
 
 /**
- * Given a React.Component class, its props, and a context, create a new React.Component
- * instance and apply its componentWillMount method, if present.
+ * Create a new `React.Component` instance on which {render} can then be called.
+ * Should be disposed of using {dispose}.
+ * It will apply the instances' `componentWillMount` lifecycle  method, if present.
  * @param  {Function} Component Component class to instanciate
  * @param  {Object} [props={}] props for the instance
  * @param  {Object} [context={}] context for the instance
@@ -39,28 +40,44 @@ function create(Component, props = {}, context = {}) {
 }
 
 /**
- * Given a React.Component instance and a context, returns a pair containing:
- * - The React.Children resulting from rendering it,
- * - The child context to be passed to its descendants.
+ * Renders a given `React.Component` instance previously created by `create`, computes its child context,
+ * and returns both.
  * @param  {React.Component} inst Component instance
- * @param  {Object} context context
+ * @param  {Object} context Default context
  * @return {Array} Pair containing the rendered children and the child context
  */
 function render(inst, context = {}) {
   return [inst.render(), inst.getChildContext ? inst.getChildContext() : context];
 }
 
+/**
+ * Dispose of a given `React.Component` instance created using `create`.
+ * It will call its `componentWillUnmount` lifecycle method, if present.
+ * @param  {React.Component} inst Instance to dipose of
+ * @returns {undefined}
+ */
 function dispose(inst) {
   if(inst.componentWillUnmount) {
     inst.componentWillUnmount();
   }
-  return inst;
 }
 
+/**
+ * Asynchronously settles multiple Flux dependencies.
+ * @param {Collection<Object>} deps Collection of dependencies in the form of `{ flux, params }`
+ * @return {Promise} Promise for the settlement of all the dependencies
+ */
 function populate(deps) {
   return Promise.all(_.map(deps, ({ flux, params }) => flux.populate(params)));
 }
 
+/**
+ * Asynchronously satisfy the dependencies of a React.Element: if it an instance of
+ * `Nexus.Injector` or `Nexus.MultiInjector` or a derived class of these, it populates
+ * all their deps. Otherwise it does nothing.
+ * @param {React.Element} element Element whose deps must be satisfied
+ * @return {Promise} Promise for the settlement of the elements' dependencies.
+ */
 function satisfy({ props, type }) {
   if(isExtensionOf(type, Injector)) {
     return populate([props]);
@@ -71,6 +88,16 @@ function satisfy({ props, type }) {
   return populate([]);
 }
 
+/**
+ * Asynchronously and recursively prepare a context for rendering element.
+ * Namely, it will recursively satisfy the deps of the element (which can induce
+ * side-effects on the context, eg. populate Flux instances), then render its children.
+ * One the returned promise resolves, React `render*` can safely be called and won't need
+ * additional data.
+ * @param {React.Element} element Element whose rendering will be prepared
+ * @param {Object} context = {} Context in which to render/apply side effects
+ * @return {Promise} Promise for the settlement of the preparation
+ */
 function prepare(element, context = {}) {
   if(typeof element !== 'object') {
     return Promise.resolve();

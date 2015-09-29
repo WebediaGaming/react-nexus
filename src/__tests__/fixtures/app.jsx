@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import express from 'express';
 
-const users = [
+export const users = [
   {
     userId: 'CategoricalDude',
     userName: 'Immanuel Kant',
@@ -19,7 +19,7 @@ const users = [
   },
 ];
 
-const authTokens = [
+export const authTokens = [
   {
     authToken: 'E47Exd7RdDds',
     userId: '!@#',
