@@ -57,10 +57,9 @@ const userSchema = T.shape({
 });
 
 @inject('authToken', (props, { local }) => local.get('/authToken'))
-@multiInject(({ userId, authToken }, { http, local }) => ({
-  authToken: local.get('/authToken'),
+@inject('fontSize', (props, { local }) => local.get('/fontSize'))
+@multiInject(({ userId, authToken }, { http }) => ({
   error: http.get('/error'),
-  fontSize: local.get('/fontSize'),
   me: http.get(`/me`, { query: { authToken: lastValueOf(authToken) } }),
   user: http.get(`/users/${userId}`),
   users: http.get(`/users`, { refreshEvery: 5000 }),

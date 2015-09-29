@@ -9,12 +9,13 @@ class CustomLocalFlux extends LocalFlux {
   @devTakes(actionType)
   @devReturns(T.Promise())
   dispatch({ type, payload }) {
-    if(type === 'set font size') {
-      const { fontSize } = payload;
-      this.set('/fontSize', fontSize);
-      return Promise.resolve();
-    }
-    return Promise.reject(new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`));
+    return Promise.try(() => {
+      if(type === 'set font size') {
+        const { fontSize } = payload;
+        return this.set('/fontSize', fontSize);
+      }
+      throw new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`);
+    });
   }
 }
 
