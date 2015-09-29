@@ -7,13 +7,12 @@ import should from 'should/as-function';
 import app, { users, authTokens } from './fixtures/app';
 import User from './fixtures/components/User';
 import Nexus from '../';
-import HTTPFlux from './fixtures/fluxes/HTTPFlux';
 
 describe('Nexus', () => {
   let server;
   before(() => server = app.listen(8888));
   it('.prepare', (done) => {
-    const context = { http: new HTTPFlux('http://localhost:8888') };
+    const context = { http: new Nexus.HTTPFlux('http://localhost:8888') };
     const tree = <Nexus.Context {...context}>
       <User userId='CategoricalDude' />
     </Nexus.Context>;

@@ -1,5 +1,6 @@
 import Context from './components/Context';
-import Flux from './Flux';
+import Flux from './fluxes/Flux';
+import HTTPFlux from './fluxes/HTTPFlux';
 import inject from './decorators/inject';
 import Injector from './components/Injector';
 import multiInject from './decorators/multiInject';
@@ -10,6 +11,7 @@ import $nexus from './$nexus';
 
 export default {
   Context,
+  HTTPFlux,
   Flux,
   inject,
   Injector,

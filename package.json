@@ -34,16 +34,16 @@
     "react": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
     "rimraf": "^2.4.3",
-    "source-map-support": "^0.3.2",
-    "superagent": "^1.4.0",
-    "typecheck-decorator": "^1.0.1"
+    "source-map-support": "^0.3.2"
   },
   "dependencies": {
     "babel-runtime": "^5.8.25",
     "bluebird": "^2.10.1",
     "deep-equal": "^1.0.1",
     "lodash": "^3.10.1",
-    "should": "^7.1.0"
+    "should": "^7.1.0",
+    "superagent": "^1.4.0",
+    "typecheck-decorator": "^1.0.1"
   },
   "peerDependencies": {
     "react": "^0.14.0-rc1",
