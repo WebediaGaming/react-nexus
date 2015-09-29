@@ -6,6 +6,12 @@ import isExtensionOf from './utils/isExtensionOf';
 import Injector from './components/Injector';
 import MultiInjector from './components/MultiInjector';
 
+/**
+ * Recursively flattens a React.Children hierarchy tree into a React.Element Array.
+ * @param  {React.Children} children Hierarchy roots
+ * @param  {Array<React.Element>} [acc=[]] Accumulator in which to push new elements
+ * @return {Array<React.Element>} Flattened hierarchy
+ */
 function flattenChildren(children, acc = []) {
   React.Children.forEach(children, (element) => {
     acc.push(element);
@@ -16,7 +22,15 @@ function flattenChildren(children, acc = []) {
   return acc;
 }
 
-function create(Component, props, context) {
+/**
+ * Given a React.Component class, its props, and a context, create a new React.Component
+ * instance and apply its componentWillMount method, if present.
+ * @param  {Function} Component Component class to instanciate
+ * @param  {Object} [props={}] props for the instance
+ * @param  {Object} [context={}] context for the instance
+ * @return {React.Component} Instantiated component
+ */
+function create(Component, props = {}, context = {}) {
   const inst = new Component(props, context);
   if(inst.componentWillMount) {
     inst.componentWillMount();
@@ -24,7 +38,15 @@ function create(Component, props, context) {
   return inst;
 }
 
-function render(inst, context) {
+/**
+ * Given a React.Component instance and a context, returns a pair containing:
+ * - The React.Children resulting from rendering it,
+ * - The child context to be passed to its descendants.
+ * @param  {React.Component} inst Component instance
+ * @param  {Object} context context
+ * @return {Array} Pair containing the rendered children and the child context
+ */
+function render(inst, context = {}) {
   return [inst.render(), inst.getChildContext ? inst.getChildContext() : context];
 }
 
@@ -62,8 +84,9 @@ function prepare(element, context = {}) {
   .then(() => {
     const inst = create(type, props, context);
     const [childrenElements, childContext] = render(inst, context);
-    // There is a caveat here: an elements' context should be its parents', not itw owners'.
     return Promise.all(_.map(flattenChildren(childrenElements), (descendantElement) =>
+      // There is a caveat here: an elements' context should be its parents', not its owners'.
+      // See https://github.com/facebook/react/issues/2112
       prepare(descendantElement, childContext)
     ))
     .catch((err) => {
