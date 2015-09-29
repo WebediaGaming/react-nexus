@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 const { before, after, describe, it } = global;
 import should from 'should/as-function';
 
@@ -13,9 +14,10 @@ describe('Nexus', () => {
   before(() => server = app.listen(8888));
   it('.prepare', (done) => {
     const context = { http: new HTTPFlux('http://localhost:8888') };
-    Nexus.prepare(<Nexus.Context {...context}>
+    const tree = <Nexus.Context {...context}>
       <User userId='CategoricalDude' />
-    </Nexus.Context>)
+    </Nexus.Context>;
+    Nexus.prepare(tree)
     .then(() => {
       function fetched(path, params) {
         return context.http.values(context.http.get(path, params).params);
@@ -42,6 +44,8 @@ describe('Nexus', () => {
         should(err).be.a.String().containEql('Not Found');
         should(res).be.exactly(void 0);
       });
+      const html = renderToStaticMarkup(tree);
+      should(html).be.a.String();
       done(null);
     })
     .catch((err) => done(err));

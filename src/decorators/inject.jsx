@@ -1,12 +1,13 @@
-import _ from 'lodash';
 import React from 'react';
 import should from 'should/as-function';
 
 const __DEV__ = process.env.NODE_ENV;
 
-import Injector from '../components/Injector';
+import $nexus from '../$nexus';
 import Flux from '../Flux';
+import Injector from '../components/Injector';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
+import validateNexus from '../utils/validateNexus';
 
 export default function inject(key, getBinding, customShouldComponentUpdate = pureShouldComponentUpdate) {
   if(__DEV__) {
@@ -16,19 +17,29 @@ export default function inject(key, getBinding, customShouldComponentUpdate = pu
   return function $inject(Component) {
     return class extends React.Component {
       static displayName = `@inject(${Component.displayName})`;
+      static contextTypes = {
+        [$nexus]: validateNexus,
+      };
 
       shouldComponentUpdate(...args) {
         return customShouldComponentUpdate.apply(this, args);
       }
 
       render() {
-        const { flux, params } = getBinding(this.props, this.context);
+        const { props, context } = this;
+        const nexus = context[$nexus];
+        const { flux, params } = getBinding(props, nexus);
         if(__DEV__) {
           should(flux).be.an.instanceOf(Flux);
         }
-        return <Injector flux={flux} params={params}>{(values) =>
-          <Component {...Object.assign({}, this.props, { [key]: _.last(values) })} />
-        }</Injector>;
+        return <Injector flux={flux} params={params}>{(values) => {
+          const childProps = Object.assign({},
+            props,
+            { [key]: values },
+            { [$nexus]: nexus }
+          );
+          return <Component {...childProps} />;
+        }}</Injector>;
       }
     };
   };

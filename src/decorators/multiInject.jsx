@@ -3,9 +3,11 @@ import React from 'react';
 import should from 'should/as-function';
 const __DEV__ = process.env.NODE_ENV === 'development';
 
+import $nexus from '../$nexus';
 import Flux from '../Flux';
 import MultiInjector from '../components/MultiInjector';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
+import validateNexus from '../utils/validateNexus';
 
 export default function multiInject(getBindings, customShouldComponentUpdate = pureShouldComponentUpdate) {
   if(__DEV__) {
@@ -14,19 +16,29 @@ export default function multiInject(getBindings, customShouldComponentUpdate = p
   return function $multiInject(Component) {
     return class extends React.Component {
       static displayName = `@multiInject(${Component.displayName})`;
+      static contextTypes = {
+        [$nexus]: validateNexus,
+      };
 
       shouldComponentUpdate(...args) {
         return customShouldComponentUpdate.apply(this, args);
       }
 
       render() {
-        const bindings = getBindings(this.props, this.context);
+        const { props, context } = this;
+        const nexus = context[$nexus];
+        const bindings = getBindings(props, nexus);
         if(__DEV__) {
           _.each(bindings, ({ flux }) => should(flux).be.an.instanceOf(Flux));
         }
-        return <MultiInjector {...bindings}>{(multiValues) =>
-          <Component {...Object.assign({}, this.props, _.mapValues(multiValues, (value) => _.last(value)))} />
-        }</MultiInjector>;
+        return <MultiInjector {...bindings}>{(multiValues) => {
+          const childProps = Object.assign({},
+            props,
+            _.mapValues(multiValues, (values) => values),
+            { [$nexus]: nexus }
+          );
+          return <Component {...childProps} />;
+        }}</MultiInjector>;
       }
     };
   };

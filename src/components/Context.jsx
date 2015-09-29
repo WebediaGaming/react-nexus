@@ -5,16 +5,19 @@ import should from 'should/as-function';
 
 const __DEV__ = process.env.NODE_ENV === 'development';
 
-import omitChildren from '../utils/omitChildren';
+import $nexus from '../$nexus';
 import Flux from '../Flux';
+import omitChildren from '../utils/omitChildren';
+import validateNexus from '../utils/validateNexus';
 
 class Context extends React.Component {
   static displayName = 'Nexus.Context';
   static propTypes = {
     children: React.PropTypes.node,
   };
-  static contextTypes = {};
-  static childContextTypes = {};
+  static childContextTypes = {
+    [$nexus]: validateNexus,
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -24,13 +27,16 @@ class Context extends React.Component {
   }
 
   validateProps(props) {
-    const fluxes = omitChildren(props);
-    _.each(fluxes, (flux) => should(flux).be.an.instanceOf(Flux));
+    const nexus = omitChildren(props);
+    _.each(nexus, (flux) => should(flux).be.an.instanceOf(Flux));
   }
 
   getChildContext() {
-    const fluxes = omitChildren(this.props);
-    return Object.assign({}, this.context, fluxes);
+    const { props, context } = this;
+    const nexus = omitChildren(props);
+    return {
+      [$nexus]: Object.assign({}, nexus, context[$nexus] || {}),
+    };
   }
 
   componentWillReceiveProps(nextProps) {

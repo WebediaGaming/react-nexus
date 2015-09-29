@@ -6,6 +6,7 @@ import multiInject from './decorators/multiInject';
 import MultiInjector from './components/MultiInjector';
 import prepare from './prepare';
 import pure from './decorators/pure';
+import $nexus from './$nexus';
 
 export default {
   Context,
@@ -16,4 +17,5 @@ export default {
   MultiInjector,
   prepare,
   pure,
+  $nexus,
 };
