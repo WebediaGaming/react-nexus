@@ -1,5 +1,10 @@
+var stripDecorator = require('babel-plugin-strip-decorator'); // eslint-disable-line no-var
+
 module.exports = {
   only: /\.jsx$/,
+  plugins: process.env.NODE_ENV === 'development' ? [] : [
+    { transformer: stripDecorator('devTakes', 'devReturns'), position: 'before' },
+  ],
   optional: [
     'runtime',
     'es7.classProperties',
