@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "prepublish": "gulp",
     "test": "gulp test"
   },
   "repository": {
