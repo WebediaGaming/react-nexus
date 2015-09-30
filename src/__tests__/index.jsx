@@ -10,16 +10,17 @@ Promise.promisifyAll(fs);
 import app, { users, authTokens } from './fixtures/app';
 import User from './fixtures/components/User';
 import CustomHTTPFlux from './fixtures/fluxes/CustomHTTPFlux';
+import CustomLocalFlux from './fixtures/fluxes/CustomLocalFlux';
 import Nexus from '../';
 
 describe('Nexus', () => {
   let server;
   before(() => server = app.listen(8888));
   it('.prepare', (done) => {
-    const authTokenValue = 'E47Exd7RdDds';
+    const authToken = 'E47Exd7RdDds';
     const http = new CustomHTTPFlux('http://localhost:8888');
-    const local = new Nexus.LocalFlux();
-    local.set('/authToken', authTokenValue);
+    const local = new CustomLocalFlux();
+    local.set('/authToken', authToken);
     local.set('/fontSize', 12);
     const context = { http, local };
     const tree = <Nexus.Context {...context}>
@@ -54,9 +55,32 @@ describe('Nexus', () => {
         should(err).be.a.String().containEql('Not Found');
         should(val).be.exactly(void 0);
       });
-      should(Nexus.lastValueOf(local.versions('/authToken'))).be.exactly(authTokenValue);
+      should(Nexus.lastValueOf(local.versions('/authToken'))).be.exactly(authToken);
       const html = renderToStaticMarkup(tree);
       should(html).be.exactly(expectedHtml);
+      done(null);
+    })
+    .catch((err) => done(err));
+  });
+  it('.local.dispatch', (done) => {
+    const local = new CustomLocalFlux();
+    local.set('/fontSize', 18);
+    local.dispatch('set font size', { fontSize: 42 })
+    .then(() => {
+      should(_.map(local.get('/fontSize').versions(), ([err, val]) => [err, val]))
+      .be.eql([[void 0, 18], [void 0, 42]]);
+      done(null);
+    })
+    .catch((err) => done(err));
+  });
+  it('.http.dispatch', (done) => {
+    const authToken = 'E47Exd7RdDds';
+    const userId = 'b@d_s@nt@';
+    const http = new CustomHTTPFlux('http://localhost:8888');
+    http.dispatch('follow user', { authToken, userId })
+    .then(({ follows }) => {
+      should(follows).eql([userId]);
+      should(users[1].follows).eql([userId]);
       done(null);
     })
     .catch((err) => done(err));

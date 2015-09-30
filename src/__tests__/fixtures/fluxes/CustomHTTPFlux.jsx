@@ -1,19 +1,21 @@
 import T, { takes as devTakes, returns as devReturns } from 'typecheck-decorator';
+import Promise from 'bluebird';
 
 import HTTPFlux from '../../../fluxes/HTTPFlux';
-import { action as actionType } from '../../../utils/types';
 
 class CustomHTTPFlux extends HTTPFlux {
   static displayName = 'CustomHTTPFlux';
 
-  @devTakes(actionType)
+  @devTakes(T.String(), T.option(T.Object()))
   @devReturns(T.Promise())
-  dispatch({ type, payload }) {
-    if(type === 'follow user') {
-      const { authToken, userId } = payload;
-      return this.request(`/users/${userId}/follow`, 'post', { query: { authToken } });
-    }
-    return Promise.reject(new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`));
+  dispatch(type, payload) {
+    return Promise.try(() => {
+      if(type === 'follow user') {
+        const { authToken, userId } = payload;
+        return this.request(`/users/${userId}/follow`, 'post', { query: { authToken } });
+      }
+      throw new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`);
+    });
   }
 }
 

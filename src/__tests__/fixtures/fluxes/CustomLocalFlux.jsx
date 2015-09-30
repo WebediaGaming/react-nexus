@@ -1,14 +1,14 @@
 import T, { takes as devTakes, returns as devReturns } from 'typecheck-decorator';
+import Promise from 'bluebird';
 
 import LocalFlux from '../../../fluxes/LocalFlux';
-import { action as actionType } from '../../../utils/types';
 
 class CustomLocalFlux extends LocalFlux {
   static displayName = 'CustomLocalFlux';
 
-  @devTakes(actionType)
+  @devTakes(T.String(), T.option(T.Object()))
   @devReturns(T.Promise())
-  dispatch({ type, payload }) {
+  dispatch(type, payload) {
     return Promise.try(() => {
       if(type === 'set font size') {
         const { fontSize } = payload;

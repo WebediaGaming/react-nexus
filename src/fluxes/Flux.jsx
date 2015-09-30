@@ -9,7 +9,8 @@ class Flux {
 
   /**
    * Describes a resource binding, comprised of a Flux instance
-   * @type {[type]}
+   * and domain-specific params.
+   * @class
    */
   static Binding = class {
     constructor(flux, params) {

@@ -137,9 +137,16 @@ class HTTPFlux extends Flux {
     .catch(Promise.CancellationError, (err) => {
       req.abort();
       throw err;
-    })
-    .then((val) => [void 0, val])
-    .catch((err) => [err.toString(), void 0]);
+    });
+  }
+
+  @devTakes(T.String(), T.String(), T.option(T.Object()))
+  @devReturns(T.Promise())
+  _getAndPushVersion(key, path, query) {
+    return this.request(path, 'get', { query })
+      .then((val) => [void 0, val])
+      .catch((err) => [err.toString(), void 0])
+      .then(([err, val]) => this.pushVersion(key, [err, val]));
   }
 
   @devTakes(paramsType)
@@ -148,8 +155,7 @@ class HTTPFlux extends Flux {
     const key = this.constructor.keyFor(params);
     const { path, query } = params;
     if(!_.has(this.promises, key)) {
-      this.promises[key] = this.request(path, 'get', { query })
-        .then(([err, val]) => this.pushVersion(key, [err, val]));
+      this.promises[key] = this._getAndPushVersion(key, path, query);
     }
     return this.promises[key];
   }
@@ -162,10 +168,7 @@ class HTTPFlux extends Flux {
       this.observers[key] = [];
       const { path, query, refreshEvery } = params;
       if(refreshEvery) {
-        this.refreshers[key] = setInterval(() =>
-          this.fetch(path, 'get', { query })
-            .then(([err, val]) => this.pushVersion(key, [err, val]))
-        , refreshEvery);
+        this.refreshers[key] = setInterval(() => this._getAndPushVersion(key, path, query), refreshEvery);
       }
     }
     this.observers[key].push(fn);
