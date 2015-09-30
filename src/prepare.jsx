@@ -2,9 +2,7 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 import React from 'react';
 
-import isExtensionOf from './utils/isExtensionOf';
-import Injector from './components/Injector';
-import MultiInjector from './components/MultiInjector';
+import { $prepare } from './decorators/preparable';
 
 /**
  * Recursively flattens a React.Children hierarchy tree into a `React.Element` array.
@@ -63,29 +61,16 @@ function dispose(inst) {
 }
 
 /**
- * Asynchronously settles multiple Flux dependencies.
- * @param {Collection<Object>} deps Collection of dependencies in the form of `{ flux, params }`
- * @return {Promise} Promise for the settlement of all the dependencies
- */
-function populate(deps) {
-  return Promise.all(_.map(deps, ({ flux, params }) => flux.populate(params)));
-}
-
-/**
- * Asynchronously satisfy the dependencies of a React.Element: if it an instance of
- * `Nexus.Injector` or `Nexus.MultiInjector` or a derived class of these, it populates
- * all their deps. Otherwise it does nothing.
+ * Asynchronously satisfy the dependencies of a React.Element: if it decorated with {@preparable},
+ * and otherwise immediatly resolves.
  * @param {React.Element} element Element whose deps must be satisfied
  * @return {Promise} Promise for the settlement of the elements' dependencies.
  */
 function satisfy({ props, type }) {
-  if(isExtensionOf(type, Injector)) {
-    return populate([props]);
+  if(type[$prepare]) {
+    return type[$prepare](props);
   }
-  if(isExtensionOf(type, MultiInjector)) {
-    return populate(_.values(MultiInjector.destructureProps(props).bindings));
-  }
-  return populate([]);
+  return Promise.resolve();
 }
 
 /**

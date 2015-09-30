@@ -4,7 +4,9 @@ import React from 'react';
 
 import Flux from '../fluxes/Flux';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
+import preparable from '../decorators/preparable';
 
+@preparable(({ flux, params }) => flux.populate(params))
 class Injector extends React.Component {
   static displayName = 'Nexus.Injector';
   static propTypes = {
