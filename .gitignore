@@ -1,4 +1,5 @@
 node_modules
+dist
 *.pid
 *.lock
 npm-debug.log
