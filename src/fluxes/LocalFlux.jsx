@@ -10,6 +10,8 @@ const paramsType = T.String();
 class LocalFlux extends Flux {
   static displayName = 'LocalFlux';
 
+  static Binding = class LocalBinding extends Flux.Binding {};
+
   @devTakes(T.shape({
     data: T.Object({ type: versionsType }),
   }))
@@ -74,10 +76,7 @@ class LocalFlux extends Flux {
     params: paramsType,
   }))
   get(path) {
-    return {
-      flux: this,
-      params: path,
-    };
+    return new LocalFlux.Binding(this, path);
   }
 
   @devTakes(paramsType, T.Function())

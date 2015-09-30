@@ -1,18 +1,37 @@
 import _ from 'lodash';
 import deepEqual from 'deep-equal';
+import Promise from 'bluebird';
 import React from 'react';
 
-import Flux from '../fluxes/Flux';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
+import Flux from '../fluxes/Flux';
 import preparable from '../decorators/preparable';
 
-@preparable(({ flux, params }) => flux.populate(params))
+function diff(prev, next) {
+  return [
+    _.filter(prev, (v, k) => !_.has(next, k) || !deepEqual(next[k], prev[k])),
+    _.filter(next, (v, k) => !_.has(prev, k) || !deepEqual(prev[k], next[k])),
+  ];
+}
+
+function destructureProps(props) {
+  const { children, shouldComponentUpdate, ...otherProps } = props;
+  return {
+    children,
+    shouldComponentUpdate,
+    bindings: _.pick(otherProps, (val) => val instanceof Flux.Binding),
+    other: _.omit(otherProps, (val) => val instanceof Flux.Binding),
+  };
+}
+
+@preparable((props) => {
+  const { bindings } = destructureProps(props);
+  return Promise.all(_.map(bindings, (binding) => binding.populate()));
+})
 class Injector extends React.Component {
   static displayName = 'Nexus.Injector';
   static propTypes = {
     children: React.PropTypes.func.isRequired,
-    flux: React.PropTypes.instanceOf(Flux).isRequired,
-    params: React.PropTypes.any,
     shouldComponentUpdate: React.PropTypes.func,
   };
   static defaultProps = {
@@ -21,58 +40,63 @@ class Injector extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    const { flux, params } = this.props;
-    this.state = {
-      versions: flux.versions(params),
-    };
-    this.unobserve = null;
+    const { bindings } = destructureProps(this.props);
+    this.state = _.mapValues(bindings, (binding) => binding.versions());
+    this.unobserve = {};
   }
 
   componentDidMount() {
-    this.subscribe(this.props);
+    const { bindings } = destructureProps(this.props);
+    _.each(bindings, (binding, key) => this.subscribe(binding, key));
   }
 
-  refreshState({ flux, params }) {
+  refreshState(binding, key) {
     this.setState({
-      versions: flux.versions(params),
+      [key]: binding.versions(),
     });
   }
 
-  unsubscribe() {
-    if(this.unobserve) {
-      this.unobserve();
-      this.setState({ versions: void 0 });
+  unsubscribe(key) {
+    if(_.has(this.unobserve, key)) {
+      this.unobserve[key]();
+      this.setState({
+        [key]: void 0,
+      });
+      delete this.unobserve[key];
     }
   }
 
-  subscribe({ flux, params }) {
-    this.unsubscribe();
-    this.refreshState({ flux, params });
-    this.unobserve = flux.observe(params, () =>
-      this.refreshState({ flux, params })
-    );
+  subscribe(binding, key) {
+    this.unsubscribe(key);
+    this.refreshState(binding, key);
+    this.unobserve[key] = binding.observe(() => this.refreshState(binding, key));
   }
 
   componentWillReceiveProps(nextProps) {
-    if(_.any([
-      !deepEqual(this.props.flux, nextProps.flux),
-      !deepEqual(this.props.params, nextProps.params),
-    ])) {
-      this.subscribe(nextProps);
-    }
+    const { bindings: prevBindings } = destructureProps(this.props);
+    const { bindings: nextBindings } = destructureProps(nextProps);
+    const [removed, added] = diff(prevBindings, nextBindings);
+    _.each(removed, (binding, key) => this.unsubscribe(key));
+    _.each(added, (binding, key) => this.subscribe(binding, key));
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    const { bindings } = destructureProps(this.props);
+    _.each(Object.keys(bindings), (key) => this.unsubscribe(key));
   }
 
   shouldComponentUpdate(...args) {
-    return this.props.shouldComponentUpdate.apply(this, args);
+    return this.props.shouldComponentUpdate.apply(this, ...args);
   }
 
   render() {
-    const { children, flux, params } = this.props;
-    return children(flux.versions(params));
+    const { props } = this;
+    const { children, bindings, other } = destructureProps(props);
+    const childProps = Object.assign({},
+      other,
+      _.mapValues(bindings, (binding) => binding.versions())
+    );
+    return children(childProps);
   }
 }
 

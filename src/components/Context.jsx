@@ -7,7 +7,6 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 
 import $nexus from '../$nexus';
 import Flux from '../fluxes/Flux';
-import omitChildren from '../utils/omitChildren';
 import validateNexus from '../utils/validateNexus';
 
 class Context extends React.Component {
@@ -27,13 +26,13 @@ class Context extends React.Component {
   }
 
   validateProps(props) {
-    const nexus = omitChildren(props);
+    const { children, ...nexus } = props;
     _.each(nexus, (flux) => should(flux).be.an.instanceOf(Flux));
   }
 
   getChildContext() {
     const { props, context } = this;
-    const nexus = omitChildren(props);
+    const { children, ...nexus } = props;
     return {
       [$nexus]: Object.assign({}, nexus, context[$nexus] || {}),
     };

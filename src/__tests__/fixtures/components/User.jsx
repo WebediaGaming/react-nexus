@@ -1,7 +1,7 @@
 import React from 'react';
 import T from 'typecheck-decorator';
 
-import { inject, multiInject, pure, isPending, lastErrorOf, lastValueOf, getNexusOf } from '../../../';
+import { inject, pure, isPending, lastErrorOf, lastValueOf, LocalFlux, HTTPFlux } from '../../../';
 
 // Helper components
 
@@ -56,10 +56,14 @@ const userSchema = T.shape({
   profilePicture: T.String(),
 });
 
-@inject('authToken', (props, { local }) => local.get('/authToken'))
-@inject('fontSize', (props, { local }) => local.get('/fontSize'))
-@multiInject(({ userId, authToken }, { http }) => ({
+@inject(({ local }) => ({
+  authToken: local.get('/authToken'),
+  fontSize: local.get('/fontSize'),
+}))
+@inject(({ http, local }, { userId, authToken }) => ({
   error: http.get('/error'),
+  http,
+  local,
   me: http.get(`/me`, { query: { authToken: lastValueOf(authToken) } }),
   user: http.get(`/users/${userId}`),
   users: http.get(`/users`, { refreshEvery: 5000 }),
@@ -70,6 +74,8 @@ export default class User extends React.Component {
   static propTypes = {
     authToken: propType(T.String()),
     fontSize: propType(T.oneOf(T.String(), T.Number())),
+    http: React.PropTypes.instanceOf(HTTPFlux),
+    local: React.PropTypes.instanceOf(LocalFlux),
     me: propType(userSchema),
     user: propType(userSchema),
     userId: React.PropTypes.string.isRequired,
@@ -82,8 +88,7 @@ export default class User extends React.Component {
   }
 
   followUser() {
-    const { userId, authToken } = this.props;
-    const { http } = getNexusOf(this);
+    const { userId, authToken, http } = this.props;
     this.setState({
       following: http.dispatch('follow user', {
         userId: lastValueOf(userId),
@@ -94,7 +99,7 @@ export default class User extends React.Component {
 
   updateFontSize(e) {
     e.preventDefault();
-    const { local } = getNexusOf(this);
+    const { local } = this.props;
     local.dispatch('set font size', { fontSize: e.target.value });
   }
 

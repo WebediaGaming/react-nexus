@@ -1,10 +1,40 @@
 import should from 'should/as-function';
 const __DEV__ = process.env.NODE_ENV === 'development';
+
 /**
  * @abstract
  */
 class Flux {
   static displayName = 'Flux';
+
+  /**
+   * Describes a resource binding, comprised of a Flux instance
+   * @type {[type]}
+   */
+  static Binding = class {
+    constructor(flux, params) {
+      if(__DEV__) {
+        should(flux).be.an.instanceOf(Flux);
+      }
+      this.flux = flux;
+      this.params = params;
+    }
+
+    populate() {
+      const { flux, params } = this;
+      return flux.populate(params);
+    }
+
+    observe(fn) {
+      const { flux, params } = this;
+      return flux.observe(params, fn);
+    }
+
+    versions() {
+      const { flux, params } = this;
+      return flux.versions(params);
+    }
+  };
   /**
    * Create a new Flux instance based on a previous call to serialize()
    * @param {Object} Previous return value of serialize()

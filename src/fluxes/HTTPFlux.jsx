@@ -25,6 +25,7 @@ const paramsType = T.shape({
   query: T.Object(),
   refreshEvery: optNumber,
 });
+
 const defaultParams = {
   query: {},
   refreshEvery: void 0,
@@ -32,6 +33,8 @@ const defaultParams = {
 
 class HTTPFlux extends Flux {
   static displayName = 'HTTPFlux';
+
+  static Binding = class HTTPBinding extends Flux.Binding {}
 
   @devTakes(T.shape({
     baseUrl: T.String(),
@@ -90,15 +93,9 @@ class HTTPFlux extends Flux {
   }
 
   @devTakes(T.String(), T.Object())
-  @devReturns(T.shape({
-    flux: T.instanceOf(HTTPFlux),
-    params: paramsType,
-  }))
+  @devReturns(T.instanceOf(HTTPFlux.Binding))
   get(path, params = {}) {
-    return {
-      flux: this,
-      params: Object.assign({}, _.defaults({}, params, defaultParams), { path }),
-    };
+    return new HTTPFlux.Binding(this, Object.assign({}, _.defaults({}, params, defaultParams), { path }));
   }
 
   @devTakes(paramsType)
@@ -155,22 +152,6 @@ class HTTPFlux extends Flux {
         .then(([err, val]) => this.pushVersion(key, [err, val]));
     }
     return this.promises[key];
-  }
-
-  @devTakes(T.shape({
-    path: T.String(),
-    query: T.option(T.any()),
-    body: T.option(T.any()),
-  }))
-  @devReturns(T.Promise())
-  post({ path, query, body }) {
-    return this.fetch(path, 'post', { query, body })
-    .then(([, err, res]) => {
-      if(err) {
-        throw err;
-      }
-      return res.body;
-    });
   }
 
   @devTakes(paramsType, T.Function())

@@ -11,7 +11,7 @@ class CustomHTTPFlux extends HTTPFlux {
   dispatch({ type, payload }) {
     if(type === 'follow user') {
       const { authToken, userId } = payload;
-      return this.post(`/users/${userId}/follow`, { query: { authToken } });
+      return this.request(`/users/${userId}/follow`, 'post', { query: { authToken } });
     }
     return Promise.reject(new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`));
   }
