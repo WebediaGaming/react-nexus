@@ -17,7 +17,6 @@
     "url": "https://github.com/elierotenberg/react-nexus/issues"
   },
   "homepage": "https://github.com/elierotenberg/react-nexus#readme",
-  "private": true,
   "devDependencies": {
     "babel": "^5.8.23",
     "babel-eslint": "^4.1.3",
