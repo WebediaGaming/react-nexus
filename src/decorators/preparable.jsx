@@ -5,7 +5,7 @@ function preparable(prepare) {
     return class extends Component {
       static [$prepare](props) {
         if(Component[$prepare]) {
-          return Promise.all(Component[$prepare](props), prepare(props));
+          return Promise.all([Component[$prepare](props), prepare(props)]);
         }
         return prepare(props);
       }
@@ -13,6 +13,6 @@ function preparable(prepare) {
   };
 }
 
-preparable.$prepare = $prepare;
+Object.assign(preparable, { $prepare });
 
 export default preparable;
