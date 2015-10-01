@@ -50,7 +50,7 @@ describe('Nexus', () => {
           should(Date.now() - date).be.within(0, 100);
           return fn(err, val, date);
         }
-        checkFetched('/users', { refreshEvery: 5000 }, (err, val) => {
+        checkFetched('/users', {}, (err, val) => {
           should(err).be.exactly(null);
           should(val).be.eql(users);
         });

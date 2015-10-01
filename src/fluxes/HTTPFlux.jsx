@@ -23,12 +23,10 @@ const defaultOptions = {
 const paramsType = T.shape({
   path: T.String(),
   query: T.Object(),
-  refreshEvery: optNumber,
 });
 
 const defaultParams = {
   query: {},
-  refreshEvery: void 0,
 };
 
 const serializedType = T.shape({
@@ -40,7 +38,12 @@ const serializedType = T.shape({
 class HTTPFlux extends Flux {
   static displayName = 'HTTPFlux';
 
-  static Binding = class HTTPBinding extends Flux.Binding {}
+  static Binding = class HTTPBinding extends Flux.Binding {
+    update() {
+      const { flux, params } = this;
+      return flux.update(params);
+    }
+  }
 
   @devTakes(serializedType)
   @devReturns(T.instanceOf(HTTPFlux))
@@ -164,10 +167,6 @@ class HTTPFlux extends Flux {
     const key = this.constructor.keyFor(params);
     if(!_.has(this.observers, key)) {
       this.observers[key] = [];
-      const { path, query, refreshEvery } = params;
-      if(refreshEvery) {
-        this.refreshers[key] = setInterval(() => this._getAndPushVersion(key, path, query), refreshEvery);
-      }
     }
     this.observers[key].push(fn);
     if(this.promises[key]) {
@@ -188,6 +187,14 @@ class HTTPFlux extends Flux {
         delete this.promises[key];
       }
     };
+  }
+
+  @devTakes(paramsType, T.Function())
+  @devReturns(T.Promise())
+  update(params) {
+    const key = this.constructor.keyFor(params);
+    const { path, query } = params;
+    return this._getAndPushVersion(key, path, query);
   }
 }
 

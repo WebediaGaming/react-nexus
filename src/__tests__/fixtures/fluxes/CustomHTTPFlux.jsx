@@ -14,6 +14,9 @@ class CustomHTTPFlux extends HTTPFlux {
         const { authToken, userId } = payload;
         return this.request(`/users/${userId}/follow`, 'post', { query: { authToken } });
       }
+      if(type === 'refresh users') {
+        return this.get('/users').update();
+      }
       throw new TypeError(`Unknown action type '${type}' for '${this.constructor.displayName}'.`);
     });
   }

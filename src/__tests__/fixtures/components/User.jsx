@@ -66,7 +66,7 @@ const userSchema = T.shape({
   local,
   me: http.get(`/me`, { query: { authToken: lastValueOf(authToken) } }),
   user: http.get(`/users/${userId}`),
-  users: http.get(`/users`, { refreshEvery: 5000 }),
+  users: http.get(`/users`),
 }))
 @pure
 export default class User extends React.Component {
@@ -85,6 +85,18 @@ export default class User extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {};
+    this.refreshUsers = null;
+  }
+
+  componentDidMount() {
+    const { http } = this.props;
+    this.refreshUsers = setInterval(() => http.dispatch('refresh users'), 5000);
+  }
+
+  componentWillUnmount() {
+    if(this.refreshUsers !== null) {
+      clearInterval(this.refreshUsers);
+    }
   }
 
   followUser() {
