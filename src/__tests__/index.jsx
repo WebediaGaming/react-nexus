@@ -27,38 +27,49 @@ describe('Nexus', () => {
       <User userId='CategoricalDude' />
     </Nexus.Context>;
     Nexus.prepare(tree)
-    .then(() => fs.readFileAsync(`${__dirname}/fixtures/expected/Users.html`))
-    .then((rawHtml) => rawHtml.toString('utf-8').trim())
-    .then((expectedHtml) => {
-      function fetched(path, params) {
-        return http.versions(http.get(path, params).params);
-      }
-      function checkFetched(path, params, fn) {
-        const versions = fetched(path, params);
-        should(versions).be.an.Array().which.has.length(1);
-        const [[err, val, date]] = versions;
-        should(date).be.an.instanceOf(Date);
-        return fn(err, val, date);
-      }
-      checkFetched('/users', { refreshEvery: 5000 }, (err, val) => {
-        should(err).be.exactly(void 0);
-        should(val).be.eql(users);
+    .then((nexus) => {
+      return fs.readFileAsync(`${__dirname}/fixtures/expected/Users.html`)
+      .then((rawHtml) => rawHtml.toString('utf-8').trim())
+      .then((expectedHtml) => {
+        const payload = Nexus.toPayload(nexus);
+        should(payload).be.a.String();
+        const renexus = Nexus.fromPayload(payload, {
+          http: CustomHTTPFlux,
+          local: CustomLocalFlux,
+        });
+        should(renexus).be.an.Object();
+        should(renexus).have.property('http').which.is.an.instanceOf(CustomHTTPFlux);
+        should(renexus).have.property('local').which.is.an.instanceOf(CustomLocalFlux);
+        function fetched(path, params) {
+          return renexus.http.versions(renexus.http.get(path, params).params);
+        }
+        function checkFetched(path, params, fn) {
+          const versions = fetched(path, params);
+          should(versions).be.an.Array().which.has.length(1);
+          const [[err, val, date]] = versions;
+          should(Date.now() - date).be.within(0, 100);
+          return fn(err, val, date);
+        }
+        checkFetched('/users', { refreshEvery: 5000 }, (err, val) => {
+          should(err).be.exactly(null);
+          should(val).be.eql(users);
+        });
+        checkFetched('/me', { query: {
+          authToken: _.find(authTokens, ({ userId }) =>
+            userId === _.find(users, ({ userName }) => userName === 'Frierich Nietzsche').userId).authToken,
+        } }, (err, val) => {
+          should(err).be.exactly(null);
+          should(val).be.eql(_.find(users, ({ userName }) => userName === 'Frierich Nietzsche'));
+        });
+        checkFetched('/error', {}, (err, val) => {
+          should(err).be.a.String().containEql('Not Found');
+          should(val).be.exactly(null);
+        });
+        should(Nexus.lastValueOf(renexus.local.versions('/authToken'))).be.exactly(authToken);
+        const html = renderToStaticMarkup(tree);
+        should(html).be.exactly(expectedHtml);
+        done(null);
       });
-      checkFetched('/me', { query: {
-        authToken: _.find(authTokens, ({ userId }) =>
-          userId === _.find(users, ({ userName }) => userName === 'Frierich Nietzsche').userId).authToken,
-      } }, (err, val) => {
-        should(err).be.exactly(void 0);
-        should(val).be.eql(_.find(users, ({ userName }) => userName === 'Frierich Nietzsche'));
-      });
-      checkFetched('/error', {}, (err, val) => {
-        should(err).be.a.String().containEql('Not Found');
-        should(val).be.exactly(void 0);
-      });
-      should(Nexus.lastValueOf(local.versions('/authToken'))).be.exactly(authToken);
-      const html = renderToStaticMarkup(tree);
-      should(html).be.exactly(expectedHtml);
-      done(null);
     })
     .catch((err) => done(err));
   });
@@ -68,7 +79,7 @@ describe('Nexus', () => {
     local.dispatch('set font size', { fontSize: 42 })
     .then(() => {
       should(_.map(local.get('/fontSize').versions(), ([err, val]) => [err, val]))
-      .be.eql([[void 0, 18], [void 0, 42]]);
+      .be.eql([[null, 18], [null, 42]]);
       done(null);
     })
     .catch((err) => done(err));

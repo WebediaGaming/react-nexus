@@ -17,7 +17,7 @@ class LocalFlux extends Flux {
   }))
   @devReturns(T.instanceOf(LocalFlux))
   static unserialize({ data }) {
-    return new LocalFlux(data);
+    return new this(data);
   }
 
   @devTakes(paramsType)
@@ -36,11 +36,12 @@ class LocalFlux extends Flux {
   }
 
   @devReturns(T.shape({
-    data: T.Object({ type: versionType }),
+    data: T.Object({ type: versionsType }),
   }))
   serialize() {
-    const { data } = this;
-    return { data };
+    return {
+      data: this.data,
+    };
   }
 
   @devTakes(paramsType)
@@ -56,7 +57,7 @@ class LocalFlux extends Flux {
   @devTakes(T.String(), versionType)
   @devReturns(T.instanceOf(LocalFlux))
   pushVersion(key, [err, val]) {
-    const version = [err, val, new Date()];
+    const version = [err, val, Date.now()];
     this.data[key] = (this.data[key] || []).concat([version]);
     if(_.has(this.observers, key)) {
       _.each(this.observers[key], (fn) => fn(version));
@@ -87,7 +88,7 @@ class LocalFlux extends Flux {
       this.observers[key] = [];
     }
     this.observers[key].push(fn);
-    _.defer(() => _.each(this.versions(params), ([err, val, date]) => fn([err, val, date])));
+    _.defer(() => _.each(this.versions(params), (version) => fn(version)));
     return () => {
       this.observers[key].splice(this.observers[key].indexOf(fn), 1);
       if(this.observers[key].length === 0) {
@@ -99,7 +100,7 @@ class LocalFlux extends Flux {
 
   @devTakes(paramsType, T.any())
   set(params, val) {
-    return this.pushVersion(params, [void 0, val]);
+    return this.pushVersion(params, [null, val]);
   }
 }
 

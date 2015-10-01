@@ -31,19 +31,21 @@ const defaultParams = {
   refreshEvery: void 0,
 };
 
+const serializedType = T.shape({
+  baseUrl: T.String(),
+  options: optionsType,
+  data: T.Object({ type: versionsType }),
+});
+
 class HTTPFlux extends Flux {
   static displayName = 'HTTPFlux';
 
   static Binding = class HTTPBinding extends Flux.Binding {}
 
-  @devTakes(T.shape({
-    baseUrl: T.String(),
-    options: optionsType,
-    data: T.Object({ type: versionsType }),
-  }))
+  @devTakes(serializedType)
   @devReturns(T.instanceOf(HTTPFlux))
   static unserialize({ baseUrl, options, data }) {
-    return new HTTPFlux(baseUrl, options, data);
+    return new this(baseUrl, options, data);
   }
 
   @devTakes(paramsType)
@@ -63,16 +65,12 @@ class HTTPFlux extends Flux {
     this.options = _.defaults({}, options, defaultOptions);
     this.baseUrl = baseUrl;
     this.data = data;
-    this.promises = _.mapValues(data, ([err, val, date]) => Promise.resolve([err, val, date]));
+    this.promises = _.mapValues(this.data, (version) => Promise.resolve(version));
     this.observers = {};
     this.refreshers = {};
   }
 
-  @devReturns(T.shape({
-    baseUrl: T.String(),
-    options: optionsType,
-    data: T.Object({ type: versionsType }),
-  }))
+  @devReturns(serializedType)
   serialize() {
     return {
       baseUrl: this.baseUrl,
@@ -84,7 +82,7 @@ class HTTPFlux extends Flux {
   @devTakes(T.String(), versionType)
   @devReturns(T.instanceOf(HTTPFlux))
   pushVersion(key, [err, val]) {
-    const version = [err, val, new Date()];
+    const version = [err, val, Date.now()];
     this.data[key] = (this.data[key] || []).concat([version]);
     if(_.has(this.observers, key)) {
       _.each(this.observers[key], (fn) => fn(version));
@@ -144,8 +142,8 @@ class HTTPFlux extends Flux {
   @devReturns(T.Promise())
   _getAndPushVersion(key, path, query) {
     return this.request(path, 'get', { query })
-      .then((val) => [void 0, val])
-      .catch((err) => [err.toString(), void 0])
+      .then((val) => [null, val])
+      .catch((err) => [err.toString(), null])
       .then(([err, val]) => this.pushVersion(key, [err, val]));
   }
 
@@ -173,7 +171,7 @@ class HTTPFlux extends Flux {
     }
     this.observers[key].push(fn);
     if(this.promises[key]) {
-      _.defer(() => _.each(this.versions(params), ([err, val, date]) => fn([err, val, date])));
+      _.defer(() => _.each(this.versions(params), (version) => fn(version)));
     }
     else {
       this.populate(params);

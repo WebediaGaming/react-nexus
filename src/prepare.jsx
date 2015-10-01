@@ -81,15 +81,15 @@ function satisfy({ props, type }) {
  * additional data.
  * @param {React.Element} element Element whose rendering will be prepared
  * @param {Object} context = {} Context in which to render/apply side effects
- * @return {Promise} Promise for the settlement of the preparation
+ * @return {Promise} Promise for the childContext of the rendered tree
  */
 function prepare(element, context = {}) {
   if(typeof element !== 'object') {
-    return Promise.resolve();
+    return Promise.resolve({});
   }
   const { type, props } = element;
   if(typeof type === 'string') {
-    return Promise.resolve();
+    return Promise.resolve({});
   }
 
   return satisfy(element)
@@ -105,9 +105,9 @@ function prepare(element, context = {}) {
       dispose(err);
       throw err;
     })
-    .then((...args) => {
+    .then(() => {
       dispose(inst);
-      return args;
+      return childContext;
     });
   });
 }
