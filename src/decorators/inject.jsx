@@ -13,7 +13,7 @@ export default function inject(getInjected, customShouldComponentUpdate = pureSh
   }
   return function $inject(Component) {
     return class extends React.Component {
-      static displayName = `@inject(${Component.displayName})`;
+      static displayName = `@Nexus.inject(${Component.displayName})`;
       static contextTypes = {
         [$nexus]: validateNexus,
       };

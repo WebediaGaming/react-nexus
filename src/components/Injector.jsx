@@ -9,8 +9,8 @@ import preparable from '../decorators/preparable';
 
 function diff(prev, next) {
   return [
-    _.filter(prev, (v, k) => !_.has(next, k) || !deepEqual(next[k], prev[k])),
-    _.filter(next, (v, k) => !_.has(prev, k) || !deepEqual(prev[k], next[k])),
+    _.pick(prev, (v, k) => !_.has(next, k) || !deepEqual(next[k], prev[k])),
+    _.pick(next, (v, k) => !_.has(prev, k) || !deepEqual(prev[k], next[k])),
   ];
 }
 
