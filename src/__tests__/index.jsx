@@ -9,9 +9,11 @@ Promise.promisifyAll(fs);
 
 import app, { users, authTokens } from './fixtures/app';
 import User from './fixtures/components/User';
+import RootComponentWithContextInside from './fixtures/components/RootComponentWithContextInside';
 import CustomHTTPFlux from './fixtures/fluxes/CustomHTTPFlux';
 import CustomLocalFlux from './fixtures/fluxes/CustomLocalFlux';
 import Nexus from '../';
+import $nexus from '../$nexus';
 
 describe('Nexus', () => {
   let server;
@@ -72,6 +74,15 @@ describe('Nexus', () => {
       });
     })
     .catch((err) => done(err));
+  });
+  it('.prepare with Context in root component', () => {
+    const tree = <RootComponentWithContextInside />;
+    return Nexus.prepare(tree).then((nexus) => {
+      should(nexus).be.an.Object();
+      should(nexus[$nexus]).have.a.property('http').which.is.an.instanceOf(CustomHTTPFlux);
+      const markup = renderToStaticMarkup(tree);
+      should(markup).be.eql('<div>Immanuel Kant,Frierich Nietzsche,Plato</div>');
+    });
   });
   it('.local.dispatch', (done) => {
     const local = new CustomLocalFlux();
