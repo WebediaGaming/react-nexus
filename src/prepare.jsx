@@ -2,23 +2,8 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 import React from 'react';
 
+import isExtensionOf from './utils/isExtensionOf';
 import { $prepare } from './decorators/preparable';
-
-/**
- * Recursively flattens a React.Children hierarchy tree into a `React.Element` array.
- * @param  {React.Children} children Hierarchy roots
- * @param  {Array<React.Element>} [acc=[]] Accumulator in which to push new elements
- * @return {Array<React.Element>} Flattened hierarchy
- */
-function flattenChildren(children, acc = []) {
-  React.Children.forEach(children, (element) => {
-    acc.push(element);
-    if(typeof element === 'object' && element.props && element.props.children) {
-      return flattenChildren(element.props.children);
-    }
-  });
-  return acc;
-}
 
 /**
  * Create a new `React.Component` instance on which {render} can then be called.
@@ -66,7 +51,8 @@ function dispose(inst) {
  * @param {React.Element} element Element whose deps must be satisfied
  * @return {Promise} Promise for the settlement of the elements' dependencies.
  */
-function satisfy({ props, type }) {
+function satisfy(element) {
+  const { type, props } = element;
   if(type[$prepare]) {
     return type[$prepare](props);
   }
@@ -84,32 +70,38 @@ function satisfy({ props, type }) {
  * @return {Promise} Promise for the childContext of the rendered tree
  */
 function prepare(element, context = {}) {
-  if(typeof element !== 'object') {
-    return Promise.resolve({});
-  }
-  const { type, props } = element;
-  if(typeof type === 'string') {
-    return Promise.resolve({});
-  }
-
-  return satisfy(element)
-  .then(() => {
-    const inst = create(type, props, context);
-    const [childrenElements, childContext] = render(inst, context);
-    return Promise.all(_.map(flattenChildren(childrenElements), (descendantElement) =>
-      // There is a caveat here: an elements' context should be its parents', not its owners'.
-      // See https://github.com/facebook/react/issues/2112
-      prepare(descendantElement, childContext)
-    ))
-    .catch((err) => {
-      dispose(err);
-      throw err;
-    })
+  return Promise.try(() => {
+    // Null element
+    if(element === null || typeof element !== 'object') {
+      return [null, context];
+    }
+    const { type, props } = element;
+    // Native element
+    if(typeof type === 'string') {
+      return [props.children, context];
+    }
+    // Function component (new in react 0.14.x)
+    if(!isExtensionOf(type, React.Component)) {
+      return [type(props), context];
+    }
+    // Composite element
+    let inst = null;
+    return satisfy(element)
     .then(() => {
-      dispose(inst);
-      return childContext;
+      inst = create(type, props, context);
+      return render(inst, context);
+    })
+    .catch((err) => {
+      if(inst !== null) {
+        dispose(inst);
+      }
+      throw err;
     });
-  });
+  })
+  .then(([children, childContext]) =>
+    Promise.all(_.values(React.Children.map(children, (child) => prepare(child, childContext))))
+    .then(() => childContext)
+  );
 }
 
 export default prepare;

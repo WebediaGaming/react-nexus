@@ -2,11 +2,17 @@ import babel from 'gulp-babel';
 import eslint from 'gulp-eslint';
 import gulp from 'gulp';
 import mocha from 'gulp-mocha';
+import Promise from 'bluebird';
 import plumber from 'gulp-plumber';
 import sourcemaps from 'gulp-sourcemaps';
 import rimraf from 'rimraf';
 
 import babelConfig from './babelConfig';
+
+const __DEV__ = process.env.NODE_ENV;
+if(__DEV__) {
+  Promise.longStackTraces();
+}
 
 gulp.task('clean', (done) =>
   rimraf('./dist', done)
