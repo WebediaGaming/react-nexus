@@ -1,5 +1,5 @@
 import React from 'react';
-import T from 'typecheck-decorator';
+import { T, propType, schemas } from '../types';
 
 import { inject, pure, isPending, lastErrorOf, lastValueOf, LocalFlux, HTTPFlux } from '../../../';
 
@@ -43,19 +43,6 @@ function FollowButton({ following, onClick }) {
   return <p>{following.value().toString()}</p>;
 }
 
-function propType(schema) {
-  return T.toPropType(T.Array(T.shape([
-    T.option(T.oneOf(T.exactly(null), T.Error())), // err
-    T.option(schema), // res
-  ])));
-}
-
-const userSchema = T.shape({
-  userId: T.String(),
-  userName: T.String(),
-  profilePicture: T.String(),
-});
-
 @inject(({ local }) => ({
   authToken: local.get('/authToken'),
   fontSize: local.get('/fontSize'),
@@ -76,10 +63,10 @@ export default class User extends React.Component {
     fontSize: propType(T.oneOf(T.String(), T.Number())),
     http: React.PropTypes.instanceOf(HTTPFlux),
     local: React.PropTypes.instanceOf(LocalFlux),
-    me: propType(userSchema),
-    user: propType(userSchema),
+    me: propType(schemas.user),
+    user: propType(schemas.user),
     userId: React.PropTypes.string.isRequired,
-    users: propType(T.Array({ type: userSchema })),
+    users: propType(T.Array({ type: schemas.user })),
   };
 
   constructor(props, context) {
