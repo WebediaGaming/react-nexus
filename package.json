@@ -1,6 +1,6 @@
 {
   "name": "react-nexus",
-  "version": "4.0.2-dev",
+  "version": "4.0.3-dev",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
