@@ -13,7 +13,7 @@ function Users({ users }) {
   if(err) {
     return <p>{err.toString()}</p>;
   }
-  return <p>Total users: {val.length}</p>;
+  return <p>Total users: {val.items.length}</p>;
 }
 
 function UserProfile({ user, following, followUser }) {
@@ -66,7 +66,7 @@ export default class User extends React.Component {
     me: propType(schemas.user),
     user: propType(schemas.user),
     userId: React.PropTypes.string.isRequired,
-    users: propType(T.Array({ type: schemas.user })),
+    users: propType(T.shape({ items: T.Array({ type: schemas.user }) })),
   };
 
   constructor(props, context) {

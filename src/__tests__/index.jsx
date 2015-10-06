@@ -1,24 +1,28 @@
-import _ from 'lodash';
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 const { before, after, describe, it } = global;
-import should from 'should/as-function';
+import _ from 'lodash';
+import { renderToStaticMarkup } from 'react-dom/server';
 import fs from 'fs';
+import jwt from 'jsonwebtoken';
 import Promise from 'bluebird';
+import React from 'react';
+import should from 'should/as-function';
+
 Promise.promisifyAll(fs);
 
 import app, { users, authTokens } from './fixtures/app';
-import User from './fixtures/components/User';
 import CustomHTTPFlux from './fixtures/fluxes/CustomHTTPFlux';
 import CustomLocalFlux from './fixtures/fluxes/CustomLocalFlux';
 import Nexus from '../';
+import secret from './fixtures/secret';
+import User from './fixtures/components/User';
 
 describe('Nexus', () => {
   let server;
   before(() => server = app.listen(8888));
   it('.prepare', (done) => {
     const authToken = 'E47Exd7RdDds';
-    const http = new CustomHTTPFlux('http://localhost:8888');
+    const xDebugToken = jwt.sign(Date.now(), secret);
+    const http = new CustomHTTPFlux('http://localhost:8888', { additionalHeaders: { 'X-Debug-Token': xDebugToken } });
     const local = new CustomLocalFlux();
     local.set('/authToken', authToken);
     local.set('/fontSize', 12);
@@ -48,22 +52,24 @@ describe('Nexus', () => {
           should(versions).be.an.Array().which.has.length(1);
           const [[err, val, date]] = versions;
           should(Date.now() - date).be.within(0, 100);
+          should(err || val).have.property('_debug').which.eql({ xDebugToken });
           return fn(err, val, date);
         }
         checkFetched('/users', {}, (err, val) => {
           should(err).be.exactly(null);
-          should(val).be.eql(users);
+          should(val).have.property('items');
+          should(val.items).be.eql(users);
         });
         checkFetched('/me', { query: {
           authToken: _.find(authTokens, ({ userId }) =>
             userId === _.find(users, ({ userName }) => userName === 'Frierich Nietzsche').userId).authToken,
         } }, (err, val) => {
           should(err).be.exactly(null);
-          should(val).be.eql(_.find(users, ({ userName }) => userName === 'Frierich Nietzsche'));
+          should(_.omit(val, '_debug')).be.eql(_.find(users, ({ userName }) => userName === 'Frierich Nietzsche'));
         });
         checkFetched('/error', {}, (err, val) => {
-          should(err).be.a.String().containEql('Not Found');
           should(val).be.exactly(null);
+          should(_.omit(err, '_debug')).be.eql({ err: 'Unknown route' });
         });
         should(Nexus.lastValueOf(renexus.local.versions('/authToken'))).be.exactly(authToken);
         const html = renderToStaticMarkup(tree);

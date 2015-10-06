@@ -1,7 +1,7 @@
 import T from 'typecheck-decorator';
 
 export const version = T.shape([
-  T.nullable(T.oneOf(T.instanceOf(Error), T.String())),
+  T.nullable(T.Object()),
   T.any(),
   T.option(T.Number()),
 ]);

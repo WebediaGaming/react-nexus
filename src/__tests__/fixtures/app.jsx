@@ -1,5 +1,8 @@
 import _ from 'lodash';
 import express from 'express';
+import jwt from 'jsonwebtoken';
+
+import secret from './secret';
 
 export const users = [
   {
@@ -40,24 +43,51 @@ function getUserFromToken(authToken) {
 function requireValidToken(req, res, next) {
   const authToken = getAuthToken(req);
   if(!authToken) {
-    return res.status(401).send('Requires valid authToken');
+    return res.status(401).send({ err: 'Requires valid authToken' });
   }
   const user = getUserFromToken(authToken);
   if(!user) {
-    return res.status(500).send('No user found with given token');
+    return res.status(500).send({ err: 'No user found with given token' });
   }
   req.user = user;
   next();
 }
 
+function debug(req, res, next) {
+  const token = req.get('X-Debug-Token');
+  if(!token) {
+    return next();
+  }
+  return jwt.verify(token, secret, (err) => {
+    if(err) {
+      return res.status(401).send({ err: 'Invalid X-Debug-Token' });
+    }
+    const originalSend = res.send;
+    res.send = function debugSend(obj) {
+      if(!_.isObject(obj)) {
+        return originalSend.call(this, obj);
+      }
+      return originalSend.call(this, Object.assign({}, obj, {
+        _debug: { xDebugToken: token },
+      }));
+    };
+    next();
+  });
+}
+
+function notFound(req, res) {
+  res.status(404).send({ err: 'Unknown route' });
+}
+
 export default express()
+  .use(debug)
   .get('/users', (req, res) =>
-    res.send(users)
+    res.send({ items: users })
   )
   .get('/users/:userId', (req, res) => {
     const user = _.find(users, ({ userId }) => userId === req.params.userId);
     if(!users) {
-      return res.status(404).send('No such user');
+      return res.status(404).send({ err: 'No such user' });
     }
     return res.send(user);
   })
@@ -67,11 +97,12 @@ export default express()
   .post('/users/:userId/follow', requireValidToken, (req, res) => {
     const userToFollow = _.find(users, ({ userId }) => userId === req.params.userId);
     if(!userToFollow) {
-      return res.status(404).send('No such user');
+      return res.status(404).send({ err: 'No such user' });
     }
     const { follows } = req.user;
     if(!_.find(follows, (userId) => userId === req.params.userId)) {
       follows.push(req.params.userId);
     }
     return res.send({ follows });
-  });
+  })
+  .use(notFound);

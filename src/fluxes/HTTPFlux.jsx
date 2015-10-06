@@ -11,13 +11,17 @@ const __DEV__ = process.env.NODE_ENV === 'development';
 
 const optNumber = T.option(T.Number());
 
+const optObjectString = T.option(T.Object({ type: String }));
+
 const optionsType = T.shape({
   maxRequestDuration: optNumber,
   maxAgents: optNumber,
+  additionalHeaders: optObjectString,
 });
 const defaultOptions = {
   maxRequestDuration: 30000,
   maxAgents: 1000,
+  additionalHeaders: {},
 };
 
 const paramsType = T.shape({
@@ -119,6 +123,7 @@ class HTTPFlux extends Flux {
     let req;
     return new Promise((resolve, reject) => {
       req = superagent[method](url.resolve(this.baseUrl, path))
+        .set(this.options.additionalHeaders)
         .accept('json')
         .timeout(this.options.maxRequestDuration);
       if(opts.query) {
@@ -127,12 +132,7 @@ class HTTPFlux extends Flux {
       if(opts.body) {
         req = req.send(opts.body);
       }
-      req.end((err, res) => {
-        if(err) {
-          return reject(err);
-        }
-        return resolve(res.body);
-      });
+      req.end((err, res) => (err ? reject : resolve)(res.body));
     })
     .cancellable()
     .catch(Promise.CancellationError, (err) => {
@@ -146,7 +146,7 @@ class HTTPFlux extends Flux {
   _getAndPushVersion(key, path, query) {
     return this.request(path, 'get', { query })
       .then((val) => [null, val])
-      .catch((err) => [err.toString(), null])
+      .catch((err) => [err, null])
       .then(([err, val]) => this.pushVersion(key, [err, val]));
   }
 
