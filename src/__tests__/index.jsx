@@ -26,12 +26,12 @@ describe('Nexus', () => {
     const local = new CustomLocalFlux();
     local.set('/authToken', authToken);
     local.set('/fontSize', 12);
-    const context = { http, local };
-    const tree = <Nexus.Context {...context}>
+    const nexus = { http, local };
+    const tree = <Nexus.Context {...nexus}>
       <User userId='CategoricalDude' />
     </Nexus.Context>;
     Nexus.prepare(tree)
-    .then((nexus) => {
+    .then(() => {
       return fs.readFileAsync(`${__dirname}/fixtures/expected/Users.html`)
       .then((rawHtml) => rawHtml.toString('utf-8').trim())
       .then((expectedHtml) => {
