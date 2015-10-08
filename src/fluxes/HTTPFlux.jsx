@@ -72,7 +72,13 @@ class HTTPFlux extends Flux {
     this.options = _.defaults({}, options, defaultOptions);
     this.baseUrl = baseUrl;
     this.data = data;
-    this.promises = _.mapValues(this.data, (version) => Promise.resolve(version));
+    this.promises = _.mapValues(this.data, (versions) => {
+      const lastVersion = _.last(versions);
+      if(!lastVersion) {
+        return null;
+      }
+      return Promise.resolve(lastVersion);
+    });
     this.observers = {};
     this.refreshers = {};
   }
@@ -87,14 +93,14 @@ class HTTPFlux extends Flux {
   }
 
   @devTakes(T.String(), versionType)
-  @devReturns(T.instanceOf(HTTPFlux))
+  @devReturns(versionType)
   pushVersion(key, [err, val]) {
     const version = [err, val, Date.now()];
     this.data[key] = (this.data[key] || []).concat([version]);
     if(_.has(this.observers, key)) {
       _.each(this.observers[key], (fn) => fn(version));
     }
-    return this;
+    return [err, val, Date.now()];
   }
 
   @devTakes(T.String(), T.Object())
@@ -155,7 +161,7 @@ class HTTPFlux extends Flux {
   populate(params) {
     const key = this.constructor.keyFor(params);
     const { path, query } = params;
-    if(!_.has(this.promises, key)) {
+    if(!_.has(this.promises, key) || this.promises[key] === null) {
       this.promises[key] = this._getAndPushVersion(key, path, query);
     }
     return this.promises[key];
