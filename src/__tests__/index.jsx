@@ -1,6 +1,7 @@
 const { before, after, describe, it } = global;
 import _ from 'lodash';
-import { renderToStaticMarkup } from 'react-dom/server';
+import ReactDOMServer from 'react-dom/server';
+const { renderToStaticMarkup } = ReactDOMServer;
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import Promise from 'bluebird';
@@ -28,7 +29,7 @@ describe('Nexus', () => {
     local.set('/fontSize', 12);
     const nexus = { http, local };
     const tree = <Nexus.Context {...nexus}>
-      <User userId='CategoricalDude' />
+      <User userId={'CategoricalDude'} />
     </Nexus.Context>;
     Nexus.prepare(tree)
     .then(() => {
@@ -51,7 +52,7 @@ describe('Nexus', () => {
           const versions = fetched(path, params);
           should(versions).be.an.Array().which.has.length(1);
           const [[err, val, date]] = versions;
-          should(Date.now() - date).be.within(0, 100);
+          should(Date.now() - date).be.within(0, 1000);
           should(err || val).have.property('_debug').which.eql({ xDebugToken });
           return fn(err, val, date);
         }

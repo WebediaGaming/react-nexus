@@ -1,3 +1,6 @@
-require('babel/register')(require('./babelConfig'));
-require('source-map-support').install();
-require('./gulpfile.jsx');
+require('source-map-support/register');
+require('babel-register')({
+  ignore: ['node_modules', 'dist'],
+  presets: ['./config/babel/node-dev'],
+});
+require('./config/gulp');

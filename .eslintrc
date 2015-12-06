@@ -217,7 +217,7 @@
     "babel/object-curly-spacing": [1, "always"],
 
     /* React */
-    "react/display-name": 1,
+    "react/display-name": [1, { "acceptTranspilerName": true }],
     "react/jsx-boolean-value": 1,
     "react/jsx-no-undef": 1,
     "react/jsx-sort-props": 0,

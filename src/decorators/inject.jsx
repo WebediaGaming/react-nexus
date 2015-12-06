@@ -1,16 +1,11 @@
 import React from 'react';
-import should from 'should/as-function';
-const __DEV__ = process.env.NODE_ENV === 'development';
 
 import $nexus from '../$nexus';
 import Injector from '../components/Injector';
 import pureShouldComponentUpdate from '../utils/pureShouldComponentUpdate';
 import validateNexus from '../utils/validateNexus';
 
-export default function inject(getInjected, customShouldComponentUpdate = pureShouldComponentUpdate) {
-  if(__DEV__) {
-    should(getInjected).be.a.Function();
-  }
+function inject(getInjected, customShouldComponentUpdate = pureShouldComponentUpdate) {
   return function $inject(Component) {
     return class extends React.Component {
       static displayName = `@Nexus.inject(${Component.displayName})`;
@@ -34,3 +29,5 @@ export default function inject(getInjected, customShouldComponentUpdate = pureSh
     };
   };
 }
+
+export default inject;

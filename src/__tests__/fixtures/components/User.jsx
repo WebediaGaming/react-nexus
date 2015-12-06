@@ -1,7 +1,7 @@
 import React from 'react';
-import { T, propType, schemas } from '../types';
 
-import { inject, pure, isPending, lastErrorOf, lastValueOf, LocalFlux, HTTPFlux } from '../../../';
+import Nexus from '../../..';
+const { inject, pure, isPending, lastErrorOf, lastValueOf, LocalFlux, HTTPFlux } = Nexus;
 
 // Helper components
 
@@ -43,6 +43,13 @@ function FollowButton({ following, onClick }) {
   return <p>{following.value().toString()}</p>;
 }
 
+const userPropType = React.PropTypes.shape({
+  userId: React.PropTypes.string,
+  userName: React.PropTypes.string,
+  profilePicture: React.PropTypes.string,
+  follows: React.PropTypes.arrayOf(React.PropTypes.number),
+});
+
 @inject(({ local }) => ({
   authToken: local.get('/authToken'),
   fontSize: local.get('/fontSize'),
@@ -59,14 +66,19 @@ function FollowButton({ following, onClick }) {
 export default class User extends React.Component {
   static displayName = 'User';
   static propTypes = {
-    authToken: propType(T.String()),
-    fontSize: propType(T.oneOf(T.String(), T.Number())),
+    authToken: React.PropTypes.string,
+    fontSize: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.number,
+    ]),
     http: React.PropTypes.instanceOf(HTTPFlux),
     local: React.PropTypes.instanceOf(LocalFlux),
-    me: propType(schemas.user),
-    user: propType(schemas.user),
+    me: userPropType,
+    user: userPropType,
     userId: React.PropTypes.string.isRequired,
-    users: propType(T.shape({ items: T.Array({ type: schemas.user }) })),
+    users: React.PropTypes.shape({
+      items: React.PropTypes.arrayOf(userPropType),
+    }),
   };
 
   constructor(props, context) {

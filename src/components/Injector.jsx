@@ -50,6 +50,23 @@ class Injector extends React.Component {
     _.each(bindings, (binding, key) => this.subscribe(binding, key));
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { bindings: prevBindings } = destructureProps(this.props);
+    const { bindings: nextBindings } = destructureProps(nextProps);
+    const [removed, added] = diff(prevBindings, nextBindings);
+    _.each(removed, (binding, key) => this.unsubscribe(key));
+    _.each(added, (binding, key) => this.subscribe(binding, key));
+  }
+
+  shouldComponentUpdate(...args) {
+    return this.props.shouldComponentUpdate.apply(this, ...args);
+  }
+
+  componentWillUnmount() {
+    const { bindings } = destructureProps(this.props);
+    _.each(Object.keys(bindings), (key) => this.unsubscribe(key));
+  }
+
   refreshState(binding, key) {
     this.setState({
       [key]: binding.versions(),
@@ -70,23 +87,6 @@ class Injector extends React.Component {
     this.unsubscribe(key);
     this.refreshState(binding, key);
     this.unobserve[key] = binding.observe(() => this.refreshState(binding, key));
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { bindings: prevBindings } = destructureProps(this.props);
-    const { bindings: nextBindings } = destructureProps(nextProps);
-    const [removed, added] = diff(prevBindings, nextBindings);
-    _.each(removed, (binding, key) => this.unsubscribe(key));
-    _.each(added, (binding, key) => this.subscribe(binding, key));
-  }
-
-  componentWillUnmount() {
-    const { bindings } = destructureProps(this.props);
-    _.each(Object.keys(bindings), (key) => this.unsubscribe(key));
-  }
-
-  shouldComponentUpdate(...args) {
-    return this.props.shouldComponentUpdate.apply(this, ...args);
   }
 
   render() {

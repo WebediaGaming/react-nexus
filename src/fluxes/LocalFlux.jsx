@@ -1,51 +1,32 @@
 import _ from 'lodash';
-import T, { takes as devTakes, returns as devReturns } from 'typecheck-decorator';
-const __DEV__ = process.env.NODE_ENV === 'development';
 
 import Flux from './Flux';
-import { version as versionType, versions as versionsType } from '../utils/types';
-
-const paramsType = T.String();
 
 class LocalFlux extends Flux {
   static displayName = 'LocalFlux';
 
   static Binding = class LocalBinding extends Flux.Binding {};
 
-  @devTakes(T.shape({
-    data: T.Object({ type: versionsType }),
-  }))
-  @devReturns(T.instanceOf(LocalFlux))
   static unserialize({ data }) {
     return new this(data);
   }
 
-  @devTakes(paramsType)
-  @devReturns(T.String())
   static keyFor(params) {
     return params;
   }
 
   constructor(data = {}) {
     super();
-    if(__DEV__) {
-      T.Object({ type: versionsType })(data);
-    }
     this.data = data;
     this.observers = {};
   }
 
-  @devReturns(T.shape({
-    data: T.Object({ type: versionsType }),
-  }))
   serialize() {
     return {
       data: this.data,
     };
   }
 
-  @devTakes(paramsType)
-  @devReturns(versionsType)
   versions(params) {
     const key = this.constructor.keyFor(params);
     if(!_.has(this.data, key)) {
@@ -54,8 +35,6 @@ class LocalFlux extends Flux {
     return this.data[key];
   }
 
-  @devTakes(T.String(), versionType)
-  @devReturns(T.instanceOf(LocalFlux))
   pushVersion(key, [err, val]) {
     const version = [err, val, Date.now()];
     this.data[key] = (this.data[key] || []).concat([version]);
@@ -65,23 +44,14 @@ class LocalFlux extends Flux {
     return this;
   }
 
-  @devTakes(paramsType)
-  @devReturns(T.Promise())
   populate() {
     return Promise.resolve();
   }
 
-  @devTakes(T.String())
-  @devReturns(T.shape({
-    flux: T.instanceOf(LocalFlux),
-    params: paramsType,
-  }))
   get(path) {
     return new LocalFlux.Binding(this, path);
   }
 
-  @devTakes(paramsType, T.Function())
-  @devReturns(T.Function())
   observe(params, fn) {
     const key = this.constructor.keyFor(params);
     if(!_.has(this.observers, key)) {
@@ -98,7 +68,6 @@ class LocalFlux extends Flux {
     };
   }
 
-  @devTakes(paramsType, T.any())
   set(params, val) {
     return this.pushVersion(params, [null, val]);
   }

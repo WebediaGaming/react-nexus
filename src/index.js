@@ -1,3 +1,12 @@
+import 'babel-polyfill';
+import Promise from 'bluebird';
+const __DEV__ = (process.env.NODE_ENV === 'development');
+Promise.config({
+  warnings: __DEV__,
+  longStackTraces: __DEV__,
+  cancellation: true,
+});
+
 import Context from './components/Context';
 import Flux from './fluxes/Flux';
 import fromPayload from './utils/fromPayload';
@@ -12,7 +21,6 @@ import preparable from './decorators/preparable';
 import prepare from './prepare';
 import pure from './decorators/pure';
 import toPayload from './utils/toPayload';
-import types from './utils/types';
 
 export default {
   Context,
@@ -29,5 +37,4 @@ export default {
   prepare,
   pure,
   toPayload,
-  types,
 };

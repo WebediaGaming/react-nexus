@@ -3,7 +3,8 @@ import Promise from 'bluebird';
 import React from 'react';
 
 import isExtensionOf from './utils/isExtensionOf';
-import { $prepare } from './decorators/preparable';
+import preparable from './decorators/preparable';
+const { $prepare } = preparable;
 
 /**
  * Create a new `React.Component` instance on which {render} can then be called.

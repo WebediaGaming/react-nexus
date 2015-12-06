@@ -25,11 +25,6 @@ class Context extends React.Component {
     }
   }
 
-  validateProps(props) {
-    const { children, ...nexus } = props;
-    _.each(nexus, (flux) => should(flux).be.an.instanceOf(Flux));
-  }
-
   getChildContext() {
     const { props, context } = this;
     const { children, ...nexus } = props;
@@ -44,6 +39,11 @@ class Context extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return !deepEqual(this.props, nextProps);
+  }
+
+  validateProps(props) {
+    const { children, ...nexus } = props;
+    _.each(nexus, (flux) => should(flux).be.an.instanceOf(Flux));
   }
 
   render() {
