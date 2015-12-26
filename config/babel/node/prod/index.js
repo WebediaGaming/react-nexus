@@ -52,5 +52,4 @@ module.exports = {
       'method': 'coroutine',
     }],
   ],
-  sourceMaps: 'both',
 };

@@ -1,7 +1,7 @@
 {
-  "name": "__LIB_NAME__",
-  "version": "0.0.0",
-  "description": "__DESCRIPTION__",
+  "name": "react-nexus",
+  "version": "4.0.0-dev2",
+  "description": "Real world apps with React",
   "main": "dist/node/prod/lib/index.js",
   "browser": "dist/browser/lib/app/index.js",
   "scripts": {
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/__AUTHOR__/__LIB_NAME__.git"
+    "url": "git+https://github.com/elierotenberg/react-nexus.git"
   },
-  "author": "__AUTHOR__",
-  "license": "__LICENSE__",
+  "author": "Elie Rotenberg <elie@rotenberg.io>",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/__AUTHOR__/__LIB_NAME__/issues"
+    "url": "https://github.com/elierotenberg/react-nexus/issues"
   },
-  "homepage": "https://github.com/__AUTHOR__/__LIB_NAME__#readme",
-  "private": true,
+  "homepage": "https://github.com/elierotenberg/react-nexus#readme",
+  "private": false,
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta6",
     "babel-plugin-react-display-name": "^2.0.0",
@@ -83,9 +83,12 @@
     "gulp-util": "^3.0.7",
     "json-loader": "^0.5.4",
     "mocha": "^2.3.4",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "rimraf": "^2.5.0",
     "run-sequence": "^1.1.5",
     "should": "^8.0.2",
+    "sinon": "^1.17.2",
     "source-map-support": "^0.4.0",
     "through2": "^2.0.0"
   },
@@ -93,6 +96,11 @@
     "babel-polyfill": "^6.3.14",
     "babel-runtime": "^6.3.19",
     "bluebird": "^3.1.1",
+    "deep-equal": "^1.0.1",
     "lodash": "^3.10.1"
+  },
+  "peerDependencies": {
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3"
   }
 }

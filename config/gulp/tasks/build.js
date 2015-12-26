@@ -3,6 +3,7 @@ import changed from 'gulp-changed';
 import gulp from 'gulp';
 import path from 'path';
 import plumber from 'gulp-plumber';
+import sourcemaps from 'gulp-sourcemaps';
 
 import babelConfig from '../../babel';
 
@@ -35,8 +36,10 @@ function createBuild(platform, env) {
     .pipe(plumber({
       errorHandler: (err) => console.error(err.stack),
     }))
+    .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(changed(path.join(dist, platform, env, 'lib'), { extension: '.js', hasChanged: changed.compareSha1Digest }))
-    .pipe(babel(Object.assign({}, babelConfig[platform][env], { sourceMaps: 'both', retainLines: true })))
+    .pipe(babel(Object.assign({}, babelConfig[platform][env], { retainLines: true })))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.join(dist, platform, env, 'lib')))
   ;
 }
