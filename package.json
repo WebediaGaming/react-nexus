@@ -100,6 +100,7 @@
     "isomorphic-fetch": "^2.2.0",
     "lodash": "^3.10.1",
     "path-to-regexp": "^1.2.1",
+    "setimmediate": "^1.0.4",
     "should": "^8.0.2"
   },
   "peerDependencies": {
