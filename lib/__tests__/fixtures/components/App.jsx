@@ -7,8 +7,11 @@ import Users from './Users';
 @root(({ createFlux }) => createFlux())
 class App extends React.Component {
   static displayName = 'App';
+
   render() {
-    return <Users />;
+    return <div className='App'>
+      <Users />
+    </div>;
   }
 }
 

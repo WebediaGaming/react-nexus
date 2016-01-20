@@ -8,12 +8,14 @@ const { stores, Store } = Nexus;
 }))
 class User extends React.Component {
   static displayName = 'User';
+
   static propTypes = {
     userState: Store.State.propType(React.PropTypes.shape({
       userId: React.PropTypes.string,
       nickname: React.PropTypes.string,
     })),
   };
+
   render() {
     const { userState } = this.props;
     if(userState.isPending()) {
@@ -26,7 +28,7 @@ class User extends React.Component {
         {'Error:'}{userState.reason}
       </div>;
     }
-    return <div>
+    return <div className='User'>
       {userState.value.nickname}
     </div>;
   }
