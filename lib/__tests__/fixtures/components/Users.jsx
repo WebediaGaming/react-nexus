@@ -5,10 +5,9 @@ const { stores, Store } = Nexus;
 
 import User from './User';
 
-@stores(() => ({
+export default stores(() => ({
   usersState: '/users',
-}))
-class Users extends React.Component {
+}))(class Users extends React.Component {
   static displayName = 'Users';
 
   static propTypes = {
@@ -26,6 +25,4 @@ class Users extends React.Component {
       </li>
     )}</ul>;
   }
-}
-
-export default Users;
+});

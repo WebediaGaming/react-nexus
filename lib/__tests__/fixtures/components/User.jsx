@@ -3,10 +3,9 @@ import React from 'react';
 import Nexus from '../../..';
 const { stores, Store } = Nexus;
 
-@stores(({ userId }) => ({
+export default stores(({ userId }) => ({
   userState: `/users/${userId}`,
-}))
-class User extends React.Component {
+}))(class User extends React.Component {
   static displayName = 'User';
 
   static propTypes = {
@@ -32,6 +31,4 @@ class User extends React.Component {
       {userState.value.nickname}
     </div>;
   }
-}
-
-export default User;
+});
