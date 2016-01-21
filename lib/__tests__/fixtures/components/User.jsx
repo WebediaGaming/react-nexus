@@ -18,13 +18,13 @@ export default stores(({ userId }) => ({
   render() {
     const { userState } = this.props;
     if(userState.isPending()) {
-      return <div>
+      return <div className='User pending'>
         {'Loading...'}
       </div>;
     }
     if(userState.isRejected()) {
-      return <div>
-        {'Error:'}{userState.reason}
+      return <div className='User rejected'>
+        {'Error: '}{userState.reason}
       </div>;
     }
     return <div className='User'>
