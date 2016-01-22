@@ -38,7 +38,7 @@ function createBuild(platform, env) {
     }))
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(changed(path.join(dist, platform, env, 'lib'), { extension: '.js', hasChanged: changed.compareSha1Digest }))
-    .pipe(babel(Object.assign({}, babelConfig[platform][env], { retainLines: true })))
+    .pipe(babel(Object.assign({}, babelConfig[platform][env])))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(path.join(dist, platform, env, 'lib')))
   ;
