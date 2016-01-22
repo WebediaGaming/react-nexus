@@ -16,8 +16,15 @@ export default stores(() => ({
 
   render() {
     const { usersState } = this.props;
-    if(!usersState.isResolved()) {
-      return null;
+    if(usersState.isPending()) {
+      return <div className='Users pending'>
+        {'Loading...'}
+      </div>;
+    }
+    if(usersState.isRejected()) {
+      return <div className='Users rejected'>
+        {'Error: '}{usersState.reason}
+      </div>;
     }
     return <ul className='Users'>{Object.keys(usersState.value).map((userId) =>
       <li key={userId}>
