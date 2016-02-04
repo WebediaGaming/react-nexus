@@ -3,7 +3,7 @@
   "version": "4.0.0-dev2",
   "description": "Real world apps with React",
   "main": "dist/node/prod/lib/index.js",
-  "browser": "dist/browser/lib/app/index.js",
+  "browser": "dist/browser/prod/lib/index.js",
   "scripts": {
     "test": "gulp test",
     "iron-test": "iron-node node_modules/gulp/bin/gulp.js test"
