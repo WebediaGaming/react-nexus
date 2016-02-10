@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Nexus from '../../..';
-const { stores, Store } = Nexus;
+import { stores, Store } from '../../..';
 
 import User from './User';
 
