@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Nexus from '../../..';
-const { deps, Store } = Nexus;
+import { deps, Store } from '../../..';
 
 export default deps(({ userId }) => ({
   actions: {
