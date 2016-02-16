@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Nexus from '../../..';
-const { root } = Nexus;
+import { root } from '../../..';
 import Users from './Users';
 
 export default root()(class App extends React.Component {
