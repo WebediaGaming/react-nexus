@@ -18,12 +18,14 @@ export default deps(() => ({
 
   static propTypes = {
     createUser: React.PropTypes.func,
+    optionalStore: Store.State.propType(React.any),
     toggleUsersVisibility: React.PropTypes.func,
-    uiUsersVisibility: Store.State.propType(React.PropTypes.shape(React.PropTypes.boolean)),
-    users: Store.State.propType(React.PropTypes.shape({
-      userId: React.PropTypes.string,
-      nickname: React.PropTypes.string,
-    })),
+    uiUsersVisibility: Store.State.propType(React.PropTypes.bool.isRequired).isRequired,
+    users: Store.State.propType(React.PropTypes.arrayOf(React.PropTypes.shape({
+      userId: React.PropTypes.number.isRequired,
+      userName: React.PropTypes.string.isRequired,
+      rank: React.PropTypes.string.isRequired,
+    }))).isRequired,
   };
 
   constructor(props) {
