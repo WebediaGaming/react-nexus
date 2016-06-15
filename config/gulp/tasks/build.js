@@ -4,6 +4,7 @@ import gulp from 'gulp';
 import path from 'path';
 import plumber from 'gulp-plumber';
 import sourcemaps from 'gulp-sourcemaps';
+import gutil from 'gulp-util';
 
 import babelConfig from '../../babel';
 
@@ -36,10 +37,10 @@ function createBuild(platform, env) {
     .pipe(plumber({
       errorHandler: (err) => console.error(err.stack),
     }))
-    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(env === 'prod' ? gutil.noop() : sourcemaps.init({ loadMaps: true }))
     .pipe(changed(path.join(dist, platform, env, 'lib'), { extension: '.js', hasChanged: changed.compareSha1Digest }))
     .pipe(babel(Object.assign({}, babelConfig[platform][env])))
-    .pipe(sourcemaps.write('.'))
+    .pipe(env === 'prod' ? gutil.noop() : sourcemaps.write('.'))
     .pipe(gulp.dest(path.join(dist, platform, env, 'lib')))
   ;
 }
