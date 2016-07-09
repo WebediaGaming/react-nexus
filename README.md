@@ -55,7 +55,7 @@ root()(class App extends React.Component {
 });
 ```
 
-## 3. Add Flux' dependancies on components
+## 3. Add Flux' dependencies on components
 By decorating each component with `deps()` method:​
 ```js
 export default deps(({ userId }) => ({
