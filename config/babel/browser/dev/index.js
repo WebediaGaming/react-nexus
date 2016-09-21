@@ -48,5 +48,6 @@ module.exports = {
     'babel-plugin-transform-es2015-typeof-symbol',
     'babel-plugin-transform-es2015-unicode-regex',
     'babel-plugin-transform-es2015-modules-commonjs',
+    'babel-plugin-lodash',
   ],
 };
