@@ -27,7 +27,7 @@ function createTest(platform, env) {
   ];
   return (cb) => {
     gulp.src(tests, { read: false })
-      .pipe(mocha())
+      .pipe(mocha({ require: [require.resolve('../../jsdom/setup')] }))
       .pipe(sync(cb));
   };
 }
