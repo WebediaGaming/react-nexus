@@ -1,6 +1,6 @@
 {
   "name": "react-nexus",
-  "version": "4.0.0-beta.8",
+  "version": "4.0.0",
   "description": "Real world apps with React",
   "main": "dist/node/prod/lib/index.js",
   "browser": "dist/browser/prod/lib/index.js",
