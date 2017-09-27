@@ -124,8 +124,7 @@
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.0.0",
     "path-to-regexp": "^1.2.1",
-    "setimmediate": "^1.0.4",
-    "should": "^8.1.1"
+    "setimmediate": "^1.0.4"
   },
   "peerDependencies": {
     "react": "^15.3.0",
