@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import { deps, Store } from '../../../';
@@ -17,14 +18,14 @@ export default deps(() => ({
   static displayName = 'Users';
 
   static propTypes = {
-    createUser: React.PropTypes.func,
+    createUser: PropTypes.func,
     optionalStore: Store.State.propType(React.any),
-    toggleUsersVisibility: React.PropTypes.func,
-    uiUsersVisibility: Store.State.propType(React.PropTypes.bool.isRequired).isRequired,
-    users: Store.State.propType(React.PropTypes.arrayOf(React.PropTypes.shape({
-      userId: React.PropTypes.number.isRequired,
-      userName: React.PropTypes.string.isRequired,
-      rank: React.PropTypes.string.isRequired,
+    toggleUsersVisibility: PropTypes.func,
+    uiUsersVisibility: Store.State.propType(PropTypes.bool.isRequired).isRequired,
+    users: Store.State.propType(PropTypes.arrayOf(PropTypes.shape({
+      userId: PropTypes.number.isRequired,
+      userName: PropTypes.string.isRequired,
+      rank: PropTypes.string.isRequired,
     }))).isRequired,
   };
 

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import { deps } from '../../../';
@@ -11,11 +12,11 @@ export default deps(({ userId }) => ({
   static displayName = 'User';
 
   static propTypes = {
-    deleteUser: React.PropTypes.func,
-    rank: React.PropTypes.string,
-    updateUser: React.PropTypes.func,
-    userId: React.PropTypes.number,
-    userName: React.PropTypes.string,
+    deleteUser: PropTypes.func,
+    rank: PropTypes.string,
+    updateUser: PropTypes.func,
+    userId: PropTypes.number,
+    userName: PropTypes.string,
   };
 
   constructor(props) {
