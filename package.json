@@ -21,7 +21,7 @@
   "private": false,
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta6",
-    "babel-loader": "^6.2.1",
+    "babel-loader": "^9.1.0",
     "babel-plugin-lodash": "^3.2.8",
     "babel-plugin-react-display-name": "^2.0.0",
     "babel-plugin-syntax-async-functions": "^6.3.13",
@@ -112,8 +112,8 @@
     "through2": "^2.0.0",
     "url": "^0.11.0",
     "webdriverio": "^4.0.3",
-    "webpack": "^1.12.11",
-    "webpack-stream": "^3.0.0"
+    "webpack": "^5.74.0",
+    "webpack-stream": "^7.0.0"
   },
   "dependencies": {
     "babel-polyfill": "^6.3.14",
